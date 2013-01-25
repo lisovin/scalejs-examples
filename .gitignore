@@ -1,3 +1,7 @@
 
 /Highstock/Highstock/obj
 /Highstock/packages
+/KendoGrid/packages
+/KendoGrid/KendoGrid/build
+/KendoGrid/KendoGrid/obj
+/KendoGrid/KendoGrid/KendoGrid.csproj.user
