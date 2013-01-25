@@ -1,0 +1,7 @@
+﻿({
+	mainConfigFile: '../bootstrapper.js',
+	baseUrl: '..',
+	name: 'bootstrapper',
+	optimize: 'none',
+	out: '../build/KendoGrid.js'
+})

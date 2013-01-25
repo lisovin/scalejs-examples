@@ -1,0 +1,11 @@
+﻿body
+{
+    overflow: hidden;
+    height: 100%;
+}
+
+.main
+{
+    width: 800px;
+    height: 600px;
+}
