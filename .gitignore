@@ -5,3 +5,10 @@
 /KendoGrid/KendoGrid/build
 /KendoGrid/KendoGrid/obj
 /KendoGrid/KendoGrid/KendoGrid.csproj.user
+/ModernUI/packages
+/ModernUI/ModernUI.v11.suo
+/ModernUI/TestResults
+/ModernUI/ModernUI/build
+/ModernUI/ModernUI/obj
+/ModernUI/ModernUI/ModernUI.csproj.user
+/ModernUI/.nuget/nuget.exe

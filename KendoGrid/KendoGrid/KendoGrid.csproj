@@ -98,10 +98,6 @@
     <Content Include="Scripts\linq.min.js" />
     <Content Include="Scripts\scalejs-0.1.13.js" />
     <Content Include="Scripts\scalejs-0.1.13.min.js" />
-    <None Include="css\kendo.common.less" />
-    <None Include="css\kendo.default.less" />
-    <None Include="Scripts\jquery-1.9.0.min.map" />
-    <None Include="Scripts\scalejs.grid-kendoui-0.1.0.js_" />
     <Content Include="Scripts\scalejs.grid-kendoui-0.1.0.js" />
     <Content Include="Scripts\scalejs.grid-kendoui-0.1.0.min.js" />
     <Content Include="Scripts\scalejs.linq-0.1.1.js" />
@@ -111,7 +107,10 @@
     <Content Include="Scripts\text.js" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="css\kendo.common.less" />
+    <None Include="css\kendo.default.less" />
     <None Include="packages.config" />
+    <None Include="Scripts\jquery-1.9.0.min.map" />
   </ItemGroup>
   <PropertyGroup>
     <ScalejsProjectType>Application</ScalejsProjectType>
