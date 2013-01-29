@@ -3,11 +3,13 @@ define([
     'scalejs!module',
     './viewmodels/mainViewModel',
     'text!./views/main.html',
+    'text!./views/page1.html',
     './bindings/mainBindings.js'
 ], function (
     module,
     mainViewModel,
     mainTemplate,
+    page1Template,
     mainBindings
 ) {
     'use strict';
@@ -20,11 +22,9 @@ define([
 
             createView({
                 dataContext: viewModel,
-                templates: [mainTemplate],
+                templates: [mainTemplate, page1Template],
                 bindings: [mainBindings]
             });
-
-            viewModel.text('Hello World!');
         }
 
         return {

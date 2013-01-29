@@ -18,12 +18,14 @@
     <StartArguments>/site:ModernUI</StartArguments>
   </PropertyGroup>
   <ItemGroup>
+    <Content Include="app\main\viewmodels\mainViewModel.js" />
+    <Content Include="app\main\views\page1.html" />
+    <Content Include="css\theme-dark.css" />
     <Content Include="README.txt" />
     <Content Include="index.html" />
     <Content Include="index.release.html" />
     <Content Include="app\app.js" />
     <Content Include="app\main\bindings\mainBindings.js" />
-    <Content Include="app\main\viewmodels\mainViewModel.js" />
     <Content Include="app\main\views\main.html" />
     <Content Include="app\main\mainModule.js" />
     <Content Include="bootstrapper.js" />
@@ -40,6 +42,9 @@
     <Content Include="Scripts\knockout.mapping-latest.js" />
     <Content Include="Scripts\scalejs-0.1.13.js" />
     <Content Include="Scripts\scalejs-0.1.13.min.js" />
+    <None Include="Scripts\scalejs.modernui-0.1.0.js_" />
+    <Content Include="Scripts\scalejs.modernui-0.1.0.js" />
+    <Content Include="Scripts\scalejs.modernui-0.1.0.min.js" />
     <Content Include="Scripts\scalejs.mvvm-0.1.2.js" />
     <Content Include="Scripts\scalejs.mvvm-0.1.2.min.js" />
     <Content Include="Scripts\text.js" />

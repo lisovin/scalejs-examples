@@ -1,7 +1,7 @@
 
 /// <reference path="../scripts/_references.js" />
 /*global console,define*/
-define('scalejs.modernui/utils',[],function () {
+define('scalejs.modernui/utils',['jQuery'], function ($) {
     
 
     function addCss(name, css) {
@@ -13,10 +13,137 @@ define('scalejs.modernui/utils',[],function () {
 
     return {
         addCss: addCss
-    }
+    };
 });
 
 
+/*global define, setTimeout */
+define('scalejs.modernui/panorama/panoramaPage',[
+    'scalejs!core',
+    'knockout'
+], function (
+    core,
+    ko
+) {
+    /// <param name="ko" value="window.ko"/>
+    
+
+    return function (options) {
+        var observableArray = ko.observableArray,
+            observable = ko.observable,
+            computed = ko.computed,
+            unwrap = ko.utils.unwrapObservable,
+            merge = core.object.merge,
+            has = core.object.has,
+            is = core.type.is,
+            pages = observableArray(),
+            isSelected = observable(false),
+            pagesOrLoader = options.pages,
+            page;
+
+        delete options.pages;
+
+        page = merge({
+            title: '',
+            template: 'panorama_default_template',
+            isSelected: isSelected,
+            pages: pages
+        }, options);
+
+        if (has(pagesOrLoader)) {
+            computed(function () {
+                if (isSelected()) {
+                    // pagesOrLoader can be either a function that returns an array of pages,
+                    // or an (observable) array of pages. Handle accordingly all possible cases
+                    var actualPagesOrLoader  = unwrap(pagesOrLoader);
+                    if (is(actualPagesOrLoader, 'function')) {
+                        actualPagesOrLoader(pages);
+                    } else if (is(actualPagesOrLoader, 'array')) {
+                        pages(actualPagesOrLoader);
+                    } else if (has(actualPagesOrLoader)) {
+                        pages([actualPagesOrLoader]);
+                    } else {
+                        pages(undefined);
+                    }
+                }
+            });
+        }
+
+        return page;
+    };
+});
+
+/// <reference path="../scripts/_references.js" />
+/*global console,define*/
+/*jslint unparam: true*/define('scalejs.modernui/panorama/panorama',[
+    './panoramaPage',
+    'scalejs!core',
+    'knockout'
+], function (
+    panoramaPage,
+    core,
+    ko
+) {
+    /// <param name="ko" value="window.ko"/>
+    
+
+    var merge = core.object.merge,
+        has = core.object.has;
+        //map = core.array.map,
+        //observable = ko.observable,
+        //computed = ko.computed,
+        //isObservable = ko.isObservable,
+        //unwrap = ko.utils.unwrapObservable
+
+    function panorama(options, dataContext, previous) {
+        var backButtonVisible = has(previous),
+            thisPage = panoramaPage(merge(options, {isSelectable: true})),
+            self;
+
+        function goToPage(page) {
+            var newPanorama;
+            if (has(page.pages)) {
+                newPanorama = panorama(page, dataContext, self);
+                dataContext(newPanorama);
+            }
+        }
+
+        function goBack() {
+            if (has(previous)) {
+                dataContext(previous);
+            }
+        }
+        /*
+        computed(function () {
+            var opts = options(),
+                page = selectedPage(),
+                base = page || opts,
+                actualPages = has(base, 'pages') ? unwrap(base.pages) : undefined,
+                pages = has(actualPages) ? map(actualPages, panoramaPage) : [],
+                panorama = merge(base, {
+                });
+
+            return panorama;
+        });*/
+
+        thisPage.isSelected(true);
+
+        self = {
+            title: options.title,
+            goToPage: goToPage,
+            goBack: goBack,
+            backButtonVisible: backButtonVisible,
+            pages: thisPage.pages
+        };
+
+        return self;
+    }
+
+    return panorama;
+});
+/*jslint unparam: false*/
+
+;
 /// <reference path="../scripts/_references.js" />
 /*global console,define*/
 define('scalejs.modernui/panorama/panoramaBindings',[],function () {
@@ -46,11 +173,9 @@ define('scalejs.modernui/panorama/panoramaBindings',[],function () {
             };
         },
         'selectable': function (data) {
-            if (this.isSelectable) {
-                return {
-                    click: this.isSelectable ? data.$parent.selectPage : undefined
-                };
-            }
+            return {
+                click: data.$parent.goToPage
+            };
         },
         'selected-page' : function () {
             return {
@@ -59,8 +184,13 @@ define('scalejs.modernui/panorama/panoramaBindings',[],function () {
         },
         'back-button' : function (data) {
             return {
-                'click': data.$data.deselectPage,
+                'click': data.$data.goBack,
                 'visible': data.$data.backButtonVisible
+            };
+        },
+        'panorama-page-default-content': function () {
+            return {
+                text: this
             };
         }
     };
@@ -68,12 +198,8 @@ define('scalejs.modernui/panorama/panoramaBindings',[],function () {
 });
 
 
-define('text!scalejs.modernui/panorama/panorama.html',[],function () { return '<div id="scalejs_panorama_template">\r\n    <div class="panorama page secondary fixed-header">\r\n        <div class="page-header">\r\n            <div class="page-header-content">\r\n                <h4 class="title" data-class="title"></h4>\r\n                <div class="back-button page-back" data-class="back-button"></div>\r\n            </div>\r\n        </div>\r\n        <div class="page-region">\r\n            <div class="page-region-content tiles">\r\n                <!-- ko class: panorama-pages -->\r\n                <div class="tile-group tile-drag" style="width: auto"> \r\n                    <h3 class="subtitle" data-class="title selectable"></h3>\r\n                    <!-- ko class: panorama-page-content -->\r\n                    <!-- /ko -->\r\n                </div>\r\n                <!-- /ko -->\r\n            </div>\r\n        </div>\r\n    </div> \r\n</div>\r\n';});
-
-define('text!scalejs.modernui/panorama/panorama.css',[],function () { return '.page.panorama .page-header .page-header-content\n{\n    height: 60px;\n    min-height: 60px;\n}\n\n.page.panorama.fixed-header .page-region \n{\n  padding-top: 50px;\n}\n\n.page.panorama.fixed-header .page-region-content\n{\n  padding-top: 0px;\n}\n\n.page.panorama.fixed-header .back-button\n{\n    top: 30px !important;\n}\n\n.panorama .title\n{\n    text-transform:uppercase;\r\n}\n\n.panorama .subtitle\n{\n    text-transform:uppercase;\r\n    font-weight: bold;\r\n}\n';});
-
 /*global define,window,document,clearTimeout,setTimeout*/
-define('scalejs.modernui/panorama/tilesLayout',['jQuery'], function ($) {
+define('scalejs.modernui/panorama/panoramaLayout',['jQuery'], function ($) {
     
 
     var $startMenu,
@@ -194,111 +320,86 @@ define('scalejs.modernui/panorama/tilesLayout',['jQuery'], function ($) {
         subscribeResize();
     }
 
-    function reset(element) {
-        $startMenu = $(element).find('.tiles');
+    function doLayout() {
         setPageWidth();
         tuneUpStartMenu();
+        // To preven flickering panorama binding will render the content 'hidden'.
+        // Once layout is complete everything should be made visible.
+        $startMenu.css('visibility', 'visible');
+    }
+
+    function reset(element) {
+        $startMenu = $(element).find('.tiles');
     }
 
     init();
 
     return {
-        reset: reset
+        reset: reset,
+        doLayout: doLayout
     };
 });
+define('text!scalejs.modernui/panorama/panorama.html',[],function () { return '<div id="scalejs_panorama_template">\r\n    <div class="panorama page secondary fixed-header">\r\n        <div class="page-header">\r\n            <div class="page-header-content">\r\n                <h4 class="title" data-class="title"></h4>\r\n                <div class="back-button page-back" data-class="back-button"></div>\r\n            </div>\r\n        </div>\r\n        <div class="page-region">\r\n            <div class="page-region-content tiles" style="visibility:hidden">\r\n                <!-- ko class: panorama-pages -->\r\n                <div class="tile-group tile-drag" style="width: auto"> \r\n                    <h3 class="subtitle" data-class="title selectable"></h3>\r\n                    <!-- ko class: panorama-page-content -->\r\n                    <!-- /ko -->\r\n                </div>\r\n                <!-- /ko -->\r\n            </div>\r\n        </div>\r\n    </div> \r\n</div>\r\n\r\n<div id="panorama_page_default_template">\r\n    <span data-class="panorama-page-default-content"></span>\r\n</div>\r\n';});
+
+define('text!scalejs.modernui/panorama/panorama.css',[],function () { return '.page.panorama .page-header .page-header-content\n{\n    height: 60px;\n    min-height: 60px;\n}\n\n.page.panorama.fixed-header .page-region \n{\n  padding-top: 50px;\n}\n\n.page.panorama.fixed-header .page-region-content\n{\n  padding-top: 0px;\n}\n\n.page.panorama.fixed-header .back-button\n{\n    top: 30px !important;\n}\n\n.panorama .title\n{\n    text-transform:uppercase;\r\n}\n\n.panorama .subtitle\n{\n    text-transform:uppercase;\r\n    font-weight: bold;\r\n}\n';});
+
 /// <reference path="../scripts/_references.js" />
-/*global console,define*/
-/*jslint unparam: true*/define('scalejs.modernui/panorama/panorama',[
-    'scalejs!core',
-    '../utils',
+/*global console,define,setTimeout*/
+/*jslint unparam: true*/define('scalejs.modernui/panorama/panoramaBindingHandler',[
+    './panorama',
     './panoramaBindings',
+    './panoramaLayout',
     'text!./panorama.html',
     'text!./panorama.css',
+    '../utils',
     'jQuery',
-    'knockout',
-    './tilesLayout'
+    'knockout'
 ], function (
-    core,
-    utils,
+    panorama,
     panoramaBindings,
+    panoramaLayout,
     panoramaTemplate,
     panoramaCss,
+    utils,
     $,
-    ko,
-    tilesLayout
+    ko
 ) {
     /// <param name="ko" value="window.ko"/>
     
 
     var addCss = utils.addCss,
-        merge = core.object.merge,
-        has = core.object.has,
         observable = ko.observable,
         computed = ko.computed,
-        isObservable = ko.isObservable,
-        unwrap = ko.utils.unwrapObservable;
+        unwrap = ko.utils.unwrapObservable,
+        data = observable();
 
     addCss('panorama', panoramaCss);
 
-    function panorama() {
-        var selectedPage = observable(),
-            options = observable(),
-            panoramaData;
-
-        function layoutPanorama(elements) {
-            tilesLayout.reset(elements);
+    // Ensure the layout is recalculated when pages changes
+    computed(function () {
+        var actualData = unwrap(data);
+        if (actualData) {
+            unwrap(actualData.pages);
+            // do layout later (after pages rendered)
+            setTimeout(panoramaLayout.doLayout, 0);
         }
+    });
 
-        function selectPage(page) {
-            selectedPage(page);
-            if (isObservable(page.isSelected)) {
-                page.isSelected(true);
+    function wrapValueAccessor(valueAccessor) {
+        return function () {
+            var options = valueAccessor();
+            // if data is not set yet, then it's the top-most panorama, so create it
+            // next level panoramas will be created by panorama itself when user navigates
+            // around the panorama view
+            if (!data()) {
+                data(panorama(options, data));
             }
-        }
-
-        function deselectPage() {
-            var page = selectedPage();
-            if (has(page) && isObservable(page.isSelected)) {
-                page.isSelected(false);
-            }
-
-            selectedPage(undefined);
-        }
-
-        panoramaData = computed(function () {
-            var opts = options(),
-                page = selectedPage(),
-                base = page || opts,
-                data = merge(base, {
-                    selectedPage: selectedPage,
-                    selectPage: selectPage,
-                    deselectPage: deselectPage,
-                    backButtonVisible: has(page)
-                });
-            // add page.pages to trackable observable so that tiles layout recalculate
-            // when pages observable changes
-            if (has(page)) {
-                unwrap(page.pages);
-            }
-
-            return data;
-        });
-
-        function wrapValueAccessor(valueAccessor) {
-            return function () {
-                var value = valueAccessor();
-                options(value);
-
-                return {
-                    name: 'scalejs_panorama_template',
-                    data: panoramaData,
-                    afterRender: layoutPanorama
-                };
+            return {
+                name: 'scalejs_panorama_template',
+                data: data,
+                afterRender: panoramaLayout.reset
             };
-        }
 
-        return {
-            wrapValueAccessor: wrapValueAccessor
         };
     }
 
@@ -306,10 +407,6 @@ define('scalejs.modernui/panorama/tilesLayout',['jQuery'], function ($) {
         if ($('#scalejs_modernui_page_template').length === 0) {
             $('#scalejs-templates').append(panoramaTemplate);
         }
-
-        var myPanorama = panorama();
-
-        ko.utils.domData.set(element, 'panorama', myPanorama);
 
         return { 'controlsDescendantBindings' : true };
     }
@@ -321,13 +418,9 @@ define('scalejs.modernui/panorama/tilesLayout',['jQuery'], function ($) {
         viewModel,
         bindingContext
     ) {
-        var panorama = ko.utils.domData.get(element, 'panorama');
-
-        tilesLayout.reset(element);
-
         return ko.bindingHandlers.template.update(
             element,
-            panorama.wrapValueAccessor(valueAccessor),
+            wrapValueAccessor(valueAccessor),
             allBindingsAccessor,
             viewModel,
             bindingContext
@@ -351,16 +444,14 @@ define('text!css/modern.css',[],function () { return '/*\n * Metro UI CSS v 0.1.
 /*global define,document*/
 define('scalejs.modernui',[
     'scalejs.modernui/utils',
-    'scalejs.modernui/panorama/panorama',
+    'scalejs.modernui/panorama/panoramaBindingHandler',
     'text!css/modern.css',
-    'jQuery',
     'knockout',
     'knockout.mapping'
 ], function (
     utils,
     panorama,
     modernCss,
-    $,
     ko
 ) {
 	/// <param name="$" value="window.$"/>
