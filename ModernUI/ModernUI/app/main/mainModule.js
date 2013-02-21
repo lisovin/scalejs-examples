@@ -3,33 +3,43 @@ define([
     'scalejs!module',
     './viewmodels/mainViewModel',
     'text!./views/main.html',
-    'text!./views/page1.html',
+    './viewmodels/pageViewModel',
+    'text!./views/page.html',
     './bindings/mainBindings.js'
 ], function (
     module,
     mainViewModel,
     mainTemplate,
-    page1Template,
+    pageViewModel,
+    pageTemplate,
     mainBindings
 ) {
     'use strict';
 
     function create(sandbox) {
-        var createView = sandbox.mvvm.createView;
+        var // imports
+            root = sandbox.mvvm.root,
+            renderable = sandbox.mvvm.renderable,
+            registerBindings = sandbox.mvvm.registerBindings,
+            registerTemplates = sandbox.mvvm.registerTemplates,
+            // vars
+            main = mainViewModel(sandbox),
+            page1 = pageViewModel({title: 'Page 1'}, sandbox),
+            page2 = pageViewModel({title: 'Page 2'}, sandbox);
 
-        function start() {
-            var viewModel = mainViewModel(sandbox);
+        // Register module bindings
+        registerBindings(mainBindings);
 
-            createView({
-                dataContext: viewModel,
-                templates: [mainTemplate, page1Template],
-                bindings: [mainBindings]
-            });
-        }
+        // Register module templates
+        registerTemplates(mainTemplate, pageTemplate);
 
-        return {
-            start: start
-        };
+        // Render viewModel using 'main_template' and show it set root view
+        root(renderable('main_template', main));
+
+        page1.createChildren(3);
+        page2.createChildren(5);
+
+        main.pages([page1, page2]);
     }
 
     return module('main', create);

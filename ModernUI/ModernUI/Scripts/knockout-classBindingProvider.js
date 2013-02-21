@@ -25,6 +25,9 @@
         //fallback to the existing binding provider, if bindings are not found
         this.fallback = options.fallback;
 
+        // log 
+        this.log = options.log
+
         //this object holds the binding classes
         this.bindings = bindings || {};
         
@@ -78,12 +81,37 @@
                     bindingAccessor = this.bindings[classes[i]];
                     if (bindingAccessor) {
                         binding = typeof bindingAccessor == "function" ? bindingAccessor.call(bindingContext.$data, bindingContext, classes) : bindingAccessor;
+                        // make sure binding actually exists
                         ko.utils.extend(result, binding);
                     }
                 }
             }
             else if (this.fallback) {
                 result = existingProvider.getBindings(node,bindingContext);
+            }
+
+            //inspect the returned bindings
+            for (var bindingName in result) {
+                if (result.hasOwnProperty(bindingName) && 
+                    bindingName !== "_ko_property_writers" && 
+                    !ko.bindingHandlers[bindingName]) {
+                    //add a text binding with whatever the missing binding was bound against
+                    if (this.log) {
+                        if (binding) {
+                            this.log('Unknown binding handler "' + bindingName + '" in',
+                                     node,
+                                     'with data-class "' + classes + '" binding defined as',
+                                     binding,
+                                     'Make sure that binding handler\'s name spelled correctly and that it\'s properly registered. ' + 
+                                     'The binding will be ignored.');
+                        } else {
+                            this.log('Unknown binding handler "' + bindingName + '" in',
+                                     node,
+                                     'Make sure that it\'s name spelled correctly and that it\'s properly registered. ' + 
+                                     'The binding will be ignored.');
+                        }
+                    }
+                } 
             }
 
             return result;

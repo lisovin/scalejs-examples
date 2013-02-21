@@ -1,7 +1,6 @@
 ﻿({
-	mainConfigFile: '../bootstrapper.js',
-	baseUrl: '..',
-	name: 'bootstrapper',
+	mainConfigFile: '../config.js',
+	name: 'app/app',
 	optimize: 'none',
 	out: '../build/ModernUI.js'
 })

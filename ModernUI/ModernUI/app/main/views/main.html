@@ -1,54 +1,13 @@
 ﻿<div id="main_template">
-    <div data-class="main-panorama"></div>
+    <!-- ko class: main-panorama -->
+    <!-- /ko -->
 </div>
 
-<div id="main_panorama_page1_template">
-    <div class="tile triple bg-color-red"> 
-        <div class="tile-content">My content 1</div>
-    </div> 
-    <div class="tile"> 
-        <div class="tile-content bg-color-yellow">My content 2</div>
-    </div> 
-    <div class="tile triple double-vertical bg-color-green"> 
-        <div class="tile-content">My content 3</div>
-    </div> 
-    <div class="tile bg-color-blue"> 
-        <div class="tile-content">My content 4</div>
-    </div> 
+<div id="child_tile_template">
+    <!-- ko class: child-tile -->
+    <!-- /ko -->
 </div>
 
-<div id="main_panorama_page2_template">
-    <div class="tile"> 
-        <div class="tile-content">My content 4</div>
-    </div> 
-    <div class="tile double"> 
-        <div class="tile-content">My content 5</div>
-    </div> 
-    <div class="tile"> 
-        <div class="tile-content">My content 6</div>
-    </div> 
-    <div class="tile double-vertical"> 
-        <div class="tile-content">My content 7</div>
-    </div> 
-    <div class="tile"> 
-        <div class="tile-content">My content 8</div>
-    </div> 
+<div id="child_tile_content_template">
+    <h4><span data-bind="text: tileText"></span></h4>
 </div>
-
-<div id="main_panorama_page3_template">
-    <div style="width: 800px; color: white">Lorem ipsum dolor sit amet, no vix posse invidunt maiestatis. Quo ad dolorum detracto delicata, an nemore principes mea. Te ipsum inermis vis, eam gloriatur efficiantur no. Quod malorum suavitate sea te. At idque singulis pri, an quando inimicus mediocrem pri.</div>
-</div>
-
-<div id="main_panorama_page1_page1_template">
-    <h1>This is page 1 of page 1</h1>
-    <div style="width: 800px; color: white">Lorem ipsum dolor sit amet, no vix posse invidunt maiestatis. Quo ad dolorum detracto delicata, an nemore principes mea. Te ipsum inermis vis, eam gloriatur efficiantur no. Quod malorum suavitate sea te. At idque singulis pri, an quando inimicus mediocrem pri.</div>
-</div>
-
-<div id="main_panorama_page1_page2_template">
-    <h1>This is page 2 of page 1</h1>
-</div>
-
-<div id="main_panorama_page2_page1_template">
-    <h2>This is page 1 of page 2</h2>
-</div>
-

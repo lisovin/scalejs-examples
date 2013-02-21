@@ -1,5 +1,5 @@
-﻿/*global define*/
-define([
+﻿/*global require*/
+require([
     'scalejs!application',
     'app/main/mainModule'
 ], function (
@@ -8,7 +8,7 @@ define([
 ) {
     'use strict';
 
-    application.registerModule(main);
+    application.registerModules(main);
 
     application.run();
 });

@@ -10,6 +10,7 @@ This will run IIS Express site at http://localhost:8888
 
 To open debug version of the app go to http://localhost:8888
 To open release version go to http://localhost:8888/index.release.html
+To open tests go to http://localhost:8888/index.test.html
 
 If you see "Hello World!" on the page everything worked as expected ;)
 
