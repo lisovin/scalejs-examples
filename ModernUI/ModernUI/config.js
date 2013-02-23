@@ -12,7 +12,7 @@ var require = {
         "scalejs":  "Scripts/scalejs-0.2.7.1",
         "scalejs.linq-linqjs":  "Scripts/scalejs.linq-linqjs-3.0.3",
         "scalejs.modernui":  "Scripts/scalejs.modernui-0.2.1.22",
-        "scalejs.mvvm":  "Scripts/scalejs.mvvm-0.2.3.11",
+        "scalejs.mvvm":  "Scripts/scalejs.mvvm-0.2.3.13",
         "text":  "Scripts/text"
     },
     "scalejs":  {

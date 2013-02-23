@@ -207,7 +207,7 @@ define('scalejs.mvvm/htmlTemplateSource',[
 	};
 });
 
-/*global define,document*/
+/*global define,document,setTimeout*/
 /*jslint nomen: true*/
 /// <reference path="../Scripts/knockout-2.2.1.debug.js" />
 define('scalejs.mvvm/selectableArray',[
@@ -236,6 +236,7 @@ define('scalejs.mvvm/selectableArray',[
         opts = opts || {};
 
         var selectedItem = opts.selectedItem || observable(),
+            selectionPolicy = opts.selectionPolicy || 'single',
             result;
 
         function ensureIsSelectedExists(item) {
@@ -300,6 +301,10 @@ define('scalejs.mvvm/selectableArray',[
             unwrap(result).forEach(function (item) {
                 item.isSelected(item === newItem);
             });
+
+            if (selectionPolicy === 'deselect' && newItem) {
+                setTimeout(function () { selectedItem(undefined); }, 0);
+            }
         });
 
         result.selectedItem = selectedItem;

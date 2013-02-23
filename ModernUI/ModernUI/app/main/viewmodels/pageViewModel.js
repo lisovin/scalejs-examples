@@ -36,11 +36,13 @@ define([
 
         selectedTile.subscribe(function (newTile) {
             sandbox.log.debug('--->selectedTile: ', newTile);
-            setTimeout(function () { selectedTile(undefined); }, 0);
         });
 
         renderableTiles = generateTiles(spec.tilesCount).map(renderable('child_tile_template'));
-        tiles = selectableArray(renderableTiles, { selectedItem: selectedTile });
+        tiles = selectableArray(renderableTiles, { 
+            selectedItem: selectedTile,
+            selectionPolicy: 'deselect'
+        });
 
         return {
             title: spec.title,
