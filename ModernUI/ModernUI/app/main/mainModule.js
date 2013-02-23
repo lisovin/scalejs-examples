@@ -24,8 +24,8 @@ define([
             registerTemplates = sandbox.mvvm.registerTemplates,
             // vars
             main = mainViewModel(sandbox),
-            page1 = pageViewModel({title: 'Page 1'}, sandbox),
-            page2 = pageViewModel({title: 'Page 2'}, sandbox);
+            page1 = pageViewModel({title: 'Page 1', tilesCount: 5}, sandbox),
+            page2 = pageViewModel({title: 'Page 2', tilesCount: 8}, sandbox);
 
         // Register module bindings
         registerBindings(mainBindings);
@@ -35,9 +35,6 @@ define([
 
         // Render viewModel using 'main_template' and show it set root view
         root(renderable('main_template', main));
-
-        page1.createChildren(3);
-        page2.createChildren(5);
 
         main.pages([page1, page2]);
     }

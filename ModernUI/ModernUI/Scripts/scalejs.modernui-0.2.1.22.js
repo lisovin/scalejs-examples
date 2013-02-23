@@ -283,7 +283,8 @@ define('text!scalejs.modernui/panorama/panorama.html',[],function () { return '<
 define('scalejs.modernui/panorama/tileBindings',['scalejs!core'], function (core) {
     
 
-    var get = core.object.get;
+    var get = core.object.get,
+        has = core.object.has;
 
     return {
         'panorama-tile': function () {
@@ -305,27 +306,19 @@ define('scalejs.modernui/panorama/tileBindings',['scalejs!core'], function (core
                     widthCss(this.width),
                     heightCss(this.height),
                     this.bgColor ? 'bg-color-' + this.bgColor : undefined,
-                    this.selected() ? 'selected' : undefined
+                    this.selectionVisible &&
+                        has(this, 'content', 'isSelected') &&
+                            this.content.isSelected() ? 'selected' : undefined
                 ],
                 css = classes
                     .filter(function (css) { return css; })
                     .reduce(function (classes, css) { return classes + ' ' + css; });
 
             return {
-                css: css
+                css: css,
+                click: this.selectTile
             };
         },
-        /*
-        'panorama-tile-content': function (context) {
-            if (has(context, '$data', 'content')) {
-                return {
-                    template: {
-                        name: 'sj_panorama_tile_content_template',
-                        data: context.$data.content
-                    }
-                };
-            }
-        },*/
 
         'panorama-tile-content': function (context) {
             return {
@@ -406,19 +399,22 @@ define('text!scalejs.modernui/panorama/tile.html',[],function () { return '<div 
 
 
     function tile(options) {
-        var //has = core.object.has,
+        var has = core.object.has,
             merge = core.object.merge,
             observable = ko.observable,
             self;
 
-        function selectTile() {
-            self.selected(true);
+        function toggleTileSelection() {
+            if (has(self, 'content', 'isSelected')) {
+                self.content.isSelected(!self.content.isSelected());
+            }
         }
 
         self = merge({
             // tile
-            selectTile: selectTile,
-            selected: observable(),
+            selectTile: toggleTileSelection,
+            isSelected: observable(),
+            selectionVisible: true,
             width: 1,
             height: 1,
             // content

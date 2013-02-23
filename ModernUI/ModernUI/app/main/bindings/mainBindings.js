@@ -17,6 +17,7 @@ define(function () {
                 tile: {
                     width: 2,
                     height: 1,
+                    selectionVisible: false,
                     bgColor: 'blueDark',
                     contentTemplate: 'child_tile_content_template',
                     content: this,

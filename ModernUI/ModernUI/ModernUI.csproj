@@ -18,10 +18,15 @@
     <StartArguments>/site:ModernUI</StartArguments>
   </PropertyGroup>
   <ItemGroup>
-    <Content Include="app\main\viewmodels\childViewModel.js" />
     <Content Include="app\main\viewmodels\pageViewModel.js" />
     <Content Include="app\main\views\page.html" />
     <Content Include="css\jasmine.css" />
+    <Content Include="css\modern-responsive.css" />
+    <Content Include="css\modern.css" />
+    <Content Include="css\panorama.css" />
+    <Content Include="css\theme-dark.css" />
+    <Content Include="fonts\iconFont.svg" />
+    <Content Include="fonts\license.txt" />
     <Content Include="README.txt" />
     <Content Include="index.html" />
     <Content Include="index.release.html" />
@@ -54,17 +59,18 @@
     <Content Include="Scripts\scalejs-0.2.7.1.min.js" />
     <Content Include="Scripts\scalejs.linq-linqjs-3.0.3.js" />
     <Content Include="Scripts\scalejs.linq-linqjs-3.0.3.min.js" />
-    <Content Include="Scripts\scalejs.modernui-0.2.1.6.js" />
+    <Content Include="Scripts\scalejs.modernui-0.2.1.22.js" />
+    <Content Include="Scripts\scalejs.modernui-0.2.1.22.min.js" />
     <Content Include="Scripts\scalejs.mvvm-0.2.3.2.js" />
-    <Content Include="Scripts\scalejs.mvvm-0.2.3.2.min.js" />
-    <Content Include="Scripts\text.js" />
     <Content Include="test\all.tests.js" />
     <Content Include="test\mainViewModel.test.js" />
     <Content Include="config.js" />
-    <Content Include="css\global.css" />
     <Content Include="Properties\build.rjs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="fonts\iconFont.eot" />
+    <None Include="fonts\iconFont.ttf" />
+    <None Include="fonts\iconFont.woff" />
     <None Include="packages.config" />
     <None Include="Scripts\jquery-1.9.0.min.map" />
   </ItemGroup>

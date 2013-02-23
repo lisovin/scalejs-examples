@@ -1,40 +1,50 @@
 ﻿/*global define, setTimeout */
 define([
-    './childViewModel'        
 ], function (
-    childViewModel
 ) {
     'use strict';
+
 
     return function (spec, sandbox) {
         var // imports
             observable = sandbox.mvvm.observable,
-            observableArray = sandbox.mvvm.observableArray,
-            computed = sandbox.mvvm.computed,
+            //observableArray = sandbox.mvvm.observableArray,
+            //computed = sandbox.mvvm.computed,
             renderable = sandbox.mvvm.renderable,
             enumerable = sandbox.linq.enumerable,
+            selectableArray = sandbox.mvvm.selectableArray,
             // properties
-            children = observableArray([]),
-            tiles = computed(function () { 
-                return children().map(function (c) {
-                    return renderable('child_tile_template', c);
-                });
-            });
+            selectedTile = observable(),
+            renderableTiles,
+            tiles;
 
-
-        function createChildren(n) {
+        function generateTiles(n) {
             var cs = enumerable
                 .range(1, n)
-                .select(function (i) { return childViewModel({index: i}, sandbox); })
+                .select(function (i) {
+                    return {
+                        tileText: 'Child tile text ' + i,
+                        name: 'Name ' + i,
+                        summary: 'Longer summary ' + i,
+                        count: spec.index
+                    };
+                })
                 .toArray();
 
-            children(cs);
+            return cs;
         }
+
+        selectedTile.subscribe(function (newTile) {
+            sandbox.log.debug('--->selectedTile: ', newTile);
+            setTimeout(function () { selectedTile(undefined); }, 0);
+        });
+
+        renderableTiles = generateTiles(spec.tilesCount).map(renderable('child_tile_template'));
+        tiles = selectableArray(renderableTiles, { selectedItem: selectedTile });
 
         return {
             title: spec.title,
-            content: tiles,
-            createChildren: createChildren
+            content: tiles
         };
     };
 });
