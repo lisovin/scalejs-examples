@@ -24,8 +24,8 @@ define([
             registerTemplates = sandbox.mvvm.registerTemplates,
             // vars
             main = mainViewModel(sandbox),
-            page1 = pageViewModel({title: 'Page 1', tilesCount: 5}, sandbox),
-            page2 = pageViewModel({title: 'Page 2', tilesCount: 8}, sandbox);
+            page1 = pageViewModel({title: 'Page 1', tilesCount: 5, main: main}, sandbox),
+            page2 = pageViewModel({title: 'Page 2', tilesCount: 8, main: main}, sandbox);
 
         // Register module bindings
         registerBindings(mainBindings);

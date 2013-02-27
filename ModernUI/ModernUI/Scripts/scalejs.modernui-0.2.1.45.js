@@ -180,8 +180,117 @@ define('scalejs.modernui/panorama/panoramaLayout',['jQuery'], function ($) {
         doLayout: doLayout
     };
 });
-define('text!scalejs.modernui/panorama/panorama.html',[],function () { return '<div id="sj_panorama_template">\r\n    <div class="panorama page secondary fixed-header">\r\n        <div class="page-header">\r\n            <div class="page-header-content">\r\n                <h4 class="title" data-class="panorama-title"></h4>\r\n                <div class="back-button page-back" data-class="panorama-back-button"></div>\r\n            </div>\r\n        </div>\r\n        <div class="page-region">\r\n            <div class="page-region-content tiles">\r\n                <!-- ko class: panorama-pages -->\r\n                <div class="tile-group tile-drag" style="width: auto"> \r\n                    <h3 class="subtitle" data-class="panorama-title panorama-page-selectable"></h3>\r\n                    <!-- ko class: panorama-page-content -->\r\n                    <!-- /ko -->\r\n                </div>\r\n                <!-- /ko -->\r\n            </div>\r\n        </div>\r\n    </div> \r\n</div>\r\n\r\n<div id="panorama_page_default_template">\r\n    <span data-class="panorama-page-default-content"></span>\r\n</div>\r\n\r\n<div id="panorama_tile_template">\r\n    <div class="tile" data-class="panorama-tile"> \r\n        <!-- ko class: panorama-tile-content -->\r\n        <!-- /ko -->\r\n        <!-- ko class: panorama-tile-brand -->\r\n        <!-- /ko -->\r\n    </div>\r\n</div>\r\n\r\n<div id="panorama_tile_content_template">\r\n    <div class="tile-content" data-class="panorama-tile-content-css panorama-tile-content-html"></div>\r\n</div>\r\n\r\n<div id="panorama_tile_brand_template">\r\n    <div class="tile-content""></div>\r\n</div>\r\n';});
+define('text!scalejs.modernui/panorama/panorama.html',[],function () { return '<div id="sj_panorama_template">\r\n    <div class="panorama page secondary fixed-header">\r\n        <div class="page-header">\r\n            <div class="page-header-content">\r\n                <h4 class="title" data-class="panorama-title"></h4>\r\n                <div class="back-button page-back" data-class="panorama-back-button"></div>\r\n            </div>\r\n        </div>\r\n        <div class="page-region">\r\n            <div class="page-region-content tiles">\r\n                <!-- ko class: panorama-pages -->\r\n                <div class="tile-group tile-drag" style="width: auto"> \r\n                    <h3 class="subtitle" data-class="panorama-title panorama-page-selectable"></h3>\r\n                    <!-- ko class: panorama-page-content -->\r\n                    <!-- /ko -->\r\n                </div>\r\n                <!-- /ko -->\r\n            </div>\r\n        </div>\r\n    </div> \r\n    <div id="panorama-message" data-class="panorama-message-css">\r\n        <div class="grid panorama-message-box" data-bind="with: message">\r\n            <div class="row panorama-message-title">\r\n                <div class="span9"><h3 data-bind="text: title"></h3></div>\r\n            </div>\r\n            <div class="row panorama-messagemessage">\r\n                <div class="span9" data-bind="text: content"></div>\r\n            </div>\r\n            <div class="row">\r\n                <div class="span9"></div>\r\n                <div class="span1">\r\n                    <div data-bind="if: $data.onClose"><button data-bind="click: onClose">Close</button></div>\r\n                </div>\r\n            </div>\r\n        </div>\r\n    </div>\r\n</div>\r\n\r\n<div id="panorama_page_default_template">\r\n    <span data-class="panorama-page-default-content"></span>\r\n</div>\r\n\r\n<div id="panorama_tile_template">\r\n    <div class="tile" data-class="panorama-tile"> \r\n        <!-- ko class: panorama-tile-content -->\r\n        <!-- /ko -->\r\n        <!-- ko class: panorama-tile-brand -->\r\n        <!-- /ko -->\r\n    </div>\r\n</div>\r\n\r\n<div id="panorama_tile_content_template">\r\n    <div class="tile-content" data-class="panorama-tile-content-css panorama-tile-content-html"></div>\r\n</div>\r\n\r\n<div id="panorama_tile_brand_template">\r\n    <div class="tile-content""></div>\r\n</div>\r\n';});
 
+/// <reference path="../scripts/_references.js" />
+/*global console,define*/
+define('scalejs.modernui/panorama/messageDialogBindings',[
+    'scalejs!core',
+    'knockout'
+], function (
+    core,
+    ko
+) {
+    /// <param name="ko" value="window.ko" />
+    
+
+    var get = core.object.get,
+        unwrap = ko.utils.unwrapObservable,
+        observable = ko.observable;
+
+    return {
+        'panorama-message-css': function (ctx) {
+            var messageOptions = unwrap(get(ctx, '$data.message', observable())),
+                css;
+
+            switch (get(messageOptions, 'kind', 'info')) {
+            case 'error':
+                css = 'error-bar';
+                break;
+            case 'warning':
+                css = 'warning-bar';
+                break;
+            case 'info':
+                css = 'info-bar';
+                break;
+            default:
+                css = 'info-bar';
+            }
+
+            return {
+                css: css
+            };
+        }
+    };
+});
+
+
+/// <reference path="../scripts/_references.js" />
+/*global console,define,setTimeout*/
+/*jslint unparam: true*/define('scalejs.modernui/panorama/messageDialog',[
+    'scalejs!core',
+    './messageDialogBindings',
+    'jQuery',
+    'knockout',
+    'bPopup'
+], function (
+    core,
+    messageDialogBindings,
+    $,
+    ko
+) {
+    /// <param name="ko" value="window.ko"/>
+    
+
+    var registerBindings = core.mvvm.registerBindings,
+        // members
+        popupOpts,
+        popup; // only one popup per panorama
+
+    registerBindings(messageDialogBindings);
+
+    return function messageDialog(panorama, messageOptions, element) {
+        var unwrap = ko.utils.unwrapObservable,
+            computed = ko.computed;
+            //observable = ko.observable;
+
+        computed({
+            read: function () {
+                var opts = unwrap(messageOptions);
+
+                if (opts) {
+                    if (!popup) {
+                        popupOpts = {
+                            positionStyle: 'fixed',
+                            modalClose: false,
+                            opacity: 0.4,
+                            onClose: function () {
+                                // timeout to give popup a chance to close first so that default
+                                // popup options (e.g. css) isn't shown
+                                setTimeout(function () {
+                                    // set popup to null before close caused by messageOptions update
+                                    // to undefined is invoked. No need to close popup twice.
+                                    popup = null;
+                                    messageOptions(undefined);
+                                }, 0);
+                            }
+                        };
+
+                        popup = $('#panorama-message').bPopup(popupOpts);
+                    }
+                    // Popup close button click is bound to onClose
+                    opts.onClose = function () {
+                        popup.close();
+                    };
+                }
+            },
+            disposeWhenNodeIsRemoved: element
+        });
+    };
+});
+/*jslint unparam: false*/
+
+;
 /// <reference path="../scripts/_references.js" />
 /*global console,define,setTimeout*/
 /*jslint unparam: true*/define('scalejs.modernui/panorama/panorama',[
@@ -189,14 +298,17 @@ define('text!scalejs.modernui/panorama/panorama.html',[],function () { return '<
     './panoramaBindings',
     './panoramaLayout',
     'text!./panorama.html',
+    './messageDialog',
     'jQuery',
     'knockout',
+    'bPopup',
     'scalejs.mvvm'
 ], function (
     core,
     panoramaBindings,
     panoramaLayout,
     panoramaTemplate,
+    messageDialog,
     $,
     ko
 ) {
@@ -205,12 +317,11 @@ define('text!scalejs.modernui/panorama/panorama.html',[],function () { return '<
     var registerBindings = core.mvvm.registerBindings,
         registerTemplates = core.mvvm.registerTemplates;
 
-    function panorama(options) {
+    function panorama(options, element) {
         var isObservable = ko.isObservable,
             has = core.object.has,
             merge = core.object.merge,
-            self,
-            isBackButtonVisible = false;
+            self;
 
         function selectPage(page) {
             if (isObservable(options.selectedPage)) {
@@ -222,21 +333,24 @@ define('text!scalejs.modernui/panorama/panorama.html',[],function () { return '<
             setTimeout(panoramaLayout.doLayout, 10);
         }
 
-        isBackButtonVisible = has(options, 'canBack') && options.canBack;
-
-        self = merge(options, {
+        self = merge({
             selectPage: selectPage,
-            isBackButtonVisible: isBackButtonVisible,
-            doLayout: doLayout
-        });
+            isBackButtonVisible: options.canBack,
+            doLayout: doLayout,
+            message: null
+        }, options);
+
+        if (has(options, 'message')) {
+            messageDialog(self, options.message, element);
+        }
 
         return self;
     }
 
-    function wrapValueAccessor(valueAccessor) {
+    function wrapValueAccessor(valueAccessor, element) {
         return function () {
             var options = valueAccessor(),
-                myPanorama = panorama(options);
+                myPanorama = panorama(options, element);
 
             return {
                 name: 'sj_panorama_template',
@@ -260,7 +374,7 @@ define('text!scalejs.modernui/panorama/panorama.html',[],function () { return '<
     ) {
         return ko.bindingHandlers.template.update(
             element,
-            wrapValueAccessor(valueAccessor),
+            wrapValueAccessor(valueAccessor, element),
             allBindingsAccessor,
             viewModel,
             bindingContext

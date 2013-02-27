@@ -10,11 +10,13 @@ define([
             observableArray = sandbox.mvvm.observableArray,
             // properties
             pages = observableArray(),
-            selectedPage = observable();
+            selectedPage = observable(),
+            message = observable();
 
         return {
             pages: pages,
-            selectedPage: selectedPage
+            selectedPage: selectedPage,
+            message: message
         };
     };
 });

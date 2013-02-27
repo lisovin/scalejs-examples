@@ -1,6 +1,7 @@
 var require = {
     "baseUrl":  ".",
     "paths":  {
+        "bPopup":  "Scripts/jquery.bpopup",
         "es5-shim":  "Scripts/es5-shim",
         "jasmine":  "Scripts/jasmine",
         "jasmine-html":  "Scripts/jasmine-html",
@@ -9,9 +10,9 @@ var require = {
         "knockout":  "Scripts/knockout-2.2.1",
         "knockout.mapping":  "Scripts/knockout.mapping-latest",
         "linqjs":  "Scripts/linq.min",
-        "scalejs":  "Scripts/scalejs-0.2.7.1",
+        "scalejs":  "Scripts/scalejs-0.2.7.8",
         "scalejs.linq-linqjs":  "Scripts/scalejs.linq-linqjs-3.0.3",
-        "scalejs.modernui":  "Scripts/scalejs.modernui-0.2.1.22",
+        "scalejs.modernui":  "Scripts/scalejs.modernui-0.2.1.45",
         "scalejs.mvvm":  "Scripts/scalejs.mvvm-0.2.3.13",
         "text":  "Scripts/text"
     },
@@ -23,6 +24,11 @@ var require = {
         ]
     },
     "shim":  {
+        "bPopup":  {
+            "deps":  [
+                "jQuery"
+            ]
+        },
         "jasmine":  {
             "exports":  "jasmine"
         },

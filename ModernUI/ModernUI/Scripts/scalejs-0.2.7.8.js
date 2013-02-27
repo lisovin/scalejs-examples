@@ -382,7 +382,7 @@ define('scalejs/base.array',[
         /// <returns type="">New array containing the specified items.</returns>
         first = valueOrDefault(first, 0);
         count = valueOrDefault(count, array.length);
-        return array.slice(first, count);
+        return Array.prototype.slice.call(array, first, count);
     }
 
     function find(array, f, context) {
@@ -397,7 +397,17 @@ define('scalejs/base.array',[
     }
 
     function toArray(list, start, end) {
-        return Array.prototype.slice.call(list, start, end);
+        /*ignore jslint start*/
+        var array = [],
+            i,
+            result;
+
+        for (i = list.length; i--; array[i] = list[i]) {}
+        
+        result = copy(array, start, end);
+
+        return result;
+        /*ignore jslint end*/
     }
 
     return {
@@ -428,7 +438,12 @@ define('scalejs/base.log',[
 
     function info() {
         if (has(window, 'console', 'info')) {
-            window.console.info.apply(window.console, arguments);
+            if (!has(window, 'console', 'info', 'apply')) {
+                // IE8
+                window.console.info(Array.prototype.join.call(arguments));
+            } else {
+                window.console.info.apply(window.console, arguments);
+            }
         }
     }
 
@@ -681,8 +696,8 @@ define('scalejs/core',[
         error = base.log.error,
         self = {},
         extensions = [],
-        applicationStartedListeners = [],
-        applicationStarted = false;
+        applicationEventListeners = [],
+        isApplicationRunning = false;
 
     function registerExtension(extension) {
         try {
@@ -760,23 +775,26 @@ define('scalejs/core',[
         return sandbox;
     }
 
-    function onApplicationStarted(listener) {
-        applicationStartedListeners.push(listener);
+    function onApplicationEvent(listener) {
+        applicationEventListeners.push(listener);
     }
 
     function notifyApplicationStarted() {
-        if (applicationStarted) {
-            return;
-        }
+        if (isApplicationRunning) { return; }
 
-        applicationStarted = true;
-        applicationStartedListeners.forEach(function (listener) {
-            listener();
+        isApplicationRunning = true;
+        applicationEventListeners.forEach(function (listener) {
+            listener('started');
         });
     }
 
-    function isApplicationStarted() {
-        return applicationStarted;
+    function notifyApplicationStopped() {
+        if (!isApplicationRunning) { return; }
+
+        isApplicationRunning = false;
+        applicationEventListeners.forEach(function (listener) {
+            listener('stopped');
+        });
     }
 
     return extend(self, {
@@ -787,8 +805,9 @@ define('scalejs/core',[
         functional: base.functional,
         buildSandbox: buildSandbox,
         notifyApplicationStarted: notifyApplicationStarted,
-        onApplicationStarted: onApplicationStarted,
-        isApplicationStarted: isApplicationStarted,
+        notifyApplicationStopped: notifyApplicationStopped,
+        onApplicationEvent: onApplicationEvent,
+        isApplicationRunning: function () { return isApplicationRunning; },
         registerExtension: registerExtension
     });
 });
@@ -823,7 +842,7 @@ define('scalejs/application',[
         // Dynamic module loading is no longer supported for simplicity.
         // Module is free to load any of its resources dynamically.
         // Or an extension can provide dynamic module loading capabilities as needed.
-        if (core.isApplicationStarted()) {
+        if (core.isApplicationRunning()) {
             moduleNames = toArray(arguments).reduce(function (ns, m) { return ns + ',' + m; });
             throw new Error('Can\'t register module "' + moduleNames + '" since the application is already running.',
                             'Dynamic module loading is not supported.');
@@ -856,7 +875,7 @@ define('scalejs/application',[
     }
 
     function startAll() {
-        debug("Application started.");
+        debug('Application started.');
 
         core.notifyApplicationStarted();
     }
@@ -866,9 +885,15 @@ define('scalejs/application',[
         startAll();
     }
 
+    function exit() {
+        debug('Application exited.');
+        core.notifyApplicationStopped();
+    }
+
     return {
         registerModules: registerModules,
-        run: run
+        run: run,
+        exit: exit
     };
 });
 

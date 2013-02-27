@@ -8,7 +8,8 @@ define(function () {
                     title: 'Modern UI Sample',
                     pages: this.pages,
                     selectedPage: this.selectedPage,
-                    canBack: false
+                    canBack: false,
+                    message: this.message
                 }
             };
         },
