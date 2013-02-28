@@ -180,46 +180,35 @@ define('scalejs.modernui/panorama/panoramaLayout',['jQuery'], function ($) {
         doLayout: doLayout
     };
 });
-define('text!scalejs.modernui/panorama/panorama.html',[],function () { return '<div id="sj_panorama_template">\r\n    <div class="panorama page secondary fixed-header">\r\n        <div class="page-header">\r\n            <div class="page-header-content">\r\n                <h4 class="title" data-class="panorama-title"></h4>\r\n                <div class="back-button page-back" data-class="panorama-back-button"></div>\r\n            </div>\r\n        </div>\r\n        <div class="page-region">\r\n            <div class="page-region-content tiles">\r\n                <!-- ko class: panorama-pages -->\r\n                <div class="tile-group tile-drag" style="width: auto"> \r\n                    <h3 class="subtitle" data-class="panorama-title panorama-page-selectable"></h3>\r\n                    <!-- ko class: panorama-page-content -->\r\n                    <!-- /ko -->\r\n                </div>\r\n                <!-- /ko -->\r\n            </div>\r\n        </div>\r\n    </div> \r\n    <div id="panorama-message" data-class="panorama-message-css">\r\n        <div class="grid panorama-message-box" data-bind="with: message">\r\n            <div class="row panorama-message-title">\r\n                <div class="span9"><h3 data-bind="text: title"></h3></div>\r\n            </div>\r\n            <div class="row panorama-messagemessage">\r\n                <div class="span9" data-bind="text: content"></div>\r\n            </div>\r\n            <div class="row">\r\n                <div class="span9"></div>\r\n                <div class="span1">\r\n                    <div data-bind="if: $data.onClose"><button data-bind="click: onClose">Close</button></div>\r\n                </div>\r\n            </div>\r\n        </div>\r\n    </div>\r\n</div>\r\n\r\n<div id="panorama_page_default_template">\r\n    <span data-class="panorama-page-default-content"></span>\r\n</div>\r\n\r\n<div id="panorama_tile_template">\r\n    <div class="tile" data-class="panorama-tile"> \r\n        <!-- ko class: panorama-tile-content -->\r\n        <!-- /ko -->\r\n        <!-- ko class: panorama-tile-brand -->\r\n        <!-- /ko -->\r\n    </div>\r\n</div>\r\n\r\n<div id="panorama_tile_content_template">\r\n    <div class="tile-content" data-class="panorama-tile-content-css panorama-tile-content-html"></div>\r\n</div>\r\n\r\n<div id="panorama_tile_brand_template">\r\n    <div class="tile-content""></div>\r\n</div>\r\n';});
+define('text!scalejs.modernui/panorama/panorama.html',[],function () { return '<div id="sj_panorama_template">\r\n    <div class="panorama page secondary fixed-header">\r\n        <div class="page-header">\r\n            <div class="page-header-content">\r\n                <h4 class="title" data-class="panorama-title"></h4>\r\n                <div class="back-button page-back" data-class="panorama-back-button"></div>\r\n            </div>\r\n        </div>\r\n        <div class="page-region">\r\n            <div class="page-region-content tiles">\r\n                <!-- ko class: panorama-pages -->\r\n                <div class="tile-group tile-drag" style="width: auto"> \r\n                    <h3 class="subtitle" data-class="panorama-title panorama-page-selectable"></h3>\r\n                    <!-- ko class: panorama-page-content -->\r\n                    <!-- /ko -->\r\n                </div>\r\n                <!-- /ko -->\r\n            </div>\r\n        </div>\r\n    </div> \r\n    \r\n    <div id="panorama-message">\r\n    <!-- ko class: panorama-message -->\r\n    <!-- /ko -->\r\n    </div>\r\n</div>\r\n\r\n<div id="panorama_message_dialog_template">\r\n    <div class="panorama-message" data-bind="css: css">\r\n        <div class="grid panorama-message-box">\r\n            <div class="row panorama-message-title">\r\n                <div class="span9"><h3 data-bind="text: title"></h3></div>\r\n            </div>\r\n            <div class="row panorama-message-content">\r\n                <div class="span9" data-bind="text: content"></div>\r\n            </div>\r\n            <div class="row">\r\n                <div class="span9"></div>\r\n                <div class="span1">\r\n                    <div data-bind="if: $data.onClose"><button data-bind="click: onClose">Close</button></div>\r\n                </div>\r\n            </div>\r\n        </div>\r\n    </div>\r\n</div>\r\n\r\n<div id="panorama_message_bar_template">\r\n    <div class="panorama-message" data-bind="css: css">\r\n        <div class="grid panorama-message-box">\r\n            <div class="row panorama-message-content">\r\n                <div data-bind="css: contentCss, text: content"></div>\r\n                <!-- ko if: buttonsCss -->\r\n                <div data-bind="css: buttonsCss">\r\n                    <!-- ko foreach: buttons -->\r\n                    <button data-bind="click: action, text: content"></button>\r\n                    <!-- /ko -->\r\n                </div>\r\n                <!-- /ko -->\r\n            </div>\r\n        </div>\r\n    </div>\r\n</div>\r\n\r\n<div id="panorama_page_default_template">\r\n    <span data-class="panorama-page-default-content"></span>\r\n</div>\r\n\r\n<div id="panorama_tile_template">\r\n    <div class="tile" data-class="panorama-tile"> \r\n        <!-- ko class: panorama-tile-content -->\r\n        <!-- /ko -->\r\n        <!-- ko class: panorama-tile-brand -->\r\n        <!-- /ko -->\r\n    </div>\r\n</div>\r\n\r\n<div id="panorama_tile_content_template">\r\n    <div class="tile-content" data-class="panorama-tile-content-css panorama-tile-content-html"></div>\r\n</div>\r\n\r\n<div id="panorama_tile_brand_template">\r\n    <div class="tile-content""></div>\r\n</div>\r\n';});
 
 /// <reference path="../scripts/_references.js" />
 /*global console,define*/
 define('scalejs.modernui/panorama/messageDialogBindings',[
-    'scalejs!core',
+//    'scalejs!core',
     'knockout'
 ], function (
-    core,
+//    core,
     ko
 ) {
     /// <param name="ko" value="window.ko" />
     
 
-    var get = core.object.get,
-        unwrap = ko.utils.unwrapObservable,
-        observable = ko.observable;
+    var unwrap = ko.utils.unwrapObservable;
 
     return {
-        'panorama-message-css': function (ctx) {
-            var messageOptions = unwrap(get(ctx, '$data.message', observable())),
-                css;
+        'panorama-message': function (ctx) {
+            var messageOptions = unwrap(ctx.$data.message);
 
-            switch (get(messageOptions, 'kind', 'info')) {
-            case 'error':
-                css = 'error-bar';
-                break;
-            case 'warning':
-                css = 'warning-bar';
-                break;
-            case 'info':
-                css = 'info-bar';
-                break;
-            default:
-                css = 'info-bar';
+            if (messageOptions) {
+                return {
+                    template: {
+                        name: messageOptions.template,
+                        data: messageOptions
+                    }
+                };
             }
 
-            return {
-                css: css
-            };
         }
     };
 });
@@ -227,12 +216,13 @@ define('scalejs.modernui/panorama/messageDialogBindings',[
 
 /// <reference path="../scripts/_references.js" />
 /*global console,define,setTimeout*/
-/*jslint unparam: true*/define('scalejs.modernui/panorama/messageDialog',[
+define('scalejs.modernui/panorama/messageDialog',[
     'scalejs!core',
     './messageDialogBindings',
     'jQuery',
     'knockout',
-    'bPopup'
+    'bPopup',
+    'scalejs.statechart-scion'
 ], function (
     core,
     messageDialogBindings,
@@ -243,54 +233,111 @@ define('scalejs.modernui/panorama/messageDialogBindings',[
     
 
     var registerBindings = core.mvvm.registerBindings,
-        // members
-        popupOpts,
-        popup; // only one popup per panorama
+        statechart = core.state.builder.statechart,
+        state = core.state.builder.state,
+        get = core.object.get;
 
     registerBindings(messageDialogBindings);
 
-    return function messageDialog(panorama, messageOptions, element) {
+    return function messageDialog(messageOptions, element) {
         var unwrap = ko.utils.unwrapObservable,
-            computed = ko.computed;
-            //observable = ko.observable;
+            computed = ko.computed,
+            merge = core.object.merge,
+            popupStatechart;
 
-        computed({
+        function createPopup(opts) {
+            var spec = merge({
+                positionStyle: 'fixed',
+                modalClose: true,
+                opacity: 0.4,
+                onClose: function () { popupStatechart.send('closed'); }
+            }, opts);
+
+            return $('#panorama-message').bPopup(spec);
+        }
+
+        popupStatechart = statechart(
+            state('popup',
+                // Popup closed
+                state('closed')
+                .on('showing.dialog').goto('dialog')
+                .on('showing.bar').goto('bar')
+                .on(function () { return this.isShowDialogPending; }).goto('dialog')
+                .on(function () { return this.isShowBarPending; }).goto('bar'),
+
+                // Popup shown
+                state('shown',
+                    // Message bar
+                    state('bar')
+                    .onEntry(function () {
+                        this.isShowBarPending = false;
+                        this.popup = createPopup({
+                            position: [0, 0],
+                            modal: false
+                        });
+                    })
+                    .on('showing.dialog').goto(function () {
+                        this.isShowDialogPending = true;
+                        this.raise({name: 'closing'});
+                    }),
+
+                    // Message dialog
+                    state('dialog')
+                    .onEntry(function () {
+                        this.isShowDialogPending = false;
+                        this.popup = createPopup({
+                            position: [0, 'auto'],
+                            modal: true
+                        });
+                    })
+                    .on('showing.bar').goto('bar', function () {
+                        this.isShowBarPending = true;
+                        this.raise({name: 'closing'});
+                    }))
+                .on('closing').goto(function () { this.popup.close(); })
+                .on('closed').goto('closed'))
+        );
+
+        popupStatechart.start();
+
+        return computed({
             read: function () {
-                var opts = unwrap(messageOptions);
+                var opts = unwrap(messageOptions),
+                    result = merge({
+                        css: '',
+                        contentCss: 'span10',
+                        buttonsCss: null,
+                        title: null,
+                        content: null,
+                        buttons: [],
+                        template: get(opts, 'critical', false)
+                            ? 'panorama_message_dialog_template' : 'panorama_message_bar_template'
+                    }, opts);
+
+                result.contentCss = 'span' + (10 - Math.ceil(3 * result.buttons.length / 2));
+                result.buttonsCss = 'span' + Math.ceil(3 * result.buttons.length / 2);
+                result.buttons.forEach(function (b) {
+                    var delegate = b.action;
+                    b.action = function () {
+                        popupStatechart.send('closing');
+                        delegate();
+                    };
+                });
 
                 if (opts) {
-                    if (!popup) {
-                        popupOpts = {
-                            positionStyle: 'fixed',
-                            modalClose: false,
-                            opacity: 0.4,
-                            onClose: function () {
-                                // timeout to give popup a chance to close first so that default
-                                // popup options (e.g. css) isn't shown
-                                setTimeout(function () {
-                                    // set popup to null before close caused by messageOptions update
-                                    // to undefined is invoked. No need to close popup twice.
-                                    popup = null;
-                                    messageOptions(undefined);
-                                }, 0);
-                            }
-                        };
-
-                        popup = $('#panorama-message').bPopup(popupOpts);
-                    }
-                    // Popup close button click is bound to onClose
-                    opts.onClose = function () {
-                        popup.close();
-                    };
+                    popupStatechart.send(opts.critical ? 'showing.dialog' : 'showing.bar');
+                } else {
+                    popupStatechart.send('closing');
                 }
+
+                return result;
             },
             disposeWhenNodeIsRemoved: element
         });
     };
 });
-/*jslint unparam: false*/
 
-;
+
 /// <reference path="../scripts/_references.js" />
 /*global console,define,setTimeout*/
 /*jslint unparam: true*/define('scalejs.modernui/panorama/panorama',[
@@ -333,15 +380,14 @@ define('scalejs.modernui/panorama/messageDialogBindings',[
             setTimeout(panoramaLayout.doLayout, 10);
         }
 
-        self = merge({
+        self = merge(options, {
             selectPage: selectPage,
             isBackButtonVisible: options.canBack,
-            doLayout: doLayout,
-            message: null
-        }, options);
+            doLayout: doLayout
+        });
 
         if (has(options, 'message')) {
-            messageDialog(self, options.message, element);
+            self.message = messageDialog(options.message, element);
         }
 
         return self;

@@ -35,10 +35,22 @@
     display: none;
 }
 
+.panorama-message
+{
+    position: fixed;
+    left: 0;
+    right: 0;
+    padding: 10px 5px;
+    color: #fff;
+    min-height: 50px;
+    background-color: #2d89ef !important;
+}
+
 .panorama-message-box
 {
     margin-left: auto;
     margin-right: auto;
+    margin-bottom: 0px;
     width: 800px;
 }
 
@@ -47,7 +59,7 @@
     font-weight: bold;
 }
 
-.panorama-message-message
+.panorama-message-content
 {
     text-align: left;
 }

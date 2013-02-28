@@ -54,11 +54,14 @@
     <Content Include="Scripts\scalejs-0.2.7.8.min.js" />
     <Content Include="Scripts\scalejs.linq-linqjs-3.0.3.js" />
     <Content Include="Scripts\scalejs.linq-linqjs-3.0.3.min.js" />
-    <Content Include="Scripts\scalejs.modernui-0.2.1.42.js" />
-    <Content Include="Scripts\scalejs.modernui-0.2.1.44.js" />
+    <Content Include="Scripts\scalejs.modernui-0.2.1.51.js" />
+    <Content Include="Scripts\scalejs.modernui-0.2.1.56.js" />
+    <Content Include="Scripts\scalejs.modernui-0.2.1.58.js" />
     <Content Include="Scripts\scalejs.mvvm-0.2.3.13.js" />
     <Content Include="Scripts\scalejs.mvvm-0.2.3.13.min.js" />
-    <Content Include="Scripts\scalejs.mvvm-0.2.3.2.js" />
+    <Content Include="Scripts\scalejs.statechart-scion-0.2.1.15.js" />
+    <Content Include="Scripts\scalejs.statechart-scion-0.2.1.15.min.js" />
+    <Content Include="Scripts\scion.js" />
     <Content Include="Scripts\text.js" />
     <Content Include="test\all.tests.js" />
     <Content Include="test\mainViewModel.test.js" />

@@ -22,10 +22,10 @@ define([
 
         function generateTiles(n) {
             var summaries = [
-                'Will show warning dialog', 
-                'Will show error dialog', 
-                'Will show info dialog',
-                'Will show error bar'
+                    'Will show warning dialog',
+                    'Will show error dialog',
+                    'Will show info dialog',
+                    'Will show error bar'
                 ],
                 cs = enumerable
                     .range(1, n)
@@ -44,11 +44,20 @@ define([
 
         selectedTile.subscribe(function (newTile) {
             sandbox.log.debug('--->selectedTile: ', newTile);
-            var kinds = ['warning', 'error', 'info'];
             if (newTile) {
                 message({
-                    kind: kinds[newTile.count % 3],
-                    title: 'Don\'t click on this tile',
+                    critical: newTile.count % 2 === 0, 
+                    buttons: [
+                        { 
+                            content: 'Do Something',
+                            action: function () { console.log('-->did something'); } 
+                        },
+                        { 
+                            content: 'Ignore',
+                            action: function () { console.log('-->did something'); } 
+                        },
+                    ],
+                    title: 'Don\'t click on this tile ' + newTile.count,
                     content: 'It\'s a very dangerous tile - consequences are unknown.'
                 });
             }

@@ -12,15 +12,18 @@ var require = {
         "linqjs":  "Scripts/linq.min",
         "scalejs":  "Scripts/scalejs-0.2.7.8",
         "scalejs.linq-linqjs":  "Scripts/scalejs.linq-linqjs-3.0.3",
-        "scalejs.modernui":  "Scripts/scalejs.modernui-0.2.1.45",
+        "scalejs.modernui":  "Scripts/scalejs.modernui-0.2.1.61",
         "scalejs.mvvm":  "Scripts/scalejs.mvvm-0.2.3.13",
+        "scalejs.statechart-scion":  "Scripts/scalejs.statechart-scion-0.2.1.15",
+        "scion":  "Scripts/scion",
         "text":  "Scripts/text"
     },
     "scalejs":  {
         "extensions":  [
             "scalejs.linq-linqjs",
             "scalejs.modernui",
-            "scalejs.mvvm"
+            "scalejs.mvvm",
+            "scalejs.statechart-scion"
         ]
     },
     "shim":  {
@@ -39,6 +42,11 @@ var require = {
         },
         "jQuery":  {
             "exports":  "jQuery"
+        },
+        "scalejs.statechart-scion":  {
+            "deps":  [
+                "scalejs.linq-linqjs"
+            ]
         }
     }
 };
