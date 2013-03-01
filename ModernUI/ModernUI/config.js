@@ -12,7 +12,7 @@ var require = {
         "linqjs":  "Scripts/linq.min",
         "scalejs":  "Scripts/scalejs-0.2.7.8",
         "scalejs.linq-linqjs":  "Scripts/scalejs.linq-linqjs-3.0.3",
-        "scalejs.modernui":  "Scripts/scalejs.modernui-0.2.1.61",
+        "scalejs.modernui":  "Scripts/scalejs.modernui-0.2.1.64",
         "scalejs.mvvm":  "Scripts/scalejs.mvvm-0.2.3.13",
         "scalejs.statechart-scion":  "Scripts/scalejs.statechart-scion-0.2.1.15",
         "scion":  "Scripts/scion",

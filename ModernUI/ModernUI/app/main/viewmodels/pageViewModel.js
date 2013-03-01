@@ -52,13 +52,10 @@ define([
                             content: 'Do Something',
                             action: function () { console.log('-->did something'); } 
                         },
-                        { 
-                            content: 'Ignore',
-                            action: function () { console.log('-->did something'); } 
-                        },
+                        'Ignore'
                     ],
                     title: 'Don\'t click on this tile ' + newTile.count,
-                    content: 'It\'s a very dangerous tile - consequences are unknown.'
+                    content: 'It\'s a very dangerous tile ' + newTile.count + ' - consequences are unknown.'
                 });
             }
         });

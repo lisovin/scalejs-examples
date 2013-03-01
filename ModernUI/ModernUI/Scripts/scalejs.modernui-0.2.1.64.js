@@ -180,7 +180,7 @@ define('scalejs.modernui/panorama/panoramaLayout',['jQuery'], function ($) {
         doLayout: doLayout
     };
 });
-define('text!scalejs.modernui/panorama/panorama.html',[],function () { return '<div id="sj_panorama_template">\r\n    <div class="panorama page secondary fixed-header">\r\n        <div class="page-header">\r\n            <div class="page-header-content">\r\n                <h4 class="title" data-class="panorama-title"></h4>\r\n                <div class="back-button page-back" data-class="panorama-back-button"></div>\r\n            </div>\r\n        </div>\r\n        <div class="page-region">\r\n            <div class="page-region-content tiles">\r\n                <!-- ko class: panorama-pages -->\r\n                <div class="tile-group tile-drag" style="width: auto"> \r\n                    <h3 class="subtitle" data-class="panorama-title panorama-page-selectable"></h3>\r\n                    <!-- ko class: panorama-page-content -->\r\n                    <!-- /ko -->\r\n                </div>\r\n                <!-- /ko -->\r\n            </div>\r\n        </div>\r\n    </div> \r\n    \r\n    <div id="panorama-message">\r\n    <!-- ko class: panorama-message -->\r\n    <!-- /ko -->\r\n    </div>\r\n</div>\r\n\r\n<div id="panorama_message_dialog_template">\r\n    <div class="panorama-message" data-bind="css: css">\r\n        <div class="grid panorama-message-box">\r\n            <div class="row panorama-message-title">\r\n                <div class="span9"><h3 data-bind="text: title"></h3></div>\r\n            </div>\r\n            <div class="row panorama-message-content">\r\n                <div class="span9" data-bind="text: content"></div>\r\n            </div>\r\n            <div class="row">\r\n                <div class="span9"></div>\r\n                <div class="span1">\r\n                    <div data-bind="if: $data.onClose"><button data-bind="click: onClose">Close</button></div>\r\n                </div>\r\n            </div>\r\n        </div>\r\n    </div>\r\n</div>\r\n\r\n<div id="panorama_message_bar_template">\r\n    <div class="panorama-message" data-bind="css: css">\r\n        <div class="grid panorama-message-box">\r\n            <div class="row panorama-message-content">\r\n                <div data-bind="css: contentCss, text: content"></div>\r\n                <!-- ko if: buttonsCss -->\r\n                <div data-bind="css: buttonsCss">\r\n                    <!-- ko foreach: buttons -->\r\n                    <button data-bind="click: action, text: content"></button>\r\n                    <!-- /ko -->\r\n                </div>\r\n                <!-- /ko -->\r\n            </div>\r\n        </div>\r\n    </div>\r\n</div>\r\n\r\n<div id="panorama_page_default_template">\r\n    <span data-class="panorama-page-default-content"></span>\r\n</div>\r\n\r\n<div id="panorama_tile_template">\r\n    <div class="tile" data-class="panorama-tile"> \r\n        <!-- ko class: panorama-tile-content -->\r\n        <!-- /ko -->\r\n        <!-- ko class: panorama-tile-brand -->\r\n        <!-- /ko -->\r\n    </div>\r\n</div>\r\n\r\n<div id="panorama_tile_content_template">\r\n    <div class="tile-content" data-class="panorama-tile-content-css panorama-tile-content-html"></div>\r\n</div>\r\n\r\n<div id="panorama_tile_brand_template">\r\n    <div class="tile-content""></div>\r\n</div>\r\n';});
+define('text!scalejs.modernui/panorama/panorama.html',[],function () { return '<div id="sj_panorama_template">\r\n    <div class="panorama page secondary fixed-header">\r\n        <div class="page-header">\r\n            <div class="page-header-content">\r\n                <h4 class="title" data-class="panorama-title"></h4>\r\n                <div class="back-button page-back" data-class="panorama-back-button"></div>\r\n            </div>\r\n        </div>\r\n        <div class="page-region">\r\n            <div class="page-region-content tiles">\r\n                <!-- ko class: panorama-pages -->\r\n                <div class="tile-group tile-drag" style="width: auto"> \r\n                    <h3 class="subtitle" data-class="panorama-title panorama-page-selectable"></h3>\r\n                    <!-- ko class: panorama-page-content -->\r\n                    <!-- /ko -->\r\n                </div>\r\n                <!-- /ko -->\r\n            </div>\r\n        </div>\r\n    </div> \r\n    \r\n    <div id="panorama-message">\r\n    <!-- ko class: panorama-message -->\r\n    <!-- /ko -->\r\n    </div>\r\n</div>\r\n\r\n<div id="panorama_message_dialog_template">\r\n    <div class="panorama-message" data-bind="css: css">\r\n        <div class="grid panorama-message-box">\r\n            <div class="row panorama-message-title">\r\n                <div class="span10"><h3 data-bind="text: title"></h3></div>\r\n            </div>\r\n            <div class="row panorama-message-content">\r\n                <div class="span10" data-bind="text: content"></div>\r\n            </div>\r\n            <div class="row">\r\n                <div data-bind="css: contentCss"></div>\r\n                <div data-bind="css: buttonsCss">\r\n                    <!-- ko foreach: buttons -->\r\n                    <button data-bind="click: action, text: content"></button>\r\n                    <!-- /ko -->\r\n                </div>\r\n            </div>\r\n        </div>\r\n    </div>\r\n</div>\r\n\r\n<div id="panorama_message_bar_template">\r\n    <div class="panorama-message" data-bind="css: css">\r\n        <div class="grid panorama-message-box">\r\n            <div class="row panorama-message-content">\r\n                <div data-bind="css: contentCss, text: content"></div>\r\n                <!-- ko if: buttonsCss -->\r\n                <div data-bind="css: buttonsCss">\r\n                    <!-- ko foreach: buttons -->\r\n                    <button data-bind="click: action, text: content"></button>\r\n                    <!-- /ko -->\r\n                </div>\r\n                <!-- /ko -->\r\n            </div>\r\n        </div>\r\n    </div>\r\n</div>\r\n\r\n<div id="panorama_page_default_template">\r\n    <span data-class="panorama-page-default-content"></span>\r\n</div>\r\n\r\n<div id="panorama_tile_template">\r\n    <div class="tile" data-class="panorama-tile"> \r\n        <!-- ko class: panorama-tile-content -->\r\n        <!-- /ko -->\r\n        <!-- ko class: panorama-tile-brand -->\r\n        <!-- /ko -->\r\n    </div>\r\n</div>\r\n\r\n<div id="panorama_tile_content_template">\r\n    <div class="tile-content" data-class="panorama-tile-content-css panorama-tile-content-html"></div>\r\n</div>\r\n\r\n<div id="panorama_tile_brand_template">\r\n    <div class="tile-content""></div>\r\n</div>\r\n';});
 
 /// <reference path="../scripts/_references.js" />
 /*global console,define*/
@@ -235,7 +235,8 @@ define('scalejs.modernui/panorama/messageDialog',[
     var registerBindings = core.mvvm.registerBindings,
         statechart = core.state.builder.statechart,
         state = core.state.builder.state,
-        get = core.object.get;
+        get = core.object.get,
+        is = core.type.is;
 
     registerBindings(messageDialogBindings);
 
@@ -287,7 +288,8 @@ define('scalejs.modernui/panorama/messageDialog',[
                         this.isShowDialogPending = false;
                         this.popup = createPopup({
                             position: [0, 'auto'],
-                            modal: true
+                            modal: true,
+                            modalClose: false
                         });
                     })
                     .on('showing.bar').goto('bar', function () {
@@ -305,8 +307,6 @@ define('scalejs.modernui/panorama/messageDialog',[
                 var opts = unwrap(messageOptions),
                     result = merge({
                         css: '',
-                        contentCss: 'span10',
-                        buttonsCss: null,
                         title: null,
                         content: null,
                         buttons: [],
@@ -316,12 +316,16 @@ define('scalejs.modernui/panorama/messageDialog',[
 
                 result.contentCss = 'span' + (10 - Math.ceil(3 * result.buttons.length / 2));
                 result.buttonsCss = 'span' + Math.ceil(3 * result.buttons.length / 2);
-                result.buttons.forEach(function (b) {
-                    var delegate = b.action;
-                    b.action = function () {
+                result.buttons = result.buttons.map(function (b) {
+                    var wrapped = {};
+                    wrapped.content = is(b, 'string') ? b : b.content;
+                    wrapped.action = function () {
                         popupStatechart.send('closing');
-                        delegate();
+                        if (b.action) {
+                            b.action();
+                        }
                     };
+                    return wrapped;
                 });
 
                 if (opts) {
