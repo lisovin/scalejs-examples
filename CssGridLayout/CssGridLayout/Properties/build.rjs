@@ -1,0 +1,6 @@
+﻿({
+	mainConfigFile: '../config.js',
+	name: 'app/app',
+	optimize: 'none',
+	out: '../build/CssGridLayout.js'
+})
