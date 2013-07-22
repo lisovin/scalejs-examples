@@ -17,7 +17,7 @@ var require = {
         "rx.time":  "Scripts/rx.time",
         "scalejs":  "Scripts/scalejs-0.2.7.30",
         "scalejs.functional":  "Scripts/scalejs.functional-0.2.9",
-        "scalejs.layout-cssgrid":  "Scripts/scalejs.layout-cssgrid-0.2.4.2",
+        "scalejs.layout-cssgrid":  "Scripts/scalejs.layout-cssgrid-0.2.4.5",
         "scalejs.linq-linqjs":  "Scripts/scalejs.linq-linqjs-3.0.3",
         "scalejs.mvvm":  "Scripts/scalejs.mvvm-0.2.3.35",
         "scalejs.reactive":  "Scripts/scalejs.reactive-2.0.20921.2",

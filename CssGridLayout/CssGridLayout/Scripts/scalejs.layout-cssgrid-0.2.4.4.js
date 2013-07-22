@@ -122,7 +122,7 @@ define('scalejs.layout-cssgrid/consts',[],function () {
     
 
     return {
-        GRIDLAYOUT  : 'grid',
+        GRIDLAYOUT  : 'css-grid-layout',
         STRING      : 'string',
         PROPERTY	: 'property',
         MOZ			: '-moz-',
@@ -1812,6 +1812,7 @@ define('scalejs.layout-cssgrid/gridLayout',[
         RELATIVE = consts.RELATIVE,
         STATIC = consts.STATIC,
         PERIOD = consts.PERIOD,
+        GRIDLAYOUT = consts.GRIDLAYOUT,
         GRIDCOLUMNS = consts.GRIDCOLUMNS,
         GRIDROWS = consts.GRIDROWS,
         GRIDCOLUMN = consts.GRIDCOLUMN,
@@ -1939,6 +1940,7 @@ define('scalejs.layout-cssgrid/gridLayout',[
                 floated,
                 widthToUse,
                 heightToUse,
+                oldDisplay = div.style.display,
                 //marginToUse,
                 //borderWidthToUse,
                 //borderStyleToUse,
@@ -1955,7 +1957,7 @@ define('scalejs.layout-cssgrid/gridLayout',[
                 heightAdjustmentMeasure;
 
             // we need to get grid props from the passed styles
-            isInlineGrid = gridProperties.display === INLINEGRID ? true : false;
+            isInlineGrid = gridProperties.display === INLINEGRID;// ? true : false;
 
             // Get each individual margin, border, and padding value for
             // using with calc() when specifying the width/height of the dummy element.
@@ -1971,6 +1973,7 @@ define('scalejs.layout-cssgrid/gridLayout',[
             // TODO: ensure we do the right thing for floats.
             // need to remove the content to ensure we get the right height
             gridElementParent.insertBefore(dummy, gridElement);
+            gridElement.style.display = 'none';
             width = getCssValue(dummy, WIDTH);
             floated = getCssValue(gridElement, 'float');
             if (width === zero) { width = AUTO; }
@@ -1986,6 +1989,7 @@ define('scalejs.layout-cssgrid/gridLayout',[
                 useAlternateFractionalSizingForRows = true;
             }
             // remove the dummy
+            gridElement.style.display = oldDisplay;
             gridElementParent.removeChild(dummy);
 
             // build the straw man for getting dimensions
@@ -2849,10 +2853,12 @@ define('scalejs.layout-cssgrid/gridLayout',[
                 var details = item.styles,
                     className = item.itemElement.className,
                     newclass = makeUniqueClass(),
+                    re,
                     position,
                     dimensions;
 
-                item.itemElement.className = className.replace(/grid-\d*\s?/g, '');
+                re = new RegExp(GRIDLAYOUT + '-\\d*\\s?', 'g');
+                item.itemElement.className = className.replace(re, '');
                 addClass(item.itemElement, newclass);
                 position = getPosition(item);
                 dimensions = getDimensions(item);
