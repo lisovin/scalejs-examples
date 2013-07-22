@@ -12,3 +12,4 @@
 /ModernUI/ModernUI/obj
 /ModernUI/ModernUI/ModernUI.csproj.user
 /ModernUI/.nuget/nuget.exe
+/CssGridLayout/.nuget/*.exe

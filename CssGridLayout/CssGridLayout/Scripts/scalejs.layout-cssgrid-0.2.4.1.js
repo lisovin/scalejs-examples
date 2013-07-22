@@ -122,7 +122,7 @@ define('scalejs.layout-cssgrid/consts',[],function () {
     
 
     return {
-        GRIDLAYOUT  : 'css-grid-layout',
+        GRIDLAYOUT  : 'grid',
         STRING      : 'string',
         PROPERTY	: 'property',
         MOZ			: '-moz-',
@@ -517,6 +517,21 @@ define('scalejs.layout-cssgrid/utils.css',[
         return style;
     }
 
+    function clearEmbeddedCss(media) {
+        var id, style;
+
+        media = media || ALL;
+
+        id = GRIDLAYOUT + HYPHEN + media;
+
+        style = document.getElementById(id);
+        if (style) {
+            while (style.childNodes.length > 0) {
+                style.removeChild(style.childNodes[0]);
+            }
+        }
+    }
+
     /**
        * embeds styles to the appropriate media
        *
@@ -539,9 +554,6 @@ define('scalejs.layout-cssgrid/utils.css',[
             embedded_css.push(media);
         } else {
             style = document.getElementById(id);
-            while (style.childNodes.length > 0) {
-                style.removeChild(style.childNodes[0]);
-            }
         }
         // add the rules to the sheet
         if (style !== null) {
@@ -577,7 +589,8 @@ define('scalejs.layout-cssgrid/utils.css',[
         makeUniqueClass: makeUniqueClass,
         getCssValue: getCssValue,
         addClass: addClass,
-        embedCss: embedCss
+        embedCss: embedCss,
+        clearEmbeddedCss: clearEmbeddedCss
     };
 });
 /*global define, document, window */
@@ -597,7 +610,8 @@ define('scalejs.layout-cssgrid/utils',[
         makeUniqueClass: css.makeUniqueClass,
         getCssValue: css.getCssValue,
         addClass: css.addClass,
-        embedCss: css.embedCss
+        embedCss: css.embedCss,
+        clearEmbeddedCss: css.clearEmbeddedCss
     };
 });
 /*global define, document */
@@ -1584,9 +1598,9 @@ define('scalejs.layout-cssgrid/intrinsicSizeCalculator',[
 		    FONTWEIGHT = FONT + 'weight',
 		    DIRECTION = 'direction';
 
-	    if (defined(containerWidth) &&
+	    if (!defined(containerWidth) &&
 				containerWidth !== null) {
-	        cssText += WIDTH + COLON + containerWidth.getPixelValue() + PX + SEMICOL;
+	        cssText += WIDTH + COLON + containerWidth.getPixelValueString() + PX + SEMICOL;
 	    } else {
 	        switch (calculatorOperation) {
 	        case calculatorOperation.minWidth:
@@ -1605,7 +1619,7 @@ define('scalejs.layout-cssgrid/intrinsicSizeCalculator',[
 
 	    if (defined(containerHeight) &&
 				containerHeight !== null) {
-	        cssText += HEIGHT + COLON + containerHeight.getPixelValue() + PX + SEMICOL;
+	        cssText += HEIGHT + COLON + containerHeight.getPixelValueString() + PX + SEMICOL;
 	    } else {
 	        switch (calculatorOperation) {
 	        case calculatorOperation.minWidth:
@@ -1848,6 +1862,7 @@ define('scalejs.layout-cssgrid/gridLayout',[
         makeUniqueClass = utils.makeUniqueClass,
         addClass = utils.addClass,
         embedCss = utils.embedCss,
+        clearEmbeddedCss = utils.clearEmbeddedCss,
         div = document.createElement('div');
 
 
@@ -2872,6 +2887,9 @@ define('scalejs.layout-cssgrid/gridLayout',[
             embedCss(styles, media);
         }
 
+        function prepare() {
+            clearEmbeddedCss(media);
+        }
 
         function setup() {
             var gridCols = properties[GRIDCOLUMNS] || NONE,
@@ -2901,8 +2919,6 @@ define('scalejs.layout-cssgrid/gridLayout',[
 
             //verifyGridItemSizes();
             //verifyGridItemPositions(gridObject);
-
-            layout();
         }
 
         function verifyGridItemLengths(verifyingColumnBreadths) {
@@ -3036,14 +3052,16 @@ define('scalejs.layout-cssgrid/gridLayout',[
             verifyGridItemTrackPositions(gridObject, false);
         }*/
 
+        prepare();
         setup();
-        
+        layout();
+
         return {
             verifyGridItemLengths: verifyGridItemLengths
         };
     };
 });
-/*global define, require, document, console */
+/*global define, require, document, console, window */
 define('scalejs.layout-cssgrid/cssGridLayout',[
     'scalejs!core',
     './utils.sheetLoader',
@@ -3140,7 +3158,6 @@ define('scalejs.layout-cssgrid/cssGridLayout',[
             window.addEventListener('resize', function () {
                 doLayout();
             });
-
         });
     };
 });
