@@ -1,22 +1,58 @@
 
-/*global define,window */
-define('scalejs',['es5-shim', 'json2'], function () {
+/*global define,window,requirejs */
+define('scalejs',[],function () {
     
+    var extensionNames;
 
     return {
         load: function (name, req, load, config) {
-            var extensionNames = config.scalejs ? config.scalejs.extensions || [] : [],
-                moduleName = 'scalejs/' + name;
-
-            req([moduleName], function (loadedModule) {
-                if (moduleName === 'scalejs/application') {
+            if (name === 'extensions') {
+                if (config.scalejs && config.scalejs.extensions) {
+                    extensionNames = config.scalejs.extensions;
                     req(extensionNames, function () {
-                        load(loadedModule);
+                        load(Array.prototype.slice(arguments));
                     });
                 } else {
-                    load(loadedModule);
+                    req(['scalejs/extensions'], function () {
+                        load(Array.prototype.slice(arguments));
+                    }, function () {
+                        // No extensions defined, which is strange but might be ok.
+                        load([]);
+                    });
                 }
+                return;
+            }
+
+            if (name === 'application') {
+                req(['scalejs!extensions'], function () {
+                    req(['scalejs/application'], function (application) {
+                        load(application);
+                    });
+                });
+                return;
+            }
+
+            if (name.indexOf('sandbox') === 0) {
+                req(['scalejs!core', 'scalejs!extensions'], function (core) {
+                    if (config.isBuild) {
+                        load();
+                    } else {
+                        var sandbox = core.buildSandbox(name);
+                        load(sandbox);
+                    }
+                });
+                return;
+            }
+
+            req(['scalejs/' + name], function (loadedModule) {
+                load(loadedModule);
             });
+        },
+
+        write: function (pluginName, moduleName, write) {
+            if (pluginName === 'scalejs' && moduleName === 'application') {
+                write('define("scalejs/extensions", ' + JSON.stringify(extensionNames) + ', function () { return Array.prototype.slice(arguments); })');
+            }
         }
     };
 });
@@ -452,7 +488,11 @@ define('scalejs/base.log',[
             }, Function.prototype.call);
         } else {
             logMethods.forEach(function (method) {
-                self[method] = console[method].bind(console);
+                if (console[method]) {
+                    self[method] = console[method].bind(console);
+                } else {
+                    self[method] = console.log.bind(console);
+                }
             });
         }
 
@@ -502,37 +542,12 @@ define('scalejs/base',[
     };
 });
 
-/*global define,document */
-define('scalejs/sandbox',[],function (
-) {
-    
-
-    function sandbox(id, core) {
-        function getId() {
-            return id;
-        }
-
-        return {
-            getId: getId,
-            object: core.object,
-            type: core.type,
-            log: core.log,
-            array: core.array,
-            onApplicationStarted: core.onApplicationStarted
-        };
-    }
-
-    return sandbox;
-});
-
 /*global define */
 /// <reference path="../Scripts/es5-shim.js" />
 define('scalejs/core',[
-    './base',
-    './sandbox'
+    './base'
 ], function (
-    base,
-    createSandbox
+    base
 ) {
     
 
@@ -588,11 +603,17 @@ define('scalejs/core',[
 
     function buildSandbox(id) {
         if (!has(id)) {
-            throw new Error('Module is is required to builder sandbox.');
+            throw new Error('Sandbox name is required to build a sandbox.');
         }
 
         // Create module instance specific sandbox 
-        var sandbox = createSandbox(id, self);
+        var sandbox = {
+            type: self.type,
+            object: self.object,
+            array: self.array,
+            log: self.log
+        };
+
 
         // Add extensions to sandbox
         extensions.forEach(function (extension) {
@@ -660,6 +681,7 @@ define('scalejs/core',[
 });
 
 /*
+
  * Core Application
  *
  * The Core Application manages the life cycle of modules.
@@ -675,51 +697,54 @@ define('scalejs/application',[
 
     var addOne = core.array.addOne,
         toArray = core.array.toArray,
-        has = core.object.has,
+        //has = core.object.has,
         error = core.log.error,
         debug = core.log.debug,
         moduleRegistrations = [],
         moduleInstances = [];
 
     function registerModules() {
-        var moduleNames,
-            modules;
         // Dynamic module loading is no longer supported for simplicity.
         // Module is free to load any of its resources dynamically.
         // Or an extension can provide dynamic module loading capabilities as needed.
         if (core.isApplicationRunning()) {
-            moduleNames = toArray(arguments).reduce(function (ns, m) { return ns + ',' + m; });
-            throw new Error('Can\'t register module "' + moduleNames + '" since the application is already running.',
+            throw new Error('Can\'t register module since the application is already running.',
                             'Dynamic module loading is not supported.');
         }
 
-        //modules = toArray(arguments).filter(partial(has, _, 'getModuleId'));
-        modules = toArray(arguments).filter(function (m) {
-            return has(m, 'getModuleId');
-        });
-        Array.prototype.push.apply(moduleRegistrations, modules);
+        Array.prototype.push.apply(moduleRegistrations, toArray(arguments).filter(function (m) { return m; }));
     }
 
     function createModule(module) {
-        var moduleInstance;
+        var moduleInstance,
+            moduleId;
 
-        try {
-            moduleInstance = module.newInstance();
-            addOne(moduleInstances, moduleInstance);
+        if (typeof module === 'function') {
+            try {
+                moduleInstance = module();
+            } catch (ex) {
+                if (module.getId) {
+                    moduleId = module.getId();
+                } else {
+                    moduleId = module.name;
+                }
 
-            return moduleInstance;
-        } catch (ex) {
-            error('Failed to create an instance of module "' + module.getModuleId() + '".',
-                  'Application will continue running without the module. ' +
-                  'See following exception stack for more details.',
-                  ex.stack);
+                error('Failed to create an instance of module "' + moduleId + '".',
+                      'Application will continue running without the module. ' +
+                      'See following exception stack for more details.',
+                      ex.stack);
+            }
+        } else {
+            moduleInstance = module;
         }
+
+        addOne(moduleInstances, moduleInstance);
+
+        return moduleInstance;
     }
 
     function createAll() {
-        moduleRegistrations.forEach(function (registration) {
-            createModule(registration);
-        });
+        moduleRegistrations.forEach(createModule);
     }
 
     function startAll() {
@@ -743,46 +768,4 @@ define('scalejs/application',[
         run: run,
         exit: exit
     };
-});
-
-/*
- * Core Module of Scalable JavaScript Application
- *
- * Each Module corresponds to an independent unit of functionality.
- */
-/*global define */
-define('scalejs/module',[
-    './core'
-], function (
-    core
-) {
-    
-
-    function module(moduleId, creator) {
-        function getModuleId() {
-            return moduleId;
-        }
-
-        function newInstance() {
-            var instance,
-                sandbox;
-
-            sandbox = core.buildSandbox(moduleId);
-            sandbox.getModuleId = function () { return moduleId; };
-
-            instance = creator(sandbox);
-
-            return {
-                toString: getModuleId
-            };
-        }
-
-        return {
-            getModuleId: getModuleId,
-            toString: getModuleId,
-            newInstance: newInstance
-        };
-    }
-
-    return module;
 });

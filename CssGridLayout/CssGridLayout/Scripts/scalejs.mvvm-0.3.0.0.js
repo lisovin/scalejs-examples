@@ -101,7 +101,8 @@ define('scalejs.mvvm/classBindingProvider',['knockout'], function (ko) {
             for (bindingName in result) {
                 if (result.hasOwnProperty(bindingName) &&
                         bindingName !== "_ko_property_writers" &&
-                            !ko.bindingHandlers[bindingName]) {
+                            bindingName !== 'valueUpdate' &&
+                                !ko.bindingHandlers[bindingName]) {
                     if (options.log) {
                         if (binding) {
                             options.log('Unknown binding handler "' + bindingName + '" found in',
@@ -316,14 +317,16 @@ define('scalejs.mvvm/selectableArray',[
 
 /*global define*/
 define('scalejs.mvvm/ko.utils',[
+    'scalejs!core',
     'knockout'
 ], function (
+    core,
     ko
 ) {
     
 
     function cloneNodes(nodesArray, shouldCleanNodes) {
-        return nodesArray.map(function (node) {
+        return core.array.toArray(nodesArray).map(function (node) {
             var clonedNode = node.cloneNode(true);
             return shouldCleanNodes ? ko.cleanNode(clonedNode) : clonedNode;
         });
@@ -343,7 +346,8 @@ define('scalejs.mvvm/mvvm',[
     './classBindingProvider',
     './htmlTemplateSource',
     './selectableArray',
-    './ko.utils'
+    './ko.utils',
+    'module'
 ], function (
     ko,
     mapping,
@@ -351,16 +355,15 @@ define('scalejs.mvvm/mvvm',[
     createClassBindingProvider,
     htmlTemplateSource,
     selectableArray,
-    koUtils
+    koUtils,
+    module
 ) {
     
 
     var merge = core.object.merge,
         toArray = core.array.toArray,
-        is = core.type.is,
-        //curry = core.functional.curry,
         classBindingProvider = createClassBindingProvider({
-            log: core.log.warn,
+            log: module.config().logWarnings ? core.log.warn : undefined,
             fallback: true
         }),
         root = ko.observable();
@@ -384,6 +387,10 @@ define('scalejs.mvvm/mvvm',[
         return mapping.toJSON(viewModel);
     }
 
+    function toObject(viewModel) {
+        return JSON.parse(toJson(viewModel));
+    }
+
     function registerBindings(newBindings) {
         classBindingProvider.registerBindings(newBindings);
     }
@@ -403,19 +410,26 @@ define('scalejs.mvvm/mvvm',[
         toArray(arguments).forEach(htmlTemplateSource.registerTemplates);
     }
 
-    function renderable(dataClassOrBinding, optionalViewModel) {
-        if (is(dataClassOrBinding, 'string')) {
-            return {
-                dataClass: dataClassOrBinding,
-                viewmodel: optionalViewModel
-            };
-        }
+    function dataBinding(name, data) {
+        var binding = {};
 
-        if (is(dataClassOrBinding, 'function')) {
-            return dataClassOrBinding.bind(optionalViewModel);
-        }
+        binding[name] = data;
 
-        return dataClassOrBinding;
+        return binding;
+    }
+
+    function template(name, data) {
+        return dataBinding('template', {
+            name: name,
+            data: data
+        });
+    }
+
+    function dataClass(name, data) {
+        return {
+            dataClass: name,
+            viewmodel: data
+        };
     }
 
     function init() {
@@ -439,7 +453,9 @@ define('scalejs.mvvm/mvvm',[
                 toJson: toJson,
                 registerBindings: registerBindings,
                 registerTemplates: registerTemplates,
-                renderable: renderable,
+                dataClass: dataClass,
+                template: template,
+                dataBinding: dataBinding,
                 selectableArray: selectableArray,
                 ko: {
                     utils: koUtils
@@ -455,7 +471,10 @@ define('scalejs.mvvm/mvvm',[
                 registerTemplates: registerTemplates,
                 toJson: toJson,
                 toViewModel: toViewModel,
-                renderable: renderable,
+                toObject: toObject,
+                dataClass: dataClass,
+                template: template,
+                dataBinding: dataBinding,
                 selectableArray: selectableArray,
                 root: root
             }
@@ -535,11 +554,12 @@ define('scalejs.bindings/change',[
     };
 });
 
-/*global define*/
+/*global define,setTimeout*/
 /// <reference path="../Scripts/_references.js" />
 define('scalejs.bindings/render',[
     'scalejs!core',
-    'knockout'
+    'knockout',
+    'scalejs.functional'
 ], function (
     core,
     ko
@@ -548,7 +568,13 @@ define('scalejs.bindings/render',[
     
 
     var is = core.type.is,
-        unwrap = ko.utils.unwrapObservable;
+        has = core.object.has,
+        unwrap = ko.utils.unwrapObservable,
+        complete = core.functional.builders.complete,
+        $DO = core.functional.builder.$DO,
+        oldElement,
+        oldBinding,
+        context;
 
 
     function init() {
@@ -558,6 +584,8 @@ define('scalejs.bindings/render',[
     /*jslint unparam: true*/
     function update(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
         var value = unwrap(valueAccessor()),
+            inTransition,
+            outTransition,
             bindingAccessor,
             binding,
             result;
@@ -586,7 +614,41 @@ define('scalejs.bindings/render',[
             binding = is(value, 'function') ? value.call(viewModel, bindingContext) : value;
         }
 
-        result = ko.applyBindingsToNode(element, binding);
+        if (has(oldBinding) && has(oldBinding.transitions, 'outTransitions')) {
+            outTransition = complete.apply(null,
+                oldBinding.transitions.outTransitions.map(function (t) { return $DO(t); }));
+            context = {
+                getElement: function () {
+                    return oldElement;
+                }
+            };
+
+            outTransition.call(context, function () {
+                result = ko.applyBindingsToNode(element, binding, viewModel);
+            });
+        } else {
+            result = ko.applyBindingsToNode(element, binding, viewModel);
+        }
+
+        if (has(binding, 'transitions')) {
+            if (has(binding.transitions, 'inTransitions')) {
+                inTransition = complete.apply(null, binding.transitions.inTransitions.map(function (t) { return $DO(t); }));
+                context = {
+                    getElement: function () {
+                        return element;
+                    }
+                };
+
+                setTimeout(function () {
+                    inTransition.call(context);
+                }, 0);
+            }
+            oldBinding = binding;
+            oldElement = element;
+        } else {
+            oldBinding = undefined;
+            oldElement = undefined;
+        }
 
         if (is(binding, 'afterRender', 'function')) {
             binding.afterRender(element);
@@ -606,206 +668,24 @@ define('scalejs.bindings/render',[
     };
 });
 
-/// <reference path="../scripts/_references.js" />
-/*global console,define,setTimeout*/
-/*jslint unparam: true*/define('scalejs.bindings/transitionable',[
-    'scalejs!core',
-    'knockout',
-    '../scalejs.mvvm/ko.utils',
-    'scalejs.statechart-scion'
-], function (
-    core,
-    ko,
-    koUtils
-) {
-    /// <param name="ko" value="window.ko"/>
-    
-
-    var array = core.array,
-        merge = core.object.merge,
-        statechart = core.state.builder.builder({ logStatesEnteredAndExited: false }),
-        state = core.state.builder.state,
-        isObservable = ko.isObservable,
-        unwrap = ko.utils.unwrapObservable,
-        //observable = ko.observable,
-        computed = ko.computed,
-        cloneNodes = koUtils.cloneNodes;
-
-
-    function transitionManager(element, viewModel, spec) {
-        var transitionsStatechart,
-            transitionableState = spec.transitionableState,
-            savedNodes,
-            model;
-
-        function updatetransitionableState(newState) {
-            // update visual state later (to make sure we are not in statechart step)
-            if (isObservable(transitionableState)) {
-                setTimeout(function () {
-                    transitionableState(newState);
-                }, 0);
-            }
-        }
-
-        function renderChild() {
-            ko.virtualElements.setDomNodeChildren(element, cloneNodes(savedNodes));
-            ko.applyBindingsToDescendants(viewModel, element);
-        }
-
-        function clearChild() {
-            savedNodes = cloneNodes(ko.virtualElements.childNodes(element), true);
-            ko.virtualElements.emptyNode(element);
-        }
-
-        function runTransition(transitions) {
-            var transition = transitions.shift(),
-                child = ko.virtualElements.childNodes(element).filter(function (e) {
-                    return e.nodeType === 1;
-                })[0];
-
-            if (transition) {
-                setTimeout(function () {
-                    var context = {
-                        element: child,
-                        viewModel: viewModel,
-                        renderChild: renderChild
-                    };
-
-                    transition.call(context, function () {
-                        transitionsStatechart.send('transition.finished', { transition: transition });
-                    });
-                }, 0);
-            }
-        }
-
-        function start() {
-            clearChild();
-
-            computed({
-                read: function () {
-                    var state = unwrap(transitionableState);
-                    if (state) {
-                        setTimeout(function () {
-                            transitionsStatechart.send(state);
-                        }, 0);
-                    }
-                },
-                disposeWhenNodeIsRemoved: element
-            });
-
-            transitionsStatechart.start();
-        }
-
-        model = merge({
-            inTransitions: [],
-            outTransitions: []
-        }, spec);
-
-        /*jslint white: true*/
-        transitionsStatechart = statechart(
-            // Initial
-            state('in.started')
-                .onEntry(function () {
-                    this.transitions = array.copy(model.inTransitions);
-                })
-                .on(function () {
-                    return this.transitions.length > 0;
-                }).goto('in.transitioning')
-                .goto('in.finished'),
-
-            state('in.transitioning')
-                .onEntry(function () {
-                    runTransition(this.transitions);
-                })
-                .on('transition.finished', function () {
-                    return this.transitions.length > 0;
-                }).goto('in.transitioning')
-                .on('transition.finished').goto('in.finished'),
-
-            state('in.finished')
-                .onEntry(function () {
-                    updatetransitionableState('in.finished');
-                })
-                .on('out.started').goto('out.started'),
-
-            state('out.started')
-                .onEntry(function () {
-                    this.transitions = array.copy(model.outTransitions);
-                })
-                .on(function () {
-                    return this.transitions.length > 0;
-                }).goto('out.transitioning')
-                .goto('out.finished'),
-
-            state('out.transitioning')
-                .onEntry(function () {
-                    runTransition(this.transitions);
-                })
-                .on('transition.finished', function () {
-                    return this.transitions.length > 0;
-                }).goto('out.transitioning')
-                .on('transition.finished').goto('out.finished'),
-
-            // Finished transitioning
-            state('out.finished')
-                .onEntry(function () {
-                    updatetransitionableState('out.finished');
-                })
-                .on('in.transitioning').goto('in.started')
-        );
-        /*jslint white: false*/
-
-        return {
-            start: start
-        };
-    }
-
-    function init(        element,        valueAccessor,        allBindingsAccessor,        viewModel,        bindingContext    ) {
-        return { 'controlsDescendantBindings' : true };
-    }
-
-    function update(
-        element,
-        valueAccessor,
-        allBindingsAccessor,
-        viewModel,
-        bindingContext
-    ) {
-        var options = valueAccessor(),
-            tm = transitionManager(element, viewModel, options);
-
-        tm.start();
-    }
-
-    return {
-        init: init,
-        update: update
-    };
-});
-/*jslint unparam: false*/
-
-;
 /*global define*/
 define('scalejs.mvvm',[
     'scalejs!core',
     'knockout',
-    './scalejs.mvvm/mvvm',
+    'scalejs.mvvm/mvvm',
     './scalejs.bindings/change',
-    './scalejs.bindings/render',
-    './scalejs.bindings/transitionable'
+    './scalejs.bindings/render'
 ], function (
     core,
     ko,
     mvvm,
     changeBinding,
-    renderBinding,
-    transitionableBinding
+    renderBinding
 ) {
     
 
     ko.bindingHandlers.change = changeBinding;
     ko.bindingHandlers.render = renderBinding;
-    ko.bindingHandlers.transitionable = transitionableBinding;
 
     ko.virtualElements.allowedBindings.change = true;
     ko.virtualElements.allowedBindings.render = true;

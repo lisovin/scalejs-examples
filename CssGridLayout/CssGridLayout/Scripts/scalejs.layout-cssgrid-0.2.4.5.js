@@ -3091,13 +3091,50 @@ define('scalejs.layout-cssgrid/cssGridLayout',[
 
             element = document.getElementById(grid.selector.substring(1));
             if (element === null) { return; }
+            style = element.getAttribute("style");
+            if (style !== null) {
+                style.split('; ').forEach(function (property) {
+                    var tokens = property.split(':'),
+                        property,
+                        value;
+
+                    if (tokens.length === 2) {
+                        property = tokens[0].trim();
+                        value = tokens[1].trim();
+
+                        if (property.indexOf('-ms-grid') === 0) {
+                            properties[property.substring(4)] = value;
+                        }
+                    }
+                });
+            }
 
             grid_items = cssGridRules
                 .filter(function (item) { return item !== grid; })
                 .map(function (item) {
-                    var grid_item = {};
-                    grid_item.details = item;
+                    var grid_item = {},
+                        style;
+
                     grid_item.element = document.getElementById(item.selector.substring(1));
+                    grid_item.details = item;
+
+                    style = grid_item.element.getAttribute("style");
+                    if (style !== null) {
+                        style.split(';').forEach(function (property) {
+                            var tokens = property.split(':'),
+                                property,
+                                value;
+
+                            if (tokens.length === 2) {
+                                property = tokens[0].trim();
+                                value = tokens[1].trim();
+
+                                if (property.indexOf('-ms-grid') === 0) {
+                                    grid_item.details.properties[property.substring(4)] = value;
+                                }
+                            }
+                        });
+                    }
 
                     return grid_item;
                 });

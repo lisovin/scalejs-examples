@@ -1,4 +1,4 @@
-﻿/*global define */
+﻿/*global define, console */
 /*jslint sloppy: true*/
 define(function () {
     return function (sandbox) {
