@@ -1,13 +1,24 @@
 ﻿/*global define */
-define(function () {
+define([
+    'scalejs!sandbox/main'
+], function (
+    sandbox
+) {
     'use strict';
 
-    return function (sandbox) {
+    return function () {
         var observable = sandbox.mvvm.observable,
-            text = observable('Hello World');
+            messageBus = sandbox.reactive.messageBus,
+            text = observable('Hello World'),
+            columns = observable('400px 1fr 1fr');
+
+        setTimeout(function () {
+            columns("200px 1fr 1fr");
+        }, 3000);
 
         return {
-            text: text
+            text: text,
+            columns: columns
         };
     };
 });

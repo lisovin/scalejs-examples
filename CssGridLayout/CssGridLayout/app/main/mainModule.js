@@ -24,7 +24,7 @@ define([
             viewModel = mainViewModel(sandbox);
 
         // Register module bindings
-        registerBindings(mainBindings(sandbox));
+        registerBindings(mainBindings);
 
         // Register module templates
         registerTemplates(mainTemplate);

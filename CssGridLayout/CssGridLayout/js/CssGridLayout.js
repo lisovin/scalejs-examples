@@ -18116,15 +18116,26 @@ define('scalejs.statechart-scion',[
 
 define("scalejs/extensions", ["scalejs.functional","scalejs.layout-cssgrid","scalejs.linq-linqjs","scalejs.mvvm","scalejs.reactive","scalejs.statechart-scion"], function () { return Array.prototype.slice(arguments); });
 /*global define */
-define('app/main/viewmodels/mainViewModel',[],function () {
+define('app/main/viewmodels/mainViewModel',[
+    'scalejs!sandbox/main'
+], function (
+    sandbox
+) {
     
 
-    return function (sandbox) {
+    return function () {
         var observable = sandbox.mvvm.observable,
-            text = observable('Hello World');
+            messageBus = sandbox.reactive.messageBus,
+            text = observable('Hello World'),
+            columns = observable('400px 1fr 1fr');
+
+        setTimeout(function () {
+            columns("200px 1fr 1fr");
+        }, 3000);
 
         return {
-            text: text
+            text: text,
+            columns: columns
         };
     };
 });
@@ -18515,25 +18526,44 @@ define('text',['module'], function (module) {
     }
     return text;
 });
-define('text!app/main/views/main.html',[],function () { return '<div id="main_template">\r\n    <div id="main" style="-ms-grid-columns:400px 1fr 1fr">\r\n        <div id="left">Navigation</div>\r\n        <div id="header">Header</div>\r\n        <div id="content1">Content 1</div>\r\n        <div id="content2">Content 2</div>\r\n        <div id="footer">Footer</div>\r\n    </div>\r\n</div>\r\n';});
+define('text!app/main/views/main.html',[],function () { return '<div id="main_template">\r\n    <div id="main" data-class="main-columns">\r\n        <div id="left" data-bind="text: text">Navigation</div>\r\n        <div id="header">Header</div>\r\n        <div id="content1">Content 1</div>\r\n        <div id="content2">Content 2</div>\r\n        <div id="footer">Footer</div>\r\n    </div>\r\n</div>\r\n';});
 
 /*global define, console */
 /*jslint sloppy: true*/
-define('app/main/bindings/mainBindings.js',[],function () {
-    return function (sandbox) {
-        var messageBus = sandbox.reactive.messageBus;
+define('app/main/bindings/mainBindings.js',[
+    'scalejs!sandbox',
+    'knockout'
+], function (
+    sandbox,
+    ko
+) {
+    var messageBus = sandbox.reactive.messageBus,
+        unwrap = ko.utils.unwrapObservable;
 
-        return {
-            'main': function () {
-                return {
-                    template: 'main_template',
+    return {
+        'main': function () {
+            return {
+                template: {
+                    name: 'main_template',
+                    data: this,
                     afterRender: function () {
                         console.log('main rendered');
                         messageBus.notify('css-grid-layout');
                     }
-                };
-            }
-        };
+                }
+            };
+        },
+        'main-columns': function (context) {
+            setTimeout(function () {
+                messageBus.notify('css-grid-layout');
+            });
+
+            return {
+                attr: {
+                    style: '-ms-grid-columns: ' + unwrap(this.columns)
+                }
+            };
+        }
     };
 });
 
@@ -18563,7 +18593,7 @@ define('app/main/mainModule',[
             viewModel = mainViewModel(sandbox);
 
         // Register module bindings
-        registerBindings(mainBindings(sandbox));
+        registerBindings(mainBindings);
 
         // Register module templates
         registerTemplates(mainTemplate);
