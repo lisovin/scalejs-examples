@@ -33,6 +33,20 @@ define([
                     style: '-ms-grid-columns: ' + unwrap(this.columns)
                 }
             };
+        },
+        'left-width': function (context) {
+            setTimeout(function () {
+                messageBus.notify('css-grid-layout');
+            });
+            return {
+                style: {
+                    width: unwrap(this.width) + 'px'
+                }
+                /*
+                attr: {
+                    style: 'width: ' + unwrap(this.width) + 'px'
+                }*/
+            };
         }
     };
 });

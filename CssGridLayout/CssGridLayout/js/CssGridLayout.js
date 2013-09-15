@@ -8599,12 +8599,13 @@ define('scalejs.layout-cssgrid/utils.css',[
         return style;
     }
 
-    function clearEmbeddedCss(media) {
+    function clearEmbeddedCss(media, suffix) {
         var id, style;
 
+        suffix = suffix ? '-' + suffix : '';
         media = media || ALL;
 
-        id = GRIDLAYOUT + HYPHEN + media;
+        id = GRIDLAYOUT + HYPHEN + media + suffix;
 
         style = document.getElementById(id);
         if (style) {
@@ -8623,17 +8624,18 @@ define('scalejs.layout-cssgrid/utils.css',[
        * 
        * @return obj - the STYLE element
        */
-    function embedCss(styles, media) {
+    function embedCss(styles, media, suffix) {
         // determine the medium
         media = media || ALL;
+        suffix = suffix ? '-' + suffix : '';
         // determine the id
-        var id = GRIDLAYOUT + HYPHEN + media, style;
+        var id = GRIDLAYOUT + HYPHEN + media + suffix, style;
         // find or create the embedded stylesheet
-        if (!in_object(media, embedded_css)) {
+        if (!in_object(media + suffix, embedded_css)) {
             // make the new style element
             style = newStyleElement(media, id);
             // store the medium
-            embedded_css.push(media);
+            embedded_css.push(media+suffix);
         } else {
             style = document.getElementById(id);
         }
@@ -9680,9 +9682,9 @@ define('scalejs.layout-cssgrid/intrinsicSizeCalculator',[
 		    FONTWEIGHT = FONT + 'weight',
 		    DIRECTION = 'direction';
 
-	    if (!defined(containerWidth) &&
+	    if (defined(containerWidth) &&
 				containerWidth !== null) {
-	        cssText += WIDTH + COLON + containerWidth.getPixelValueString() + PX + SEMICOL;
+	        cssText += WIDTH + COLON + containerWidth.getPixelValue() + PX + SEMICOL;
 	    } else {
 	        switch (calculatorOperation) {
 	        case calculatorOperation.minWidth:
@@ -9701,7 +9703,7 @@ define('scalejs.layout-cssgrid/intrinsicSizeCalculator',[
 
 	    if (defined(containerHeight) &&
 				containerHeight !== null) {
-	        cssText += HEIGHT + COLON + containerHeight.getPixelValueString() + PX + SEMICOL;
+	        cssText += HEIGHT + COLON + containerHeight.getPixelValue() + PX + SEMICOL;
 	    } else {
 	        switch (calculatorOperation) {
 	        case calculatorOperation.minWidth:
@@ -9779,7 +9781,7 @@ define('scalejs.layout-cssgrid/intrinsicSizeCalculator',[
 	}
 
 	function calcMinHeight(element, usedWidth) {
-	    if (defined(usedWidth) ||
+	    if (!defined(usedWidth) ||
                 usedWidth === null) {
 	        throw new Error('No `usedWidth` specified.');
 	    }
@@ -10972,11 +10974,11 @@ define('scalejs.layout-cssgrid/gridLayout',[
             styles += selector + OPEN_CURLY + gridstyles + CLOSE_CURLY;
 
             // console.log(styles);
-            embedCss(styles, media);
+            embedCss(styles, media, element.id);
         }
 
         function prepare() {
-            clearEmbeddedCss(media);
+            clearEmbeddedCss(media, element.id);
         }
 
         function setup() {
@@ -11167,13 +11169,14 @@ define('scalejs.layout-cssgrid/cssGridLayout',[
     function doLayout() {
         cssGridSelectors.forEach(function (grid) {
             var selector = grid.selector,
-                element,
+                gridElement,
                 properties = grid.properties,
                 grid_items;
 
-            element = document.getElementById(grid.selector.substring(1));
-            if (element === null) { return; }
-            style = element.getAttribute("style");
+            gridElement = document.getElementById(grid.selector.substring(1));
+            if (gridElement === null) { return; }
+
+            style = gridElement.getAttribute("style");
             if (style !== null) {
                 style.split('; ').forEach(function (property) {
                     var tokens = property.split(':'),
@@ -11195,9 +11198,15 @@ define('scalejs.layout-cssgrid/cssGridLayout',[
                 .filter(function (item) { return item !== grid; })
                 .map(function (item) {
                     var grid_item = {},
-                        style;
+                        style,
+                        gridItemElement;
 
-                    grid_item.element = document.getElementById(item.selector.substring(1));
+                    gridItemElement = document.getElementById(item.selector.substring(1));;
+                    if (gridItemElement.parentNode !== gridElement) {
+                        return;
+                    }
+
+                    grid_item.element = gridItemElement;
                     grid_item.details = item;
 
                     style = grid_item.element.getAttribute("style");
@@ -11219,11 +11228,12 @@ define('scalejs.layout-cssgrid/cssGridLayout',[
                     }
 
                     return grid_item;
-                });
+                })
+                .filter(function (item) { return item; });
 
             //console.log(selector, properties, grid_items);
 
-            gridLayout(element, selector, properties, 'screen', grid_items);
+            gridLayout(gridElement, selector, properties, 'screen', grid_items);
         });
     }
 
@@ -18127,15 +18137,22 @@ define('app/main/viewmodels/mainViewModel',[
         var observable = sandbox.mvvm.observable,
             messageBus = sandbox.reactive.messageBus,
             text = observable('Hello World'),
-            columns = observable('400px 1fr 1fr');
+            columns = observable('auto auto 1fr 1fr'),
+            width = observable(300);
 
-        setTimeout(function () {
-            columns("200px 1fr 1fr");
-        }, 3000);
+        function dec() {
+            if (width() > 100) {
+                width(width() - 20);
+                setTimeout(dec, 0);
+            }
+        }
+
+        //setTimeout(dec, 1000);
 
         return {
             text: text,
-            columns: columns
+            columns: columns,
+            width: width
         };
     };
 });
@@ -18526,7 +18543,7 @@ define('text',['module'], function (module) {
     }
     return text;
 });
-define('text!app/main/views/main.html',[],function () { return '<div id="main_template">\r\n    <div id="main" data-class="main-columns">\r\n        <div id="left" data-bind="text: text">Navigation</div>\r\n        <div id="header">Header</div>\r\n        <div id="content1">Content 1</div>\r\n        <div id="content2">Content 2</div>\r\n        <div id="footer">Footer</div>\r\n    </div>\r\n</div>\r\n';});
+define('text!app/main/views/main.html',[],function () { return '<div id="main_template">\r\n    <div id="main" data-class="main-columns">\r\n        <div id="left" data-class="left-width">Navigation</div>\r\n        <div id="leftSplitter">splitter</div>\r\n        <div id="header">Header</div>\r\n        <!--\r\n        <div id="content1">Content 1</div>\r\n        -->\r\n        <div id="content1">\r\n            <div id="content1-minimize">_</div>\r\n            <div id="content1-restore">[]</div>\r\n            <div id="content1-close">X</div>\r\n            <div id="content1-content">Content 1</div>\r\n        </div>\r\n        <div id="content2">Content 2</div>\r\n        <div id="footer">Footer</div>\r\n    </div>\r\n</div>\r\n';});
 
 /*global define, console */
 /*jslint sloppy: true*/
@@ -18562,6 +18579,20 @@ define('app/main/bindings/mainBindings.js',[
                 attr: {
                     style: '-ms-grid-columns: ' + unwrap(this.columns)
                 }
+            };
+        },
+        'left-width': function (context) {
+            setTimeout(function () {
+                messageBus.notify('css-grid-layout');
+            });
+            return {
+                style: {
+                    width: unwrap(this.width) + 'px'
+                }
+                /*
+                attr: {
+                    style: 'width: ' + unwrap(this.width) + 'px'
+                }*/
             };
         }
     };

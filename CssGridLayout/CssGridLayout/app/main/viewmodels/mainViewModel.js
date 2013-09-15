@@ -10,15 +10,22 @@ define([
         var observable = sandbox.mvvm.observable,
             messageBus = sandbox.reactive.messageBus,
             text = observable('Hello World'),
-            columns = observable('400px 1fr 1fr');
+            columns = observable('auto auto 1fr 1fr'),
+            width = observable(300);
 
-        setTimeout(function () {
-            columns("200px 1fr 1fr");
-        }, 3000);
+        function dec() {
+            if (width() > 100) {
+                width(width() - 20);
+                setTimeout(dec, 0);
+            }
+        }
+
+        //setTimeout(dec, 1000);
 
         return {
             text: text,
-            columns: columns
+            columns: columns,
+            width: width
         };
     };
 });
