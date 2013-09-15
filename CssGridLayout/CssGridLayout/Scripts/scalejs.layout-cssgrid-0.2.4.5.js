@@ -3119,8 +3119,8 @@ define('scalejs.layout-cssgrid/cssGridLayout',[
                         style,
                         gridItemElement;
 
-                    gridItemElement = document.getElementById(item.selector.substring(1));;
-                    if (gridItemElement.parentNode !== gridElement) {
+                    gridItemElement = document.getElementById(item.selector.substring(1));
+                    if (gridItemElement === null || gridItemElement.parentNode !== gridElement) {
                         return;
                     }
 

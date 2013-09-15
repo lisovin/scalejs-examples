@@ -11201,8 +11201,8 @@ define('scalejs.layout-cssgrid/cssGridLayout',[
                         style,
                         gridItemElement;
 
-                    gridItemElement = document.getElementById(item.selector.substring(1));;
-                    if (gridItemElement.parentNode !== gridElement) {
+                    gridItemElement = document.getElementById(item.selector.substring(1));
+                    if (gridItemElement === null || gridItemElement.parentNode !== gridElement) {
                         return;
                     }
 
@@ -18543,7 +18543,7 @@ define('text',['module'], function (module) {
     }
     return text;
 });
-define('text!app/main/views/main.html',[],function () { return '<div id="main_template">\r\n    <div id="main" data-class="main-columns">\r\n        <div id="left" data-class="left-width">Navigation</div>\r\n        <div id="leftSplitter">splitter</div>\r\n        <div id="header">Header</div>\r\n        <!--\r\n        <div id="content1">Content 1</div>\r\n        -->\r\n        <div id="content1">\r\n            <div id="content1-minimize">_</div>\r\n            <div id="content1-restore">[]</div>\r\n            <div id="content1-close">X</div>\r\n            <div id="content1-content">Content 1</div>\r\n        </div>\r\n        <div id="content2">Content 2</div>\r\n        <div id="footer">Footer</div>\r\n    </div>\r\n</div>\r\n';});
+define('text!app/main/views/main.html',[],function () { return '<div id="main_template">\r\n    <div id="main" data-class="main-columns">\r\n        <div id="left" data-class="left-width">Navigation</div>\r\n        <div id="leftSplitter">splitter</div>\r\n        <div id="header">Header</div>\r\n        <!--\r\n        <div id="content1">Content 1</div>\r\n        -->\r\n        <div id="content1">\r\n            <div id="content1-title">This is the title</div>\r\n            <div id="content1-minimize">_</div>\r\n            <div id="content1-restore">[]</div>\r\n            <div id="content1-close">X</div>\r\n            <div id="content1-content">Content 1</div>\r\n        </div>\r\n        <div id="content2">Content 2</div>\r\n        <div id="footer">Footer</div>\r\n    </div>\r\n</div>\r\n';});
 
 /*global define, console */
 /*jslint sloppy: true*/
