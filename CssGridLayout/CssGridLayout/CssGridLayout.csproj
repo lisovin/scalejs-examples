@@ -61,9 +61,11 @@
     <Content Include="Scripts\scalejs.functional-0.2.9.js" />
     <Content Include="Scripts\scalejs.functional-0.2.9.min.js" />
     <Content Include="Scripts\scalejs.layout-cssgrid-0.2.4.5.js" />
-    <Content Include="Scripts\scalejs.layout-cssgrid-0.2.4.5.min.js" />
+    <Content Include="Scripts\scalejs.layout-cssgrid-0.2.4.8.js" />
+    <Content Include="Scripts\scalejs.layout-cssgrid-0.2.4.8.min.js" />
     <Content Include="Scripts\scalejs.layout-cssgrid-splitter-1.0.0.js" />
-    <Content Include="Scripts\scalejs.layout-cssgrid-splitter-1.0.0.min.js" />
+    <Content Include="Scripts\scalejs.layout-cssgrid-splitter-1.0.2.js" />
+    <Content Include="Scripts\scalejs.layout-cssgrid-splitter-1.0.2.min.js" />
     <Content Include="Scripts\scalejs.linq-linqjs-3.0.3.js" />
     <Content Include="Scripts\scalejs.linq-linqjs-3.0.3.min.js" />
     <Content Include="Scripts\scalejs.mvvm-0.3.0.0.js" />

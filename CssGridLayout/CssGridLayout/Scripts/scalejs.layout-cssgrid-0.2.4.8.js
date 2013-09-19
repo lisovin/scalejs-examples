@@ -517,12 +517,13 @@ define('scalejs.layout-cssgrid/utils.css',[
         return style;
     }
 
-    function clearEmbeddedCss(media) {
+    function clearEmbeddedCss(media, suffix) {
         var id, style;
 
+        suffix = suffix ? '-' + suffix : '';
         media = media || ALL;
 
-        id = GRIDLAYOUT + HYPHEN + media;
+        id = GRIDLAYOUT + HYPHEN + media + suffix;
 
         style = document.getElementById(id);
         if (style) {
@@ -541,17 +542,18 @@ define('scalejs.layout-cssgrid/utils.css',[
        * 
        * @return obj - the STYLE element
        */
-    function embedCss(styles, media) {
+    function embedCss(styles, media, suffix) {
         // determine the medium
         media = media || ALL;
+        suffix = suffix ? '-' + suffix : '';
         // determine the id
-        var id = GRIDLAYOUT + HYPHEN + media, style;
+        var id = GRIDLAYOUT + HYPHEN + media + suffix, style;
         // find or create the embedded stylesheet
-        if (!in_object(media, embedded_css)) {
+        if (!in_object(media + suffix, embedded_css)) {
             // make the new style element
             style = newStyleElement(media, id);
             // store the medium
-            embedded_css.push(media);
+            embedded_css.push(media + suffix);
         } else {
             style = document.getElementById(id);
         }
@@ -562,6 +564,7 @@ define('scalejs.layout-cssgrid/utils.css',[
         // return the style element
         return style;
     }
+
 
     /**
        * eCSStender::getCSSValue()
@@ -1598,9 +1601,9 @@ define('scalejs.layout-cssgrid/intrinsicSizeCalculator',[
 		    FONTWEIGHT = FONT + 'weight',
 		    DIRECTION = 'direction';
 
-	    if (!defined(containerWidth) &&
-				containerWidth !== null) {
-	        cssText += WIDTH + COLON + containerWidth.getPixelValueString() + PX + SEMICOL;
+	    if (defined(containerWidth) &&
+			    containerWidth !== null) {
+	        cssText += WIDTH + COLON + containerWidth.getPixelValue() + PX + SEMICOL;
 	    } else {
 	        switch (calculatorOperation) {
 	        case calculatorOperation.minWidth:
@@ -1619,7 +1622,7 @@ define('scalejs.layout-cssgrid/intrinsicSizeCalculator',[
 
 	    if (defined(containerHeight) &&
 				containerHeight !== null) {
-	        cssText += HEIGHT + COLON + containerHeight.getPixelValueString() + PX + SEMICOL;
+	        cssText += HEIGHT + COLON + containerHeight.getPixelValue() + PX + SEMICOL;
 	    } else {
 	        switch (calculatorOperation) {
 	        case calculatorOperation.minWidth:
@@ -1697,7 +1700,7 @@ define('scalejs.layout-cssgrid/intrinsicSizeCalculator',[
 	}
 
 	function calcMinHeight(element, usedWidth) {
-	    if (defined(usedWidth) ||
+	    if (!defined(usedWidth) ||
                 usedWidth === null) {
 	        throw new Error('No `usedWidth` specified.');
 	    }
@@ -1933,6 +1936,7 @@ define('scalejs.layout-cssgrid/gridLayout',[
                 margins = {},
                 padding = {},
                 borders = {},
+                oldDisplay = gridElement.style.display,
                 //innerHTML,
                 //s,
                 width,
@@ -1940,7 +1944,6 @@ define('scalejs.layout-cssgrid/gridLayout',[
                 floated,
                 widthToUse,
                 heightToUse,
-                oldDisplay = div.style.display,
                 //marginToUse,
                 //borderWidthToUse,
                 //borderStyleToUse,
@@ -1957,7 +1960,7 @@ define('scalejs.layout-cssgrid/gridLayout',[
                 heightAdjustmentMeasure;
 
             // we need to get grid props from the passed styles
-            isInlineGrid = gridProperties.display === INLINEGRID;// ? true : false;
+            isInlineGrid = gridProperties.display === INLINEGRID ? true : false;
 
             // Get each individual margin, border, and padding value for
             // using with calc() when specifying the width/height of the dummy element.
@@ -2890,11 +2893,11 @@ define('scalejs.layout-cssgrid/gridLayout',[
             styles += selector + OPEN_CURLY + gridstyles + CLOSE_CURLY;
 
             // console.log(styles);
-            embedCss(styles, media);
+            embedCss(styles, media, element.id);
         }
 
         function prepare() {
-            clearEmbeddedCss(media);
+            clearEmbeddedCss(media, element.id);
         }
 
         function setup() {
@@ -3085,26 +3088,76 @@ define('scalejs.layout-cssgrid/cssGridLayout',[
     function doLayout() {
         cssGridSelectors.forEach(function (grid) {
             var selector = grid.selector,
-                element,
+                gridElement,
                 properties = grid.properties,
-                grid_items;
+                grid_items,
+                gridStyle;
 
-            element = document.getElementById(grid.selector.substring(1));
-            if (element === null) { return; }
+            gridElement = document.getElementById(grid.selector.substring(1));
+            if (gridElement === null) { return; }
+
+            gridStyle = gridElement.getAttribute("style");
+            if (gridStyle !== null) {
+                gridStyle.split('; ').forEach(function (property) {
+                    var tokens = property.split(':'),
+                        value;
+
+                    if (tokens.length === 2) {
+                        property = tokens[0].trim();
+                        value = tokens[1].trim();
+
+                        if (property.indexOf('-ms-grid') === 0) {
+                            properties[property.substring(4)] = value;
+                        }
+                    }
+                });
+            }
+            Object.keys(properties).forEach(function (key) {
+                gridElement.setAttribute('data-ms-' + key, properties[key]);
+            });
 
             grid_items = cssGridRules
                 .filter(function (item) { return item !== grid; })
                 .map(function (item) {
-                    var grid_item = {};
-                    grid_item.details = item;
-                    grid_item.element = document.getElementById(item.selector.substring(1));
+                    var grid_item = {},
+                        style,
+                        gridItemElement;
 
+                    gridItemElement = document.getElementById(item.selector.substring(1));
+                    if (gridItemElement === null || gridItemElement.parentNode !== gridElement) {
+                        return;
+                    }
+
+                    grid_item.element = gridItemElement;
+                    grid_item.details = item;
+
+                    style = grid_item.element.getAttribute("style");
+                    if (style !== null) {
+                        style.split(';').forEach(function (property) {
+                            var tokens = property.split(':'),
+                                value;
+
+                            if (tokens.length === 2) {
+                                property = tokens[0].trim();
+                                value = tokens[1].trim();
+
+                                if (property.indexOf('-ms-grid') === 0) {
+                                    grid_item.details.properties[property.substring(4)] = value;
+                                }
+                            }
+                        });
+                    }
+
+                    Object.keys(grid_item.details.properties).forEach(function (key) {
+                        grid_item.element.setAttribute('data-ms-' + key, grid_item.details.properties[key]);
+                    });
                     return grid_item;
-                });
+                })
+                .filter(function (item) { return item; });
 
             //console.log(selector, properties, grid_items);
 
-            gridLayout(element, selector, properties, 'screen', grid_items);
+            gridLayout(gridElement, selector, properties, 'screen', grid_items);
         });
     }
 
@@ -3157,7 +3210,7 @@ define('scalejs.layout-cssgrid/cssGridLayout',[
             doLayout();
 
             messageBus.receive('css-grid-layout', function () {
-                console.log('--->css grid layout: doLayout');
+                //console.log('--->css grid layout: doLayout');
                 doLayout();
             });
 
