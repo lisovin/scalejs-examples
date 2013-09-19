@@ -33,10 +33,10 @@ define('scalejs.layout-cssgrid-splitter/splitter',[
             var type = e.type,
                 dx = e.gesture.deltaX,
                 dy = e.gesture.deltaY,
-                msGridColumn = getStyle(element, '-ms-grid-column') || element.getAttribute('data-ms-grid-column'),
+                msGridColumn = element.currentStyle['-ms-grid-column'] || element.getAttribute('data-ms-grid-column'),
                 msGridColumnIndex,
                 parent = element.parentNode,
-                msGridColumns = getStyle(parent, '-ms-grid-columns') || parent.getAttribute('data-ms-grid-columns'),
+                msGridColumns = parent.currentStyle['-ms-grid-columns'] || parent.getAttribute('data-ms-grid-columns'),
                 columns;
 
             function updateColumns() {
