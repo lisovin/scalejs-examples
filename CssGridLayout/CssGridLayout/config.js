@@ -4,6 +4,7 @@ var require = {
         "CSS.supports":  "Scripts/CSS.supports",
         "cssParser":  "Scripts/cssParser",
         "domReady":  "Scripts/domReady",
+        "hammer":  "Scripts/hammer",
         "jasmine":  "Scripts/jasmine",
         "jasmine-html":  "Scripts/jasmine-html",
         "json2":  "Scripts/json2",
@@ -17,6 +18,7 @@ var require = {
         "scalejs":  "Scripts/scalejs-0.3.0.1",
         "scalejs.functional":  "Scripts/scalejs.functional-0.2.9",
         "scalejs.layout-cssgrid":  "Scripts/scalejs.layout-cssgrid-0.2.4.5",
+        "scalejs.layout-cssgrid-splitter":  "Scripts/scalejs.layout-cssgrid-splitter-1.0.0",
         "scalejs.linq-linqjs":  "Scripts/scalejs.linq-linqjs-3.0.3",
         "scalejs.mvvm":  "Scripts/scalejs.mvvm-0.3.0.0",
         "scalejs.reactive":  "Scripts/scalejs.reactive-2.0.20921.2",
@@ -28,6 +30,7 @@ var require = {
         "extensions":  [
             "scalejs.functional",
             "scalejs.layout-cssgrid",
+            "scalejs.layout-cssgrid-splitter",
             "scalejs.linq-linqjs",
             "scalejs.mvvm",
             "scalejs.reactive",

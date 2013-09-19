@@ -1,4 +1,4 @@
-﻿/*global define */
+﻿/*global define, setTimeout */
 define([
     'scalejs!sandbox/main'
 ], function (
@@ -8,11 +8,10 @@ define([
 
     return function () {
         var observable = sandbox.mvvm.observable,
-            messageBus = sandbox.reactive.messageBus,
+            //messageBus = sandbox.reactive.messageBus,
             text = observable('Hello World'),
-            columns = observable('auto auto 1fr 1fr'),
             width = observable(300);
-
+        /*
         function dec() {
             if (width() > 100) {
                 width(width() - 20);
@@ -20,11 +19,10 @@ define([
             }
         }
 
-        //setTimeout(dec, 1000);
-
+        etTimeout(dec, 1000);
+        */
         return {
             text: text,
-            columns: columns,
             width: width
         };
     };

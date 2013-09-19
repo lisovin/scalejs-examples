@@ -1,4 +1,4 @@
-﻿/*global define, console */
+﻿/*global define, console, setTimeout */
 /*jslint sloppy: true*/
 define([
     'scalejs!sandbox',
@@ -23,7 +23,7 @@ define([
                 }
             };
         },
-        'main-columns': function (context) {
+        'main-columns': function () {
             setTimeout(function () {
                 messageBus.notify('css-grid-layout');
             });
@@ -34,7 +34,7 @@ define([
                 }
             };
         },
-        'left-width': function (context) {
+        'left-width': function () {
             setTimeout(function () {
                 messageBus.notify('css-grid-layout');
             });
