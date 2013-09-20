@@ -8635,7 +8635,7 @@ define('scalejs.layout-cssgrid/utils.css',[
             // make the new style element
             style = newStyleElement(media, id);
             // store the medium
-            embedded_css.push(media+suffix);
+            embedded_css.push(media + suffix);
         } else {
             style = document.getElementById(id);
         }
@@ -8646,6 +8646,7 @@ define('scalejs.layout-cssgrid/utils.css',[
         // return the style element
         return style;
     }
+
 
     /**
        * eCSStender::getCSSValue()
@@ -9683,7 +9684,7 @@ define('scalejs.layout-cssgrid/intrinsicSizeCalculator',[
 		    DIRECTION = 'direction';
 
 	    if (defined(containerWidth) &&
-				containerWidth !== null) {
+			    containerWidth !== null) {
 	        cssText += WIDTH + COLON + containerWidth.getPixelValue() + PX + SEMICOL;
 	    } else {
 	        switch (calculatorOperation) {
@@ -11171,16 +11172,16 @@ define('scalejs.layout-cssgrid/cssGridLayout',[
             var selector = grid.selector,
                 gridElement,
                 properties = grid.properties,
-                grid_items;
+                grid_items,
+                gridStyle;
 
             gridElement = document.getElementById(grid.selector.substring(1));
             if (gridElement === null) { return; }
 
-            style = gridElement.getAttribute("style");
-            if (style !== null) {
-                style.split('; ').forEach(function (property) {
+            gridStyle = gridElement.getAttribute("style");
+            if (gridStyle !== null) {
+                gridStyle.split('; ').forEach(function (property) {
                     var tokens = property.split(':'),
-                        property,
                         value;
 
                     if (tokens.length === 2) {
@@ -11216,7 +11217,6 @@ define('scalejs.layout-cssgrid/cssGridLayout',[
                     if (style !== null) {
                         style.split(';').forEach(function (property) {
                             var tokens = property.split(':'),
-                                property,
                                 value;
 
                             if (tokens.length === 2) {
@@ -11292,7 +11292,7 @@ define('scalejs.layout-cssgrid/cssGridLayout',[
             doLayout();
 
             messageBus.receive('css-grid-layout', function () {
-                console.log('--->css grid layout: doLayout');
+                //console.log('--->css grid layout: doLayout');
                 doLayout();
             });
 
@@ -16428,8 +16428,8 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
 })();
 
 
-/*global define, console*/
-define('scalejs.layout-cssgrid-splitter/splitter',[
+/*global define, document*/
+define('scalejs.layout-cssgrid-splitter/splitter', [
     'scalejs!core',
     'hammer'
 ], function (
@@ -16437,15 +16437,13 @@ define('scalejs.layout-cssgrid-splitter/splitter',[
     hammer
 ) {
     
-    var columnsRegex = /-ms-grid-columns:\s*([^;]*)/;
-
+    /*
     function getStyle(element, cssRule) {
         var value;
 
         if (document.defaultView && document.defaultView.getComputedStyle) {
             value = document.defaultView.getComputedStyle(element, "").getPropertyValue(cssRule);
-        }
-        else if (element.currentStyle) {
+        } else if (element.currentStyle) {
             cssRule = cssRule.replace(/\-(\w)/g, function (match, p) {
                 return p.toUpperCase();
             });
@@ -16453,86 +16451,98 @@ define('scalejs.layout-cssgrid-splitter/splitter',[
         }
 
         return value;
-    }
+    }*/
 
     function handleDrag(element) {
-        var dragStartColumns;
+        var resizer;
 
-        return function (e) {
-            var type = e.type,
-                dx = e.gesture.deltaX,
-                dy = e.gesture.deltaY,
-                msGridColumn = element.currentStyle['-ms-grid-column'] || element.getAttribute('data-ms-grid-column'),
-                msGridColumnIndex,
-                parent = element.parentNode,
-                msGridColumns = parent.currentStyle['-ms-grid-columns'] || parent.getAttribute('data-ms-grid-columns'),
-                columns;
+        function createResizer(rowOrColumn, deltaProperty, e) {
+            var position = (element.currentStyle && element.currentStyle['-ms-grid-' + rowOrColumn]) || element.getAttribute('data-ms-grid-' + rowOrColumn),
+                grid = element.parentNode,
+                definition = (grid.currentStyle && grid.currentStyle['-ms-grid-' + rowOrColumn + 's']) || grid.getAttribute('data-ms-grid-' + rowOrColumn + 's'),
+                index,
+                dragStartDefinitions;
 
-            function updateColumns() {
-                var left = dragStartColumns[msGridColumnIndex - 1],
-                    right = dragStartColumns[msGridColumnIndex + 1],
-                    changed = false;
+            function updateDefinitions(delta) {
+                var prev = dragStartDefinitions[index - 1],
+                    next = dragStartDefinitions[index + 1],
+                    definitions = dragStartDefinitions.slice();
 
                 function resize(measure, delta) {
                     //console.log('--->resize: ' + left + ' by ' + delta);
                     var value = /(\d+)/.exec(measure);
                     if (value) {
-                        return (Math.max(parseInt(value) + dx, 0)) + 'px';
+                        return (Math.max(parseInt(value, 10) + delta, 0)) + 'px';
                     }
 
                     return measure;
                 }
 
-                if (!left.match(/fr/i)) {
-                    columns[msGridColumnIndex - 1] = resize(left, dx);
-                    return true;
+                if (!prev.match(/fr/i)) {
+                    definitions[index - 1] = resize(prev, delta);
+                    return definitions;
                 }
 
-                if (!right.match(/fr/i)) {
-                    columns[msGridColumnIndex + 1] = resize(left, -dx);
-                    return true;
+                if (!next.match(/fr/i)) {
+                    definitions[index + 1] = resize(next, -delta);
+                    return definitions;
                 }
-
-                return false;
             }
 
-            if (!msGridColumns) {
+            function resize(e) {
+                var newDefinitions = updateDefinitions(e.gesture[deltaProperty]);
+                if (newDefinitions) {
+                    element.parentNode.setAttribute('style', '-ms-grid-' + rowOrColumn + 's: ' + newDefinitions.join(' '));
+                    core.reactive.messageBus.notify('css-grid-layout');
+                }
+            }
+
+            function stop(e) {
+                resize(e);
+            }
+
+            if (!definition) {
                 return;
             }
 
             try {
-                msGridColumnIndex = parseInt(msGridColumn) - 1;
+                index = parseInt(position, 10) - 1;
             } catch (ex) {
                 return;
             }
 
-            columns = msGridColumns.match(/\S+/g);
-            //console.log(type, dx, dy, parent.id, parent.getAttribute('style'), columns);
+            dragStartDefinitions = definition.match(/\S+/g);
 
-            switch (e.type) {
-                case 'dragstart':
-                    dragStartColumns = columns;
-                    break;
-                case 'drag': 
-                    if (updateColumns()) {
-                        element.parentNode.setAttribute('style', '-ms-grid-columns: ' + columns.join(' '));
-                        core.reactive.messageBus.notify('css-grid-layout');
-                    }
-                    break;
-                case 'dragend':
-                    if (updateColumns()) {
-                        //console.log('--->resized: ' + columns);
-                        element.parentNode.setAttribute('style', '-ms-grid-columns: ' + columns.join(' '));
-                        core.reactive.messageBus.notify('css-grid-layout');
-                    }
-                    break;
-            }
+            resize(e);
+
+            return {
+                resize: resize,
+                stop: stop
+            };
         }
+
+        function startResizing(e) {
+            return element.offsetWidth > element.offsetHeight 
+                ? createResizer('row', 'deltaY', e)
+                : createResizer('column', 'deltaX', e);
+        }
+
+        return function (e) {
+            switch (e.type) {
+            case 'dragstart':
+                resizer = startResizing(e);
+                break;
+            case 'drag':
+                resizer.resize(e);
+                break;
+            case 'dragend':
+                resizer.stop(e);
+                break;
+            }
+        };
     }
     /*jslint unparam:true*/
     function init(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
-        //element.setAttribute('data-ms-grid-column', '2');
-        //element.parentNode.setAttribute('data-ms-grid-columns', 'auto 50px 1fr 1fr');
         hammer(element).on('dragstart drag dragend', handleDrag(element));
     }
     /*jslint unparam:false*/
@@ -16541,8 +16551,6 @@ define('scalejs.layout-cssgrid-splitter/splitter',[
         init: init
     };
 });
-
-
 /*global define*/
 define('scalejs.layout-cssgrid-splitter',[
     './scalejs.layout-cssgrid-splitter/splitter',
@@ -19721,392 +19729,295 @@ define('app/main/viewmodels/mainViewModel',[
 });
 
 /**
- * @license RequireJS text 2.0.10 Copyright (c) 2010-2012, The Dojo Foundation All Rights Reserved.
+ * @license RequireJS text 1.0.7 Copyright (c) 2010-2011, The Dojo Foundation All Rights Reserved.
  * Available via the MIT or new BSD license.
- * see: http://github.com/requirejs/text for details
+ * see: http://github.com/jrburke/requirejs for details
  */
-/*jslint regexp: true */
-/*global require, XMLHttpRequest, ActiveXObject,
-  define, window, process, Packages,
-  java, location, Components, FileUtils */
+/*jslint regexp: false, nomen: false, plusplus: false, strict: false */
+/*global require: false, XMLHttpRequest: false, ActiveXObject: false,
+  define: false, window: false, process: false, Packages: false,
+  java: false, location: false */
 
-define('text',['module'], function (module) {
-    
-
-    var text, fs, Cc, Ci, xpcIsWindows,
-        progIds = ['Msxml2.XMLHTTP', 'Microsoft.XMLHTTP', 'Msxml2.XMLHTTP.4.0'],
+(function () {
+    var progIds = ['Msxml2.XMLHTTP', 'Microsoft.XMLHTTP', 'Msxml2.XMLHTTP.4.0'],
         xmlRegExp = /^\s*<\?xml(\s)+version=[\'\"](\d)*.(\d)*[\'\"](\s)*\?>/im,
         bodyRegExp = /<body[^>]*>\s*([\s\S]+)\s*<\/body>/im,
         hasLocation = typeof location !== 'undefined' && location.href,
         defaultProtocol = hasLocation && location.protocol && location.protocol.replace(/\:/, ''),
         defaultHostName = hasLocation && location.hostname,
         defaultPort = hasLocation && (location.port || undefined),
-        buildMap = {},
-        masterConfig = (module.config && module.config()) || {};
+        buildMap = [];
 
-    text = {
-        version: '2.0.10',
+    define('text',[],function () {
+        var text, get, fs;
 
-        strip: function (content) {
-            //Strips <?xml ...?> declarations so that external SVG and XML
-            //documents can be added to a document without worry. Also, if the string
-            //is an HTML document, only the part inside the body tag is returned.
-            if (content) {
-                content = content.replace(xmlRegExp, "");
-                var matches = content.match(bodyRegExp);
-                if (matches) {
-                    content = matches[1];
-                }
-            } else {
-                content = "";
-            }
-            return content;
-        },
-
-        jsEscape: function (content) {
-            return content.replace(/(['\\])/g, '\\$1')
-                .replace(/[\f]/g, "\\f")
-                .replace(/[\b]/g, "\\b")
-                .replace(/[\n]/g, "\\n")
-                .replace(/[\t]/g, "\\t")
-                .replace(/[\r]/g, "\\r")
-                .replace(/[\u2028]/g, "\\u2028")
-                .replace(/[\u2029]/g, "\\u2029");
-        },
-
-        createXhr: masterConfig.createXhr || function () {
-            //Would love to dump the ActiveX crap in here. Need IE 6 to die first.
-            var xhr, i, progId;
-            if (typeof XMLHttpRequest !== "undefined") {
-                return new XMLHttpRequest();
-            } else if (typeof ActiveXObject !== "undefined") {
-                for (i = 0; i < 3; i += 1) {
-                    progId = progIds[i];
-                    try {
-                        xhr = new ActiveXObject(progId);
-                    } catch (e) { }
-
-                    if (xhr) {
-                        progIds = [progId];  // so faster next time
-                        break;
+        if (typeof window !== "undefined" && window.navigator && window.document) {
+            get = function (url, callback) {
+                var xhr = text.createXhr();
+                xhr.open('GET', url, true);
+                xhr.onreadystatechange = function (evt) {
+                    //Do not explicitly handle errors, those should be
+                    //visible via console output in the browser.
+                    if (xhr.readyState === 4) {
+                        callback(xhr.responseText);
                     }
-                }
-            }
-
-            return xhr;
-        },
-
-        /**
-         * Parses a resource name into its component parts. Resource names
-         * look like: module/name.ext!strip, where the !strip part is
-         * optional.
-         * @param {String} name the resource name
-         * @returns {Object} with properties "moduleName", "ext" and "strip"
-         * where strip is a boolean.
-         */
-        parseName: function (name) {
-            var modName, ext, temp,
-                strip = false,
-                index = name.indexOf("."),
-                isRelative = name.indexOf('./') === 0 ||
-                             name.indexOf('../') === 0;
-
-            if (index !== -1 && (!isRelative || index > 1)) {
-                modName = name.substring(0, index);
-                ext = name.substring(index + 1, name.length);
-            } else {
-                modName = name;
-            }
-
-            temp = ext || modName;
-            index = temp.indexOf("!");
-            if (index !== -1) {
-                //Pull off the strip arg.
-                strip = temp.substring(index + 1) === "strip";
-                temp = temp.substring(0, index);
-                if (ext) {
-                    ext = temp;
-                } else {
-                    modName = temp;
-                }
-            }
-
-            return {
-                moduleName: modName,
-                ext: ext,
-                strip: strip
+                };
+                xhr.send(null);
             };
-        },
+        } else if (typeof process !== "undefined" &&
+                 process.versions &&
+                 !!process.versions.node) {
+            //Using special require.nodeRequire, something added by r.js.
+            fs = require.nodeRequire('fs');
 
-        xdRegExp: /^((\w+)\:)?\/\/([^\/\\]+)/,
-
-        /**
-         * Is an URL on another domain. Only works for browser use, returns
-         * false in non-browser environments. Only used to know if an
-         * optimized .js version of a text resource should be loaded
-         * instead.
-         * @param {String} url
-         * @returns Boolean
-         */
-        useXhr: function (url, protocol, hostname, port) {
-            var uProtocol, uHostName, uPort,
-                match = text.xdRegExp.exec(url);
-            if (!match) {
-                return true;
-            }
-            uProtocol = match[2];
-            uHostName = match[3];
-
-            uHostName = uHostName.split(':');
-            uPort = uHostName[1];
-            uHostName = uHostName[0];
-
-            return (!uProtocol || uProtocol === protocol) &&
-                   (!uHostName || uHostName.toLowerCase() === hostname.toLowerCase()) &&
-                   ((!uPort && !uHostName) || uPort === port);
-        },
-
-        finishLoad: function (name, strip, content, onLoad) {
-            content = strip ? text.strip(content) : content;
-            if (masterConfig.isBuild) {
-                buildMap[name] = content;
-            }
-            onLoad(content);
-        },
-
-        load: function (name, req, onLoad, config) {
-            //Name has format: some.module.filext!strip
-            //The strip part is optional.
-            //if strip is present, then that means only get the string contents
-            //inside a body tag in an HTML string. For XML/SVG content it means
-            //removing the <?xml ...?> declarations so the content can be inserted
-            //into the current doc without problems.
-
-            // Do not bother with the work if a build and text will
-            // not be inlined.
-            if (config.isBuild && !config.inlineText) {
-                onLoad();
-                return;
-            }
-
-            masterConfig.isBuild = config.isBuild;
-
-            var parsed = text.parseName(name),
-                nonStripName = parsed.moduleName +
-                    (parsed.ext ? '.' + parsed.ext : ''),
-                url = req.toUrl(nonStripName),
-                useXhr = (masterConfig.useXhr) ||
-                         text.useXhr;
-
-            // Do not load if it is an empty: url
-            if (url.indexOf('empty:') === 0) {
-                onLoad();
-                return;
-            }
-
-            //Load the text. Use XHR if possible and in a browser.
-            if (!hasLocation || useXhr(url, defaultProtocol, defaultHostName, defaultPort)) {
-                text.get(url, function (content) {
-                    text.finishLoad(name, parsed.strip, content, onLoad);
-                }, function (err) {
-                    if (onLoad.error) {
-                        onLoad.error(err);
-                    }
-                });
-            } else {
-                //Need to fetch the resource across domains. Assume
-                //the resource has been optimized into a JS module. Fetch
-                //by the module name + extension, but do not include the
-                //!strip part to avoid file system issues.
-                req([nonStripName], function (content) {
-                    text.finishLoad(parsed.moduleName + '.' + parsed.ext,
-                                    parsed.strip, content, onLoad);
-                });
-            }
-        },
-
-        write: function (pluginName, moduleName, write, config) {
-            if (buildMap.hasOwnProperty(moduleName)) {
-                var content = text.jsEscape(buildMap[moduleName]);
-                write.asModule(pluginName + "!" + moduleName,
-                               "define(function () { return '" +
-                                   content +
-                               "';});\n");
-            }
-        },
-
-        writeFile: function (pluginName, moduleName, req, write, config) {
-            var parsed = text.parseName(moduleName),
-                extPart = parsed.ext ? '.' + parsed.ext : '',
-                nonStripName = parsed.moduleName + extPart,
-                //Use a '.js' file name so that it indicates it is a
-                //script that can be loaded across domains.
-                fileName = req.toUrl(parsed.moduleName + extPart) + '.js';
-
-            //Leverage own load() method to load plugin value, but only
-            //write out values that do not have the strip argument,
-            //to avoid any potential issues with ! in file names.
-            text.load(nonStripName, req, function (value) {
-                //Use own write() method to construct full module value.
-                //But need to create shell that translates writeFile's
-                //write() to the right interface.
-                var textWrite = function (contents) {
-                    return write(fileName, contents);
-                };
-                textWrite.asModule = function (moduleName, contents) {
-                    return write.asModule(moduleName, fileName, contents);
-                };
-
-                text.write(pluginName, nonStripName, textWrite, config);
-            }, config);
-        }
-    };
-
-    if (masterConfig.env === 'node' || (!masterConfig.env &&
-            typeof process !== "undefined" &&
-            process.versions &&
-            !!process.versions.node &&
-            !process.versions['node-webkit'])) {
-        //Using special require.nodeRequire, something added by r.js.
-        fs = require.nodeRequire('fs');
-
-        text.get = function (url, callback, errback) {
-            try {
+            get = function (url, callback) {
                 var file = fs.readFileSync(url, 'utf8');
                 //Remove BOM (Byte Mark Order) from utf8 files if it is there.
                 if (file.indexOf('\uFEFF') === 0) {
                     file = file.substring(1);
                 }
                 callback(file);
-            } catch (e) {
-                errback(e);
-            }
-        };
-    } else if (masterConfig.env === 'xhr' || (!masterConfig.env &&
-            text.createXhr())) {
-        text.get = function (url, callback, errback, headers) {
-            var xhr = text.createXhr(), header;
-            xhr.open('GET', url, true);
-
-            //Allow plugins direct access to xhr headers
-            if (headers) {
-                for (header in headers) {
-                    if (headers.hasOwnProperty(header)) {
-                        xhr.setRequestHeader(header.toLowerCase(), headers[header]);
-                    }
-                }
-            }
-
-            //Allow overrides specified in config
-            if (masterConfig.onXhr) {
-                masterConfig.onXhr(xhr, url);
-            }
-
-            xhr.onreadystatechange = function (evt) {
-                var status, err;
-                //Do not explicitly handle errors, those should be
-                //visible via console output in the browser.
-                if (xhr.readyState === 4) {
-                    status = xhr.status;
-                    if (status > 399 && status < 600) {
-                        //An http 4xx or 5xx error. Signal an error.
-                        err = new Error(url + ' HTTP status: ' + status);
-                        err.xhr = xhr;
-                        errback(err);
-                    } else {
-                        callback(xhr.responseText);
-                    }
-
-                    if (masterConfig.onXhrComplete) {
-                        masterConfig.onXhrComplete(xhr, url);
-                    }
-                }
             };
-            xhr.send(null);
-        };
-    } else if (masterConfig.env === 'rhino' || (!masterConfig.env &&
-            typeof Packages !== 'undefined' && typeof java !== 'undefined')) {
-        //Why Java, why is this so awkward?
-        text.get = function (url, callback) {
-            var stringBuffer, line,
-                encoding = "utf-8",
-                file = new java.io.File(url),
-                lineSeparator = java.lang.System.getProperty("line.separator"),
-                input = new java.io.BufferedReader(new java.io.InputStreamReader(new java.io.FileInputStream(file), encoding)),
-                content = '';
-            try {
-                stringBuffer = new java.lang.StringBuffer();
-                line = input.readLine();
+        } else if (typeof Packages !== 'undefined') {
+            //Why Java, why is this so awkward?
+            get = function (url, callback) {
+                var encoding = "utf-8",
+                    file = new java.io.File(url),
+                    lineSeparator = java.lang.System.getProperty("line.separator"),
+                    input = new java.io.BufferedReader(new java.io.InputStreamReader(new java.io.FileInputStream(file), encoding)),
+                    stringBuffer, line,
+                    content = '';
+                try {
+                    stringBuffer = new java.lang.StringBuffer();
+                    line = input.readLine();
 
-                // Byte Order Mark (BOM) - The Unicode Standard, version 3.0, page 324
-                // http://www.unicode.org/faq/utf_bom.html
+                    // Byte Order Mark (BOM) - The Unicode Standard, version 3.0, page 324
+                    // http://www.unicode.org/faq/utf_bom.html
 
-                // Note that when we use utf-8, the BOM should appear as "EF BB BF", but it doesn't due to this bug in the JDK:
-                // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4508058
-                if (line && line.length() && line.charAt(0) === 0xfeff) {
-                    // Eat the BOM, since we've already found the encoding on this file,
-                    // and we plan to concatenating this buffer with others; the BOM should
-                    // only appear at the top of a file.
-                    line = line.substring(1);
-                }
+                    // Note that when we use utf-8, the BOM should appear as "EF BB BF", but it doesn't due to this bug in the JDK:
+                    // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4508058
+                    if (line && line.length() && line.charAt(0) === 0xfeff) {
+                        // Eat the BOM, since we've already found the encoding on this file,
+                        // and we plan to concatenating this buffer with others; the BOM should
+                        // only appear at the top of a file.
+                        line = line.substring(1);
+                    }
 
-                if (line !== null) {
                     stringBuffer.append(line);
+
+                    while ((line = input.readLine()) !== null) {
+                        stringBuffer.append(lineSeparator);
+                        stringBuffer.append(line);
+                    }
+                    //Make sure we return a JavaScript string and not a Java string.
+                    content = String(stringBuffer.toString()); //String
+                } finally {
+                    input.close();
+                }
+                callback(content);
+            };
+        }
+
+        text = {
+            version: '1.0.7',
+
+            strip: function (content) {
+                //Strips <?xml ...?> declarations so that external SVG and XML
+                //documents can be added to a document without worry. Also, if the string
+                //is an HTML document, only the part inside the body tag is returned.
+                if (content) {
+                    content = content.replace(xmlRegExp, "");
+                    var matches = content.match(bodyRegExp);
+                    if (matches) {
+                        content = matches[1];
+                    }
+                } else {
+                    content = "";
+                }
+                return content;
+            },
+
+            jsEscape: function (content) {
+                return content.replace(/(['\\])/g, '\\$1')
+                    .replace(/[\f]/g, "\\f")
+                    .replace(/[\b]/g, "\\b")
+                    .replace(/[\n]/g, "\\n")
+                    .replace(/[\t]/g, "\\t")
+                    .replace(/[\r]/g, "\\r");
+            },
+
+            createXhr: function () {
+                //Would love to dump the ActiveX crap in here. Need IE 6 to die first.
+                var xhr, i, progId;
+                if (typeof XMLHttpRequest !== "undefined") {
+                    return new XMLHttpRequest();
+                } else {
+                    for (i = 0; i < 3; i++) {
+                        progId = progIds[i];
+                        try {
+                            xhr = new ActiveXObject(progId);
+                        } catch (e) {}
+
+                        if (xhr) {
+                            progIds = [progId];  // so faster next time
+                            break;
+                        }
+                    }
                 }
 
-                while ((line = input.readLine()) !== null) {
-                    stringBuffer.append(lineSeparator);
-                    stringBuffer.append(line);
+                if (!xhr) {
+                    throw new Error("createXhr(): XMLHttpRequest not available");
                 }
-                //Make sure we return a JavaScript string and not a Java string.
-                content = String(stringBuffer.toString()); //String
-            } finally {
-                input.close();
+
+                return xhr;
+            },
+
+            get: get,
+
+            /**
+             * Parses a resource name into its component parts. Resource names
+             * look like: module/name.ext!strip, where the !strip part is
+             * optional.
+             * @param {String} name the resource name
+             * @returns {Object} with properties "moduleName", "ext" and "strip"
+             * where strip is a boolean.
+             */
+            parseName: function (name) {
+                var strip = false, index = name.indexOf("."),
+                    modName = name.substring(0, index),
+                    ext = name.substring(index + 1, name.length);
+
+                index = ext.indexOf("!");
+                if (index !== -1) {
+                    //Pull off the strip arg.
+                    strip = ext.substring(index + 1, ext.length);
+                    strip = strip === "strip";
+                    ext = ext.substring(0, index);
+                }
+
+                return {
+                    moduleName: modName,
+                    ext: ext,
+                    strip: strip
+                };
+            },
+
+            xdRegExp: /^((\w+)\:)?\/\/([^\/\\]+)/,
+
+            /**
+             * Is an URL on another domain. Only works for browser use, returns
+             * false in non-browser environments. Only used to know if an
+             * optimized .js version of a text resource should be loaded
+             * instead.
+             * @param {String} url
+             * @returns Boolean
+             */
+            useXhr: function (url, protocol, hostname, port) {
+                var match = text.xdRegExp.exec(url),
+                    uProtocol, uHostName, uPort;
+                if (!match) {
+                    return true;
+                }
+                uProtocol = match[2];
+                uHostName = match[3];
+
+                uHostName = uHostName.split(':');
+                uPort = uHostName[1];
+                uHostName = uHostName[0];
+
+                return (!uProtocol || uProtocol === protocol) &&
+                       (!uHostName || uHostName === hostname) &&
+                       ((!uPort && !uHostName) || uPort === port);
+            },
+
+            finishLoad: function (name, strip, content, onLoad, config) {
+                content = strip ? text.strip(content) : content;
+                if (config.isBuild) {
+                    buildMap[name] = content;
+                }
+                onLoad(content);
+            },
+
+            load: function (name, req, onLoad, config) {
+                //Name has format: some.module.filext!strip
+                //The strip part is optional.
+                //if strip is present, then that means only get the string contents
+                //inside a body tag in an HTML string. For XML/SVG content it means
+                //removing the <?xml ...?> declarations so the content can be inserted
+                //into the current doc without problems.
+
+                // Do not bother with the work if a build and text will
+                // not be inlined.
+                if (config.isBuild && !config.inlineText) {
+                    onLoad();
+                    return;
+                }
+
+                var parsed = text.parseName(name),
+                    nonStripName = parsed.moduleName + '.' + parsed.ext,
+                    url = req.toUrl(nonStripName),
+                    useXhr = (config && config.text && config.text.useXhr) ||
+                             text.useXhr;
+
+                //Load the text. Use XHR if possible and in a browser.
+                if (!hasLocation || useXhr(url, defaultProtocol, defaultHostName, defaultPort)) {
+                    text.get(url, function (content) {
+                        text.finishLoad(name, parsed.strip, content, onLoad, config);
+                    });
+                } else {
+                    //Need to fetch the resource across domains. Assume
+                    //the resource has been optimized into a JS module. Fetch
+                    //by the module name + extension, but do not include the
+                    //!strip part to avoid file system issues.
+                    req([nonStripName], function (content) {
+                        text.finishLoad(parsed.moduleName + '.' + parsed.ext,
+                                        parsed.strip, content, onLoad, config);
+                    });
+                }
+            },
+
+            write: function (pluginName, moduleName, write, config) {
+                if (moduleName in buildMap) {
+                    var content = text.jsEscape(buildMap[moduleName]);
+                    write.asModule(pluginName + "!" + moduleName,
+                                   "define(function () { return '" +
+                                       content +
+                                   "';});\n");
+                }
+            },
+
+            writeFile: function (pluginName, moduleName, req, write, config) {
+                var parsed = text.parseName(moduleName),
+                    nonStripName = parsed.moduleName + '.' + parsed.ext,
+                    //Use a '.js' file name so that it indicates it is a
+                    //script that can be loaded across domains.
+                    fileName = req.toUrl(parsed.moduleName + '.' +
+                                         parsed.ext) + '.js';
+
+                //Leverage own load() method to load plugin value, but only
+                //write out values that do not have the strip argument,
+                //to avoid any potential issues with ! in file names.
+                text.load(nonStripName, req, function (value) {
+                    //Use own write() method to construct full module value.
+                    //But need to create shell that translates writeFile's
+                    //write() to the right interface.
+                    var textWrite = function (contents) {
+                        return write(fileName, contents);
+                    };
+                    textWrite.asModule = function (moduleName, contents) {
+                        return write.asModule(moduleName, fileName, contents);
+                    };
+
+                    text.write(pluginName, nonStripName, textWrite, config);
+                }, config);
             }
-            callback(content);
         };
-    } else if (masterConfig.env === 'xpconnect' || (!masterConfig.env &&
-            typeof Components !== 'undefined' && Components.classes &&
-            Components.interfaces)) {
-        //Avert your gaze!
-        Cc = Components.classes,
-        Ci = Components.interfaces;
-        Components.utils['import']('resource://gre/modules/FileUtils.jsm');
-        xpcIsWindows = ('@mozilla.org/windows-registry-key;1' in Cc);
 
-        text.get = function (url, callback) {
-            var inStream, convertStream, fileObj,
-                readData = {};
+        return text;
+    });
+}());
 
-            if (xpcIsWindows) {
-                url = url.replace(/\//g, '\\');
-            }
-
-            fileObj = new FileUtils.File(url);
-
-            //XPCOM, you so crazy
-            try {
-                inStream = Cc['@mozilla.org/network/file-input-stream;1']
-                           .createInstance(Ci.nsIFileInputStream);
-                inStream.init(fileObj, 1, 0, false);
-
-                convertStream = Cc['@mozilla.org/intl/converter-input-stream;1']
-                                .createInstance(Ci.nsIConverterInputStream);
-                convertStream.init(inStream, "utf-8", inStream.available(),
-                Ci.nsIConverterInputStream.DEFAULT_REPLACEMENT_CHARACTER);
-
-                convertStream.readString(inStream.available(), readData);
-                convertStream.close();
-                inStream.close();
-                callback(readData.value);
-            } catch (e) {
-                throw new Error((fileObj && fileObj.path || '') + ': ' + e);
-            }
-        };
-    }
-    return text;
-});
-define('text!app/main/views/main.html',[],function () { return '<div id="main_template">\r\n    <div id="main">\r\n        <div id="left" data-class="_left-width">Navigation</div>\r\n        <div id="leftSplitter" data-bind="splitter: \'vertical\'">splitter</div>\r\n        <div id="header">Header</div>\r\n        <div id="content1">Content 1</div>\r\n        <!--\r\n        <div id="content1">\r\n            <div class="title">THIS IS CONTENT 1</div>\r\n            <div class="minimize">_</div>\r\n            <div class="restore">[]</div>\r\n            <div class="close">X</div>\r\n            <div class="content">Content 1</div>\r\n        </div>\r\n        <div id="content2">\r\n            <div class="title">THIS IS CONTENT 2</div>\r\n            <div class="minimize">_</div>\r\n            <div class="restore">[]</div>\r\n            <div class="close">X</div>\r\n            <div class="content">Content 2</div>\r\n        </div>\r\n        -->\r\n        <div id="footer">Footer</div>\r\n    </div>\r\n</div>\r\n';});
+define('text!app/main/views/main.html',[],function () { return '<div id="main_template">\r\n    <div id="main">\r\n        <div id="left" data-class="_left-width">Navigation</div>\r\n        <div id="leftSplitter" data-bind="splitter: \'vertical\'"></div>\r\n        <div id="header">Header</div>\r\n        <div id="headerSplitter" data-bind="splitter: \'horizontal\'"></div>\r\n        <div id="content1">Content 1</div>\r\n        <!--\r\n        <div id="content1">\r\n            <div class="title">THIS IS CONTENT 1</div>\r\n            <div class="minimize">_</div>\r\n            <div class="restore">[]</div>\r\n            <div class="close">X</div>\r\n            <div class="content">Content 1</div>\r\n        </div>\r\n        <div id="content2">\r\n            <div class="title">THIS IS CONTENT 2</div>\r\n            <div class="minimize">_</div>\r\n            <div class="restore">[]</div>\r\n            <div class="close">X</div>\r\n            <div class="content">Content 2</div>\r\n        </div>\r\n        -->\r\n        <div id="footer">Footer</div>\r\n    </div>\r\n</div>\r\n';});
 
 /*global define, console, setTimeout */
 /*jslint sloppy: true*/

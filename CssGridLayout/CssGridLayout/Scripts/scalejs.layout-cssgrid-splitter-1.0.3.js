@@ -8,6 +8,7 @@ define('scalejs.layout-cssgrid-splitter/splitter', [
     hammer
 ) {
     
+
     /*
     function getStyle(element, cssRule) {
         var value;
@@ -28,9 +29,11 @@ define('scalejs.layout-cssgrid-splitter/splitter', [
         var resizer;
 
         function createResizer(rowOrColumn, deltaProperty, e) {
-            var position = (element.currentStyle && element.currentStyle['-ms-grid-' + rowOrColumn]) || element.getAttribute('data-ms-grid-' + rowOrColumn),
+            var position = (element.currentStyle && element.currentStyle['-ms-grid-' + rowOrColumn]) ||
+                            element.getAttribute('data-ms-grid-' + rowOrColumn),
                 grid = element.parentNode,
-                definition = (grid.currentStyle && grid.currentStyle['-ms-grid-' + rowOrColumn + 's']) || grid.getAttribute('data-ms-grid-' + rowOrColumn + 's'),
+                definition = (grid.currentStyle && grid.currentStyle['-ms-grid-' + rowOrColumn + 's']) ||
+                              grid.getAttribute('data-ms-grid-' + rowOrColumn + 's'),
                 index,
                 dragStartDefinitions;
 
@@ -93,7 +96,7 @@ define('scalejs.layout-cssgrid-splitter/splitter', [
         }
 
         function startResizing(e) {
-            return element.offsetWidth > element.offsetHeight 
+            return element.offsetWidth > element.offsetHeight
                 ? createResizer('row', 'deltaY', e)
                 : createResizer('column', 'deltaX', e);
         }
@@ -112,8 +115,11 @@ define('scalejs.layout-cssgrid-splitter/splitter', [
             }
         };
     }
+
     /*jslint unparam:true*/
     function init(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+        //element.setAttribute('data-ms-grid-column', '2');
+        //element.parentNode.setAttribute('data-ms-grid-columns', 'auto 50px 1fr 1fr');
         hammer(element).on('dragstart drag dragend', handleDrag(element));
     }
     /*jslint unparam:false*/
