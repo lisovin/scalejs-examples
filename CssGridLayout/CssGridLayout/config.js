@@ -11,17 +11,13 @@ var require = {
         "knockout":  "Scripts/knockout-2.3.0.debug",
         "knockout.mapping":  "Scripts/knockout.mapping-latest.debug",
         "linqjs":  "Scripts/linq.min",
-        "rx":  "Scripts/rx",
-        "rx.binding":  "Scripts/rx.binding",
         "rx.experimental":  "Scripts/rx.experimental",
-        "rx.time":  "Scripts/rx.time",
         "scalejs":  "Scripts/scalejs-0.3.0.1",
         "scalejs.functional":  "Scripts/scalejs.functional-0.2.9",
-        "scalejs.layout-cssgrid":  "Scripts/scalejs.layout-cssgrid-0.2.4.8",
-        "scalejs.layout-cssgrid-splitter":  "Scripts/scalejs.layout-cssgrid-splitter-1.0.3",
+        "scalejs.layout-cssgrid":  "Scripts/scalejs.layout-cssgrid-0.2.5.1",
+        "scalejs.layout-cssgrid-splitter":  "Scripts/scalejs.layout-cssgrid-splitter-0.2.5",
         "scalejs.linq-linqjs":  "Scripts/scalejs.linq-linqjs-3.0.3",
         "scalejs.mvvm":  "Scripts/scalejs.mvvm-0.3.0.0",
-        "scalejs.reactive":  "Scripts/scalejs.reactive-2.0.20921.2",
         "scalejs.statechart-scion":  "Scripts/scalejs.statechart-scion-0.2.1.30",
         "scion":  "Scripts/scion",
         "text":  "Scripts/text"
@@ -33,7 +29,6 @@ var require = {
             "scalejs.layout-cssgrid-splitter",
             "scalejs.linq-linqjs",
             "scalejs.mvvm",
-            "scalejs.reactive",
             "scalejs.statechart-scion"
         ]
     },

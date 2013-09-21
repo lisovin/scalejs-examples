@@ -2872,6 +2872,9 @@ define('scalejs.layout-cssgrid/gridLayout',[
                 styles += WIDTH + COLON + dimensions.width + PX + SEMICOL;
                 styles += HEIGHT + COLON + dimensions.height + PX + SEMICOL;
                 styles += CLOSE_CURLY;
+
+                // position should be determined by styles in css, not by style attribute on the item
+                item.itemElement.style.position = null;
             });
 
             if (getCssValue(gridElement, POSITION) === STATIC) {
@@ -3070,7 +3073,7 @@ define('scalejs.layout-cssgrid/gridLayout',[
         };
     };
 });
-/*global define, require, document, console, window */
+/*global define, require, document, console, window, clearTimeout, setTimeout */
 define('scalejs.layout-cssgrid/cssGridLayout',[
     'scalejs!core',
     './utils.sheetLoader',
@@ -3083,9 +3086,26 @@ define('scalejs.layout-cssgrid/cssGridLayout',[
     
 
     var cssGridRules,
-        cssGridSelectors;
+        cssGridSelectors,
+        layoutTimeoutId,
+        listeners = [];
 
-    function doLayout() {
+    function onLayoutDone(callback) {
+        core.array.addOne(listeners, callback);
+
+        return function () {
+            core.array.removeOne(listeners, callback);
+        };
+    }
+
+    function notifyLayoutDone(gridElement, selector) {
+        listeners.forEach(function (l) {
+            l(gridElement, selector);
+        });
+    }
+
+    /*jslint unparam:true*/
+    function doLayout(element) {
         cssGridSelectors.forEach(function (grid) {
             var selector = grid.selector,
                 gridElement,
@@ -3158,12 +3178,17 @@ define('scalejs.layout-cssgrid/cssGridLayout',[
             //console.log(selector, properties, grid_items);
 
             gridLayout(gridElement, selector, properties, 'screen', grid_items);
+
+            notifyLayoutDone(gridElement, selector);
         });
     }
 
-    return function polyfill() {
-        var messageBus = core.reactive.messageBus;
+    function layout() {
+        clearTimeout(layoutTimeoutId);
+        layoutTimeoutId = setTimeout(doLayout, 100);
+    }
 
+    function polyfill() {
         utils.loadAllStyleSheets(function (stylesheets) {
             //console.log('-->all stylesheets loaded', stylesheets);
             cssGridRules = Object.keys(stylesheets)
@@ -3207,34 +3232,42 @@ define('scalejs.layout-cssgrid/cssGridLayout',[
             });
             //console.log('css grids', grids);
 
-            doLayout();
-
-            messageBus.receive('css-grid-layout', function () {
-                //console.log('--->css grid layout: doLayout');
-                doLayout();
-            });
+            layout();
 
             window.addEventListener('resize', function () {
-                doLayout();
+                layout();
             });
         });
+    }
+
+    return {
+        polyfill: polyfill,
+        layout: layout,
+        onLayoutDone: onLayoutDone
     };
 });
 
 /*global define*/
 define('scalejs.layout-cssgrid',[
+    'scalejs!core',
     'CSS.supports',
-    './scalejs.layout-cssgrid/cssGridLayout',
-    'scalejs.reactive'
+    './scalejs.layout-cssgrid/cssGridLayout'
 ], function (
+    core,
     css,
-    polyfill
+    cssGridLayout
 ) {
     
 
     //console.log('is -ms-grid supported? ' + (css.supports('display', '-ms-grid') || false));
     if (!css.supports('display', '-ms-grid')) {
-        polyfill();
+        cssGridLayout.polyfill();
     }
+
+    core.registerExtension({
+        layout: {
+            cssGrid: cssGridLayout
+        }
+    });
 });
 

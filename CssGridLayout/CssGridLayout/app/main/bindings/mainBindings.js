@@ -7,7 +7,7 @@ define([
     sandbox,
     ko
 ) {
-    var messageBus = sandbox.reactive.messageBus,
+    var layout = sandbox.layout.cssGrid.layout,
         unwrap = ko.utils.unwrapObservable;
 
     return {
@@ -18,7 +18,7 @@ define([
                     data: this,
                     afterRender: function () {
                         console.log('main rendered');
-                        messageBus.notify('css-grid-layout');
+                        //layout('css-grid-layout');
                     }
                 }
             };
@@ -36,7 +36,7 @@ define([
         },
         'left-width': function () {
             setTimeout(function () {
-                messageBus.notify('css-grid-layout');
+                layout();
             });
             return {
                 style: {
