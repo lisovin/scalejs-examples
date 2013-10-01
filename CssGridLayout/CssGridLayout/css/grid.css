@@ -1,5 +1,7 @@
 #main > * {
     border: dashed 1px red;
+    padding-top: 10px;
+    margin-left: 5px;
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     -khtml-user-select: none;
@@ -46,13 +48,15 @@
 	-ms-grid-column: 3; 
     -ms-grid-column-span: 2;
     text-align: right;
+    margin-top: 0px;
+    margin-bottom: 0px;
 }
 
 #content1 {
     /*transition: left 1s; */
 	-ms-grid-row: 3; 
 	-ms-grid-column: 3; 
-    display: -ms-grid;
+    /*display: ms-grid;*/
 	-ms-grid-rows: 20px 1fr; 
     -ms-grid-columns: 1fr auto auto auto;
 }

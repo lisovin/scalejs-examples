@@ -30,6 +30,7 @@
     <Content Include="app\main\views\main.html" />
     <Content Include="app\main\mainModule.js" />
     <Content Include="Scripts\almond.js" />
+    <Content Include="Scripts\cssparser.js" />
     <Content Include="Scripts\hammer.js" />
     <Content Include="Scripts\hammer.min.js" />
     <Content Include="Scripts\jasmine-html.js" />
@@ -50,7 +51,11 @@
     <Content Include="Scripts\scalejs.functional-0.2.9.min.js" />
     <Content Include="Scripts\scalejs.layout-cssgrid-0.2.4.5.js" />
     <Content Include="Scripts\scalejs.layout-cssgrid-0.2.5.1.js" />
-    <Content Include="Scripts\scalejs.layout-cssgrid-0.2.5.1.min.js" />
+    <Content Include="Scripts\scalejs.layout-cssgrid-0.2.6.1.js" />
+    <Content Include="Scripts\scalejs.layout-cssgrid-0.2.6.3.js" />
+    <Content Include="Scripts\scalejs.layout-cssgrid-0.2.6.3.min.js" />
+    <Content Include="Scripts\scalejs.layout-cssgrid-splitter-0.2.5.js" />
+    <Content Include="Scripts\scalejs.layout-cssgrid-splitter-0.2.5.min.js" />
     <Content Include="Scripts\scalejs.layout-cssgrid-splitter-1.0.0.js" />
     <Content Include="Scripts\scalejs.layout-cssgrid-splitter-1.0.2.js" />
     <Content Include="Scripts\scalejs.layout-cssgrid-splitter-1.0.3.js" />

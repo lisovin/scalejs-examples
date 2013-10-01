@@ -7,7 +7,7 @@ define([
     sandbox,
     ko
 ) {
-    var layout = sandbox.layout.cssGrid.layout,
+    var layout = sandbox.layout.doLayout,
         unwrap = ko.utils.unwrapObservable;
 
     return {
