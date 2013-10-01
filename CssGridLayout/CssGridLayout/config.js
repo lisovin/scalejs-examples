@@ -13,7 +13,7 @@ var require = {
         "rx.experimental":  "Scripts/rx.experimental",
         "scalejs":  "Scripts/scalejs-0.3.0.1",
         "scalejs.functional":  "Scripts/scalejs.functional-0.2.9",
-        "scalejs.layout-cssgrid":  "Scripts/scalejs.layout-cssgrid-0.2.6.3",
+        "scalejs.layout-cssgrid":  "Scripts/scalejs.layout-cssgrid-0.2.6.6",
         "scalejs.layout-cssgrid-splitter":  "Scripts/scalejs.layout-cssgrid-splitter-0.2.5",
         "scalejs.linq-linqjs":  "Scripts/scalejs.linq-linqjs-3.0.3",
         "scalejs.mvvm":  "Scripts/scalejs.mvvm-0.3.0.0",
@@ -25,7 +25,7 @@ var require = {
         "extensions":  [
             "scalejs.functional",
             "scalejs.layout-cssgrid",
-            //"scalejs.layout-cssgrid-splitter",
+            "scalejs.layout-cssgrid-splitter",
             "scalejs.linq-linqjs",
             "scalejs.mvvm",
             "scalejs.statechart-scion"

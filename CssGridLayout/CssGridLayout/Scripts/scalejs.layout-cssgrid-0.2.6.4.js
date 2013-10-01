@@ -621,11 +621,51 @@ return lexer;
 parser.lexer = lexer;
 return parser;
 });
+/*global define, document, window, console */
+define('scalejs.layout-cssgrid/utils',[],function () {
+    
+
+    function camelize(str) {
+        var regex = /(-[a-z])/g,
+            func = function (bit) {
+                return bit.toUpperCase().replace('-', '');
+            };
+
+        return typeof str === 'string'
+            ? str.toLowerCase().replace(regex, func)
+            : str;
+    }
+
+    function getCssValue(element, property) {
+        if (element.currentStyle) {
+            return element.currentStyle[camelize(property)];
+        }
+
+        if (window.getComputedStyle) {
+            return window.getComputedStyle(element, null).getPropertyValue(property);
+        }
+    }
+
+    function getMeasureValue(element, property) {
+        var value = getCssValue(element, property);
+        value = parseFloat(value, 10);
+
+        return isNaN(value) ? 0 : Math.ceil(value);
+    }
+
+    return {
+        camelize: camelize,
+        getCssValue: getCssValue,
+        getMeasureValue: getMeasureValue
+    };
+});
 /*global define, document, window */
 define('scalejs.layout-cssgrid/gridLayout',[
-    './gridTracksParser'
+    './gridTracksParser',
+    './utils'
 ], function (
-    gridTracksParser
+    gridTracksParser,
+    utils
 ) {
     
 
@@ -648,7 +688,9 @@ define('scalejs.layout-cssgrid/gridLayout',[
         MARGIN = 'margin',
         PADDING = 'padding',
         BORDER = 'border',
-        HYPHEN = '-';
+        HYPHEN = '-',
+        getMeasureValue = utils.getMeasureValue;
+
 
     function addItemToTracks(tracks, itemTracks, item, firstTrack, lastTrack) {
         tracks
@@ -699,34 +741,6 @@ define('scalejs.layout-cssgrid/gridLayout',[
         });
     }
 
-    function camelize(str) {
-        var regex = /(-[a-z])/g,
-            func = function (bit) {
-                return bit.toUpperCase().replace('-', '');
-            };
-
-        return is(str, 'string')
-            ? str.toLowerCase().replace(regex, func)
-            : str;
-    }
-
-    function getCssValue(element, property) {
-        if (element.currentStyle) {
-            return element.currentStyle[camelize(prop)];
-        }
-
-        if (window.getComputedStyle) {
-            return window.getComputedStyle(element, null).getPropertyValue(property);
-        }
-    }
-
-    function getMeasureValue(element, property) {
-        var value = getCssValue(element, property);
-        value = parseFloat(value, 10);
-
-        return isNaN(value) ? 0 : Math.ceil(value);
-    }
-
     function frameSize(element, dimension) {
         var sides = dimension === WIDTH ? [RIGHT, LEFT] : [TOP, BOTTOM],
             size;
@@ -754,34 +768,36 @@ define('scalejs.layout-cssgrid/gridLayout',[
         return tracks
              .filter(function (track) { return track.type === KEYWORD && track.size === AUTO && track.items; })
              .reduce(function (size, track) {
-                 var noFrItems,
-                     noFrItem,
-                     trackSize,
-                     offsetProperty = 'offset' + (dimension === WIDTH ? 'Width' : 'Height'),
-                     tracksProperty = (dimension === WIDTH ? 'column' : 'row') + 'Tracks';
-                 // find first item that has no FR rows.
-                 // Then use it's size to determine track size.
-                 noFrItems = track.items.filter(function (item, i) {
-                     return item[tracksProperty].reduce(function (r, tr) { return r && tr.type !== FR; }, true);
-                 });
+                var noFrItems,
+                    noFrItem,
+                    trackSize,
+                    offsetProperty = 'offset' + (dimension === WIDTH ? 'Width' : 'Height'),
+                    tracksProperty = (dimension === WIDTH ? 'column' : 'row') + 'Tracks';
+                // find first item that has no FR rows.
+                // Then use it's size to determine track size.
+                noFrItems = track.items.filter(function (item) {
+                    return item[tracksProperty].reduce(function (r, tr) {
+                        return r && tr.type !== FR;
+                    }, true);
+                });
 
-                 noFrItem = noFrItems[0];
-                 if (noFrItem) {
-                     //trackSize = getMeasureValue(noFrItem.element, dimension) + frameSize(noFrItem.element, dimension);
-                     trackSize = Math.ceil(parseFloat(noFrItem.element.style[dimension], 10)) + frameSize(noFrItem.element, dimension);
-                     if (isNaN(trackSize)) {
-                         noFrItem.element.style[dimension] = '';
-                         trackSize = noFrItem.element[offsetProperty];
-                     }
-                     // set it to 0 so that reduce would properly calculate
-                     track.pixels = 0;
-                     track.pixels = noFrItem[tracksProperty].reduce(function (r, tr) { return r - tr.pixels; }, trackSize);
-                 } else {
-                     track.pixels = 0;
-                 }
+                noFrItem = noFrItems[0];
+                if (noFrItem) {
+                    //trackSize = getMeasureValue(noFrItem.element, dimension) + frameSize(noFrItem.element, dimension);
+                    trackSize = Math.ceil(parseFloat(noFrItem.element.style[dimension], 10)) + frameSize(noFrItem.element, dimension);
+                    if (isNaN(trackSize)) {
+                        noFrItem.element.style[dimension] = '';
+                        trackSize = noFrItem.element[offsetProperty];
+                    }
+                    // set it to 0 so that reduce would properly calculate
+                    track.pixels = 0;
+                    track.pixels = noFrItem[tracksProperty].reduce(function (r, tr) { return r - tr.pixels; }, trackSize);
+                } else {
+                    track.pixels = 0;
+                }
 
-                 return size + track.pixels;
-             }, 0);
+                return size + track.pixels;
+            }, 0);
     }
 
     function frTracks(tracks, size) {
@@ -849,9 +865,9 @@ define('scalejs.layout-cssgrid/gridLayout',[
                 .reduce(function (sum, track) { return sum + track.pixels; }, 0);
 
             if (item.element.parentNode) {
-                parentMarginLeft = parseInt(item.element.parentNode.marginLeft, 10);
-                if (isNaN(parentMarginLeft)) {
-                    parentMarginLeft = 0;
+                parentLeft = parseInt(item.element.parentNode.left, 10);
+                if (isNaN(parentLeft)) {
+                    parentLeft = 0;
                 }
             }
 
@@ -861,11 +877,11 @@ define('scalejs.layout-cssgrid/gridLayout',[
                     parentTop = 0;
                 }
             }
-            
+
             width -= frameSize(item.element, WIDTH);
             height -= frameSize(item.element, HEIGHT);
 
-            console.log(item.element.id, width, height);
+            //console.log(item.element.id, width, height);
 
             item.element.style.width = width + PX;
             item.element.style.height = height + PX;
@@ -1123,7 +1139,7 @@ define('scalejs.layout-cssgrid/cssGridLayout',[
             });
             //console.log('css grids', grids);
 
-            setTimeout(doLayout, 100);
+            //doLayout();
 
             window.addEventListener('resize', function () {
                 doLayout();
