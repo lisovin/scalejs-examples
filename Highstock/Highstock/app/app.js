@@ -8,7 +8,7 @@ define([
 ) {
     'use strict';
 
-    application.registerModule(demo);
+    application.registerModules(demo);
 
     application.run();
 });

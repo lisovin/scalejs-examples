@@ -1,35 +1,46 @@
 ﻿/*global define */
 define([
-    'scalejs!module',
-    './viewmodels/demoViewModel',
-    'text!./views/demo.html',
-    './bindings/demoBindings'
+    'scalejs!sandbox/demo',
+    'app/demo/viewmodels/demoViewModel',
+    'text!app/demo/views/demo.html',
+    'app/demo/bindings/demoBindings'
 ], function (
-    module,
+    sandbox,
     demoViewModel,
     demoTemplate,
     demoBindings
 ) {
     'use strict';
 
-    function create(sandbox) {
-        var createView = sandbox.mvvm.createView;
+    return function demo() {
+        var // imports
+            root = sandbox.mvvm.root,
+            template = sandbox.mvvm.template,
+            registerBindings = sandbox.mvvm.registerBindings,
+            registerTemplates = sandbox.mvvm.registerTemplates,
+            registerStates = sandbox.state.registerStates,
+            state = sandbox.state.builder.state,
+            onEntry = sandbox.state.builder.onEntry,
+            // vars
+            viewModel = demoViewModel();
 
-        function start() {
-            var demo = demoViewModel(sandbox);
+        // Register module bindings
+        registerBindings(demoBindings);
 
-            createView({
-                dataContext: demo,
-                templates: [demoTemplate],
-                bindings: [demoBindings]
-            });
-            demo.load();
-        }
+        // Register module templates
+        registerTemplates(demoTemplate);
 
-        return {
-            start: start
-        };
-    }
+        // Register application state for the module.
+        registerStates('root',
+            state('app',
+                state('test',
+                    onEntry(function () {
+                        // Render viewModel using 'main_template' template 
+                        // (defined in main.html) and show it in the `root` region.
+                        //viewModel.text('Hello World from test!');
+                        viewModel.load();
+                        root(template('demo_template', viewModel));
+                    }))));
 
-    return module('demo', create);
+    };
 });
