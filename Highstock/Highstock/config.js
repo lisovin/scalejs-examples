@@ -18,7 +18,7 @@ var require = {
         "scalejs":  "Scripts/scalejs-0.3.0.1",
         "scalejs.ajax-jquery":  "Scripts/scalejs.ajax-jquery-0.3.0.0",
         "scalejs.functional":  "Scripts/scalejs.functional-0.2.9.8",
-        "scalejs.highstock":  "Scripts/scalejs.highstock-0.1.4",
+        "scalejs.highstock":  "Scripts/scalejs.highstock-1.2.5.1",
         "scalejs.linq-linqjs":  "Scripts/scalejs.linq-linqjs-3.0.3.1",
         "scalejs.mvvm":  "Scripts/scalejs.mvvm-0.3.0.0",
         "scalejs.reactive":  "Scripts/scalejs.reactive-2.1.20.1",
