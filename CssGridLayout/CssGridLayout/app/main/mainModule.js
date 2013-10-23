@@ -13,6 +13,7 @@ define([
     'use strict';
     return function main() {
         var // imports
+            invalidateLayout = sandbox.layout.invalidate,
             root = sandbox.mvvm.root,
             dataClass = sandbox.mvvm.dataClass,
             registerBindings = sandbox.mvvm.registerBindings,
@@ -37,6 +38,7 @@ define([
                         // Render viewModel using 'main-text' binding 
                         // and show it set root view
                         root(dataClass('main', viewModel));
+                        invalidateLayout();
                     }))));
     };
 });

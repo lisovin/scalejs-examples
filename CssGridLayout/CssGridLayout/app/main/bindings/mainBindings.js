@@ -1,4 +1,4 @@
-﻿/*global define, console */
+﻿/*global define, console, setTimeout */
 /*jslint sloppy: true*/
 define([
     'scalejs!sandbox',
@@ -7,7 +7,7 @@ define([
     sandbox,
     ko
 ) {
-    var messageBus = sandbox.reactive.messageBus,
+    var layout = sandbox.layout.doLayout,
         unwrap = ko.utils.unwrapObservable;
 
     return {
@@ -18,12 +18,12 @@ define([
                     data: this,
                     afterRender: function () {
                         console.log('main rendered');
-                        messageBus.notify('css-grid-layout');
+                        //layout('css-grid-layout');
                     }
                 }
             };
         },
-        'main-columns': function (context) {
+        'main-columns': function () {
             setTimeout(function () {
                 messageBus.notify('css-grid-layout');
             });
@@ -34,9 +34,9 @@ define([
                 }
             };
         },
-        'left-width': function (context) {
+        'left-width': function () {
             setTimeout(function () {
-                messageBus.notify('css-grid-layout');
+                layout();
             });
             return {
                 style: {

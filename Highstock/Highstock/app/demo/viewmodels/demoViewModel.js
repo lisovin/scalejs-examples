@@ -1,12 +1,14 @@
 ﻿/*global define,console */
 define([
+    'scalejs!sandbox/demo',
     '../models/calcs'
 ], function (
+    sandbox,
     calcs
 ) {
     'use strict';
 
-    return function (sandbox) {
+    return function () {
         var ajaxGet = sandbox.ajax.get,
             observableArray = sandbox.mvvm.observableArray,
             observable = sandbox.mvvm.observable,

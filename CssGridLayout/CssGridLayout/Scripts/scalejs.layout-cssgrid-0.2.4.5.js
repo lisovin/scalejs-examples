@@ -3111,6 +3111,9 @@ define('scalejs.layout-cssgrid/cssGridLayout',[
                     }
                 });
             }
+            Object.keys(properties).forEach(function (key) {
+                gridElement.setAttribute('data-ms-' + key, properties[key]);
+            });
 
             grid_items = cssGridRules
                 .filter(function (item) { return item !== grid; })
@@ -3145,6 +3148,9 @@ define('scalejs.layout-cssgrid/cssGridLayout',[
                         });
                     }
 
+                    Object.keys(grid_item.details.properties).forEach(function (key) {
+                        grid_item.element.setAttribute('data-ms-' + key, grid_item.details.properties[key]);
+                    });
                     return grid_item;
                 })
                 .filter(function (item) { return item; });

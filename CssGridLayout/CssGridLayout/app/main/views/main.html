@@ -1,19 +1,26 @@
 ﻿<div id="main_template">
-    <div id="main" data-class="main-columns">
-        <div id="left" data-class="left-width">Navigation</div>
-        <div id="leftSplitter">splitter</div>
+    <div id="main">
+        <div id="left" data-class="_left-width">Navigation</div>
+        <div id="leftSplitter" data-bind="splitter: 'vertical'"></div>
         <div id="header">Header</div>
-        <!--
+        <div id="headerSplitter" data-bind="splitter: 'horizontal'"></div>
         <div id="content1">Content 1</div>
-        -->
+        <!--
         <div id="content1">
-            <div id="content1-title">This is the title</div>
-            <div id="content1-minimize">_</div>
-            <div id="content1-restore">[]</div>
-            <div id="content1-close">X</div>
-            <div id="content1-content">Content 1</div>
+            <div class="title">THIS IS CONTENT 1</div>
+            <div class="minimize">_</div>
+            <div class="restore">[]</div>
+            <div class="close">X</div>
+            <div class="content">Content 1</div>
         </div>
-        <div id="content2">Content 2</div>
+        <div id="content2">
+            <div class="title">THIS IS CONTENT 2</div>
+            <div class="minimize">_</div>
+            <div class="restore">[]</div>
+            <div class="close">X</div>
+            <div class="content">Content 2</div>
+        </div>
+        -->
         <div id="footer">Footer</div>
     </div>
 </div>
