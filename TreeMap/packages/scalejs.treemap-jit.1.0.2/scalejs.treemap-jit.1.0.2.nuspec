@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>scalejs.treemap-jit</id>
+    <version>1.0.2</version>
+    <title>scalejs.treemap-jit</title>
+    <authors>Author</authors>
+    <owners>Author</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Description of the scalejs.treemap-jit extension.</description>
+    <tags>JavaScript scalejs scalejs.treemap-jit</tags>
+  </metadata>
+</package>

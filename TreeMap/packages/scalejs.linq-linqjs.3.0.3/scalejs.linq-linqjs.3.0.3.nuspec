@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>scalejs.linq-linqjs</id>
+    <version>3.0.3</version>
+    <title>scalejs.linq-linqjs</title>
+    <authors>neuecc</authors>
+    <owners>neuecc</owners>
+    <projectUrl>https://github.com/lisovin/scalejs.linq-linqjs</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Adds LINQ capabilities to Scalable JavaScript application (based on linq.js)</description>
+    <tags>JavaScript LINQ scalejs scalejs.linq-linqjs</tags>
+    <dependencies>
+      <dependency id="scalejs" version="0.2.0" />
+    </dependencies>
+  </metadata>
+</package>
