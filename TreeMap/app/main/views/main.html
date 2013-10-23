@@ -1,5 +1,6 @@
 ﻿<div id="main_template">
     <div data-class="main-treemap" style="width:800px;height:600px;"></div>
+    The currently selected node is: <span data-class="selected"></span>
     <div>
         Add a new node: <button data-bind="click: addNode">Add Node</button>
     </div>
@@ -7,7 +8,10 @@
         Remove a node: <button data-bind="click: removeNode">Remove Node</button>
     </div>
     <div>
-        Add Time. <button data-bind="click: addTime">Add Time</button>
+        Add Time: <button data-bind="click: addTime">Add Time</button>
+    </div>
+    <div>
+        Set Abbey Road: <button data-bind="click: setAbbeyRoad">Set Abbey Road</button>
     </div>
 </div>
 

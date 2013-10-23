@@ -12,6 +12,7 @@ define([
             observableArray = sandbox.mvvm.observableArray,
             // properties
             counter = 0,
+            selectedItem = observable(),
             data = {
                 name: 'Favorite Music',
                 artists: [{
@@ -86,6 +87,7 @@ define([
         return {
             data: data,
             addNode: function () {
+                console.log(data);
                 var newSong = {
                     name: 'Carry that Weight',
                     x: 4,
@@ -98,7 +100,11 @@ define([
             },
             addTime: function () {
                 data.artists[0].albums[0].songs[0].x(data.artists[0].albums[0].songs[0].x() + 1);
-            }
+            },
+            setAbbeyRoad: function () {
+                selectedItem(data.artists[1].albums[0])
+            },
+            selectedItem: selectedItem
         };
     };
 });

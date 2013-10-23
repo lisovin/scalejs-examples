@@ -13,21 +13,24 @@ define('scalejs.treemap-jit',[
 ) {
     
 
-    var merge = core.object.merge,
+    var //imports
+        merge = core.object.merge,
         has = core.object.has,
         unwrap = ko.utils.unwrapObservable,
-        counter = 0,
-        //generateGradient = core.color.generateGradient;
+        //vars
+        idCounter = 0,
         generateGradient = core.color.generateVariedGradient();
     
     /*jslint unparam:true*/
 
+    //Creates unique Ids for elements and nodes.
     function getUniqueId() {
-        var id = 'scalejs_treemap_' + counter;
-        counter += 1;
+        var id = 'scalejs_treemap_' + idCounter;
+        idCounter += 1;
         return id;
     }
 
+    //Wraps node so we can apply bindings to a node with a provided template.
     function wrapNode(node, template){
         return function() {
             return {
@@ -46,6 +49,7 @@ define('scalejs.treemap-jit',[
     ) {
         var treemap = valueAccessor(),
             colors = generateGradient(),
+            selectedItem = treemap.selectedItem || ko.observable(),
             tm,
             options,
             json;
@@ -54,6 +58,7 @@ define('scalejs.treemap-jit',[
             return createTreemapJson(treemap.data, treemap.levels);
         });
 
+        //Recursively traverses treemap data and builds json structure for TreeMap
         function createTreemapJson(data, levels) {
             if (levels.length === 0) {
                 data.children = [];
@@ -72,15 +77,19 @@ define('scalejs.treemap-jit',[
                 }, merge(data, { children: [], data: { $area: 0 } }));
             }
         }
+
+        selectedItem.enterParent = function () {
+            tm.out();
+            selectedItem($jit.json.getParent(json(), selectedItem().id));
+        }
         
-        function enterNode(node) {
-            if (node) {
-                tm.enter(node);
-            }
+      
+        function setNode(node) {
+            selectedItem(node);
         }
 
-        function exitNode(node) {
-            tm.out();
+        function setParentNode() {
+            selectedItem.enterParent();
         }
 
         function showTip(tip, node, isLeaf, domElement) {
@@ -95,7 +104,6 @@ define('scalejs.treemap-jit',[
         }
 
         function createLabel(domElement, node) {
-            //TODO: knockout template
             domElement.innerHTML = node.name;
             var style = domElement.style;
             style.display = '';
@@ -109,23 +117,23 @@ define('scalejs.treemap-jit',[
 
             //TODO: cleanup color logic
             if (node._depth > treemap.levels.length - 1) {
-                ko.cleanNode(domElement);
-                ko.bindingHandlers.template.update(
-                    domElement,
-                    wrapNode(node, treemap.itemTemplate),
-                    allBindingsAccessor,
-                    viewModel,
-                    bindingContext
-                );
+                if (treemap.itemTemplate) {                    
+                    ko.cleanNode(domElement);
+                    ko.bindingHandlers.template.update(
+                        domElement,
+                        wrapNode(node, treemap.itemTemplate),
+                        allBindingsAccessor,
+                        viewModel,
+                        bindingContext
+                    );
+                }
 
                 colors = $jit.json.getParent(json(), node.id).colors;
                 if (!colors) {
                     colors = generateGradient();
                     $jit.json.getParent(json(), node.id).colors = colors;
                 }
-
                 colors = $jit.json.getParent(json(), node.id).colors;
-
                 node.data.$color = '#' + colors[[0,1,3][Math.random() * 3 | 0]];
             }
         }       
@@ -139,8 +147,8 @@ define('scalejs.treemap-jit',[
             offset: 1,
             Events: {
                 enable: true,
-                onClick: enterNode,
-                onRightClick: exitNode
+                onClick: setNode,
+                onRightClick: setParentNode
             },
             duration: 1000,
             Tips: {
@@ -157,7 +165,16 @@ define('scalejs.treemap-jit',[
         tm.loadJSON(json());
         tm.refresh();
 
-        //TODO: add logic for removig nodes and changing node attributes
+        selectedItem(tm.graph.getNode(json.id));
+
+        if (treemap.zoomOnClick) {
+            selectedItem.subscribe(function (node) {
+                if (node) {
+                    tm.enter(tm.graph.getNode(node.id));
+                }
+            });
+        }
+
         json.subscribe(function(value) {
             tm.op.morph(value, {
                 type: 'fade',

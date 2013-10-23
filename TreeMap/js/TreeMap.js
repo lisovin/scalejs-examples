@@ -1221,7 +1221,7 @@ define('scalejs.color-scheme',[
             }
             
             options.hue = 360 * numerator / denominator;
-            options.hue = options.hue > 80 && options.hue < 160 ? options.hue + 100 : options.hue;
+            options.hue = options.hue > 80 && options.hue < 160 ? options.hue + 100 : options.hue; //Prevents yellow backgronds.
             colors = generateGradient(options);
             numerator += 2;
             return colors;
@@ -25869,20 +25869,24 @@ define('scalejs.treemap-jit',[
 ) {
     
 
-    var merge = core.object.merge,
+    var //imports
+        merge = core.object.merge,
         has = core.object.has,
         unwrap = ko.utils.unwrapObservable,
-        //generateGradient = core.color.generateGradient;
+        //vars
+        idCounter = 0,
         generateGradient = core.color.generateVariedGradient();
     
     /*jslint unparam:true*/
 
+    //Creates unique Ids for elements and nodes.
     function getUniqueId() {
-        var id = 'scalejs_treemap_' + ko.bindingHandlers.treemap.currentIndex;
-        ko.bindingHandlers.treemap += 1;
+        var id = 'scalejs_treemap_' + idCounter;
+        idCounter += 1;
         return id;
     }
 
+    //Wraps node so we can apply bindings to a node with a provided template.
     function wrapNode(node, template){
         return function() {
             return {
@@ -25891,26 +25895,6 @@ define('scalejs.treemap-jit',[
             };
         };
     }
-
-
-
-    function createTreemapJson(data, levels) {
-        if (levels.length === 1) {
-            return data[levels[0]].map(function (node) {
-                node.children = [];
-                node.data.$area = node.x
-                return node;
-            });
-        } else {
-            return data[0].reduce(function (acc, node) {
-                var node = createTreemapJson(data[0], levels.unshift);
-                acc.children.push(node);
-                acc.data.$area += node.data.$area;
-            }, { children: [], data: { $area: 0 } });
-        }
-    }
-
-    json = createTreemapJson(data, levels)
 
     function init(
         element,
@@ -25921,23 +25905,47 @@ define('scalejs.treemap-jit',[
     ) {
         var treemap = valueAccessor(),
             colors = generateGradient(),
-            json = observable(createTreemapJson(treemap)),
+            selectedItem = treemap.selectedItem || ko.observable(),
             tm,
             options,
-            json= createTreemapJson(treemap.data, treemap.levels);
+            json;
+        
+        json = ko.computed(function() {
+            return createTreemapJson(treemap.data, treemap.levels);
+        });
 
-        console.log(json);
-
-        /*
-
-        function enterNode(node) {
-            if (node) {
-                tm.enter(node);
+        //Recursively traverses treemap data and builds json structure for TreeMap
+        function createTreemapJson(data, levels) {
+            if (levels.length === 0) {
+                data.children = [];
+                data.data = {
+                    $area: unwrap(data[treemap.areaPath])
+                };
+                data.id = data.id || getUniqueId();
+                return data;
+            } else {
+                data.id = data.id || getUniqueId();
+                return unwrap(data[levels[0]]).reduce(function (acc, level) {
+                    var node = createTreemapJson(level, levels.slice(1));
+                    acc.children.push(node);
+                    acc.data.$area += node.data.$area;
+                    return acc;
+                }, merge(data, { children: [], data: { $area: 0 } }));
             }
         }
 
-        function exitNode(node) {
+        selectedItem.enterParent = function () {
             tm.out();
+            selectedItem($jit.json.getParent(json(), selectedItem().id));
+        }
+        
+      
+        function setNode(node) {
+            selectedItem(node);
+        }
+
+        function setParentNode() {
+            selectedItem.enterParent();
         }
 
         function showTip(tip, node, isLeaf, domElement) {
@@ -25952,7 +25960,6 @@ define('scalejs.treemap-jit',[
         }
 
         function createLabel(domElement, node) {
-            //TODO: knockout template
             domElement.innerHTML = node.name;
             var style = domElement.style;
             style.display = '';
@@ -25965,15 +25972,24 @@ define('scalejs.treemap-jit',[
             };
 
             //TODO: cleanup color logic
-            if (node._depth > 1) {
-                colors = $jit.json.getParent(treemap.data(), node.id).colors;
-                if (!colors) {
-                    colors = generateGradient();
-                    $jit.json.getParent(treemap.data(), node.id).colors = colors;
+            if (node._depth > treemap.levels.length - 1) {
+                if (treemap.itemTemplate) {                    
+                    ko.cleanNode(domElement);
+                    ko.bindingHandlers.template.update(
+                        domElement,
+                        wrapNode(node, treemap.itemTemplate),
+                        allBindingsAccessor,
+                        viewModel,
+                        bindingContext
+                    );
                 }
 
-                colors = $jit.json.getParent(treemap.data(), node.id).colors;
-
+                colors = $jit.json.getParent(json(), node.id).colors;
+                if (!colors) {
+                    colors = generateGradient();
+                    $jit.json.getParent(json(), node.id).colors = colors;
+                }
+                colors = $jit.json.getParent(json(), node.id).colors;
                 node.data.$color = '#' + colors[[0,1,3][Math.random() * 3 | 0]];
             }
         }       
@@ -25987,8 +26003,8 @@ define('scalejs.treemap-jit',[
             offset: 1,
             Events: {
                 enable: true,
-                onClick: enterNode,
-                onRightClick: exitNode
+                onClick: setNode,
+                onRightClick: setParentNode
             },
             duration: 1000,
             Tips: {
@@ -26002,18 +26018,26 @@ define('scalejs.treemap-jit',[
 
         tm = new $jit.TM.Squarified(options);
 
-        tm.loadJSON(unwrap(treemap.data));
+        tm.loadJSON(json());
         tm.refresh();
 
-        //TODO: add logic for removig nodes and changing node attributes
-        treemap.data.subscribe(function(value) {
-            tm.op.sum(value, {
+        selectedItem(tm.graph.getNode(json.id));
+
+        if (treemap.zoomOnClick) {
+            selectedItem.subscribe(function (node) {
+                if (node) {
+                    tm.enter(tm.graph.getNode(node.id));
+                }
+            });
+        }
+
+        json.subscribe(function(value) {
+            tm.op.morph(value, {
                 type: 'fade',
                 duration: 1500,
                 type: 'replot'
             });
         });
-        */
     }
     /*jslint unparam:false*/
 
@@ -26037,405 +26061,102 @@ define('app/main/viewmodels/mainViewModel',[
     return function () {
         var // imports
             observable = sandbox.mvvm.observable,
+            observableArray = sandbox.mvvm.observableArray,
             // properties
             counter = 0,
+            selectedItem = observable(),
             data = {
-                A: [{
-                    B: [{
-                        C: [{ x: 1 }, { x: 2 }, { x: 3 }]
+                name: 'Favorite Music',
+                artists: [{
+                    name: 'Pink Floyd',
+                    albums: [{
+                        name: 'The Dark Side of the Moon',
+                        songs: [{
+                            name: 'Time',
+                            x: observable(1),
+                            y: 3
+                        }, {
+                            name: 'Brain Damage',
+                            x: 2,
+                            y: 2
+                        }, {
+                            name: 'Eclipse',
+                            x: 3,
+                            y: 1
+                        }]
                     }, {
-                        C: [{ x: 1 }, { x: 2 }, { x: 3 }]
+                        name: 'The Wall',
+                        songs: [{
+                            name: 'Comfortably numb',
+                            x: 1,
+                            y: 3
+                        }, {
+                            name: 'Hey You',
+                            x: 2,
+                            y: 2
+                        }, {
+                            name: 'In the Flesh?',
+                            x: 3,
+                            y: 1
+                        }]
                     }]
                 }, {
-                    B: [{
-                        C: [{ x: 1 }, { x: 2 }, { x: 3 }]
+                    name: 'The Beatles',
+                    albums: [{
+                        name: 'Abbey Road',
+                        songs: observableArray([{
+                            name: 'Come Together',
+                            x: 1,
+                            y: 3
+                        }, {
+                            name: 'Something',
+                            x: 2,
+                            y: 2
+                        }, {
+                            name: 'I Want You',
+                            x: 3,
+                            y: 1
+                        }])
                     }, {
-                        C: [{ x: 1 }, { x: 2 }, { x: 3 }]
+                        name: 'Magical Mystery Tour',
+                        songs: [{
+                            name: 'The Fool on the Hill',
+                            x: 1,
+                            y: 3
+                        }, {
+                            name: 'Strawberry Fields Forever',
+                            x: 2,
+                            y: 2
+                        }, {
+                            name: 'All You Need is Love',
+                            x: 3,
+                            y: 1
+                        }]
                     }]
                 }]
-            },
-            // Artist -> Album -> Song
-            data1 = {  
-                "children": [  
-                 {  
-                     "children": [  
-                       {  
-                           "children": [],   
-                           "data": {  
-                               "playcount": "276",   
-                               "$color": "#8E7032",   
-                               "image": "http://userserve-ak.last.fm/serve/300x300/11403219.jpg",   
-                               "$area": 276  
-                           },   
-                           "id": "album-Thirteenth Step",   
-                           "name": "Thirteenth Step"  
-                       },   
-                       {  
-                           "children": [],   
-                           "data": {  
-                               "playcount": "271",   
-                               "$color": "#906E32",   
-                               "image": "http://userserve-ak.last.fm/serve/300x300/11393921.jpg",   
-                               "$area": 271  
-                           },   
-                           "id": "album-Mer De Noms",   
-                           "name": "Mer De Noms"  
-                       }  
-                     ],   
-                     "data": {  
-                         "playcount": 547,   
-                         "$area": 547  
-                     },   
-                     "id": "artist_A Perfect Circle",   
-                     "name": "A Perfect Circle"  
-                 },
-                 {  
-                     "children": [  
-                       {  
-                           "children": [],   
-                           "data": {  
-                               "playcount": "260",   
-                               "$color": "#956932",   
-                               "image": "http://userserve-ak.last.fm/serve/300x300/38753425.jpg",   
-                               "$area": 260  
-                           },   
-                           "id": "album-Tiny Music... Songs From the Vatican Gift Shop",   
-                           "name": "Tiny Music... Songs From the Vatican Gift Shop"  
-                       },   
-                       {  
-                           "children": [],   
-                           "data": {  
-                               "playcount": "254",   
-                               "$color": "#976732",   
-                               "image": "http://images.amazon.com/images/P/B000002IU3.01.LZZZZZZZ.jpg",   
-                               "$area": 254  
-                           },   
-                           "id": "album-Core",   
-                           "name": "Core"  
-                       }  
-                     ],   
-                     "data": {  
-                         "playcount": 514,   
-                         "$area": 514  
-                     },   
-                     "id": "artist_Stone Temple Pilots",   
-                     "name": "Stone Temple Pilots"  
-                 },
-                 {  
-                     "children": [  
-                       {  
-                           "children": [],   
-                           "data": {  
-                               "playcount": "229",   
-                               "$color": "#A15D32",   
-                               "image": "http://userserve-ak.last.fm/serve/300x300/32579429.jpg",   
-                               "$area": 229  
-                           },   
-                           "id": "album-Echoes, Silence, Patience &amp; Grace",   
-                           "name": "Echoes, Silence, Patience &amp; Grace"  
-                       },   
-                       {  
-                           "children": [],   
-                           "data": {  
-                               "playcount": "185",   
-                               "$color": "#B34B32",   
-                               "image": "http://images.amazon.com/images/P/B0009HLDFU.01.MZZZZZZZ.jpg",   
-                               "$area": 185  
-                           },   
-                           "id": "album-In Your Honor (disc 2)",   
-                           "name": "In Your Honor (disc 2)"  
-                       }  
-                     ],   
-                     "data": {  
-                         "playcount": 414,   
-                         "$area": 414  
-                     },   
-                     "id": "artist_Foo Fighters",   
-                     "name": "Foo Fighters"  
-                 },   
-                 {  
-                     "children": [  
-                       {  
-                           "children": [],   
-                           "data": {  
-                               "playcount": "398",   
-                               "$color": "#5DA132",   
-                               "image": "http://images.amazon.com/images/P/B00005LNP5.01._SCMZZZZZZZ_.jpg",   
-                               "$area": 398  
-                           },   
-                           "id": "album-Elija Y Gane",   
-                           "name": "Elija Y Gane"  
-                       },   
-                       {  
-                           "children": [],   
-                           "data": {  
-                               "playcount": "203",   
-                               "$color": "#AC5232",   
-                               "image": "http://images.amazon.com/images/P/B0000B193V.01._SCMZZZZZZZ_.jpg",   
-                               "$area": 203  
-                           },   
-                           "id": "album-Para los Arboles",   
-                           "name": "Para los Arboles"  
-                       }  
-                     ],   
-                     "data": {  
-                         "playcount": 601,   
-                         "$area": 601  
-                     },   
-                     "id": "artist_Luis Alberto Spinetta",   
-                     "name": "Luis Alberto Spinetta"  
-                 },   
-                 {  
-                     "children": [  
-                       {  
-                           "children": [],   
-                           "data": {  
-                               "playcount": "224",   
-                               "$color": "#A35B32",   
-                               "image": "http://userserve-ak.last.fm/serve/300x300/26497553.jpg",   
-                               "$area": 224  
-                           },   
-                           "id": "album-Music Bank",   
-                           "name": "Music Bank"  
-                       },   
-                       {  
-                           "children": [],   
-                           "data": {  
-                               "playcount": "217",   
-                               "$color": "#A65832",   
-                               "image": "http://images.amazon.com/images/P/B0000296JW.01.MZZZZZZZ.jpg",   
-                               "$area": 217  
-                           },   
-                           "id": "album-Music Bank (disc 1)",   
-                           "name": "Music Bank (disc 1)"  
-                       },   
-                       {  
-                           "children": [],   
-                           "data": {  
-                               "playcount": "215",   
-                               "$color": "#A75732",   
-                               "image": "http://images.amazon.com/images/P/B0000296JW.01.MZZZZZZZ.jpg",   
-                               "$area": 215  
-                           },   
-                           "id": "album-Music Bank (disc 2)",   
-                           "name": "Music Bank (disc 2)"  
-                       },   
-                       {  
-                           "children": [],   
-                           "data": {  
-                               "playcount": "181",   
-                               "$color": "#B54932",   
-                               "image": "http://images.amazon.com/images/P/B0000296JW.01.MZZZZZZZ.jpg",   
-                               "$area": 181  
-                           },   
-                           "id": "album-Music Bank (disc 3)",   
-                           "name": "Music Bank (disc 3)"  
-                       }  
-                     ],   
-                     "data": {  
-                         "playcount": 837,   
-                         "$area": 837  
-                     },   
-                     "id": "artist_Alice in Chains",   
-                     "name": "Alice in Chains"  
-                 },
-                 {  
-                     "children": [  
-                       {  
-                           "children": [],   
-                           "data": {  
-                               "playcount": "261",   
-                               "$color": "#946A32",   
-                               "image": "http://cdn.last.fm/flatness/catalogue/noimage/2/default_album_medium.png",   
-                               "$area": 261  
-                           },   
-                           "id": "album-2006-09-07: O-Bar, Stockholm, Sweden",   
-                           "name": "2006-09-07: O-Bar, Stockholm, Sweden"  
-                       },   
-                       {  
-                           "children": [],   
-                           "data": {  
-                               "playcount": "211",   
-                               "$color": "#A95532",   
-                               "image": "http://userserve-ak.last.fm/serve/300x300/25402479.jpg",   
-                               "$area": 211  
-                           },   
-                           "id": "album-Lost and Found",   
-                           "name": "Lost and Found"  
-                       }  
-                     ],   
-                     "data": {  
-                         "playcount": 472,   
-                         "$area": 472  
-                     },   
-                     "id": "artist_Chris Cornell",   
-                     "name": "Chris Cornell"  
-                 },  
-                 {  
-                     "children": [  
-                       {  
-                           "children": [],   
-                           "data": {  
-                               "playcount": "486",   
-                               "$color": "#39C532",   
-                               "image": "http://userserve-ak.last.fm/serve/300x300/26053425.jpg",   
-                               "$area": 486  
-                           },   
-                           "id": "album-It All Makes Sense Now",   
-                           "name": "It All Makes Sense Now"  
-                       },   
-                       {  
-                           "children": [],   
-                           "data": {  
-                               "playcount": "251",   
-                               "$color": "#986632",   
-                               "image": "http://userserve-ak.last.fm/serve/300x300/9658733.jpg",   
-                               "$area": 251  
-                           },   
-                           "id": "album-Air",   
-                           "name": "Air"  
-                       }  
-                     ],   
-                     "data": {  
-                         "playcount": 737,   
-                         "$area": 737  
-                     },   
-                     "id": "artist_Kr\u00f8m",   
-                     "name": "Kr\u00f8m"  
-                 },
-                 {  
-                     "children": [  
-                       {  
-                           "children": [],   
-                           "data": {  
-                               "playcount": "256",   
-                               "$color": "#966832",   
-                               "image": "http://userserve-ak.last.fm/serve/300x300/32595059.jpg",   
-                               "$area": 256  
-                           },   
-                           "id": "album-Mamagubida",   
-                           "name": "Mamagubida"  
-                       },   
-                       {  
-                           "children": [],   
-                           "data": {  
-                               "playcount": "220",   
-                               "$color": "#A55932",   
-                               "image": "http://cdn.last.fm/flatness/catalogue/noimage/2/default_album_medium.png",   
-                               "$area": 220  
-                           },   
-                           "id": "album-Reggae \u00e0 Coup de Cirque",   
-                           "name": "Reggae \u00e0 Coup de Cirque"  
-                       },   
-                       {  
-                           "children": [],   
-                           "data": {  
-                               "playcount": "181",   
-                               "$color": "#B54932",   
-                               "image": "http://userserve-ak.last.fm/serve/300x300/16799743.jpg",   
-                               "$area": 181  
-                           },   
-                           "id": "album-Grain de sable",   
-                           "name": "Grain de sable"  
-                       }  
-                     ],   
-                     "data": {  
-                         "playcount": 657,   
-                         "$area": 657  
-                     },   
-                     "id": "artist_Tryo",   
-                     "name": "Tryo"  
-                 },   
-                 {  
-                     "children": [  
-                       {  
-                           "children": [],   
-                           "data": {  
-                               "playcount": "258",   
-                               "$color": "#966832",   
-                               "image": "http://cdn.last.fm/flatness/catalogue/noimage/2/default_album_medium.png",   
-                               "$area": 258  
-                           },   
-                           "id": "album-Best Of",   
-                           "name": "Best Of"  
-                       },   
-                       {  
-                           "children": [],   
-                           "data": {  
-                               "playcount": "176",   
-                               "$color": "#B74732",   
-                               "image": "http://userserve-ak.last.fm/serve/300x300/5264426.jpg",   
-                               "$area": 176  
-                           },   
-                           "id": "album-Robbin' The Hood",   
-                           "name": "Robbin' The Hood"  
-                       }  
-                     ],   
-                     "data": {  
-                         "playcount": 434,   
-                         "$area": 434  
-                     },   
-                     "id": "artist_Sublime",   
-                     "name": "Sublime"  
-                 },
-                 {  
-                     "children": [  
-                       {  
-                           "children": [],   
-                           "data": {  
-                               "playcount": "275",   
-                               "$color": "#8F6F32",   
-                               "image": "http://userserve-ak.last.fm/serve/300x300/17597653.jpg",   
-                               "$area": 275  
-                           },   
-                           "id": "album-Chinese Democracy",   
-                           "name": "Chinese Democracy"  
-                       },   
-                       {  
-                           "children": [],   
-                           "data": {  
-                               "playcount": "203",   
-                               "$color": "#AC5232",   
-                               "image": "http://userserve-ak.last.fm/serve/300x300/15231979.jpg",   
-                               "$area": 203  
-                           },   
-                           "id": "album-Use Your Illusion II",   
-                           "name": "Use Your Illusion II"  
-                       }  
-                     ],   
-                     "data": {  
-                         "playcount": 478,   
-                         "$area": 478  
-                     },   
-                     "id": "artist_Guns N' Roses",   
-                     "name": "Guns N' Roses"  
-                 },   
-               
-          
-        
-                ],   
-                "data": {},   
-                "id": "root",   
-                "name": "Top Albums"  
-            },
-            treemapData = observable(data);
+            };
 
         return {
-            treemapData: treemapData,
+            data: data,
             addNode: function () {
-                var newNode = {
-                    "children": [],
-                    "data": {
-                        "$color": "#718D32",
-                        "$area": 1000
-                    },
-                    "id": "Node_" + counter,
-                    "name": "Node_" + counter
+                console.log(data);
+                var newSong = {
+                    name: 'Carry that Weight',
+                    x: 4,
+                    y: 5
                 };
-                data.children[Math.random()*data.children.length | 0].children.push(newNode);
-                counter += 1;
-                treemapData(data);
-            }
+                data.artists[1].albums[0].songs.push(newSong);
+            },
+            removeNode: function () {
+                data.artists[1].albums[0].songs.pop();
+            },
+            addTime: function () {
+                data.artists[0].albums[0].songs[0].x(data.artists[0].albums[0].songs[0].x() + 1);
+            },
+            setAbbeyRoad: function () {
+                selectedItem(data.artists[1].albums[0])
+            },
+            selectedItem: selectedItem
         };
     };
 });
@@ -26826,7 +26547,7 @@ define('text',['module'], function (module) {
     }
     return text;
 });
-define('text!app/main/views/main.html',[],function () { return '<div id="main_template">\r\n    <div data-class="main-treemap" style="width:800px;height:600px;"></div>\r\n    <div>\r\n        Add a new node: <button data-bind="click: addNode">Add Node</button>\r\n    </div>\r\n</div>\r\n\r\n<div id="node_tip_template">\r\n    <span data-bind="text: name"></span>\r\n</div>';});
+define('text!app/main/views/main.html',[],function () { return '<div id="main_template">\r\n    <div data-class="main-treemap" style="width:800px;height:600px;"></div>\r\n    The currently selected node is: <span data-class="selected"></span>\r\n    <div>\r\n        Add a new node: <button data-bind="click: addNode">Add Node</button>\r\n    </div>\r\n    <div>\r\n        Remove a node: <button data-bind="click: removeNode">Remove Node</button>\r\n    </div>\r\n    <div>\r\n        Add Time: <button data-bind="click: addTime">Add Time</button>\r\n    </div>\r\n    <div>\r\n        Set Abbey Road: <button data-bind="click: setAbbeyRoad">Set Abbey Road</button>\r\n    </div>\r\n</div>\r\n\r\n<div id="node_tip_template">\r\n    <span data-bind="text: name"></span>\r\n</div>\r\n\r\n<div id="song_template">\r\n    Song: <span data-bind="text: name"></span>\r\n</div>\r\n';});
 
 /*global define */
 /*jslint sloppy: true*/
@@ -26835,14 +26556,20 @@ define('app/main/bindings/mainBindings.js',{
         return {
             treemap: {
                 data: this.data,
-                //templates: ['artist
                 itemTemplate: 'song_template',
-                levels: ['A', 'B', 'C'],
+                levels: ['artists', 'albums', 'songs'],
                 areaPath: 'x',
-                colorPath: 'length',
+                colorPath: 'y',
                 colorPallete: 'random',
-                nodeTipTemplate: 'node_tip_template'
+                nodeTipTemplate: 'node_tip_template',
+                selectedItem: this.selectedItem,
+                zoomOnClick: true
             }
+        };
+    },
+    'selected': function () {
+        return {
+            text: this.selectedItem() ? this.selectedItem().name : ""
         };
     }
 });

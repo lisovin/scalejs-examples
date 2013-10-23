@@ -10,8 +10,14 @@ define({
                 areaPath: 'x',
                 colorPath: 'y',
                 colorPallete: 'random',
-                nodeTipTemplate: 'node_tip_template'
+                nodeTipTemplate: 'node_tip_template',
+                selectedItem: this.selectedItem
             }
+        };
+    },
+    'selected': function () {
+        return {
+            text: this.selectedItem() ? this.selectedItem().name : ""
         };
     }
 });

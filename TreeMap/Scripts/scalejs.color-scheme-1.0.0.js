@@ -34,7 +34,7 @@ define('scalejs.color-scheme',[
             }
             
             options.hue = 360 * numerator / denominator;
-            options.hue = options.hue > 80 && options.hue < 160 ? options.hue + 100 : options.hue;
+            options.hue = options.hue > 80 && options.hue < 160 ? options.hue + 100 : options.hue; //Prevents yellow backgronds.
             colors = generateGradient(options);
             numerator += 2;
             return colors;
