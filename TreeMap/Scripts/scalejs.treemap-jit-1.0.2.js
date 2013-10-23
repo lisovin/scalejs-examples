@@ -165,7 +165,7 @@ define('scalejs.treemap-jit',[
         tm.loadJSON(json());
         tm.refresh();
 
-        selectedItem(tm.graph.getNode(json.id));
+        selectedItem(tm.graph.getNode(json().id));
 
         if (treemap.zoomOnClick) {
             selectedItem.subscribe(function (node) {

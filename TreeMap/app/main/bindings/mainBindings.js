@@ -11,7 +11,8 @@ define({
                 colorPath: 'y',
                 colorPallete: 'random',
                 nodeTipTemplate: 'node_tip_template',
-                selectedItem: this.selectedItem
+                selectedItem: this.selectedItem,
+                zoomOnClick: false
             }
         };
     },
