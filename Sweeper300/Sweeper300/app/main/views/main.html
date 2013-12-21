@@ -1,0 +1,27 @@
+﻿<div id="main_template">
+    <div class="main">
+        <table>
+            <thead>
+                <tr>
+                    <td>Rows: <input type="text" class="input__rows" data-bind="value: rows" /></td>
+                    <td>Columns: <input type="text" data-bind="value: cols" /></td>
+                    <td>Mines: <input type="text" data-bind="value: totalMines"/></td>
+                    <td><button data-bind="click: reset">Reset</button></td>
+                </tr>
+                <tr><td colspan="4">
+                    Mines left: <span data-bind="text: mines"></span>
+                    <span class="result--win" data-bind="text: result"></span>
+                </td></tr>
+            </thead>
+            <tbody>
+                <tr><td colspan="4">
+                    <div class="board" data-bind="foreach: board">
+                        <div class="board__row" data-bind="foreach: $data">
+                            <div class="board__cell" data-class="cell"></div>
+                        </div>
+                    </div>
+                </td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>

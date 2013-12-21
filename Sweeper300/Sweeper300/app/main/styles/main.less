@@ -1,0 +1,40 @@
+﻿.main {
+    //border-collapse: collapse;
+    //border-spacing: 0;
+    .result--win {
+        color: red;
+    }
+
+    .board {
+        display: table;
+        .board__row {
+            display: table-row;
+
+            .board__cell {
+                display: table-cell;
+                background-color: gray;
+                width: 20px;
+                height: 20px;
+                border: 1px dashed red;
+                float: left;
+                font-size: 1rem;
+            }
+
+            .board__cell--closed {
+                background-color: green;
+            }
+
+            .board__cell--open {
+                background-color: gray;
+            }
+
+            .board__cell--mine {
+                color: white;
+            }
+
+            .board__cell--flag {
+                color: yellow;
+            }
+        }
+    }
+}
