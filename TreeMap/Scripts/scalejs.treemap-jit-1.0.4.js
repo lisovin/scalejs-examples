@@ -1,25 +1,74 @@
 
 /*global define*/
-define('scalejs.treemap-jit',[
+define('scalejs.treemap-jit/colors',[
     'scalejs!core',
-    'knockout',
-    'jit',
-    'scalejs.mvvm',
-    'scalejs.color-scheme'
+    'color-scheme'
 ], function (
     core,
-    ko,
-    $jit
+    ColorScheme
 ) {
     
 
+    var scheme = new ColorScheme,
+         merge = core.object.merge;
+
+    function generateGradient(options) {
+        options = merge({
+            hue: Math.random() * 360,
+            variation: 'default'
+        }, options)
+        scheme.from_hue(options.hue).variation(options.variation);
+        return scheme.colors();
+    }
+
+    function generateVariedGradient() {
+        var numerator = 1,
+            denominator = 2,
+            colors;
+
+        return function (options) {
+            options = options || {};
+            if (numerator > denominator) {
+                numerator = 1;
+                denominator = denominator * 2;
+            }
+
+            options.hue = 360 * numerator / denominator;
+            options.hue = options.hue > 80 && options.hue < 160 ? options.hue + 100 : options.hue; //Prevents yellow backgronds.
+            colors = generateGradient(options);
+            numerator += 2;
+            return colors;
+        };
+    }
+
+    return {
+        generateGradient: generateGradient,
+        generateVariedGradient: generateVariedGradient,
+    };
+});
+
+
+/*global define*/
+define([
+    'scalejs!core',
+    'knockout',
+    'jit',
+    './scalejs.treemap-jit/colors',
+    'scalejs.mvvm'
+], function (
+    core,
+    ko,
+    $jit,
+    colors
+) {
+    
     var //imports
         merge = core.object.merge,
         has = core.object.has,
         unwrap = ko.utils.unwrapObservable,
         //vars
         idCounter = 0,
-        generateGradient = core.color.generateVariedGradient();
+        generateGradient = colors.generateVariedGradient();
     
     /*jslint unparam:true*/
 
@@ -189,4 +238,3 @@ define('scalejs.treemap-jit',[
         init: init
     };
 });
-

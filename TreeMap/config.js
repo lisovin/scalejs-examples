@@ -9,18 +9,16 @@ var require = {
         "knockout.mapping":  "Scripts/knockout.mapping-latest.debug",
         "linqjs":  "Scripts/linq.min",
         "scalejs":  "Scripts/scalejs-0.3.0.0",
-        "scalejs.color-scheme":  "Scripts/scalejs.color-scheme-1.0.0",
         "scalejs.functional":  "Scripts/scalejs.functional-0.2.9",
         "scalejs.linq-linqjs":  "Scripts/scalejs.linq-linqjs-3.0.3",
         "scalejs.mvvm":  "Scripts/scalejs.mvvm-0.3.0.0",
         "scalejs.statechart-scion":  "Scripts/scalejs.statechart-scion-0.2.1.34",
-        "scalejs.treemap-jit":  "Scripts/scalejs.treemap-jit-1.0.2",
+        "scalejs.treemap-jit":  "Scripts/scalejs.treemap-jit-1.0.4",
         "scion":  "Scripts/scion",
         "text":  "Scripts/text"
     },
     "scalejs":  {
         "extensions":  [
-            "scalejs.color-scheme",
             "scalejs.functional",
             "scalejs.linq-linqjs",
             "scalejs.mvvm",

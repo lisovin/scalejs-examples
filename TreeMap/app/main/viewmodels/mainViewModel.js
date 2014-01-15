@@ -87,7 +87,6 @@ define([
         return {
             data: data,
             addNode: function () {
-                console.log(data);
                 var newSong = {
                     name: 'Carry that Weight',
                     x: 4,

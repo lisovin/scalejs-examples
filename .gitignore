@@ -13,3 +13,9 @@
 /ModernUI/ModernUI/ModernUI.csproj.user
 /ModernUI/.nuget/nuget.exe
 /CssGridLayout/.nuget/*.exe
+
+TreeMap.v12.suo
+
+obj
+
+packages
