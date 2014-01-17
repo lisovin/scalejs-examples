@@ -25092,8 +25092,7 @@ define('scalejs.tabs-jqueryui/tabsBindings', {
     'tabs-items-source': function () {
         return {
             foreach: {
-                data: this.itemsSource,
-                afterAdd: this.refreshTabs
+                data: this.itemsSource
             }
         };
     },
@@ -25198,58 +25197,28 @@ define('scalejs.tabs-jqueryui', [
 			    $addTab,
                 $headers;
 
-            function bindAddTabHandler(handler) {
-                 $addTab = tabs.find("[href='#tabs-add']");
-                 $addTab.unbind().click(handler);
-            }
-
-            function openPopup(e) {
-                e.preventDefault();
-                $menu.bPopup({
-                    follow: [false, false],
-                    position: [$addTab.offset().left + $addTab.width(), $addTab.offset().top + 10],
-                    opacity: 0,
-                    speed: 0
-                });
-            };
-
-            // refreshTabs after adding and sorting
-            function refreshTabs() {
-                tabs.tabs('refresh');                                           // refresh jqueryui widget
-
-                tabs.find('.ui-tabs-panel').each(function () {                  //readjust the height of each tab
-                    var tabsHeight = tabs.height(),
-                        headersHeight = tabs.find('.tab-headers').height();
-                    $(this).height(tabsHeight - headersHeight);
-                });
-
-                $headers = tabs.find('ul.tab-headers');
-                $headers.append('<li class="unsortable"><a href="#tabs-add">+</a></li>');
-
-                bindAddTabHandler(openPopup);
-            }
-
+            /*
+             * setupTabs: creates tabs control with edittable headers
+             */
             function setupTabs() {
-                var el = $(ko.virtualElements.firstChild(element)).parent();
-
+                var el = $(ko.virtualElements.firstChild(element)).parent();        
                 $menu = $($(el).find('.tabs-menu'));
                 tabs = $($(el).find('.tabs')).tabs();
+                $menu.hide();
 
-                // Remove keyboard navigation from tabs so that editable can work.
-                $.widget("ui.tabs", $.ui.tabs, {
-                    options: {
-                        keyboard: true
-                    },
+                /*
+                 * Remove keyboard navigation from tabs so that editable can work.
+                 */
+                $.widget("ui.tabs", $.ui.tabs, { options: { keyboard: true  },
                     _tabKeydown: function (e) {
-                        if (this.options.keyboard) {
-                            this._super('_tabKeydown');
-                        } else {
-                            return false;
-                        }
+                        if (this.options.keyboard) { this._super('_tabKeydown'); }
+                        else { return false; }
                     }
                 });
 
-                // make tab headers editable
+                /*
+                 * Make tabs edittable.
+                 */
                 tabs.delegate("a.ui-tabs-anchor", "dblclick", function () {
                     var header = ko.dataFor(this).header,
 					    $input,
@@ -25277,6 +25246,45 @@ define('scalejs.tabs-jqueryui', [
                 });
             }
 
+            /*
+             * refreshTabs: updates tabs and creates add tab open menu
+             */
+            function refreshTabs() {
+                tabs.tabs('refresh');
+
+                /*
+                 * Fix height of tab content.
+                 */
+                tabs.find('.ui-tabs-panel').each(function () {
+                    var tabsHeight = tabs.height(),
+                        headersHeight = tabs.find('.tab-headers').height();
+                    $(this).height(tabsHeight - headersHeight);
+                });
+
+                /*
+                 * create add tab.
+                 */
+                tabs.find('li.unsortable').remove();
+                $headers = tabs.find('ul.tab-headers');
+                $headers.append('<li class="unsortable"><a href="#tabs-add">+</a></li>');
+                bindAddTabHandler(openPopup);
+            }
+
+            function bindAddTabHandler(handler) {
+                 $addTab = tabs.find("[href='#tabs-add']");
+                 $addTab.unbind().click(handler);
+            }
+
+            function openPopup(e) {
+                e.preventDefault();
+                $menu.bPopup({
+                    follow: [false, false],
+                    position: [$addTab.offset().left + $addTab.width(), $addTab.offset().top + 10],
+                    opacity: 0,
+                    speed: 0
+                });
+            };
+
             data.sortOptions = {
                 items: "li:not(.unsortable)",
                 axis: "x",
@@ -25288,8 +25296,6 @@ define('scalejs.tabs-jqueryui', [
                     refreshTabs();
                 }
             };
-
-            data.refreshTabs = refreshTabs;
 
 	        data.menuItems = observableArray(toEnumerable(unwrap(data.defaultItems)).select(function (item) {
 	            var menuItem = merge(item, {
