@@ -7687,7 +7687,7 @@ define('scalejs.mvvm',[
     }
 }(this, function () {
 
-    
+    "use strict";
 
     var STATE_TYPES = {
         BASIC: 0,
@@ -9302,7 +9302,7 @@ define("jQuery", (function (global) {
   java, location, Components, FileUtils */
 
 define('text',['module'], function (module) {
-    
+    'use strict';
 
     var text, fs, Cc, Ci, xpcIsWindows,
         progIds = ['Msxml2.XMLHTTP', 'Microsoft.XMLHTTP', 'Msxml2.XMLHTTP.4.0'],
@@ -25223,7 +25223,10 @@ define('scalejs.tabs-jqueryui', [
                     $(this).height(tabsHeight - headersHeight);
                 });
 
+                tabs.find('li.unsortable').remove();
+
                 $headers = tabs.find('ul.tab-headers');
+
                 $headers.append('<li class="unsortable"><a href="#tabs-add">+</a></li>');
 
                 bindAddTabHandler(openPopup);
@@ -25248,6 +25251,8 @@ define('scalejs.tabs-jqueryui', [
                         }
                     }
                 });
+
+                $menu.hide();
 
                 // make tab headers editable
                 tabs.delegate("a.ui-tabs-anchor", "dblclick", function () {
@@ -25343,7 +25348,7 @@ define('scalejs.tabs-jqueryui', [
 /*global define*/
 /*jslint unparam:true*/
 define('sandbox',[],function () {
-    
+    'use strict';
 
     return {
         load: function (name, req, onLoad, config) {
@@ -25364,7 +25369,7 @@ define('app/main/viewmodels/mainViewModel',[
 ], function (
     sandbox
 ) {
-    
+    'use strict';
 
     return function () {
         var observableArray = sandbox.mvvm.observableArray,
@@ -25395,7 +25400,7 @@ define('app/main/viewmodels/mainViewModel',[
 /*global define*/
 /*jslint unparam:true*/
 define('views',[],function () {
-    
+    'use strict';
 
     return {
         load: function (name, req, onLoad, config) {
@@ -25433,7 +25438,7 @@ define('text!app/main/views/main.html',[],function () { return '<div id="main_te
 /*global define*/
 /*jslint unparam:true*/
 define('bindings',[],function () {
-    
+    'use strict';
 
     return {
         load: function (name, req, onLoad, config) {
@@ -25487,7 +25492,7 @@ define('app/main/bindings/mainBindings',{
 /*global define*/
 /*jslint unparam:true*/
 define('styles',[],function () {
-    
+    'use strict';
 
     return {
         load: function (name, req, onLoad, config) {
@@ -25791,7 +25796,7 @@ define('app/main/mainModule',[
     sandbox,
     mainViewModel
 ) {
-    
+    'use strict';
 
     return function main() {
         var // imports
@@ -25822,7 +25827,7 @@ require([
 ], function (
     application
 ) {
-    
+    'use strict';
 
     application.run();
 });
