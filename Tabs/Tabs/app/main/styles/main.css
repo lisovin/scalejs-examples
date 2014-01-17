@@ -1,0 +1,698 @@
+﻿/* jquery UI styles*/
+
+
+.ui-tabs {
+	position: relative;/* position: relative prevents IE scroll bug (element with position: relative inside container with overflow: auto appear as "fixed") */
+	padding: .2em;
+}
+.ui-tabs .ui-tabs-nav {
+	margin: 0;
+	padding: .2em .2em 0;
+}
+.ui-tabs .ui-tabs-nav li {
+	list-style: none;
+	float: left;
+	position: relative;
+	top: 0;
+	margin: 1px .2em 0 0;
+	border-bottom-width: 0;
+	padding: 0;
+	white-space: nowrap;
+}
+.ui-tabs .ui-tabs-nav li a {
+	float: left;
+	padding: .5em 1em;
+	text-decoration: none;
+}
+.ui-tabs .ui-tabs-nav li.ui-tabs-active {
+	margin-bottom: -1px;
+	padding-bottom: 1px;
+}
+.ui-tabs .ui-tabs-nav li.ui-tabs-active a,
+.ui-tabs .ui-tabs-nav li.ui-state-disabled a,
+.ui-tabs .ui-tabs-nav li.ui-tabs-loading a {
+	cursor: text;
+}
+.ui-tabs .ui-tabs-nav li a, /* first selector in group seems obsolete, but required to overcome bug in Opera applying cursor: text overall if defined elsewhere... */
+.ui-tabs-collapsible .ui-tabs-nav li.ui-tabs-active a {
+	cursor: pointer;
+}
+.ui-tabs .ui-tabs-panel {
+	display: block;
+	border-width: 0;
+	padding: 1em 1.4em;
+	background: none;
+}
+
+
+.ui-menu {
+	list-style: none;
+	padding: 2px;
+	margin: 0;
+	display: block;
+	outline: none;
+}
+.ui-menu .ui-menu {
+	margin-top: -3px;
+	position: absolute;
+}
+.ui-menu .ui-menu-item {
+	margin: 0;
+	padding: 0;
+	width: 100%;
+	/* support: IE10, see #8844 */
+	list-style-image: url(data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7);
+}
+.ui-menu .ui-menu-divider {
+	margin: 5px -2px 5px -2px;
+	height: 0;
+	font-size: 0;
+	line-height: 0;
+	border-width: 1px 0 0 0;
+}
+.ui-menu .ui-menu-item a {
+	text-decoration: none;
+	display: block;
+	padding: 2px .4em;
+	line-height: 1.5;
+	min-height: 0; /* support: IE7 */
+	font-weight: normal;
+}
+.ui-menu .ui-menu-item a.ui-state-focus,
+.ui-menu .ui-menu-item a.ui-state-active {
+	font-weight: normal;
+	margin: -1px;
+}
+
+/* Erica's Changes for Tabs */
+
+.ui-tabs .ui-tabs-nav li {
+    height: 19px;
+    padding-top: 2px;
+}
+
+.ui-helper-reset {
+    line-height: 0px;
+}
+
+.tabs-header-text {
+    font-family: Arial, sans-serif;
+    font-weight: normal;
+}
+
+.ui-tabs .ui-tabs-nav .iconMax {
+    margin-top: 2px;
+}
+
+.ui-widget-header {
+    border: none;
+}
+
+.ui-tabs {
+	padding: 0px;
+}
+
+.ui-corner-all,
+.ui-corner-top,
+.ui-corner-left,
+.ui-corner-tl {
+	border-top-left-radius: 0px;
+}
+.ui-corner-all,
+.ui-corner-top,
+.ui-corner-right,
+.ui-corner-tr {
+	border-top-right-radius: 0px;
+}
+.ui-corner-all,
+.ui-corner-bottom,
+.ui-corner-left,
+.ui-corner-bl {
+	border-bottom-left-radius: 0px;
+}
+.ui-corner-all,
+.ui-corner-bottom,
+.ui-corner-right,
+.ui-corner-br {
+	border-bottom-right-radius: 0px;
+}
+
+.ui-corner-all li,
+.ui-corner-top li,
+.ui-corner-left li,
+.ui-corner-tl li {
+	border-top-left-radius: 4px;
+}
+.ui-corner-all li,
+.ui-corner-top li,
+.ui-corner-right li,
+.ui-corner-tr li {
+	border-top-right-radius: 4px;
+}
+.ui-corner-all li,
+.ui-corner-bottom li,
+.ui-corner-left li,
+.ui-corner-bl li {
+	border-bottom-left-radius: 4px;
+}
+.ui-corner-all li,
+.ui-corner-bottom li,
+.ui-corner-right li,
+.ui-corner-br li {
+	border-bottom-right-radius: 4px;
+}
+
+.ui-widget input,
+.ui-widget select,
+.ui-widget textarea,
+.ui-widget button {
+	font-family: Arial, sans-serif;
+	font-size: 1em;
+}
+
+.ui-tabs input {
+    width: 100px;
+    margin-right:10px;
+    font-size:10px;
+    margin: -.7em -1em;
+}
+
+.ui-tabs .ui-tabs-panel {
+    padding: 0px 0px;
+}
+
+.ui-tabs-anchor:focus {
+    outline: -webkit-focus-ring-color auto 0px;
+}
+
+
+body {
+    background: #090909;
+
+    scrollbar-face-color: #3e3e3e;
+    scrollbar-shadow-color: #3e3e3e;
+    scrollbar-highlight-color:#3e3e3e;
+    scrollbar-3dlight-color: #3e3e3e;
+    scrollbar-darkshadow-color: #3e3e3e;
+    scrollbar-track-color: #090909;
+    scrollbar-arrow-color: #090909;
+
+}
+
+
+::-webkit-scrollbar{width:10px;height:10px;}
+::-webkit-scrollbar-button:start:decrement,#doc ::-webkit-scrollbar-button:end:increment{display:block;height:0;width:0;background-color:transparent;}
+::-webkit-scrollbar-track-piece{background-color:#090909;-webkit-border-radius:0;-webkit-border-bottom-right-radius:8px;-webkit-border-bottom-left-radius:8px;}
+::-webkit-scrollbar-thumb:vertical{height:50px;background-color:#3e3e3e;-webkit-border-radius:8px;border:2px solid #090909}
+::-webkit-scrollbar-thumb:horizontal{width:50px;background-color:#3e3e3e;-webkit-border-radius:8px;border:2px solid #090909}
+::-webkit-scrollbar-corner {background-color:#090909;}
+
+
+/*
+::-webkit-scrollbar{width:20px;height:20px;}
+::-webkit-scrollbar-button:start:decrement,#doc ::-webkit-scrollbar-button:end:increment{display:block;height:0;width:0;background-color:transparent;}
+::-webkit-scrollbar-track-piece{background-color:#000000;-webkit-border-radius:0;-webkit-border-bottom-right-radius:0;-webkit-border-bottom-left-radius:0;}
+::-webkit-scrollbar-thumb:vertical{height:50px;background-color:#505050;-webkit-border-radius:0;border:2px solid #000000}
+::-webkit-scrollbar-thumb:horizontal{width:50px;background-color:#505050;-webkit-border-radius:0;border:2px solid #000000}
+*/
+
+.mainHeader {
+    height: 39px;
+    background: #090909 url('images/mainHeader.png') repeat-x;
+}
+
+.EMSLogo {
+    width: 209px;
+    height: 30px;
+    background: url('images/EMSLogo.png') no-repeat;
+    position: absolute;
+    top: 4px;
+    left: 7px;
+}
+
+.EPLogo {
+    width: 221px;
+    height: 30px;
+    background: url('images/EPLogo.png') no-repeat;
+    position: relative;
+    top: 8px;
+    left: 7px;
+}
+
+.gridHeader {
+    /*
+    border-left: 1px solid #2e2e2e;
+    border-right: 1px solid #2e2e2e;
+    */
+    height: 22px;
+    background: #090909 url('images/gridHeader.png') repeat-x;
+}
+
+.gridTitle {
+    float:left;
+    color: #c0c0c0;
+}
+
+.messageRate {
+    margin-left: 500px; 
+    color: #c0c0c0;
+}
+
+.messageCount {
+    float:left;
+    margin-left: 100px; 
+    color: #c0c0c0;
+}
+
+.messageSelect {
+    float:left;
+    margin-left: 100px; 
+    color: #c0c0c0;    
+    cursor: pointer;    
+}
+
+.messageSelectedRows {
+    float:left;
+    margin-left: 100px; 
+    color: #c0c0c0;
+}
+
+.messageCancel {
+    float:left;
+    margin-left: 100px; 
+    color: #c0c0c0;    
+    cursor: pointer;    
+}
+
+.messageCancel {
+    float:left;
+    margin-left: 100px; 
+    color: #c0c0c0;    
+    cursor: pointer;    
+}
+
+.messageCancelDisabled {
+    float:left;
+    margin-left: 100px; 
+    color: #747474;    
+}
+
+
+.slick-header-column.ui-state-default {
+   border-right: 1px solid #2e2e2e;
+ }
+
+.slick-headerrow-column.ui-state-default {
+    padding: 0;
+}
+
+.slick-headerrow-column
+{
+    background: #090909;
+    text-overflow: clip;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+.slick-headerrow-column input
+{
+    color:#00ffae;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    background: #090909;
+    border: 1px solid #2e2e2e;
+    border-right: 0;
+    border-bottom: 0;
+
+}
+
+input:focus{
+    outline: none;
+    border: 1px solid lightgreen;
+}
+
+.slick-cell, .slick-headerrow-column {
+position: absolute;
+border: 1px solid transparent;
+border-right: 1px solid #2e2e2e;
+border-bottom-color: #2e2e2e;
+overflow: hidden;
+text-overflow: ellipsis;
+white-space: nowrap;
+vertical-align: middle;
+z-index: 1;
+padding: 1px 2px 2px 1px;
+margin: 0;
+white-space: nowrap;
+cursor: default;
+}
+
+.slick-resizable-handle {
+position: absolute;
+font-size: 0.1px;
+display: block;
+cursor: col-resize;
+width: 4px;
+right: 0px;
+top: 0;
+height: 100%;
+}
+
+/*
+.slick-cell.selected {
+background: #0e4265 no-repeat center center;
+}
+*/
+
+.slick-cell.selected:after {
+  border-top: 40px solid transparent;
+}
+.slick-cell.selected:before {
+  content: "";
+}
+
+.slick-header-column.ui-state-default {
+color: #ffa800;
+}
+
+.slick-row.initial .slick-cell
+{
+    color: #ffc000
+}
+
+.slick-row.filled .slick-cell
+{
+    color: #ffffff
+}
+
+.slick-row.cancelled .slick-cell
+{
+    color: #828282
+}
+
+.slick-row.rejected .slick-cell
+{
+    color: #ff0000
+}
+
+.slick-row.partial .slick-cell
+{
+    color:#00a2ff
+}
+
+.ui-widget-header {
+    overflow-x:hidden; 
+    overflow-y:hidden;
+    margin: 0;
+    padding: 0;
+    color: #c0c0c0;
+    font-size: 14px;
+    height: 19px;
+    background: #090909 url('images/gridHeader.png') repeat-x;
+    padding-top: 3px;
+    padding-left: 4px;
+    white-space: nowrap;
+}
+
+.iconMax {
+    width: 11px;
+    height: 10px;
+    background: url('images/iconMax.png') no-repeat;
+    float:right;
+    margin-right: 5px;
+    margin-top: 3px;
+    cursor: pointer;
+}
+
+.iconMin {
+    width: 11px;
+    height: 10px;
+    background: url('images/iconMin.png') no-repeat;
+    float:right;
+    margin-right: 5px;
+    margin-top: 2px;
+    cursor: pointer;
+}
+
+.iconClose {
+    width: 11px;
+    height: 10px;
+    background: url('images/iconClose.png') no-repeat;
+    float:right;
+    margin-right: 5px;
+    margin-top: 2px;
+    cursor: pointer;
+}
+
+.iconSelect {
+    width: 11px;
+    height: 10px;
+    background: url('images/iconSelect.png') no-repeat;
+    float:left;
+    margin-right: 5px;
+    margin-top: 2px;
+    cursor: pointer;    
+    background-position-y: 45%
+}
+
+.iconCancel {
+    width: 11px;
+    height: 10px;
+    background: url('images/iconCancel.png') no-repeat;
+    float:left;
+    margin-right: 5px;
+    margin-top: 2px;
+    cursor: pointer;    
+    background-position-y: 45%
+}
+
+.iconCancelDisabled {
+    width: 11px;
+    height: 10px;
+    background: url('images/iconCancel.png') no-repeat;
+    float:left;
+    margin-right: 5px;
+    margin-top: 2px;
+    background-position-y: 45%;
+    opacity: .5;
+}
+
+.iconFilterOn {
+    width: 11px;
+    height: 10px;
+    background: url('images/iconFilterOn.png') no-repeat;
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    margin-top: 3px;
+    cursor: pointer;
+}
+
+.iconFilterOff {
+    width: 11px;
+    height: 10px;
+    background: url('images/iconFilterOff.png') no-repeat;
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    margin-top: 2px;
+    cursor: pointer;
+}
+
+.iconArrowLeft {
+    width: 11px;
+    height: 13px;
+    background: url('images/iconArrow.png') no-repeat;
+    position: absolute;
+    top: 5px;
+    left: -6px;
+}
+
+.iconArrowRight {
+    width: 11px;
+    height: 13px;
+    background: url('images/iconArrow.png') no-repeat;
+    position: absolute;
+    top: 5px;
+    right:-7px;
+    transform:rotate(180deg);
+    -ms-transform:rotate(180deg);
+    -webkit-transform:rotate(180deg);
+}
+
+.ui-layout-resizer {
+    background-color:#131313;
+    border-left: 1px solid #2e2e2e;
+    border-right: 1px solid #2e2e2e;
+    border-top: 1px solid #2e2e2e;
+}
+
+.ui-layout-resizer:hover {
+    background-color: #c0c0c0;
+}
+
+.slick-sort-indicator {
+display: inline-block;
+width: 7px;
+height: 7px;
+margin-left: 4px;
+}
+.slick-sort-indicator-desc {
+  background: url(images/sort-desc.png);
+}
+
+.slick-sort-indicator-asc {
+  background: url(images/sort-asc.png);
+}
+
+.slick-header-sortable {
+    cursor: pointer;
+}
+
+.iconBuy {
+    background: url('images/iconBuy.png') no-repeat;
+    text-indent: 9px;
+    background-position-y: 45%
+}
+
+.iconSell {
+    background: url('images/iconSell.png') no-repeat;
+    text-indent: 9px;
+    background-position-y: 45%
+}
+
+.styled-select select {
+    color: #fff;
+   margin-right: 10px;
+   background: url(images/iconDrop.png) no-repeat right #090909;
+   width: 120px;
+   padding: 2px;
+   padding-top: 3px;
+   font-size: 12px;
+   line-height: 1;
+   border: 0;
+   border-radius: 0;
+   height: 20px;
+   -webkit-appearance: none;
+}
+
+.styled-select {
+   margin-right: 10px;
+   margin-top: 8px;
+   float: right;
+   width: 120px;
+   height: 20px;
+   overflow: hidden;
+   background: url(images/iconDrop.png) no-repeat right #090909;
+   border: 1px solid #2e2e2e;
+}
+
+/* Erica's Changes for Tabs - Blue Theme*/
+.ui-tabs-active.ui-state-default {
+	border: 1px solid #2e2e2e;
+	background: #1A2B57;
+	font-weight: bold;
+	color: #c0c0c0;
+}
+
+.tabs-menu {
+    background: #1e1e1e;
+    width: 100px;
+    padding: 10px;
+    border: 1px solid #2f2f2f;
+    color: #c0c0c0;
+}
+
+.tabs-menu-item:hover {
+    color: #fff;
+    cursor: pointer;
+}
+
+.ui-state-active a,
+.ui-state-active a:link,
+.ui-state-active a:visited {
+	color: #c0c0c0;
+}
+
+.ui-state-default a,
+.ui-state-default a:link,
+.ui-state-default a:visited {
+	color: #c0c0c0;
+}
+
+.ui-state-active,
+.ui-widget-content .ui-state-active,
+.ui-widget-header .ui-state-active {
+	border: 1px solid #2e2e2e;
+	opacity: 1 !important;
+	color: #c0c0c0;
+}
+
+.ui-tabs.ui-widget-content
+ {
+    border-color: #2e2e2e;
+    color: #c0c0c0;
+    background: #1e1e1e;
+}
+
+.ui-tabs-panel.ui-widget-content {
+    border-color: #2e2e2e;
+    color: #c0c0c0;
+    background: #090909;
+}
+
+.ui-widget-content a {
+    color: #c0c0c0;
+}
+
+.ui-tabs-anchor input {
+    background-color: #1e1e1e;
+    border: 0px;
+    color: #FFF;
+}
+
+.ui-tabs input:focus {
+    border: 0px;
+}
+
+.ui-tabs .ui-tabs-nav li {
+    border: 1px solid #2e2e2e;
+    background: #1e1e1e;
+    opacity: .6;
+}
+
+/*Erica's changes for layout splitter*/
+.splitter {
+    border: 1px solid #1c1c1c;
+    background: #090909;
+    z-index: 9999;
+}
+
+.splitter:hover {
+    background: #c0c0c0;
+}
+
+/* filters */
+.numberFilter {
+   background: #090909;
+   border: 1px solid #00ffae;
+   color:  #c0c0c0;
+}
+
+.numberFilterBox {
+   border: 1px solid #c0c0c0;
+}
+
+.listFilter {
+   background: #090909;
+   border: 1px solid #00ffae;
+   color:  #c0c0c0;
+}
+
+.listFilterBox {
+   border: 1px solid #c0c0c0;
+}
