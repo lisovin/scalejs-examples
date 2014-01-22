@@ -224,8 +224,11 @@ define('scalejs.tabs-jqueryui', [
             /*
              * refreshTabs: updates tabs and creates add tab open menu
              */
-            function refreshTabs() {
+            function refreshTabs(active) {
                 tabs.tabs('refresh');
+
+                tabs.tabs("option", "active", active || tabs.tabs("option", "active"));
+
 
                 /*
                  * Fix height of tab content.
@@ -267,8 +270,8 @@ define('scalejs.tabs-jqueryui', [
                     //remove add tab
                     tabs.find('li.unsortable').remove();
                 },
-                stop: function () {
-                    refreshTabs();
+                stop: function (args) {
+                    refreshTabs(args.targetIndex);
                 }
             };
 
@@ -277,8 +280,7 @@ define('scalejs.tabs-jqueryui', [
 	                addTab: function () {
 	                    $menu.bPopup({ opacity: 0 }).close();                           // close menu
 	                    data.itemsSource.push(item.create());                           // add item
-	                    tabs.tabs("option", "active", data.itemsSource.length - 2);     // activate new tab
-	                    refreshTabs();
+	                    refreshTabs(data.itemsSource().length-1);
 	                }
 	            });
 	            return menuItem;
