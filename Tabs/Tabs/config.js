@@ -30,7 +30,8 @@ var require = {
         "scion":  "Scripts/scion",
         "styles":  "Scripts/scalejs.styles",
         "text":  "Scripts/text",
-        "views":  "Scripts/scalejs.mvvm.views"
+        "views": "Scripts/scalejs.mvvm.views",
+        "tabs-paging": "Scripts/ui.tabs.paging"
     },
     "scalejs":  {
         "extensions":  [
@@ -63,10 +64,20 @@ var require = {
                 "jQuery"
             ]
         },
+        "jquery-ui": {
+            "deps": [
+                "jQuery"
+            ]
+        },
         "scalejs.statechart-scion":  {
             "deps":  [
                 "scalejs.linq-linqjs",
                 "scalejs.functional"
+            ]
+        },
+        "tabs-paging": {
+            "deps": [
+                "jQuery", "jquery-ui"
             ]
         }
     }

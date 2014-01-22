@@ -142,7 +142,8 @@ define('scalejs.tabs-jqueryui', [
 	'./scalejs.tabs-jqueryui/tabsBindings',
 	'scalejs.mvvm',
     'bPopup',
-    'knockout-sortable'
+    'knockout-sortable',
+    'tabs-paging'
 ], function (
 	core,
     ko,
@@ -179,6 +180,7 @@ define('scalejs.tabs-jqueryui', [
                 var el = $(ko.virtualElements.firstChild(element)).parent();        
                 $menu = $($(el).find('.tabs-menu'));
                 tabs = $($(el).find('.tabs')).tabs();
+                tabs.tabs('paging', { cycle: true, follow: true, followOnActive: true });
                 $menu.hide();
 
                 /*
