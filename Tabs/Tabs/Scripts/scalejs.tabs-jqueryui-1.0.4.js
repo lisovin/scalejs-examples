@@ -14,7 +14,12 @@ define('text!scalejs.tabs-jqueryui/tabs.html', [], function () { return ''
  + '        </div>'
  + '        <!-- /ko -->'
  + '    </div>'
- + '    <div class="tabs-menu">'
+ + '    <div class="tabs-more tabs-menu">'
+ + '        <!-- ko foreach: itemsSource -->'
+ + '            <div class="tabs-menu-item"><span data-class="tabs-more-item"></span><div class="iconClose" data-class="tab-close"></div></div>'
+ + '        <!-- /ko -->'
+ + '    </div> '
+ + '    <div class="tabs-add tabs-menu">'
  + '        <!-- ko foreach: menuItems -->'
  + '            <div class="tabs-menu-item" data-bind="text: header, click: addTab"></div>'
  + '        <!-- /ko -->'
@@ -25,13 +30,14 @@ define('text!scalejs.tabs-jqueryui/tabs.html', [], function () { return ''
  + '     <p data-bind="text: $data"></p>'
  + '</div>'
  + ''
- + ''
+ + '<div id="tabs_more_item_template"><li class="tabs-menu-item"><div class="tabs-header-text" data-class="tabs-header-text"></div><div class="iconClose" data-class="tab-close"></div></li></div>'
  + '<div id="tabs_header_item_template">'
  + '    <li>'
  + '        <a data-class="tabs-header">'
  + '            <div class="tabs-header-text" data-class="tabs-header-text"></div>'
  + '        </a>'
- + '        <div class="iconClose" data-class="tab-close"></div>'
+ + '        <div class="iconClose" data-class="tab-more-close"></div>'
+ + '        <div  class="iconMore" data-class="tab-more"></div>'
  + '        <!--<div class="iconMax" data-class="tab-max"></div>-->'
  + '    </li>'
  + '</div>'
@@ -103,6 +109,18 @@ define('scalejs.tabs-jqueryui/tabsBindings', {
         }
         return {};
     },
+    'tab-more-close': function (ctx) {
+        var itemsSource = ctx.$parent.itemsSource,
+            refreshTabs = ctx.$parent.refreshTabs;
+
+        return {
+            click: function () {
+                itemsSource.remove(ctx.$data);
+                refreshTabs();
+            },
+            visible: !ctx.$parent.more()
+        };
+    },
     'tab-close': function (ctx) {
         var itemsSource = ctx.$parent.itemsSource,
             refreshTabs = ctx.$parent.refreshTabs;
@@ -129,6 +147,20 @@ define('scalejs.tabs-jqueryui/tabsBindings', {
                 options: this.sortOptions,
                 afterMove: this.afterMove
             }
+        };
+    },
+    'tab-more': function (ctx) {
+        return {
+            visible: ctx.$parent.more,
+            click: ctx.$parent.openMore
+        }
+    },
+    'tabs-more-item': function (ctx) {
+        return {
+            style: {
+                color: ctx.$parent.active() === ctx.$index() ? 'red' : 'white'
+            },
+            text: this.header
         };
     }
 });
@@ -168,35 +200,30 @@ define('scalejs.tabs-jqueryui', [
     function wrapValueAccessor(valueAccessor, element) {
         return function () {
             var data = valueAccessor(),
-                tabs,
-			    $menu,
-			    $addTab,
-                $headers;
+                $tabs,
+                $menu = {};
 
             /*
              * setupTabs: creates tabs control with edittable headers
              */
             function setupTabs() {
-                var el = $(ko.virtualElements.firstChild(element)).parent();        
-                $menu = $($(el).find('.tabs-menu'));
-                tabs = $($(el).find('.tabs')).tabs();
-                tabs.tabs('paging', { cycle: true, follow: true, followOnActive: true });
-                $menu.hide();
+                var el = $(ko.virtualElements.firstChild(element)).parent();
 
-                /*
-                 * Remove keyboard navigation from tabs so that editable can work.
-                 */
+                /* finds and hides add and more menu */
+                $menu.add = $($(el).find('.tabs-add')).hide();
+                $menu.more = $($(el).find('.tabs-more')).hide();
+
+                /* initializes jquery tabs */
+                $tabs = $($(el).find('.tabs')).tabs();
+
+                /* enables editable headers */
                 $.widget("ui.tabs", $.ui.tabs, { options: { keyboard: true  },
                     _tabKeydown: function (e) {
                         if (this.options.keyboard) { this._super('_tabKeydown'); }
                         else { return false; }
                     }
                 });
-
-                /*
-                 * Make tabs edittable.
-                 */
-                tabs.delegate("a.ui-tabs-anchor", "dblclick", function () {
+                $tabs.delegate("a.ui-tabs-anchor", "dblclick", function () {
                     var header = ko.dataFor(this).header,
 					    $input,
 					    el = this;
@@ -221,56 +248,90 @@ define('scalejs.tabs-jqueryui', [
                         });
                     }
                 });
+
+                /* binds width calculation on resize */
+                $(window).resize(calculateWidth);
             }
 
             /*
-             * refreshTabs: updates tabs and creates add tab open menu
+             * refreshTabs: updates tabs whenever a significant change is made
              */
             function refreshTabs(active) {
-                tabs.tabs('refresh');
+                /* refreshes jqueryui tabs */
+                $tabs.tabs('refresh');
 
-                tabs.tabs("option", "active", active || tabs.tabs("option", "active"));
+                /* activates the appropriate tab */
+                $tabs.tabs("option", "active", active || $tabs.tabs("option", "active"));
+                data.active($tabs.tabs("option", "active"));
 
-
-                /*
-                 * Fix height of tab content.
-                 */
-                tabs.find('.ui-tabs-panel').each(function () {
-                    var tabsHeight = tabs.height(),
-                        headersHeight = tabs.find('.tab-headers').height();
+                /* fixes the height of the tabs content */
+                $tabs.find('.ui-tabs-panel').each(function () {
+                    var tabsHeight = $tabs.height(),
+                        headersHeight = $tabs.find('.tab-headers').height();
                     $(this).height(tabsHeight - headersHeight);
                 });
 
-                /*
-                 * create add tab.
-                 */
-                tabs.find('li.unsortable').remove();
-                $headers = tabs.find('ul.tab-headers');
-                $headers.append('<li class="unsortable"><a href="#tabs-add">+</a></li>');
-                bindAddTabHandler(openPopup);
-            }
-
-            function bindAddTabHandler(handler) {
-                 $addTab = tabs.find("[href='#tabs-add']");
-                 $addTab.unbind().click(handler);
-            }
-
-            function openPopup(e) {
-                e.preventDefault();
-                $menu.bPopup({
-                    follow: [false, false],
-                    position: [$addTab.offset().left + tabs.find('li.unsortable').width(), $addTab.offset().top],
-                    opacity: 0,
-                    speed: 0
+                /* binds click handler to more menu item */
+                $menu.more.find('.tabs-menu-item').each(function (i, el) {
+                    $(el).unbind().click(function () {
+                        $tabs.tabs("option", "active", i);
+                        $menu.more.bPopup({ opacity: 0 }).close();
+                        refreshTabs();
+                    });
                 });
-            };
+                
+                createAddTab();
+                calculateWidth();
+            }
+
+            /*
+             * calculateWidth: determines if tabs fit within window
+             */
+            function calculateWidth() {
+                var tabsContainerWidth = $tabs.outerWidth(),
+                    $headers = $tabs.find('ul.tab-headers'),
+                    $tabItems = $headers.find('li').show(),
+                    tabsWidth = $tabItems.get().reduce(function (acc, el) {
+                        acc += $(el).outerWidth();
+                        return acc;
+                    }, 0) + 20;
+                
+                data.more(false);
+                if (tabsWidth > tabsContainerWidth) {
+                    $tabItems.hide();
+                    data.more(true);
+                    $headers.find('.ui-state-active').show();
+                }
+                createAddTab();
+            }
+
+            /*
+             * createAddTab: creates the tab which opens the add tab menu
+             */
+            function createAddTab() {
+                var $tab;
+                $tabs.find('li.add').remove();
+                $headers = $tabs.find('ul.tab-headers');
+                $headers.append('<li class="unsortable add"><a href="#tabs-add">+</a></li>');
+                $tab = $tabs.find('[href="#tabs-add"]');
+                $tab.unbind().click(function (e) {
+                    e.preventDefault();
+                    $menu[type].bPopup({
+                        follow: [false, false],
+                        position: [$tab.offset().left + $tabs.find('li.add').width(), $tab.offset().top],
+                        opacity: 0,
+                        speed: 0
+                    });
+                });
+            }
+
 
             data.sortOptions = {
                 items: "li:not(.unsortable)",
                 axis: "x",
                 start: function () {
                     //remove add tab
-                    tabs.find('li.unsortable').remove();
+                    $tabs.find('li.unsortable').remove();
                 },
                 stop: function (args) {
                     refreshTabs(args.targetIndex);
@@ -280,8 +341,8 @@ define('scalejs.tabs-jqueryui', [
 	        data.menuItems = observableArray(toEnumerable(unwrap(data.defaultItems)).select(function (item) {
 	            var menuItem = merge(item, {
 	                addTab: function () {
-	                    $menu.bPopup({ opacity: 0 }).close();                           // close menu
-	                    data.itemsSource.push(item.create());                           // add item
+	                    $menu.add.bPopup({ opacity: 0 }).close();                           
+	                    data.itemsSource.push(item.create());                           
 	                    refreshTabs(data.itemsSource().length-1);
 	                }
 	            });
@@ -289,6 +350,20 @@ define('scalejs.tabs-jqueryui', [
 	        }).toArray());
 
 	        data.refreshTabs = refreshTabs;
+
+	        data.more = ko.observable(false);
+
+	        data.active = ko.observable(1);
+
+	        data.openMore = function () {
+	            var $tab = $($tabs.find('li').get(1));
+	            $menu.more.bPopup({
+	                follow: [false, false],
+	                position: [$tab.offset().left + 10, $tab.offset().top + $tab.outerHeight() + 10],
+	                opacity: 0,
+	                speed: 0
+	            });
+	        }
 
             return {
                 data: data,

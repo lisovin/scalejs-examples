@@ -9684,7 +9684,7 @@ define('text',['module'], function (module) {
  * @version: 0.9.4.min
  ================================================================================*/
  (function(b){b.fn.bPopup=function(z,F){function K(){a.contentContainer=b(a.contentContainer||c);switch(a.content){case "iframe":var h=b('<iframe class="b-iframe" '+a.iframeAttr+"></iframe>");h.appendTo(a.contentContainer);r=c.outerHeight(!0);s=c.outerWidth(!0);A();h.attr("src",a.loadUrl);k(a.loadCallback);break;case "image":A();b("<img />").load(function(){k(a.loadCallback);G(b(this))}).attr("src",a.loadUrl).hide().appendTo(a.contentContainer);break;default:A(),b('<div class="b-ajax-wrapper"></div>').load(a.loadUrl,a.loadData,function(){k(a.loadCallback);G(b(this))}).hide().appendTo(a.contentContainer)}}function A(){a.modal&&b('<div class="b-modal '+e+'"></div>').css({backgroundColor:a.modalColor,position:"fixed",top:0,right:0,bottom:0,left:0,opacity:0,zIndex:a.zIndex+t}).appendTo(a.appendTo).fadeTo(a.speed,a.opacity);D();c.data("bPopup",a).data("id",e).css({left:"slideIn"==a.transition||"slideBack"==a.transition?"slideBack"==a.transition?g.scrollLeft()+u:-1*(v+s):l(!(!a.follow[0]&&m||f)),position:a.positionStyle||"absolute",top:"slideDown"==a.transition||"slideUp"==a.transition?"slideUp"==a.transition?g.scrollTop()+w:x+-1*r:n(!(!a.follow[1]&&p||f)),"z-index":a.zIndex+t+1}).each(function(){a.appending&&b(this).appendTo(a.appendTo)});H(!0)}function q(){a.modal&&b(".b-modal."+c.data("id")).fadeTo(a.speed,0,function(){b(this).remove()});a.scrollBar||b("html").css("overflow","auto");b(".b-modal."+e).unbind("click");g.unbind("keydown."+e);d.unbind("."+e).data("bPopup",0<d.data("bPopup")-1?d.data("bPopup")-1:null);c.undelegate(".bClose, ."+a.closeClass,"click."+e,q).data("bPopup",null);H();return!1}function G(h){var b=h.width(),e=h.height(),d={};a.contentContainer.css({height:e,width:b});e>=c.height()&&(d.height=c.height());b>=c.width()&&(d.width=c.width());r=c.outerHeight(!0);s=c.outerWidth(!0);D();a.contentContainer.css({height:"auto",width:"auto"});d.left=l(!(!a.follow[0]&&m||f));d.top=n(!(!a.follow[1]&&p||f));c.animate(d,250,function(){h.show();B=E()})}function L(){d.data("bPopup",t);c.delegate(".bClose, ."+a.closeClass,"click."+e,q);a.modalClose&&b(".b-modal."+e).css("cursor","pointer").bind("click",q);M||!a.follow[0]&&!a.follow[1]||d.bind("scroll."+e,function(){B&&c.dequeue().animate({left:a.follow[0]?l(!f):"auto",top:a.follow[1]?n(!f):"auto"},a.followSpeed,a.followEasing)}).bind("resize."+e,function(){w=y.innerHeight||d.height();u=y.innerWidth||d.width();if(B=E())clearTimeout(I),I=setTimeout(function(){D();c.dequeue().each(function(){f?b(this).css({left:v,top:x}):b(this).animate({left:a.follow[0]?l(!0):"auto",top:a.follow[1]?n(!0):"auto"},a.followSpeed,a.followEasing)})},50)});a.escClose&&g.bind("keydown."+e,function(a){27==a.which&&q()})}function H(b){function d(e){c.css({display:"block",opacity:1}).animate(e,a.speed,a.easing,function(){J(b)})}switch(b?a.transition:a.transitionClose||a.transition){case "slideIn":d({left:b?l(!(!a.follow[0]&&m||f)):g.scrollLeft()-(s||c.outerWidth(!0))-C});break;case "slideBack":d({left:b?l(!(!a.follow[0]&&m||f)):g.scrollLeft()+u+C});break;case "slideDown":d({top:b?n(!(!a.follow[1]&&p||f)):g.scrollTop()-(r||c.outerHeight(!0))-C});break;case "slideUp":d({top:b?n(!(!a.follow[1]&&p||f)):g.scrollTop()+w+C});break;default:c.stop().fadeTo(a.speed,b?1:0,function(){J(b)})}}function J(b){b?(L(),k(F),a.autoClose&&setTimeout(q,a.autoClose)):(c.hide(),k(a.onClose),a.loadUrl&&(a.contentContainer.empty(),c.css({height:"auto",width:"auto"})))}function l(a){return a?v+g.scrollLeft():v}function n(a){return a?x+g.scrollTop():x}function k(a){b.isFunction(a)&&a.call(c)}function D(){x=p?a.position[1]:Math.max(0,(w-c.outerHeight(!0))/2-a.amsl);v=m?a.position[0]:(u-c.outerWidth(!0))/2;B=E()}function E(){return w>c.outerHeight(!0)&&u>c.outerWidth(!0)}b.isFunction(z)&&(F=z,z=null);var a=b.extend({},b.fn.bPopup.defaults,z);a.scrollBar||b("html").css("overflow","hidden");var c=this,g=b(document),y=window,d=b(y),w=y.innerHeight||d.height(),u=y.innerWidth||d.width(),M=/OS 6(_\d)+/i.test(navigator.userAgent),C=200,t=0,e,B,p,m,f,x,v,r,s,I;c.close=function(){a=this.data("bPopup");e="__b-popup"+d.data("bPopup")+"__";q()};return c.each(function(){b(this).data("bPopup")||(k(a.onOpen),t=(d.data("bPopup")||0)+1,e="__b-popup"+t+"__",p="auto"!==a.position[1],m="auto"!==a.position[0],f="fixed"===a.positionStyle,r=c.outerHeight(!0),s=c.outerWidth(!0),a.loadUrl?K():A())})};b.fn.bPopup.defaults={amsl:50,appending:!0,appendTo:"body",autoClose:!1,closeClass:"b-close",content:"ajax",contentContainer:!1,easing:"swing",escClose:!0,follow:[!0,!0],followEasing:"swing",followSpeed:500,iframeAttr:'scrolling="no" frameborder="0"',loadCallback:!1,loadData:!1,loadUrl:!1,modal:!0,modalClose:!0,modalColor:"#000",onClose:!1,onOpen:!1,opacity:0.7,position:["auto","auto"],positionStyle:"absolute",scrollBar:!0,speed:250,transition:"fadeIn",transitionClose:!1,zIndex:9997}})(jQuery);
-define("bPopup", function(){});
+define("bPopup", ["jQuery"], function(){});
 
 /*! jQuery UI - v1.10.3 - 2013-05-03
 * http://jqueryui.com
@@ -24690,9 +24690,8 @@ $.widget( "ui.tooltip", {
 
 }( jQuery ) );
 
-define("jquery-ui", function(){});
+define("jquery-ui", ["jQuery"], function(){});
 
-// knockout-sortable 0.8.3 | (c) 2013 Ryan Niemeyer |  http://www.opensource.org/licenses/mit-license
 ; (function (factory) {
     if (typeof define === "function" && define.amd) {
         // AMD anonymous module
@@ -24775,7 +24774,6 @@ define("jquery-ui", function(){});
     //connect items with observableArrays
     ko.bindingHandlers.sortable = {
         init: function (element, valueAccessor, allBindingsAccessor, data, context) {
-            element = element.parentNode;
             var $element = $(element),
                 value = unwrap(valueAccessor()) || {},
                 templateOptions = prepareTemplateOptions(valueAccessor, "foreach"),
@@ -24783,9 +24781,9 @@ define("jquery-ui", function(){});
                 startActual, updateActual;
 
             //remove leading/trailing non-elements from anonymous templates
-            ko.utils.arrayForEach(element.childNodes, function (node) {
-                if (node && node.nodeType !== 1) {
-                    node.parentNode.removeChild(node);
+            $element.contents().each(function () {
+                if (this && this.nodeType !== 1) {
+                    element.removeChild(this);
                 }
             });
 
@@ -24957,7 +24955,6 @@ define("jquery-ui", function(){});
             return { 'controlsDescendantBindings': true };
         },
         update: function (element, valueAccessor, allBindingsAccessor, data, context) {
-            element = element.parentNode;
             var templateOptions = prepareTemplateOptions(valueAccessor, "foreach");
 
             //attach meta-data
@@ -25021,9 +25018,400 @@ define("jquery-ui", function(){});
     };
 
 });
+/*
+ * UI Tabs Paging extension - v1.2.2 (for jQuery 1.9.0 and jQuery UI 1.9.0)
+ * 
+ * Copyright (c) 2013, http://seyfertdesign.com/jquery/ui-tabs-paging.html
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ * Depends:
+ *   jquery.ui.core.js
+ *   jquery.ui.widget.js
+ *   jquery.ui.tabs.js
+ */
+
+(function($) {
+
+//  overridden ui.tabs functions
+var uiTabsFuncs = { 
+	refresh: $.ui.tabs.prototype.refresh, 
+	option: $.ui.tabs.prototype.option
+};
+
+// DEPRECATED in jQuery UI 1.9
+if ( $.uiBackCompat !== false ) {
+	uiTabsFuncs = $.extend(
+			uiTabsFuncs, 
+			{
+				add: $.ui.tabs.prototype.add, 
+				remove: $.ui.tabs.prototype.remove 
+			}
+	);
+}
+	
+$.extend($.ui.tabs.prototype, {
+	paging: function(options) {
+		var opts = {
+			tabsPerPage: 0,       // Max number of tabs to display at one time.  0 automatically sizing.
+			nextButton: '&#187;', // Text displayed for next button.
+			prevButton: '&#171;', // Text displayed for previous button.
+			follow: false,        // When clicking next button, automatically make first tab active.  When clicking previous button automatically make last tab active.
+			cycle: false,         // When at end of list, next button returns to first page.  When at beginning of list previous button goes to end of list.
+			activeOnAdd: false,   // When new tab is added, make tab active automatically
+			followOnActive: false // When tab is changed to active, automatically go move to that tab group.
+		};
+		
+		opts = $.extend(opts, options);
+
+		var self = this, initialized = false, currentPage, 
+			buttonWidth, containerWidth, allTabsWidth, tabWidths, 
+			maxPageWidth, pages, resizeTimer = null, 
+			windowHeight, windowWidth;
+		
+		// initialize paging
+		function init() {
+			destroy();
+			
+			windowHeight = $(window).height();
+			windowWidth = $(window).width();
+			
+			allTabsWidth = 0, currentPage = 0, maxPageWidth = 0, buttonWidth = 0,
+				pages = new Array(), tabWidths = new Array(), selectedTabWidths = new Array();
+			
+			containerWidth = self.element.width();
+			
+			// loops through LIs, get width of each tab when selected and unselected.
+			var maxDiff = 0;  // the max difference between a selected and unselected tab
+			self.tabs.each(function(i) {			
+				if (i == self.options.active) {
+					selectedTabWidths[i] = $(this).outerWidth(true);
+					tabWidths[i] = self.tabs.eq(i).removeClass('ui-tabs-active').outerWidth(true);
+					self.tabs.eq(i).addClass('ui-tabs-active');
+					maxDiff = Math.min(maxDiff, Math.abs(selectedTabWidths[i] - tabWidths[i]));
+					allTabsWidth += tabWidths[i];
+				} else {
+					tabWidths[i] = $(this).outerWidth(true);
+					selectedTabWidths[i] = self.tabs.eq(i).addClass('ui-tabs-active').outerWidth(true);
+					self.tabs.eq(i).removeClass('ui-tabs-active');
+					maxDiff = Math.max(maxDiff, Math.abs(selectedTabWidths[i] - tabWidths[i]));
+					allTabsWidth += tabWidths[i];
+				}
+			});
+			
+			// fix padding issues with buttons
+			// TODO determine a better way to handle this
+			allTabsWidth += maxDiff + 9;  
+
+			// if the width of all tables is greater than the container's width, calculate the pages
+			if (allTabsWidth > containerWidth) {
+				// create next button			
+				li = $('<li></li>')
+					.addClass('ui-state-default ui-tabs-paging-next')
+					.append($('<a href="#"></a>')
+							.click(function() { page('next'); return false; })
+							.html(opts.nextButton));
+				
+				self.tablist.append(li);
+				buttonWidth = li.outerWidth(true);
+				
+				// create prev button
+				li = $('<li></li>')
+					.addClass('ui-state-default ui-tabs-paging-prev')
+					.append($('<a href="#"></a>')
+							.click(function() { page('prev'); return false; })
+							.html(opts.prevButton));
+				self.tablist.prepend(li);
+				buttonWidth += li.outerWidth(true);
+				
+				// TODO determine fix for padding issues to next button
+				buttonWidth += 19; 
+								
+				var pageIndex = 0, pageWidth = 0, maxTabPadding = 0;
+				
+				// start calculating pageWidths
+				for (var i = 0; i < tabWidths.length; i++) {
+					// if first tab of page or selected tab's padding larger than the current max, set the maxTabPadding
+					if (pageWidth == 0 || selectedTabWidths[i] - tabWidths[i] > maxTabPadding)
+						maxTabPadding = (selectedTabWidths[i] - tabWidths[i]);
+					
+					// if first tab of page, initialize pages variable for page 
+					if (pages[pageIndex] == null) {
+						pages[pageIndex] = { start: i };
+					
+					} else if ((i > 0 && (i % opts.tabsPerPage) == 0) || (tabWidths[i] + pageWidth + buttonWidth + 12) > containerWidth) {
+						if ((pageWidth + maxTabPadding) > maxPageWidth)	
+							maxPageWidth = (pageWidth + maxTabPadding);
+						pageIndex++;
+						pages[pageIndex] = { start: i };			
+						pageWidth = 0;
+					}
+					pages[pageIndex].end = i+1;
+					pageWidth += tabWidths[i];
+					if (i == self.options.active) currentPage = pageIndex;
+				}
+				if ((pageWidth + maxTabPadding) > maxPageWidth)	
+					maxPageWidth = (pageWidth + maxTabPadding);				
+
+			    // hide all tabs then show tabs for current page
+				self.tabs.hide().slice(pages[currentPage].start, pages[currentPage].end).show();
+				if (currentPage == (pages.length - 1) && !opts.cycle) 
+					disableButton('next');			
+				if (currentPage == 0 && !opts.cycle) 
+					disableButton('prev');
+				
+				// calculate the right padding for the next button
+				buttonPadding = containerWidth - maxPageWidth - buttonWidth;
+				if (buttonPadding > 0) 
+					$('.ui-tabs-paging-next', self.element).css({ paddingRight: buttonPadding + 'px' });
+			} else {
+				destroy();
+			}
+			
+			$(window).bind('resize', handleResize);
+			
+			initialized = true;
+		}
+		
+		// handles paging forward and backward
+		function page(direction) {
+			currentPage = currentPage + (direction == 'prev'?-1:1);
+			
+			if ((direction == 'prev' && currentPage < 0 && opts.cycle) ||
+				(direction == 'next' && currentPage >= pages.length && !opts.cycle))
+				currentPage = pages.length - 1;
+			else if ((direction == 'prev' && currentPage < 0) || 
+					 (direction == 'next' && currentPage >= pages.length && opts.cycle))
+				currentPage = 0;
+			
+			var start = pages[currentPage].start;
+			var end = pages[currentPage].end;
+			self.tabs.hide().slice(start, end).show();
+			
+			if (direction == 'prev') {
+				enableButton('next');
+				if (opts.follow && (self.options.active < start || self.options.active > (end-1))) self.option('active', end-1);
+				if (!opts.cycle && start <= 0) disableButton('prev');
+			} else {
+				enableButton('prev');
+				if (opts.follow && (self.options.active < start || self.options.active > (end-1))) self.option('active', start);
+				if (!opts.cycle && end >= self.tabs.length) disableButton('next');
+			}
+		}
+		
+		// change styling of next/prev buttons when disabled
+		function disableButton(direction) {
+			$('.ui-tabs-paging-'+direction, self.element).addClass('ui-tabs-paging-disabled');
+		}
+		
+		function enableButton(direction) {
+			$('.ui-tabs-paging-'+direction, self.element).removeClass('ui-tabs-paging-disabled');
+		}
+		
+		// special function defined to handle IE resize issues
+		function handleResize() {
+			if (resizeTimer) clearTimeout(resizeTimer);
+			
+			if (windowHeight != $(window).height() || windowWidth != $(window).width()) 
+			{
+				resizeTimer = setTimeout(init, 100);
+			}
+		}
+		
+		// remove all paging related changes and events
+		function destroy() {
+			// remove buttons
+			$('.ui-tabs-paging-next', self.element).remove();
+			$('.ui-tabs-paging-prev', self.element).remove();
+			
+			// show all tabs
+			self.tabs.show();
+			
+			initialized = false;
+			
+			$(window).unbind('resize', handleResize);
+		}
+		
+		
+		
+		// ------------- OVERRIDDEN PUBLIC FUNCTIONS -------------
+		self.option = function(optionName, value) {
+			var retVal = uiTabsFuncs.option.apply(this, [optionName, value]);
+
+			// if "followOnActive" is true, then move page when selection changes
+			if (optionName == "active")
+			{
+				// if paging is not initialized or it is not configured to 
+				// change pages when a new tab is active, then do nothing
+				if (!initialized || !opts.followOnActive)
+					return retVal;
+
+				// find the new page based on index of the active tab
+				for (var i in pages) {
+					var start = pages[i].start;
+					var end = pages[i].end;
+					if (value >= start && value < end) {
+						// if the the active tab is not within the currentPage of tabs, then change pages
+						if (i != currentPage) {
+							this.tabs.hide().slice(start, end).show();
+
+							currentPage = parseInt(i);
+							if (currentPage == 0) {
+								enableButton('next');
+								if (!opts.cycle && start <= 0) disableButton('prev');
+							} else {
+								enableButton('prev');
+								if (!opts.cycle && end >= this.tabs.length) disableButton('next');
+							}
+						}
+						break;
+					}
+				}
+			}
+			
+			return retVal;
+		}
+		
+		self.refresh = function() {
+			if (initialized)
+			{
+				destroy();
+
+				uiTabsFuncs.refresh.apply(this);
+				
+				// re-initialize paging buttons
+				init();
+			}
+			
+			uiTabsFuncs.refresh.apply(this);
+		}
+		
+		
+		// DEPRECATED in jQuery UI 1.9
+		if ( $.uiBackCompat !== false )
+		{
+			// temporarily remove paging buttons before adding a tab
+			self.add = function(url, label, index) {
+				if (initialized)
+				{
+					destroy();
+
+					uiTabsFuncs.add.apply(this, [url, label, index]);
+
+					if (opts.activeOnAdd) {
+						if (index == undefined) index = this.tabs.length-1;
+						this.option('active', index);
+					}
+					// re-initialize paging buttons
+					init();
+
+					return this;
+				}
+
+				return uiTabsFuncs.add.apply(this, [url, label, index]);
+			}
+
+			// temporarily remove paging buttons before removing a tab
+			self.remove = function(index) {
+				if (initialized)
+				{
+					destroy();
+					uiTabsFuncs.remove.apply(this, [index]);
+					init();
+
+					return this;
+				}
+
+				return uiTabsFuncs.remove.apply(this, [index]);
+			}
+		}
 
 
-define('text!scalejs.tabs-jqueryui/tabs.html', [], function () { return '\r\n<div id="tabs_template">\r\n    <div class="tabs" style="height:100%">\r\n       \r\n        <div data-class="tabs-header-right" style="position:absolute;right:0px;"></div>\r\n        <ul class="tab-headers">\r\n            <!-- ko class: tabs-sortable -->\r\n            <!-- /ko -->\r\n             <li class="unsortable"><a href="#tabs-add" data-class="tabs-add">+</a></li> \r\n        </ul>\r\n               \r\n        <!-- ko class: tabs-items-source -->\r\n        <div data-class="tabs-content-container">\r\n            <!-- ko class:tabs-content-template -->\r\n            <!-- /ko -->\r\n        </div>\r\n        <!-- /ko -->\r\n    </div>\r\n\r\n</div>\r\n\r\n<div id="tabs_content_default_template">\r\n     <p data-bind="text: $data"></p>\r\n</div>\r\n\r\n\r\n<div id="tabs_header_item_template">\r\n    <li>\r\n        <a data-class="tabs-header">\r\n            <div class="tabs-header-text" data-class="tabs-header-text"></div>\r\n        </a>\r\n        <!--<div class="iconClose" data-class="tab-close"></div>-->\r\n        <!--<div class="iconMax" data-class="tab-max"></div>-->\r\n    </li>\r\n</div>\r\n\r\n<div id ="tabs_menu_temp_template">\r\n    <div class="tabs-menu">\r\n        <!-- ko foreach: menuItems -->\r\n            <div class="tabs-menu-item" data-bind="text: header, click: addTab"></div>\r\n        <!-- /ko -->\r\n    </div> \r\n</div>'; });
+		// ------------- PUBLIC FUNCTIONS -------------
+		$.extend($.ui.tabs.prototype, {
+			// public function for removing paging
+			pagingDestroy: function() {
+				destroy();
+				return this;
+			},
+
+			// public function to handle resizes that are not on the window
+			pagingResize: function() {
+				init();
+				return this;
+			}
+		});
+		
+		// initialize on startup!
+		init();
+	}
+});
+
+
+})(jQuery);
+define("tabs-paging", ["jQuery","jquery-ui"], function(){});
+
+
+define('text!scalejs.tabs-jqueryui/tabs.html', [], function () { return ''
+ + '<div id="tabs_template">'
+ + '    <div class="tabs" style="height:100%">'
+ + '       '
+ + '        <div data-class="tabs-header-right" style="position:absolute;right:0px;"></div>'
+ + '        <ul class="tab-headers" data-class="tabs-sortable">'
+ + '        </ul>'
+ + '               '
+ + '        <!-- ko class: tabs-items-source -->'
+ + '        <div data-class="tabs-content-container">'
+ + '            <!-- ko class:tabs-content-template -->'
+ + '            <!-- /ko -->'
+ + '        </div>'
+ + '        <!-- /ko -->'
+ + '    </div>'
+ + '    <div class="tabs-menu">'
+ + '        <!-- ko foreach: menuItems -->'
+ + '            <div class="tabs-menu-item" data-bind="text: header, click: addTab"></div>'
+ + '        <!-- /ko -->'
+ + '    </div> '
+ + '</div>'
+ + ''
+ + '<div id="tabs_content_default_template">'
+ + '     <p data-bind="text: $data"></p>'
+ + '</div>'
+ + ''
+ + ''
+ + '<div id="tabs_header_item_template">'
+ + '    <li>'
+ + '        <a data-class="tabs-header">'
+ + '            <div class="tabs-header-text" data-class="tabs-header-text"></div>'
+ + '        </a>'
+ + '        <div class="iconClose" data-class="tab-close"></div>'
+ + '        <!--<div class="iconMax" data-class="tab-max"></div>-->'
+ + '    </li>'
+ + '</div>'
+ + ''
+ + '<div id ="tabs_menu_temp_template">'
+ + '    <div class="tabs-menu">'
+ + '        <!-- ko foreach: menuItems -->'
+ + '            <div class="tabs-menu-item" data-bind="text: header, click: addTab"></div>'
+ + '        <!-- /ko -->'
+ + '    </div> '
+ + '</div>'; });
 
 /*global define */
 /*jslint sloppy: true*/
@@ -25053,8 +25441,7 @@ define('scalejs.tabs-jqueryui/tabsBindings', {
     'tabs-items-source': function () {
         return {
             foreach: {
-                data: this.itemsSource,
-                afterAdd: this.refreshTabs
+                data: this.itemsSource
             }
         };
     },
@@ -25105,36 +25492,11 @@ define('scalejs.tabs-jqueryui/tabsBindings', {
     },
     'tabs-sortable': function () {
         return {
-            /*
-            template: {
-                name: 'tabs_header_item_template',
-                data: this.itemsSource
-            }*/
             sortable: {
                 template: "tabs_header_item_template",
                 data: this.itemsSource,
                 options: this.sortOptions,
                 afterMove: this.afterMove
-            }
-        };
-    },
-    'tabs-add': function () {
-        //TODO: UNCOMMENT BELOW FOR MENU CREATION
-        //return {
-        //    click: this.openMenu
-        //};
-
-        var data = this;
-
-        return {
-            click: function () {
-                var defaultItem = data.defaultItems()[0],
-                    newItem;
-
-                newItem = defaultItem.create();
-                if (newItem) {
-                    data.itemsSource.push(newItem);
-                }
             }
         };
     }
@@ -25149,7 +25511,8 @@ define('scalejs.tabs-jqueryui', [
 	'./scalejs.tabs-jqueryui/tabsBindings',
 	'scalejs.mvvm',
     'bPopup',
-    'knockout-sortable'
+    'knockout-sortable',
+    'tabs-paging'
 ], function (
 	core,
     ko,
@@ -25161,83 +25524,48 @@ define('scalejs.tabs-jqueryui', [
 
     var registerTemplates = core.mvvm.registerTemplates,
 		registerBindings = core.mvvm.registerBindings,
-		isObservable = ko.isObservable;
+		isObservable = ko.isObservable,
+        observableArray = ko.observableArray,
+        toEnumerable = core.linq.enumerable.from,
+        unwrap = ko.unwrap,
+        merge = core.object.merge;
 
+    //TODO: update this
     registerTemplates(tabsTemplates);
     registerBindings(tabsBindings);
 
     function wrapValueAccessor(valueAccessor, element) {
         return function () {
             var data = valueAccessor(),
-                tabs,
+                $tabs,
 			    $menu,
-			    $addTab;
+			    $addTab,
+                $headers;            
 
-            function refreshTabs(active) {
-                // refreshes JQueryUI tabs
-                tabs.tabs('refresh');
+            /*
+             * setupTabs: creates tabs control with edittable headers
+             */
+            function setupTabs() {
+                var el = $(ko.virtualElements.firstChild(element)).parent();        
+                $menu = $($(el).find('.tabs-menu'));
+                $tabs = $($(el).find('.tabs')).tabs();
+                //tabs.tabs('paging', { cycle: true, follow: true, followOnActive: true });
+                $menu.hide();
 
-                $addTab.unbind();
-
-                tabs.tabs("option", "active", active || tabs.tabs("option", "active"));
-
-                tabs.find('.ui-tabs-panel').each(function () {
-                    var tabsHeight = tabs.height(),
-                        headersHeight = tabs.find('.tab-headers').height();
-
-                    $(this).height(tabsHeight - headersHeight);
-                });
-
-                $addTab.unbind().click(function (e) {
-                    e.preventDefault();
-                    data.itemsSource.push(data.defaultItems()[0].create());
-                    tabs.tabs("option", "active", data.itemsSource.length - 2);
-                    refreshTabs();
-                });
                 /*
-	            // updates position of menu & puts it in focus on click
-	            $addTab.unbind().click(function (e) {
-	                e.preventDefault();
-	                $menu.bPopup({
-	                    follow: [false, false],
-	                    position: [$addTab.offset().left + $addTab.width(), $addTab.offset().top + 10],
-	                    opacity: 0,
-	                    speed: 0
-	                });
-	            });*/
-            }
-
-            function createTabs() {
-                var el = $(ko.virtualElements.firstChild(element)).parent();
-
-                // Remove keyboard navigation from tabs so that editable can work.
-                $.widget("ui.tabs", $.ui.tabs, {
-                    options: {
-                        keyboard: true
-                    },
+                 * Remove keyboard navigation from tabs so that editable can work.
+                 */
+                $.widget("ui.tabs", $.ui.tabs, { options: { keyboard: true  },
                     _tabKeydown: function (e) {
-                        if (this.options.keyboard) {
-                            this._super('_tabKeydown');
-                        } else {
-                            return false;
-                        }
+                        if (this.options.keyboard) { this._super('_tabKeydown'); }
+                        else { return false; }
                     }
                 });
 
-                tabs = $($(el).find('.tabs')).tabs({
-                    activate: function (event, ui) {
-                        var grid = $(ui.newPanel).find('.orders-grid');
-                        if (grid.length > 0) {
-                            $(grid[0]).data('slickgrid').resizeCanvas();
-                            $(grid[0]).data('slickgrid').invalidate();
-                        }
-                    }
-                });
-
-                //tabs.find("li.unsortable").detach().appendTo(tabs.find("ul"));
-
-                // make tab headers editable
-                tabs.delegate("a.ui-tabs-anchor", "dblclick", function () {
+                /*
+                 * Make tabs edittable.
+                 */
+                $tabs.delegate("a.ui-tabs-anchor", "dblclick", function () {
                     var header = ko.dataFor(this).header,
 					    $input,
 					    el = this;
@@ -25262,99 +25590,82 @@ define('scalejs.tabs-jqueryui', [
                         });
                     }
                 });
-
-                if (core.layout && core.layout.onLayoutDone) {
-                    core.layout.onLayoutDone(function () {
-                        tabs.find('.ui-tabs-panel').each(function () {
-                            var tabsHeight = tabs.height(),
-                                headersHeight = tabs.find('.tab-headers').height();
-
-                            $(this).height(tabsHeight - headersHeight);
-                        });
-                    });
-                }
             }
 
+            /*
+             * refreshTabs: updates tabs and creates add tab open menu
+             */
+            function refreshTabs(active) {
+                $tabs.tabs('refresh');
+
+                $tabs.tabs("option", "active", active || $tabs.tabs("option", "active"));
+
+
+                /*
+                 * Fix height of tab content.
+                 */
+                $tabs.find('.ui-tabs-panel').each(function () {
+                    var tabsHeight = $tabs.height(),
+                        headersHeight = $tabs.find('.tab-headers').height();
+                    $(this).height(tabsHeight - headersHeight);
+                });
+
+                /*
+                 * create add tab.
+                 */
+                $tabs.find('li.addtab').remove();
+                $headers = $tabs.find('ul.tab-headers');
+                $headers.append('<li class="unsortable addtab"><a href="#tabs-add">+</a></li>');
+                bindAddTabHandler(openPopup);
+
+            }
+
+            function bindAddTabHandler(handler) {
+                 $addTab = $tabs.find("[href='#tabs-add']");
+                 $addTab.unbind().click(handler);
+            }
+
+            function openPopup(e) {
+                e.preventDefault();
+                $menu.bPopup({
+                    follow: [false, false],
+                    position: [$addTab.offset().left + $tabs.find('li.unsortable').width(), $addTab.offset().top],
+                    opacity: 0,
+                    speed: 0
+                });
+            };
 
             data.sortOptions = {
                 items: "li:not(.unsortable)",
                 axis: "x",
                 start: function () {
-                    tabs.find("[href='#tabs-add']").css("display", "none");
+                    //remove add tab
+                    $tabs.find('li.unsortable').remove();
                 },
-                stop: function () {
-                    tabs.find("[href='#tabs-add']").css("display", "block");
+                stop: function (args) {
+                    refreshTabs(args.targetIndex);
                 }
             };
 
-            /*
-
-	        data.openMenu = function (data, e) {    
-	            e.preventDefault();
-	            $menu.bPopup({
-	                follow: [false, false],
-	                position: [$addTab.offset().left + $addTab.width(), $addTab.offset().top + 10],
-	                opacity: 0,
-	                speed: 0
-	            });
-	        }
-            */
-
-            data.afterMove = function (arg) {
-                refreshTabs(arg.targetIndex);
-            };
-
-            data.refreshTabs = refreshTabs;
-
-            //TODO: UNCOMMENT BELOW LINES FOR MENU CREATION.
-
-            // Convert "default items" to menu items
-            /*
 	        data.menuItems = observableArray(toEnumerable(unwrap(data.defaultItems)).select(function (item) {
 	            var menuItem = merge(item, {
 	                addTab: function () {
-	                    $menu.bPopup({ opacity: 0 }).close();
-	                    data.itemsSource.push(item.create());
+	                    $menu.bPopup({ opacity: 0 }).close();                           // close menu
+	                    data.itemsSource.push(item.create());                           // add item
+	                    refreshTabs(data.itemsSource().length-1);
 	                }
 	            });
 	            return menuItem;
-	        }).toArray());*/
+	        }).toArray());
+
+	        data.refreshTabs = refreshTabs;
 
             return {
                 data: data,
                 name: "tabs_template",
                 afterRender: function () {
-                    //get actual element container
-                    var el = $(ko.virtualElements.firstChild(element)).parent();
-
-                    createTabs();
-
-                    //find menu element
-                    $menu = $($(el).find('.tabs-menu'));
-
-                    //find the add tab 
-                    $addTab = tabs.find("[href='#tabs-add']");
-
-                    //undbind the default click action from the add tab
-                    //so when a user selects the add tab, it does not "open" the tab
-                    $addTab.unbind().click(function (e) {
-                        e.preventDefault();
-                        var defaultItem = data.defaultItems()[0],
-                            newItem;
-                        newItem = defaultItem.create();
-                        if (newItem) {
-                            data.itemsSource.push(newItem);
-
-                            tabs.find('.ui-tabs-panel').each(function () {
-                                var tabsHeight = tabs.height(),
-                                    headersHeight = tabs.find('.tab-headers').height();
-
-                                $(this).height(tabsHeight - headersHeight);
-                            });
-                            tabs.tabs("option", "active", data.itemsSource.length - 2);
-                        }
-                    });
-
+                    setupTabs();
+                    refreshTabs();
                 }
             };
         };
@@ -25420,9 +25731,9 @@ define('app/main/viewmodels/mainViewModel',[
 
         function createTab(x) {
             return {
-                header: observable("Tab " + x || tabs().length + 1),
+                header: observable("Tab " + (x || tabs().length + 1)),
                 content: {
-                    text: "Content for Tab " + x || tabs().length + 1
+                    text: "Content for Tab " + (x || tabs().length + 1)
                 }
             };
         }
@@ -25519,7 +25830,7 @@ define('bindings',[],function () {
 /*global define */
 /*jslint sloppy: true*/
 define('app/main/bindings/mainBindings',{
-    'main-text': function () {
+    'main-tabs': function () {
         return {
             tabs: {
                 itemsSource: this.tabs,
@@ -25877,4 +26188,4 @@ require([
 define("app/app", function(){});
 
 (function(c){var d=document,a='appendChild',i='styleSheet',s=d.createElement('style');s.type='text/css';d.getElementsByTagName('head')[0][a](s);s[i]?s[i].cssText=c:s[a](d.createTextNode(c));})
-('.main.text {\r\n    color: #ff0000;\r\n}');
+('/* jquery UI styles*/\r\n\r\n\r\n.ui-tabs {\r\n\tposition: relative;/* position: relative prevents IE scroll bug (element with position: relative inside container with overflow: auto appear as \"fixed\") */\r\n\tpadding: .2em;\r\n}\r\n.ui-tabs .ui-tabs-nav {\r\n\tmargin: 0;\r\n\tpadding: .2em .2em 0;\r\n}\r\n.ui-tabs .ui-tabs-nav li {\r\n\tlist-style: none;\r\n\tfloat: left;\r\n\tposition: relative;\r\n\ttop: 0;\r\n\tmargin: 1px .2em 0 0;\r\n\tborder-bottom-width: 0;\r\n\tpadding: 0;\r\n\twhite-space: nowrap;\r\n}\r\n.ui-tabs .ui-tabs-nav li a {\r\n\tfloat: left;\r\n\tpadding: .5em 1em;\r\n\ttext-decoration: none;\r\n}\r\n.ui-tabs .ui-tabs-nav li.ui-tabs-active {\r\n\tmargin-bottom: -1px;\r\n\tpadding-bottom: 1px;\r\n}\r\n.ui-tabs .ui-tabs-nav li.ui-tabs-active a,\r\n.ui-tabs .ui-tabs-nav li.ui-state-disabled a,\r\n.ui-tabs .ui-tabs-nav li.ui-tabs-loading a {\r\n\tcursor: text;\r\n}\r\n.ui-tabs .ui-tabs-nav li a, /* first selector in group seems obsolete, but required to overcome bug in Opera applying cursor: text overall if defined elsewhere... */\r\n.ui-tabs-collapsible .ui-tabs-nav li.ui-tabs-active a {\r\n\tcursor: pointer;\r\n}\r\n.ui-tabs .ui-tabs-panel {\r\n\tdisplay: block;\r\n\tborder-width: 0;\r\n\tpadding: 1em 1.4em;\r\n\tbackground: none;\r\n}\r\n\r\n\r\n.ui-menu {\r\n\tlist-style: none;\r\n\tpadding: 2px;\r\n\tmargin: 0;\r\n\tdisplay: block;\r\n\toutline: none;\r\n}\r\n.ui-menu .ui-menu {\r\n\tmargin-top: -3px;\r\n\tposition: absolute;\r\n}\r\n.ui-menu .ui-menu-item {\r\n\tmargin: 0;\r\n\tpadding: 0;\r\n\twidth: 100%;\r\n\t/* support: IE10, see #8844 */\r\n\tlist-style-image: url(data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7);\r\n}\r\n.ui-menu .ui-menu-divider {\r\n\tmargin: 5px -2px 5px -2px;\r\n\theight: 0;\r\n\tfont-size: 0;\r\n\tline-height: 0;\r\n\tborder-width: 1px 0 0 0;\r\n}\r\n.ui-menu .ui-menu-item a {\r\n\ttext-decoration: none;\r\n\tdisplay: block;\r\n\tpadding: 2px .4em;\r\n\tline-height: 1.5;\r\n\tmin-height: 0; /* support: IE7 */\r\n\tfont-weight: normal;\r\n}\r\n.ui-menu .ui-menu-item a.ui-state-focus,\r\n.ui-menu .ui-menu-item a.ui-state-active {\r\n\tfont-weight: normal;\r\n\tmargin: -1px;\r\n}\r\n\r\n/* Erica\'s Changes for Tabs */\r\n\r\n.ui-tabs .ui-tabs-nav li {\r\n    height: 19px;\r\n    padding-top: 2px;\r\n}\r\n\r\n.ui-helper-reset {\r\n    line-height: 0px;\r\n}\r\n\r\n.tabs-header-text {\r\n    font-family: Arial, sans-serif;\r\n    font-weight: normal;\r\n}\r\n\r\n.ui-tabs .ui-tabs-nav .iconMax {\r\n    margin-top: 2px;\r\n}\r\n\r\n.ui-widget-header {\r\n    border: none;\r\n}\r\n\r\n.ui-tabs {\r\n\tpadding: 0px;\r\n}\r\n\r\n.ui-corner-all,\r\n.ui-corner-top,\r\n.ui-corner-left,\r\n.ui-corner-tl {\r\n\tborder-top-left-radius: 0px;\r\n}\r\n.ui-corner-all,\r\n.ui-corner-top,\r\n.ui-corner-right,\r\n.ui-corner-tr {\r\n\tborder-top-right-radius: 0px;\r\n}\r\n.ui-corner-all,\r\n.ui-corner-bottom,\r\n.ui-corner-left,\r\n.ui-corner-bl {\r\n\tborder-bottom-left-radius: 0px;\r\n}\r\n.ui-corner-all,\r\n.ui-corner-bottom,\r\n.ui-corner-right,\r\n.ui-corner-br {\r\n\tborder-bottom-right-radius: 0px;\r\n}\r\n\r\n.ui-corner-all li,\r\n.ui-corner-top li,\r\n.ui-corner-left li,\r\n.ui-corner-tl li {\r\n\tborder-top-left-radius: 4px;\r\n}\r\n.ui-corner-all li,\r\n.ui-corner-top li,\r\n.ui-corner-right li,\r\n.ui-corner-tr li {\r\n\tborder-top-right-radius: 4px;\r\n}\r\n.ui-corner-all li,\r\n.ui-corner-bottom li,\r\n.ui-corner-left li,\r\n.ui-corner-bl li {\r\n\tborder-bottom-left-radius: 4px;\r\n}\r\n.ui-corner-all li,\r\n.ui-corner-bottom li,\r\n.ui-corner-right li,\r\n.ui-corner-br li {\r\n\tborder-bottom-right-radius: 4px;\r\n}\r\n\r\n.ui-widget input,\r\n.ui-widget select,\r\n.ui-widget textarea,\r\n.ui-widget button {\r\n\tfont-family: Arial, sans-serif;\r\n\tfont-size: 1em;\r\n}\r\n\r\n.ui-tabs input {\r\n    width: 100px;\r\n    margin-right:10px;\r\n    font-size:10px;\r\n    margin: -.7em -1em;\r\n}\r\n\r\n.ui-tabs .ui-tabs-panel {\r\n    padding: 0px 0px;\r\n}\r\n\r\n.ui-tabs-anchor:focus {\r\n    outline: -webkit-focus-ring-color auto 0px;\r\n}\r\n\r\n\r\nbody {\r\n    background: #090909;\r\n\r\n    scrollbar-face-color: #3e3e3e;\r\n    scrollbar-shadow-color: #3e3e3e;\r\n    scrollbar-highlight-color:#3e3e3e;\r\n    scrollbar-3dlight-color: #3e3e3e;\r\n    scrollbar-darkshadow-color: #3e3e3e;\r\n    scrollbar-track-color: #090909;\r\n    scrollbar-arrow-color: #090909;\r\n\r\n}\r\n\r\n\r\n::-webkit-scrollbar{width:10px;height:10px;}\r\n::-webkit-scrollbar-button:start:decrement,#doc ::-webkit-scrollbar-button:end:increment{display:block;height:0;width:0;background-color:transparent;}\r\n::-webkit-scrollbar-track-piece{background-color:#090909;-webkit-border-radius:0;-webkit-border-bottom-right-radius:8px;-webkit-border-bottom-left-radius:8px;}\r\n::-webkit-scrollbar-thumb:vertical{height:50px;background-color:#3e3e3e;-webkit-border-radius:8px;border:2px solid #090909}\r\n::-webkit-scrollbar-thumb:horizontal{width:50px;background-color:#3e3e3e;-webkit-border-radius:8px;border:2px solid #090909}\r\n::-webkit-scrollbar-corner {background-color:#090909;}\r\n\r\n\r\n/*\r\n::-webkit-scrollbar{width:20px;height:20px;}\r\n::-webkit-scrollbar-button:start:decrement,#doc ::-webkit-scrollbar-button:end:increment{display:block;height:0;width:0;background-color:transparent;}\r\n::-webkit-scrollbar-track-piece{background-color:#000000;-webkit-border-radius:0;-webkit-border-bottom-right-radius:0;-webkit-border-bottom-left-radius:0;}\r\n::-webkit-scrollbar-thumb:vertical{height:50px;background-color:#505050;-webkit-border-radius:0;border:2px solid #000000}\r\n::-webkit-scrollbar-thumb:horizontal{width:50px;background-color:#505050;-webkit-border-radius:0;border:2px solid #000000}\r\n*/\r\n\r\n.mainHeader {\r\n    height: 39px;\r\n    background: #090909 url(\'../app/main/styles/images/mainHeader.png\') repeat-x;\r\n}\r\n\r\n.EMSLogo {\r\n    width: 209px;\r\n    height: 30px;\r\n    background: url(\'../app/main/styles/images/EMSLogo.png\') no-repeat;\r\n    position: absolute;\r\n    top: 4px;\r\n    left: 7px;\r\n}\r\n\r\n.EPLogo {\r\n    width: 221px;\r\n    height: 30px;\r\n    background: url(\'../app/main/styles/images/EPLogo.png\') no-repeat;\r\n    position: relative;\r\n    top: 8px;\r\n    left: 7px;\r\n}\r\n\r\n.gridHeader {\r\n    /*\r\n    border-left: 1px solid #2e2e2e;\r\n    border-right: 1px solid #2e2e2e;\r\n    */\r\n    height: 22px;\r\n    background: #090909 url(\'../app/main/styles/images/gridHeader.png\') repeat-x;\r\n}\r\n\r\n.gridTitle {\r\n    float:left;\r\n    color: #c0c0c0;\r\n}\r\n\r\n.messageRate {\r\n    margin-left: 500px; \r\n    color: #c0c0c0;\r\n}\r\n\r\n.messageCount {\r\n    float:left;\r\n    margin-left: 100px; \r\n    color: #c0c0c0;\r\n}\r\n\r\n.messageSelect {\r\n    float:left;\r\n    margin-left: 100px; \r\n    color: #c0c0c0;    \r\n    cursor: pointer;    \r\n}\r\n\r\n.messageSelectedRows {\r\n    float:left;\r\n    margin-left: 100px; \r\n    color: #c0c0c0;\r\n}\r\n\r\n.messageCancel {\r\n    float:left;\r\n    margin-left: 100px; \r\n    color: #c0c0c0;    \r\n    cursor: pointer;    \r\n}\r\n\r\n.messageCancel {\r\n    float:left;\r\n    margin-left: 100px; \r\n    color: #c0c0c0;    \r\n    cursor: pointer;    \r\n}\r\n\r\n.messageCancelDisabled {\r\n    float:left;\r\n    margin-left: 100px; \r\n    color: #747474;    \r\n}\r\n\r\n\r\n.slick-header-column.ui-state-default {\r\n   border-right: 1px solid #2e2e2e;\r\n }\r\n\r\n.slick-headerrow-column.ui-state-default {\r\n    padding: 0;\r\n}\r\n\r\n.slick-headerrow-column\r\n{\r\n    background: #090909;\r\n    text-overflow: clip;\r\n    -moz-box-sizing: border-box;\r\n    box-sizing: border-box;\r\n}\r\n\r\n.slick-headerrow-column input\r\n{\r\n    color:#00ffae;\r\n    margin: 0;\r\n    padding: 0;\r\n    width: 100%;\r\n    height: 100%;\r\n    -moz-box-sizing: border-box;\r\n    box-sizing: border-box;\r\n    background: #090909;\r\n    border: 1px solid #2e2e2e;\r\n    border-right: 0;\r\n    border-bottom: 0;\r\n\r\n}\r\n\r\ninput:focus{\r\n    outline: none;\r\n    border: 1px solid lightgreen;\r\n}\r\n\r\n.slick-cell, .slick-headerrow-column {\r\nposition: absolute;\r\nborder: 1px solid transparent;\r\nborder-right: 1px solid #2e2e2e;\r\nborder-bottom-color: #2e2e2e;\r\noverflow: hidden;\r\ntext-overflow: ellipsis;\r\nwhite-space: nowrap;\r\nvertical-align: middle;\r\nz-index: 1;\r\npadding: 1px 2px 2px 1px;\r\nmargin: 0;\r\nwhite-space: nowrap;\r\ncursor: default;\r\n}\r\n\r\n.slick-resizable-handle {\r\nposition: absolute;\r\nfont-size: 0.1px;\r\ndisplay: block;\r\ncursor: col-resize;\r\nwidth: 4px;\r\nright: 0px;\r\ntop: 0;\r\nheight: 100%;\r\n}\r\n\r\n/*\r\n.slick-cell.selected {\r\nbackground: #0e4265 no-repeat center center;\r\n}\r\n*/\r\n\r\n.slick-cell.selected:after {\r\n  border-top: 40px solid transparent;\r\n}\r\n.slick-cell.selected:before {\r\n  content: \"\";\r\n}\r\n\r\n.slick-header-column.ui-state-default {\r\ncolor: #ffa800;\r\n}\r\n\r\n.slick-row.initial .slick-cell\r\n{\r\n    color: #ffc000\r\n}\r\n\r\n.slick-row.filled .slick-cell\r\n{\r\n    color: #ffffff\r\n}\r\n\r\n.slick-row.cancelled .slick-cell\r\n{\r\n    color: #828282\r\n}\r\n\r\n.slick-row.rejected .slick-cell\r\n{\r\n    color: #ff0000\r\n}\r\n\r\n.slick-row.partial .slick-cell\r\n{\r\n    color:#00a2ff\r\n}\r\n\r\n.ui-widget-header {\r\n    overflow-x:hidden; \r\n    overflow-y:hidden;\r\n    margin: 0;\r\n    padding: 0;\r\n    color: #c0c0c0;\r\n    font-size: 14px;\r\n    height: 19px;\r\n    background: #090909 url(\'../app/main/styles/images/gridHeader.png\') repeat-x;\r\n    padding-top: 3px;\r\n    padding-left: 4px;\r\n    white-space: nowrap;\r\n}\r\n\r\n.iconMax {\r\n    width: 11px;\r\n    height: 10px;\r\n    background: url(\'../app/main/styles/images/iconMax.png\') no-repeat;\r\n    float:right;\r\n    margin-right: 5px;\r\n    margin-top: 3px;\r\n    cursor: pointer;\r\n}\r\n\r\n.iconMin {\r\n    width: 11px;\r\n    height: 10px;\r\n    background: url(\'../app/main/styles/images/iconMin.png\') no-repeat;\r\n    float:right;\r\n    margin-right: 5px;\r\n    margin-top: 2px;\r\n    cursor: pointer;\r\n}\r\n\r\n.iconClose {\r\n    width: 11px;\r\n    height: 10px;\r\n    background: url(\'../app/main/styles/images/iconClose.png\') no-repeat;\r\n    float:right;\r\n    margin-right: 5px;\r\n    margin-top: 2px;\r\n    cursor: pointer;\r\n}\r\n\r\n.iconSelect {\r\n    width: 11px;\r\n    height: 10px;\r\n    background: url(\'../app/main/styles/images/iconSelect.png\') no-repeat;\r\n    float:left;\r\n    margin-right: 5px;\r\n    margin-top: 2px;\r\n    cursor: pointer;    \r\n    background-position-y: 45%\r\n}\r\n\r\n.iconCancel {\r\n    width: 11px;\r\n    height: 10px;\r\n    background: url(\'../app/main/styles/images/iconCancel.png\') no-repeat;\r\n    float:left;\r\n    margin-right: 5px;\r\n    margin-top: 2px;\r\n    cursor: pointer;    \r\n    background-position-y: 45%\r\n}\r\n\r\n.iconCancelDisabled {\r\n    width: 11px;\r\n    height: 10px;\r\n    background: url(\'../app/main/styles/images/iconCancel.png\') no-repeat;\r\n    float:left;\r\n    margin-right: 5px;\r\n    margin-top: 2px;\r\n    background-position-y: 45%;\r\n    opacity: .5;\r\n}\r\n\r\n.iconFilterOn {\r\n    width: 11px;\r\n    height: 10px;\r\n    background: url(\'../app/main/styles/images/iconFilterOn.png\') no-repeat;\r\n    position: absolute;\r\n    top: 4px;\r\n    right: 4px;\r\n    margin-top: 3px;\r\n    cursor: pointer;\r\n}\r\n\r\n.iconFilterOff {\r\n    width: 11px;\r\n    height: 10px;\r\n    background: url(\'../app/main/styles/images/iconFilterOff.png\') no-repeat;\r\n    position: absolute;\r\n    top: 4px;\r\n    right: 4px;\r\n    margin-top: 2px;\r\n    cursor: pointer;\r\n}\r\n\r\n.iconArrowLeft {\r\n    width: 11px;\r\n    height: 13px;\r\n    background: url(\'../app/main/styles/images/iconArrow.png\') no-repeat;\r\n    position: absolute;\r\n    top: 5px;\r\n    left: -6px;\r\n}\r\n\r\n.iconArrowRight {\r\n    width: 11px;\r\n    height: 13px;\r\n    background: url(\'../app/main/styles/images/iconArrow.png\') no-repeat;\r\n    position: absolute;\r\n    top: 5px;\r\n    right:-7px;\r\n    transform:rotate(180deg);\r\n    -ms-transform:rotate(180deg);\r\n    -webkit-transform:rotate(180deg);\r\n}\r\n\r\n.ui-layout-resizer {\r\n    background-color:#131313;\r\n    border-left: 1px solid #2e2e2e;\r\n    border-right: 1px solid #2e2e2e;\r\n    border-top: 1px solid #2e2e2e;\r\n}\r\n\r\n.ui-layout-resizer:hover {\r\n    background-color: #c0c0c0;\r\n}\r\n\r\n.slick-sort-indicator {\r\ndisplay: inline-block;\r\nwidth: 7px;\r\nheight: 7px;\r\nmargin-left: 4px;\r\n}\r\n.slick-sort-indicator-desc {\r\n  background: url(../app/main/styles/images/sort-desc.png);\r\n}\r\n\r\n.slick-sort-indicator-asc {\r\n  background: url(../app/main/styles/images/sort-asc.png);\r\n}\r\n\r\n.slick-header-sortable {\r\n    cursor: pointer;\r\n}\r\n\r\n.iconBuy {\r\n    background: url(\'../app/main/styles/images/iconBuy.png\') no-repeat;\r\n    text-indent: 9px;\r\n    background-position-y: 45%\r\n}\r\n\r\n.iconSell {\r\n    background: url(\'../app/main/styles/images/iconSell.png\') no-repeat;\r\n    text-indent: 9px;\r\n    background-position-y: 45%\r\n}\r\n\r\n.styled-select select {\r\n    color: #fff;\r\n   margin-right: 10px;\r\n   background: url(../app/main/styles/images/iconDrop.png) no-repeat right #090909;\r\n   width: 120px;\r\n   padding: 2px;\r\n   padding-top: 3px;\r\n   font-size: 12px;\r\n   line-height: 1;\r\n   border: 0;\r\n   border-radius: 0;\r\n   height: 20px;\r\n   -webkit-appearance: none;\r\n}\r\n\r\n.styled-select {\r\n   margin-right: 10px;\r\n   margin-top: 8px;\r\n   float: right;\r\n   width: 120px;\r\n   height: 20px;\r\n   overflow: hidden;\r\n   background: url(../app/main/styles/images/iconDrop.png) no-repeat right #090909;\r\n   border: 1px solid #2e2e2e;\r\n}\r\n\r\n/* Erica\'s Changes for Tabs - Blue Theme*/\r\n.ui-tabs-active.ui-state-default {\r\n\tborder: 1px solid #2e2e2e;\r\n\tbackground: #1A2B57;\r\n\tfont-weight: bold;\r\n\tcolor: #c0c0c0;\r\n}\r\n\r\n.tabs-menu {\r\n    background: #1e1e1e;\r\n    width: 100px;\r\n    padding: 10px;\r\n    border: 1px solid #2f2f2f;\r\n    color: #c0c0c0;\r\n}\r\n\r\n.tabs-menu-item:hover {\r\n    color: #fff;\r\n    cursor: pointer;\r\n}\r\n\r\n.ui-state-active a,\r\n.ui-state-active a:link,\r\n.ui-state-active a:visited {\r\n\tcolor: #c0c0c0;\r\n}\r\n\r\n.ui-state-default a,\r\n.ui-state-default a:link,\r\n.ui-state-default a:visited {\r\n\tcolor: #c0c0c0;\r\n}\r\n\r\n.ui-state-active,\r\n.ui-widget-content .ui-state-active,\r\n.ui-widget-header .ui-state-active {\r\n\tborder: 1px solid #2e2e2e;\r\n\topacity: 1 !important;\r\n\tcolor: #c0c0c0;\r\n}\r\n\r\n.ui-tabs.ui-widget-content\r\n {\r\n    border-color: #2e2e2e;\r\n    color: #c0c0c0;\r\n    background: #1e1e1e;\r\n}\r\n\r\n.ui-tabs-panel.ui-widget-content {\r\n    border-color: #2e2e2e;\r\n    color: #c0c0c0;\r\n    background: #090909;\r\n}\r\n\r\n.ui-widget-content a {\r\n    color: #c0c0c0;\r\n}\r\n\r\n.ui-tabs-anchor input {\r\n    background-color: #1e1e1e;\r\n    border: 0px;\r\n    color: #FFF;\r\n}\r\n\r\n.ui-tabs input:focus {\r\n    border: 0px;\r\n}\r\n\r\n.ui-tabs .ui-tabs-nav li {\r\n    border: 1px solid #2e2e2e;\r\n    background: #1e1e1e;\r\n    opacity: .6;\r\n}\r\n\r\n/*Erica\'s changes for layout splitter*/\r\n.splitter {\r\n    border: 1px solid #1c1c1c;\r\n    background: #090909;\r\n    z-index: 9999;\r\n}\r\n\r\n.splitter:hover {\r\n    background: #c0c0c0;\r\n}\r\n\r\n/* filters */\r\n.numberFilter {\r\n   background: #090909;\r\n   border: 1px solid #00ffae;\r\n   color:  #c0c0c0;\r\n}\r\n\r\n.numberFilterBox {\r\n   border: 1px solid #c0c0c0;\r\n}\r\n\r\n.listFilter {\r\n   background: #090909;\r\n   border: 1px solid #00ffae;\r\n   color:  #c0c0c0;\r\n}\r\n\r\n.listFilterBox {\r\n   border: 1px solid #c0c0c0;\r\n}\r\n\r\n\r\n/* ScrollView */\r\n\r\n\t.scroller-background{\r\n\t\toverflow:hidden;\r\n\t\tposition:absolute;\r\n\t\twidth:100%;\r\n\t    border-radius:3px;\r\n\t\ttop:0px;\r\n\t\tz-index:988;\r\n\t    left:0px;\r\n\t    margin:0px;\r\n\t\tpadding:0px;\r\n\t}\r\n\t.scroll-view ul{\r\n\t\t/*Only set this when the initial size of the is larger than scroll-view*/\r\n\t\tposition:relative;\r\n\t\twidth:3000%;\r\n\t\ttop:0px\r\n\t}\r\n\t.scroll-view li{\r\n\t\tposition:relative;\r\n\t}\r\n\t.scroll-view{\r\n\t\tposition:relative;\r\n\t\tz-index:999;\r\n\t\toverflow:hidden;\r\n\t\t/*scroller must have an initial size*/\r\n\t\twidth:93%;\r\n\t\tmargin:0px;\r\n\t\tpadding:0px;\r\n\t}\r\n\t.wrapper{\r\n\t\tposition:relative;\r\n\t\twidth:100%;\r\n\t\tmargin:0px;\r\n\t\tpadding:0px;\r\n\t\ttext-align:left;\r\n\t}');

@@ -448,15 +448,14 @@ color: #ffa800;
     cursor: pointer;
 }
 
-.iconSelect {
+.iconMore {
     width: 11px;
     height: 10px;
     background: url('images/iconSelect.png') no-repeat;
-    float:left;
+    float:right;
     margin-right: 5px;
     margin-top: 2px;
-    cursor: pointer;    
-    background-position-y: 45%
+    cursor: pointer;
 }
 
 .iconCancel {
@@ -696,3 +695,43 @@ margin-left: 4px;
 .listFilterBox {
    border: 1px solid #c0c0c0;
 }
+
+
+/* ScrollView */
+
+	.scroller-background{
+		overflow:hidden;
+		position:absolute;
+		width:100%;
+	    border-radius:3px;
+		top:0px;
+		z-index:988;
+	    left:0px;
+	    margin:0px;
+		padding:0px;
+	}
+	.scroll-view ul{
+		/*Only set this when the initial size of the is larger than scroll-view*/
+		position:relative;
+		width:3000%;
+		top:0px
+	}
+	.scroll-view li{
+		position:relative;
+	}
+	.scroll-view{
+		position:relative;
+		z-index:999;
+		overflow:hidden;
+		/*scroller must have an initial size*/
+		width:93%;
+		margin:0px;
+		padding:0px;
+	}
+	.wrapper{
+		position:relative;
+		width:100%;
+		margin:0px;
+		padding:0px;
+		text-align:left;
+	}
