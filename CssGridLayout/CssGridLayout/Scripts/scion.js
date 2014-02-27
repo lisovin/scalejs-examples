@@ -25,7 +25,7 @@
     } else {
         // Browser globals (root is window)
         root.SCION = factory();
-  }
+    }
 }(this, function () {
 
     "use strict";
@@ -39,27 +39,27 @@
         FINAL: 5
     };
 
-    function initializeModel(rootState){
+    function initializeModel(rootState) {
         var transitions = [], idToStateMap = {}, documentOrder = 0;
 
         //TODO: need to add fake ids to anyone that doesn't have them
         //FIXME: make this safer - break into multiple passes
         var idCount = {};
 
-        function generateId(type){
-            if(idCount[type] === undefined) idCount[type] = 0;
+        function generateId(type) {
+            if (idCount[type] === undefined) idCount[type] = 0;
 
             var count = idCount[type]++;
-            return '$generated-' + type + '-' + count; 
+            return '$generated-' + type + '-' + count;
         }
 
-        function wrapInFakeRootState(state){
+        function wrapInFakeRootState(state) {
             return {
-                states : [
+                states: [
                     {
-                        type : 'initial',
-                        transitions : [{
-                            target : state
+                        type: 'initial',
+                        transitions: [{
+                            target: state
                         }]
                     },
                     state
@@ -67,14 +67,14 @@
             };
         }
 
-        function traverse(ancestors,state){
+        function traverse(ancestors, state) {
 
             //add to global transition and state id caches
-            if(state.transitions) transitions.push.apply(transitions,state.transitions);
+            if (state.transitions) transitions.push.apply(transitions, state.transitions);
 
             //populate state id map
-            if(state.id){
-                if(idToStateMap[state.id]) throw new Error('Redefinition of state id ' + state.id);
+            if (state.id) {
+                if (idToStateMap[state.id]) throw new Error('Redefinition of state id ' + state.id);
 
                 idToStateMap[state.id] = state;
             }
@@ -90,93 +90,93 @@
 
             //add some information to transitions
             state.transitions = state.transitions || [];
-            state.transitions.forEach(function(transition){
-                transition.documentOrder = documentOrder++; 
+            state.transitions.forEach(function (transition) {
+                transition.documentOrder = documentOrder++;
                 transition.source = state;
             });
 
-            var t2 = traverse.bind(null,[state].concat(ancestors));
+            var t2 = traverse.bind(null, [state].concat(ancestors));
 
             //recursive step
-            if(state.states) state.states.forEach(t2);
+            if (state.states) state.states.forEach(t2);
 
             //setup fast state type
-            switch(state.type){
+            switch (state.type) {
                 case 'parallel':
                     state.typeEnum = STATE_TYPES.PARALLEL;
                     break;
-                case 'initial' : 
+                case 'initial':
                     state.typeEnum = STATE_TYPES.INITIAL;
                     break;
-                case 'history' :
+                case 'history':
                     state.typeEnum = STATE_TYPES.HISTORY;
                     break;
-                case 'final' : 
+                case 'final':
                     state.typeEnum = STATE_TYPES.FINAL;
                     break;
-                case 'state' : 
-                case 'scxml' :
-                    if(state.states && state.states.length){
+                case 'state':
+                case 'scxml':
+                    if (state.states && state.states.length) {
                         state.typeEnum = STATE_TYPES.COMPOSITE;
-                    }else{
+                    } else {
                         state.typeEnum = STATE_TYPES.BASIC;
                     }
                     break;
-                default :
+                default:
                     throw new Error('Unknown state type: ' + state.type);
             }
 
             //descendants property on states will now be populated. add descendants to this state
-            if(state.states){
-                state.descendants = state.states.concat(state.states.map(function(s){return s.descendants;}).reduce(function(a,b){return a.concat(b);},[]));
-            }else{
+            if (state.states) {
+                state.descendants = state.states.concat(state.states.map(function (s) { return s.descendants; }).reduce(function (a, b) { return a.concat(b); }, []));
+            } else {
                 state.descendants = [];
             }
 
             var initialChildren;
-            if(state.typeEnum === STATE_TYPES.COMPOSITE){
+            if (state.typeEnum === STATE_TYPES.COMPOSITE) {
                 //set up initial state
-                
-                if(typeof state.initial === 'string'){
+
+                if (typeof state.initial === 'string') {
                     //dereference him from his 
-                    initialChildren = state.states.filter(function(child){
+                    initialChildren = state.states.filter(function (child) {
                         return child.id === state.initial;
                     });
-                    if(initialChildren.length){
+                    if (initialChildren.length) {
                         state.initialRef = initialChildren[0];
-                    } 
-                }else{
+                    }
+                } else {
                     //take the first child that has initial type, or first child
-                    initialChildren = state.states.filter(function(child){
+                    initialChildren = state.states.filter(function (child) {
                         return child.type === 'initial';
                     });
 
                     state.initialRef = initialChildren.length ? initialChildren[0] : state.states[0];
                 }
 
-                if(!state.initialRef) throw new Error('Unable to locate initial state for composite state: ' + state.id);
+                if (!state.initialRef) throw new Error('Unable to locate initial state for composite state: ' + state.id);
             }
 
             //hook up history
-            if(state.typeEnum === STATE_TYPES.COMPOSITE ||
-                    state.typeEnum === STATE_TYPES.PARALLEL){
+            if (state.typeEnum === STATE_TYPES.COMPOSITE ||
+                    state.typeEnum === STATE_TYPES.PARALLEL) {
 
-                var historyChildren = state.states.filter(function(s){
+                var historyChildren = state.states.filter(function (s) {
                     return s.type === 'history';
-                }); 
+                });
 
-               state.historyRef = historyChildren[0];
+                state.historyRef = historyChildren[0];
             }
 
             //now it's safe to fill in fake state ids
-            if(!state.id){
+            if (!state.id) {
                 state.id = generateId(state.type);
                 idToStateMap[state.id] = state;
             }
 
             //normalize onEntry/onExit, which can be single fn or array
-            ['onEntry','onExit'].forEach(function(prop){
-                if(typeof state[prop] === 'function'){
+            ['onEntry', 'onExit'].forEach(function (prop) {
+                if (typeof state[prop] === 'function') {
                     state[prop] = [state[prop]];
                 }
             });
@@ -184,74 +184,74 @@
 
         //TODO: convert events to regular expressions in advance
 
-        function connectTransitionGraph(){
+        function connectTransitionGraph() {
             //normalize as with onEntry/onExit
-            transitions.forEach(function(t){
-                if(typeof t.onTransition === 'function'){
+            transitions.forEach(function (t) {
+                if (typeof t.onTransition === 'function') {
                     t.onTransition = [t.onTransition];
                 }
             });
 
-            transitions.forEach(function(t){
+            transitions.forEach(function (t) {
                 //normalize "event" attribute into "events" attribute
-                if(t.event){
+                if (t.event) {
                     t.events = t.event.trim().split(/ +/);
                 }
             });
 
             //hook up targets
-            transitions.forEach(function(t){
-                if(t.targets || (typeof t.target === 'undefined')) return;   //targets have already been set up
+            transitions.forEach(function (t) {
+                if (t.targets || (typeof t.target === 'undefined')) return;   //targets have already been set up
 
-                if(typeof t.target === 'string'){
+                if (typeof t.target === 'string') {
                     //console.log('here1');
                     var target = idToStateMap[t.target];
-                    if(!target) throw new Error('Unable to find target state with id ' + t.target);
+                    if (!target) throw new Error('Unable to find target state with id ' + t.target);
                     t.target = target;
                     t.targets = [t.target];
-                }else if(Array.isArray(t.target)){
+                } else if (Array.isArray(t.target)) {
                     //console.log('here2');
-                    t.targets = t.target.map(function(target){
-                        if(typeof target === 'string'){
+                    t.targets = t.target.map(function (target) {
+                        if (typeof target === 'string') {
                             target = idToStateMap[target];
-                            if(!target) throw new Error('Unable to find target state with id ' + t.target);
+                            if (!target) throw new Error('Unable to find target state with id ' + t.target);
                             return target;
-                        }else{
+                        } else {
                             return target;
-                        } 
-                    }); 
-                }else if(typeof t.target === 'object'){
+                        }
+                    });
+                } else if (typeof t.target === 'object') {
                     t.targets = [t.target];
-                }else{
+                } else {
                     throw new Error('Transition target has unknown type: ' + t.target);
                 }
             });
 
             //hook up LCA - optimization
-            transitions.forEach(function(t){
-                if(t.targets) t.lcca = getLCCA(t.source,t.targets[0]);    //FIXME: we technically do not need to hang onto the lcca. only the scope is used by the algorithm
+            transitions.forEach(function (t) {
+                if (t.targets) t.lcca = getLCCA(t.source, t.targets[0]);    //FIXME: we technically do not need to hang onto the lcca. only the scope is used by the algorithm
 
                 t.scope = getScope(t);
                 //console.log('scope',t.source.id,t.scope.id,t.targets);
             });
         }
 
-        function getScope(transition){
+        function getScope(transition) {
             //Transition scope is normally the least common compound ancestor (lcca).
             //Internal transitions have a scope equal to the source state.
 
-            var transitionIsReallyInternal = 
+            var transitionIsReallyInternal =
                     transition.type === 'internal' &&
                         transition.source.parent &&    //root state won't have parent
                             transition.targets && //does it target its descendants
                                 transition.targets.every(
-                                    function(target){ return transition.source.descendants.indexOf(target) > -1;});
+                                    function (target) { return transition.source.descendants.indexOf(target) > -1; });
 
-            if(!transition.targets){
-                return transition.source; 
-            }else if(transitionIsReallyInternal){
-                return transition.source; 
-            }else{
+            if (!transition.targets) {
+                return transition.source;
+            } else if (transitionIsReallyInternal) {
+                return transition.source;
+            } else {
                 return transition.lcca;
             }
         }
@@ -259,22 +259,22 @@
         function getLCCA(s1, s2) {
             //console.log('getLCCA',s1, s2);
             var commonAncestors = [];
-            s1.ancestors.forEach(function(anc){
+            s1.ancestors.forEach(function (anc) {
                 //console.log('s1.id',s1.id,'anc',anc.id,'anc.typeEnum',anc.typeEnum,'s2.id',s2.id);
-                if(anc.typeEnum === STATE_TYPES.COMPOSITE &&
-                    anc.descendants.indexOf(s2) > -1){
+                if (anc.typeEnum === STATE_TYPES.COMPOSITE &&
+                    anc.descendants.indexOf(s2) > -1) {
                     commonAncestors.push(anc);
                 }
             });
             //console.log('commonAncestors',s1.id,s2.id,commonAncestors.map(function(s){return s.id;}));
-            if(!commonAncestors.length) throw new Error("Could not find LCA for states.");
+            if (!commonAncestors.length) throw new Error("Could not find LCA for states.");
             return commonAncestors[0];
         }
 
         //main execution starts here
         //FIXME: only wrap in root state if it's not a compound state
         var fakeRootState = wrapInFakeRootState(rootState);  //I wish we had pointer semantics and could make this a C-style "out argument". Instead we return him
-        traverse([],fakeRootState);
+        traverse([], fakeRootState);
         connectTransitionGraph();
 
         return fakeRootState;
@@ -287,74 +287,74 @@
     function ArraySet(l) {
         l = l || [];
         this.o = [];
-            
-        l.forEach(function(x){
+
+        l.forEach(function (x) {
             this.add(x);
-        },this);
+        }, this);
     }
 
     ArraySet.prototype = {
 
-        add : function(x) {
+        add: function (x) {
             if (!this.contains(x)) return this.o.push(x);
         },
 
-        remove : function(x) {
+        remove: function (x) {
             var i = this.o.indexOf(x);
-            if(i === -1){
+            if (i === -1) {
                 return false;
-            }else{
+            } else {
                 this.o.splice(i, 1);
             }
             return true;
         },
 
-        union : function(l) {
+        union: function (l) {
             l = l.iter ? l.iter() : l;
-            l.forEach(function(x){
+            l.forEach(function (x) {
                 this.add(x);
-            },this);
+            }, this);
             return this;
         },
 
-        difference : function(l) {
+        difference: function (l) {
             l = l.iter ? l.iter() : l;
 
-            l.forEach(function(x){
+            l.forEach(function (x) {
                 this.remove(x);
-            },this);
+            }, this);
             return this;
         },
 
-        contains : function(x) {
+        contains: function (x) {
             return this.o.indexOf(x) > -1;
         },
 
-        iter : function() {
+        iter: function () {
             return this.o;
         },
 
-        isEmpty : function() {
+        isEmpty: function () {
             return !this.o.length;
         },
 
-        equals : function(s2) {
+        equals: function (s2) {
             var l2 = s2.iter();
             var l1 = this.o;
 
-            return l1.every(function(x){
+            return l1.every(function (x) {
                 return l2.indexOf(x) > -1;
-            }) && l2.every(function(x){
+            }) && l2.every(function (x) {
                 return l1.indexOf(x) > -1;
             });
         },
 
-        toString : function() {
+        toString: function () {
             return "Set(" + this.o.toString() + ")";
         }
     };
 
-    var scxmlPrefixTransitionSelector = (function(){
+    var scxmlPrefixTransitionSelector = (function () {
 
         var eventNameReCache = {};
 
@@ -368,24 +368,24 @@
 
         function nameMatch(t, event) {
             return event && event.name &&
-                        (t.events.indexOf("*") > -1 ? 
-                            true : 
-                                t.events.filter(function(tEvent){
+                        (t.events.indexOf("*") > -1 ?
+                            true :
+                                t.events.filter(function (tEvent) {
                                     return retrieveEventRe(tEvent).test(event.name);
                                 }).length);
 
         }
 
-        return function(state, event, evaluator) {
-            return state.transitions.filter(function(t){
-                return (!t.events || nameMatch(t,event)) && (!t.cond || evaluator(t.cond));
+        return function (state, event, evaluator) {
+            return state.transitions.filter(function (t) {
+                return (!t.events || nameMatch(t, event)) && (!t.cond || evaluator(t.cond));
             });
         };
     })();
 
     //model accessor functions
     var query = {
-        getAncestors: function(s, root) {
+        getAncestors: function (s, root) {
             var ancestors, index, state;
             index = s.ancestors.indexOf(root);
             if (index > -1) {
@@ -395,32 +395,32 @@
             }
         },
         /** @this {model} */
-        getAncestorsOrSelf: function(s, root) {
+        getAncestorsOrSelf: function (s, root) {
             return [s].concat(this.getAncestors(s, root));
         },
-        getDescendantsOrSelf: function(s) {
+        getDescendantsOrSelf: function (s) {
             return [s].concat(s.descendants);
         },
         /** @this {model} */
-        isOrthogonalTo: function(s1, s2) {
+        isOrthogonalTo: function (s1, s2) {
             //Two control states are orthogonal if they are not ancestrally
             //related, and their smallest, mutual parent is a Concurrent-state.
             return !this.isAncestrallyRelatedTo(s1, s2) && this.getLCA(s1, s2).typeEnum === STATE_TYPES.PARALLEL;
         },
         /** @this {model} */
-        isAncestrallyRelatedTo: function(s1, s2) {
+        isAncestrallyRelatedTo: function (s1, s2) {
             //Two control states are ancestrally related if one is child/grandchild of another.
             return this.getAncestorsOrSelf(s2).indexOf(s1) > -1 || this.getAncestorsOrSelf(s1).indexOf(s2) > -1;
         },
         /** @this {model} */
-        getLCA: function(s1, s2) {
-            var commonAncestors = this.getAncestors(s1).filter(function(a){
+        getLCA: function (s1, s2) {
+            var commonAncestors = this.getAncestors(s1).filter(function (a) {
                 return a.descendants.indexOf(s2) > -1;
-            },this);
+            }, this);
             return commonAncestors[0];
         }
     };
-    
+
     //priority comparison functions
     function getTransitionWithHigherSourceChildPriority(_arg) {
         var t1 = _arg[0], t2 = _arg[1];
@@ -442,14 +442,14 @@
     var printTrace = false;
 
     /** @constructor */
-    function BaseInterpreter(model, opts){
+    function BaseInterpreter(model, opts) {
         this._model = initializeModel(model);
 
         //console.log(require('util').inspect(this._model,false,4));
-       
+
         this.opts = opts || {};
 
-        this.opts.log = opts.log || (typeof console === 'undefined' ? {log : function(){}} : console.log.bind(console));   //rely on global console if this console is undefined
+        this.opts.log = opts.log || (typeof console === 'undefined' ? { log: function () { } } : console.log.bind(console));   //rely on global console if this console is undefined
         this.opts.Set = this.opts.Set || ArraySet;
         this.opts.priorityComparisonFn = this.opts.priorityComparisonFn || getTransitionWithHigherSourceChildPriority;
         this.opts.transitionSelector = this.opts.transitionSelector || scxmlPrefixTransitionSelector;
@@ -464,9 +464,9 @@
 
         //SCXML system variables:
         this._x = {
-            _sessionId : opts.sessionId || null,
-            _name : model.name || opts.name || null,
-            _ioprocessors : opts.ioprocessors || null
+            _sessionId: opts.sessionId || null,
+            _name: model.name || opts.name || null,
+            _ioprocessors: opts.ioprocessors || null
         };
 
         this._listeners = [];
@@ -475,21 +475,21 @@
         //It mostly just proxies to public and private methods on the statechart.
         //will also be available via locals?
         this._userScriptingContext = {
-            raise : (function(eventOrName, data){
+            raise: (function (eventOrName, data) {
                 var e;
 
                 if (typeof eventOrName === 'string') {
-                    e = {name: eventOrName, data: data};
+                    e = { name: eventOrName, data: data };
                 } else {
                     e = eventOrName;
                 }
                 this._internalEventQueue.push(e);
             }).bind(this),
-            send : (function(){
-                this.send.apply(this,arguments);
+            send: (function () {
+                this.send.apply(this, arguments);
             }).bind(this),
-            cancel : (function(){
-                this.cancel.apply(this,arguments);
+            cancel: (function () {
+                this.cancel.apply(this, arguments);
             }).bind(this)
             //TODO: other stuff...
         };
@@ -498,46 +498,46 @@
     BaseInterpreter.prototype = {
 
         /** @expose */
-        start : function() {
+        start: function () {
             //perform big step without events to take all default transitions and reach stable initial state
             if (printTrace) this.opts.log("performing initial big step");
 
             //We effectively need to figure out states to enter here to populate initial config. assuming root is compound state makes this simple.
             //but if we want it to be parallel, then this becomes more complex. so when initializing the model, we add a 'fake' root state, which
             //makes the following operation safe.
-            this._configuration.add(this._model.initialRef);   
+            this._configuration.add(this._model.initialRef);
 
             this._performBigStep();
             return this.getConfiguration();
         },
 
         /** @expose */
-        getConfiguration : function() {
-            return this._configuration.iter().map(function(s){return s.id;});
+        getConfiguration: function () {
+            return this._configuration.iter().map(function (s) { return s.id; });
         },
 
         /** @expose */
-        getFullConfiguration : function() {
+        getFullConfiguration: function () {
             return this._configuration.iter().
-                    map(function(s){ return [s].concat(query.getAncestors(s));},this).
-                    reduce(function(a,b){return a.concat(b);},[]).    //flatten
-                    map(function(s){return s.id;}).
-                    reduce(function(a,b){return a.indexOf(b) > -1 ? a : a.concat(b);},[]); //uniq
+                    map(function (s) { return [s].concat(query.getAncestors(s)); }, this).
+                    reduce(function (a, b) { return a.concat(b); }, []).    //flatten
+                    map(function (s) { return s.id; }).
+                    reduce(function (a, b) { return a.indexOf(b) > -1 ? a : a.concat(b); }, []); //uniq
         },
 
 
         /** @expose */
-        isIn : function(stateName) {
+        isIn: function (stateName) {
             return this.getFullConfiguration().indexOf(stateName) > -1;
         },
 
         /** @expose */
-        isFinal : function(stateName) {
+        isFinal: function (stateName) {
             return this._isInFinalState;
         },
 
         /** @private */
-        _performBigStep : function(e) {
+        _performBigStep: function (e) {
             if (e) this._internalEventQueue.push(e);
             var keepGoing = true;
             while (keepGoing) {
@@ -546,11 +546,11 @@
                 var selectedTransitions = this._performSmallStep(currentEvent);
                 keepGoing = !selectedTransitions.isEmpty();
             }
-            this._isInFinalState = this._configuration.iter().every(function(s){ return s.typeEnum === STATE_TYPES.FINAL; });
+            this._isInFinalState = this._configuration.iter().every(function (s) { return s.typeEnum === STATE_TYPES.FINAL; });
         },
 
         /** @private */
-        _performSmallStep : function(currentEvent) {
+        _performSmallStep: function (currentEvent) {
 
             if (printTrace) this.opts.log("selecting transitions with currentEvent: ", currentEvent);
 
@@ -564,14 +564,14 @@
 
                 //we only want to enter and exit states from transitions with targets
                 //filter out targetless transitions here - we will only use these to execute transition actions
-                var selectedTransitionsWithTargets = new this.opts.Set(selectedTransitions.iter().filter(function(t){return t.targets;}));
+                var selectedTransitionsWithTargets = new this.opts.Set(selectedTransitions.iter().filter(function (t) { return t.targets; }));
 
-                var exitedTuple = this._getStatesExited(selectedTransitionsWithTargets), 
-                    basicStatesExited = exitedTuple[0], 
+                var exitedTuple = this._getStatesExited(selectedTransitionsWithTargets),
+                    basicStatesExited = exitedTuple[0],
                     statesExited = exitedTuple[1];
 
-                var enteredTuple = this._getStatesEntered(selectedTransitionsWithTargets), 
-                    basicStatesEntered = enteredTuple[0], 
+                var enteredTuple = this._getStatesEntered(selectedTransitionsWithTargets),
+                    basicStatesEntered = enteredTuple[0],
                     statesEntered = enteredTuple[1];
 
                 if (printTrace) this.opts.log("basicStatesExited ", basicStatesExited);
@@ -586,66 +586,71 @@
 
                 var evaluateAction = this._evaluateAction.bind(this, currentEvent);        //create helper fn that actions can call later on
 
-                statesExited.forEach(function(state){
+                statesExited.forEach(function (state) {
 
                     if (printTrace || this.opts.logStatesEnteredAndExited) this.opts.log("exiting ", state.id);
 
                     //invoke listeners
-                    this._listeners.forEach(function(l){
-                       if(l.onExit) l.onExit(state.id); 
+                    this._listeners.forEach(function (l) {
+                        if (l.onExit) l.onExit(state.id);
                     });
 
-                    if(state.onExit !== undefined) state.onExit.forEach(evaluateAction);
+                    if (state.onExit !== undefined) state.onExit.forEach(evaluateAction);
 
                     var f;
                     if (state.historyRef) {
                         if (state.historyRef.isDeep) {
-                            f = function(s0) {
+                            f = function (s0) {
                                 return s0.typeEnum === STATE_TYPES.BASIC && state.descendants.indexOf(s0) > -1;
                             };
                         } else {
-                            f = function(s0) {
+                            f = function (s0) {
                                 return s0.parent === state;
                             };
                         }
                         //update history
                         this._historyValue[state.historyRef.id] = statesExited.filter(f);
                     }
-                },this);
+                }, this);
 
 
                 // -> Concurrency: Number of transitions: Multiple
                 // -> Concurrency: Order of transitions: Explicitly defined
-                var sortedTransitions = selectedTransitions.iter().sort(function(t1, t2) {
+                var sortedTransitions = selectedTransitions.iter().sort(function (t1, t2) {
                     return t1.documentOrder - t2.documentOrder;
                 });
 
                 if (printTrace) this.opts.log("executing transitition actions");
 
 
-                sortedTransitions.forEach(function(transition){
+                sortedTransitions.forEach(function (transition) {
 
-                    var targetIds = transition.targets && transition.targets.map(function(target){return target.id;});
+                    var targetIds = transition.targets && transition.targets.map(function (target) { return target.id; });
 
-                    this._listeners.forEach(function(l){
-                       if(l.onTransition) l.onTransition(transition.source.id,targetIds); 
+                    this._listeners.forEach(function (l) {
+                        if (l.onTransition) l.onTransition(transition.source.id, targetIds);
                     });
 
-                    if(transition.onTransition !== undefined) transition.onTransition.forEach(evaluateAction);
-                },this);
-     
+                    if (transition.onTransition !== undefined) transition.onTransition.forEach(evaluateAction);
+                }, this);
+
                 if (printTrace) this.opts.log("executing state enter actions");
 
-                statesEntered.forEach(function(state){
+                statesEntered.forEach(function (state) {
 
                     if (printTrace || this.opts.logStatesEnteredAndExited) this.opts.log("entering", state.id);
 
-                    this._listeners.forEach(function(l){
-                       if(l.onEntry) l.onEntry(state.id); 
+                    if (state.onEntry !== undefined) state.onEntry.forEach(evaluateAction);
+
+                    this._listeners.forEach(function (l) {
+                        if (l.onEntry) {
+                            evaluateAction(function (currentEvent) {
+                                l.onEntry.call(this, state.id, currentEvent);
+                            });
+                        }
                     });
 
-                    if(state.onEntry !== undefined) state.onEntry.forEach(evaluateAction);
-                },this);
+                }, this);
 
                 if (printTrace) this.opts.log("updating configuration ");
                 if (printTrace) this.opts.log("old configuration ", this._configuration);
@@ -656,7 +661,7 @@
 
 
                 if (printTrace) this.opts.log("new configuration ", this._configuration);
-                
+
                 //add set of generated events to the innerEventQueue -> Event Lifelines: Next small-step
                 if (!eventsToAddToInnerQueue.isEmpty()) {
                     if (printTrace) this.opts.log("adding triggered events to inner queue ", eventsToAddToInnerQueue);
@@ -670,13 +675,13 @@
         },
 
         /** @private */
-        _evaluateAction : function(currentEvent, actionRef) {
+        _evaluateAction: function (currentEvent, actionRef) {
             return actionRef.call(this._userScriptingContext, currentEvent, this.isIn.bind(this),
                             this._x._sessionId, this._x._name, this._x._ioprocessors, this._x);     //SCXML system variables
         },
 
         /** @private */
-        _getStatesExited : function(transitions) {
+        _getStatesExited: function (transitions) {
             var statesExited = new this.opts.Set();
             var basicStatesExited = new this.opts.Set();
 
@@ -684,57 +689,57 @@
             //descendants of the scope of each priority-enabled transition.
             //Here, we iterate through the transitions, and collect states
             //that match this condition. 
-            transitions.iter().forEach(function(transition){
+            transitions.iter().forEach(function (transition) {
                 var scope = transition.scope,
                     desc = scope.descendants;
 
                 //For each state in the configuration
                 //is that state a descendant of the transition scope?
                 //Store ancestors of that state up to but not including the scope.
-                this._configuration.iter().forEach(function(state){
-                    if(desc.indexOf(state) > -1){
+                this._configuration.iter().forEach(function (state) {
+                    if (desc.indexOf(state) > -1) {
                         basicStatesExited.add(state);
                         statesExited.add(state);
-                        query.getAncestors(state,scope).forEach(function(anc){
+                        query.getAncestors(state, scope).forEach(function (anc) {
                             statesExited.add(anc);
                         });
                     }
-                },this);
-            },this);
+                }, this);
+            }, this);
 
-            var sortedStatesExited = statesExited.iter().sort(function(s1, s2) {
+            var sortedStatesExited = statesExited.iter().sort(function (s1, s2) {
                 return s2.depth - s1.depth;
             });
             return [basicStatesExited, sortedStatesExited];
         },
 
         /** @private */
-        _getStatesEntered : function(transitions) {
+        _getStatesEntered: function (transitions) {
 
             var o = {
-                statesToEnter : new this.opts.Set(),
-                basicStatesToEnter : new this.opts.Set(),
-                statesProcessed  : new this.opts.Set(),
-                statesToProcess : []
+                statesToEnter: new this.opts.Set(),
+                basicStatesToEnter: new this.opts.Set(),
+                statesProcessed: new this.opts.Set(),
+                statesToProcess: []
             };
 
             //do the initial setup
-            transitions.iter().forEach(function(transition){
-                transition.targets.forEach(function(target){
-                    this._addStateAndAncestors(target,transition.scope,o);
-                },this);
-            },this);
+            transitions.iter().forEach(function (transition) {
+                transition.targets.forEach(function (target) {
+                    this._addStateAndAncestors(target, transition.scope, o);
+                }, this);
+            }, this);
 
             //loop and add states until there are no more to add (we reach a stable state)
             var s;
             /*jsl:ignore*/
-            while(s = o.statesToProcess.pop()){
+            while (s = o.statesToProcess.pop()) {
                 /*jsl:end*/
-                this._addStateAndDescendants(s,o);
+                this._addStateAndDescendants(s, o);
             }
 
             //sort based on depth
-            var sortedStatesEntered = o.statesToEnter.iter().sort(function(s1, s2) {
+            var sortedStatesEntered = o.statesToEnter.iter().sort(function (s1, s2) {
                 return s1.depth - s2.depth;
             });
 
@@ -742,13 +747,13 @@
         },
 
         /** @private */
-        _addStateAndAncestors : function(target,scope,o){
+        _addStateAndAncestors: function (target, scope, o) {
 
             //process each target
-            this._addStateAndDescendants(target,o);
+            this._addStateAndDescendants(target, o);
 
             //and process ancestors of targets up to the scope, but according to special rules
-            query.getAncestors(target,scope).forEach(function(s){
+            query.getAncestors(target, scope).forEach(function (s) {
 
                 if (s.typeEnum === STATE_TYPES.COMPOSITE) {
                     //just add him to statesToEnter, and declare him processed
@@ -756,23 +761,23 @@
                     o.statesToEnter.add(s);
 
                     o.statesProcessed.add(s);
-                }else{
+                } else {
                     //everything else can just be passed through as normal
-                    this._addStateAndDescendants(s,o);
-                } 
-            },this);
+                    this._addStateAndDescendants(s, o);
+                }
+            }, this);
         },
 
         /** @private */
-        _addStateAndDescendants : function(s,o){
+        _addStateAndDescendants: function (s, o) {
 
-            if(o.statesProcessed.contains(s)) return;
+            if (o.statesProcessed.contains(s)) return;
 
             if (s.typeEnum === STATE_TYPES.HISTORY) {
                 if (s.id in this._historyValue) {
-                    this._historyValue[s.id].forEach(function(stateFromHistory){
-                        this._addStateAndAncestors(stateFromHistory,s.parent,o);
-                    },this);
+                    this._historyValue[s.id].forEach(function (stateFromHistory) {
+                        this._addStateAndAncestors(stateFromHistory, s.parent, o);
+                    }, this);
                 } else {
                     o.statesToEnter.add(s);
                     o.basicStatesToEnter.add(s);
@@ -782,19 +787,19 @@
 
                 if (s.typeEnum === STATE_TYPES.PARALLEL) {
                     o.statesToProcess.push.apply(o.statesToProcess,
-                        s.states.filter(function(s){return s.typeEnum !== STATE_TYPES.HISTORY;}));
+                        s.states.filter(function (s) { return s.typeEnum !== STATE_TYPES.HISTORY; }));
                 } else if (s.typeEnum === STATE_TYPES.COMPOSITE) {
-                    o.statesToProcess.push(s.initialRef); 
+                    o.statesToProcess.push(s.initialRef);
                 } else if (s.typeEnum === STATE_TYPES.INITIAL || s.typeEnum === STATE_TYPES.BASIC || s.typeEnum === STATE_TYPES.FINAL) {
                     o.basicStatesToEnter.add(s);
                 }
             }
 
-            o.statesProcessed.add(s); 
+            o.statesProcessed.add(s);
         },
 
         /** @private */
-        _selectTransitions : function(currentEvent) {
+        _selectTransitions: function (currentEvent) {
             if (this.opts.onlySelectFromBasicStates) {
                 var states = this._configuration.iter();
             } else {
@@ -802,28 +807,28 @@
 
                 //get full configuration, unordered
                 //this means we may select transitions from parents before states
-                
-                this._configuration.iter().forEach(function(basicState){
+
+                this._configuration.iter().forEach(function (basicState) {
                     statesAndParents.add(basicState);
-                    query.getAncestors(basicState).forEach(function(ancestor){
+                    query.getAncestors(basicState).forEach(function (ancestor) {
                         statesAndParents.add(ancestor);
                     });
-                },this);
+                }, this);
 
                 states = statesAndParents.iter();
             }
 
-            
+
 
             var usePrefixMatchingAlgorithm = currentEvent && currentEvent.name && currentEvent.name.search(".");
 
             var transitionSelector = usePrefixMatchingAlgorithm ? scxmlPrefixTransitionSelector : this.opts.transitionSelector;
             var enabledTransitions = new this.opts.Set();
 
-            var e = this._evaluateAction.bind(this,currentEvent);
+            var e = this._evaluateAction.bind(this, currentEvent);
 
-            states.forEach(function(state){
-                transitionSelector(state,currentEvent,e).forEach(function(t){
+            states.forEach(function (state) {
+                transitionSelector(state, currentEvent, e).forEach(function (t) {
                     enabledTransitions.add(t);
                 });
             });
@@ -831,16 +836,16 @@
             var priorityEnabledTransitions = this._selectPriorityEnabledTransitions(enabledTransitions);
 
             if (printTrace) this.opts.log("priorityEnabledTransitions", priorityEnabledTransitions);
-            
+
             return priorityEnabledTransitions;
         },
 
         /** @private */
-        _selectPriorityEnabledTransitions : function(enabledTransitions) {
+        _selectPriorityEnabledTransitions: function (enabledTransitions) {
             var priorityEnabledTransitions = new this.opts.Set();
 
-            var tuple = this._getInconsistentTransitions(enabledTransitions), 
-                consistentTransitions = tuple[0], 
+            var tuple = this._getInconsistentTransitions(enabledTransitions),
+                consistentTransitions = tuple[0],
                 inconsistentTransitionsPairs = tuple[1];
 
             priorityEnabledTransitions.union(consistentTransitions);
@@ -849,13 +854,13 @@
             if (printTrace) this.opts.log("consistentTransitions", consistentTransitions);
             if (printTrace) this.opts.log("inconsistentTransitionsPairs", inconsistentTransitionsPairs);
             if (printTrace) this.opts.log("priorityEnabledTransitions", priorityEnabledTransitions);
-            
+
             while (!inconsistentTransitionsPairs.isEmpty()) {
                 enabledTransitions = new this.opts.Set(
-                        inconsistentTransitionsPairs.iter().map(function(t){return this.opts.priorityComparisonFn(t);},this));
+                        inconsistentTransitionsPairs.iter().map(function (t) { return this.opts.priorityComparisonFn(t); }, this));
 
                 tuple = this._getInconsistentTransitions(enabledTransitions);
-                consistentTransitions = tuple[0]; 
+                consistentTransitions = tuple[0];
                 inconsistentTransitionsPairs = tuple[1];
 
                 priorityEnabledTransitions.union(consistentTransitions);
@@ -864,21 +869,21 @@
                 if (printTrace) this.opts.log("consistentTransitions", consistentTransitions);
                 if (printTrace) this.opts.log("inconsistentTransitionsPairs", inconsistentTransitionsPairs);
                 if (printTrace) this.opts.log("priorityEnabledTransitions", priorityEnabledTransitions);
-                
+
             }
             return priorityEnabledTransitions;
         },
 
         /** @private */
-        _getInconsistentTransitions : function(transitions) {
+        _getInconsistentTransitions: function (transitions) {
             var allInconsistentTransitions = new this.opts.Set();
             var inconsistentTransitionsPairs = new this.opts.Set();
             var transitionList = transitions.iter();
 
             if (printTrace) this.opts.log("transitions", transitionList);
 
-            for(var i = 0; i < transitionList.length; i++){
-                for(var j = i+1; j < transitionList.length; j++){
+            for (var i = 0; i < transitionList.length; i++) {
+                for (var j = i + 1; j < transitionList.length; j++) {
                     var t1 = transitionList[i];
                     var t2 = transitionList[j];
                     if (this._conflicts(t1, t2)) {
@@ -894,12 +899,12 @@
         },
 
         /** @private */
-        _conflicts : function(t1, t2) {
+        _conflicts: function (t1, t2) {
             return !this._isArenaOrthogonal(t1, t2);
         },
 
         /** @private */
-        _isArenaOrthogonal : function(t1, t2) {
+        _isArenaOrthogonal: function (t1, t2) {
 
             if (printTrace) this.opts.log("transition scopes", t1.scope, t2.scope);
 
@@ -925,13 +930,13 @@
         */
 
         /** @expose */
-        registerListener : function(listener){
+        registerListener: function (listener) {
             return this._listeners.push(listener);
         },
 
         /** @expose */
-        unregisterListener : function(listener){
-            return this._listeners.splice(this._listeners.indexOf(listener),1);
+        unregisterListener: function (listener) {
+            return this._listeners.splice(this._listeners.indexOf(listener), 1);
         }
 
     };
@@ -951,22 +956,22 @@
 
         this.cancel = opts.cancel || this.cancel;
 
-        BaseInterpreter.call(this,model,opts);     //call super constructor
+        BaseInterpreter.call(this, model, opts);     //call super constructor
     }
     Statechart.prototype = Object.create(BaseInterpreter.prototype);
 
     /** @expose */
-    Statechart.prototype.gen = function(evtObjOrName,optionalData) {
+    Statechart.prototype.gen = function (evtObjOrName, optionalData) {
 
         var e;
-        switch(typeof evtObjOrName){
+        switch (typeof evtObjOrName) {
             case 'string':
-                e = {name : evtObjOrName, data : optionalData};
+                e = { name: evtObjOrName, data: optionalData };
                 break;
             case 'object':
-                if(typeof evtObjOrName.name === 'string'){
+                if (typeof evtObjOrName.name === 'string') {
                     e = evtObjOrName;
-                }else{
+                } else {
                     throw new Error('Event object must have "name" property of type string.');
                 }
                 break;
@@ -976,15 +981,15 @@
 
         this._externalEventQueue.push(e);
 
-        if(this._isStepping) return null;       //we're already looping, we can exit and we'll process this event when the next big-step completes
+        if (this._isStepping) return null;       //we're already looping, we can exit and we'll process this event when the next big-step completes
 
         //otherwise, kick him off
         this._isStepping = true;
 
         var currentEvent;
         /*jsl:ignore*/
-        while(currentEvent = this._externalEventQueue.shift()){
-        /*jsl:end*/
+        while (currentEvent = this._externalEventQueue.shift()) {
+            /*jsl:end*/
             this._performBigStep(currentEvent);
         }
 
@@ -994,17 +999,17 @@
 
     /** @expose */
     //include default implementations of send and cancel, which should work in most supported environments
-    Statechart.prototype.send = function(evtObjOrName, dataOrOptions, options) {
+    Statechart.prototype.send = function (evtObjOrName, dataOrOptions, options) {
         var e;
-        switch(typeof evtObjOrName){
+        switch (typeof evtObjOrName) {
             case 'string':
-                e = {name : evtObjOrName, data : dataOrOptions};
+                e = { name: evtObjOrName, data: dataOrOptions };
                 options = options || {};
                 break;
             case 'object':
-                if(typeof evtObjOrName.name === 'string'){
+                if (typeof evtObjOrName.name === 'string') {
                     e = evtObjOrName;
-                }else{
+                } else {
                     throw new Error('Event object must have "name" property of type string.');
                 }
                 options = dataOrOptions || {};
@@ -1013,23 +1018,23 @@
                 throw new Error('First argument to send must be a string or object.');
         }
 
-        if(options.delay === undefined){
+        if (options.delay === undefined) {
             this.gen(e);
-        }else{
-            if( typeof setTimeout === 'undefined' ) throw new Error('Default implementation of Statechart.prototype.send will not work unless setTimeout is defined globally.');
+        } else {
+            if (typeof setTimeout === 'undefined') throw new Error('Default implementation of Statechart.prototype.send will not work unless setTimeout is defined globally.');
 
             if (printTrace) this.opts.log("sending event", e.name, "with content", e.data, "after delay", options.delay);
 
-            var timeoutId = setTimeout(this.gen.bind(this,e), options.delay || 0);
+            var timeoutId = setTimeout(this.gen.bind(this, e), options.delay || 0);
 
             if (options.sendid) this._timeoutMap[options.sendid] = timeoutId;
         }
     };
 
     /** @expose */
-    Statechart.prototype.cancel = function(sendid){
+    Statechart.prototype.cancel = function (sendid) {
 
-        if( typeof clearTimeout === 'undefined' ) throw new Error('Default implementation of Statechart.prototype.cancel will not work unless setTimeout is defined globally.');
+        if (typeof clearTimeout === 'undefined') throw new Error('Default implementation of Statechart.prototype.cancel will not work unless setTimeout is defined globally.');
 
         if (sendid in this._timeoutMap) {
             if (printTrace) this.opts.log("cancelling ", sendid, " with timeout id ", this._timeoutMap[sendid]);
@@ -1043,10 +1048,10 @@
         /** @expose */
         Statechart: Statechart,
         /** @expose */
-        ArraySet : ArraySet,
+        ArraySet: ArraySet,
         /** @expose */
-        STATE_TYPES : STATE_TYPES,
+        STATE_TYPES: STATE_TYPES,
         /** @expose */
-        initializeModel : initializeModel
+        initializeModel: initializeModel
     };
 }));

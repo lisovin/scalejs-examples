@@ -1,7 +1,7 @@
 ﻿/*global define, console, setTimeout */
 /*jslint sloppy: true*/
 define([
-    'scalejs!sandbox',
+    'sandbox!main',
     'knockout'
 ], function (
     sandbox,
@@ -24,10 +24,6 @@ define([
             };
         },
         'main-columns': function () {
-            setTimeout(function () {
-                messageBus.notify('css-grid-layout');
-            });
-
             return {
                 attr: {
                     style: '-ms-grid-columns: ' + unwrap(this.columns)

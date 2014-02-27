@@ -1,2 +1,2 @@
-﻿/// <reference path="../js/CssGridLayout.js" />
+﻿/// <reference path="../js/CSSGridLayout.js" />
 /// <reference path="~/Scripts/_scalejs.intellisense.js" />

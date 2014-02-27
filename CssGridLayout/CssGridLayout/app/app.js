@@ -1,14 +1,10 @@
 ﻿/*global require*/
 require([
-    'scalejs!application',
-    'app/main/mainModule'
+    'scalejs!application/main'
 ], function (
-    application,
-    main
+    application
 ) {
     'use strict';
-
-    application.registerModules(main);
 
     application.run();
 });

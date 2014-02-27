@@ -19,11 +19,11 @@
   </PropertyGroup>
   <ItemGroup>
     <Content Include="css\jasmine.css" />
-    <Content Include="foobar\bindings\foobarBindings.js" />
-    <Content Include="foobar\foobarModule.js" />
-    <Content Include="foobar\styles\foobar.css" />
-    <Content Include="foobar\viewmodels\foobarViewModel.js" />
-    <Content Include="foobar\views\foobar.html" />
+    <Content Include="app\foobar\bindings\foobarBindings.js" />
+    <Content Include="app\foobar\foobarModule.js" />
+    <Content Include="app\foobar\styles\foobar.css" />
+    <Content Include="app\foobar\viewmodels\foobarViewModel.js" />
+    <Content Include="app\foobar\views\foobar.html" />
     <Content Include="README.txt" />
     <Content Include="index.debug.html" />
     <Content Include="index.html" />
@@ -56,7 +56,10 @@
     <Content Include="Scripts\scalejs.mvvm.bindings.js" />
     <Content Include="Scripts\scalejs.mvvm.views.js" />
     <Content Include="Scripts\scalejs.sandbox.js" />
+    <Content Include="Scripts\scalejs.statechart-scion-0.3.0.1.js" />
+    <Content Include="Scripts\scalejs.statechart-scion-0.3.0.1.min.js" />
     <Content Include="Scripts\scalejs.styles.js" />
+    <Content Include="Scripts\scion.js" />
     <Content Include="Scripts\text.js" />
     <Content Include="Scripts\_references.js" />
     <Content Include="app\app.js" />

@@ -1,77 +1,82 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <ProjectGuid>{74D21D45-DAA1-47FD-B13F-15038AF77322}</ProjectGuid>
+    <ProjectGuid>{C04767F8-3A10-4B4F-9D4B-01596F5C56A3}</ProjectGuid>
     <OutputType>Library</OutputType>
     <OutputPath>js</OutputPath>
-    <JSLintSkip>\Scripts\</JSLintSkip>
+    <JSLintSkip>\Scripts\|\js\</JSLintSkip>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <StartAction>Program</StartAction>
     <StartProgram>C:\Program Files (x86)\IIS Express\iisexpress.exe</StartProgram>
-    <StartArguments>/site:CssGridLayout</StartArguments>
+    <StartArguments>/site:CSSGridLayout</StartArguments>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <StartProgram>C:\Program Files (x86)\IIS Express\iisexpress.exe</StartProgram>
-    <StartArguments>/site:CssGridLayout</StartArguments>
+    <StartArguments>/site:CSSGridLayout</StartArguments>
   </PropertyGroup>
   <ItemGroup>
-    <Content Include="css\grid.css" />
     <Content Include="css\jasmine.css" />
     <Content Include="README.txt" />
+    <Content Include="index.debug.html" />
     <Content Include="index.html" />
     <Content Include="index.release.html" />
     <Content Include="index.test.html" />
-    <Content Include="app\app.js" />
-    <Content Include="app\main\bindings\mainBindings.js" />
-    <Content Include="app\main\viewmodels\mainViewModel.js" />
-    <Content Include="app\main\views\main.html" />
-    <Content Include="app\main\mainModule.js" />
     <Content Include="Scripts\almond.js" />
+    <Content Include="Scripts\css-builder.js" />
+    <Content Include="Scripts\css.js" />
+    <Content Include="Scripts\CSS.supports.js" />
     <Content Include="Scripts\cssparser.js" />
     <Content Include="Scripts\hammer.js" />
     <Content Include="Scripts\hammer.min.js" />
     <Content Include="Scripts\jasmine-html.js" />
     <Content Include="Scripts\jasmine.js" />
-    <Content Include="Scripts\knockout-2.3.0.debug.js" />
-    <Content Include="Scripts\knockout-2.3.0.js" />
+    <Content Include="Scripts\knockout-3.0.0.debug.js" />
+    <Content Include="Scripts\knockout-3.0.0.js" />
     <Content Include="Scripts\knockout.mapping-latest.debug.js" />
     <Content Include="Scripts\knockout.mapping-latest.js" />
     <Content Include="Scripts\linq-vsdoc.js" />
     <Content Include="Scripts\linq.js" />
     <Content Include="Scripts\linq.js.d.ts" />
     <Content Include="Scripts\linq.min.js" />
+    <Content Include="Scripts\normalize.js" />
     <Content Include="Scripts\r.js" />
     <Content Include="Scripts\require.js" />
-    <Content Include="Scripts\scalejs-0.3.0.1.js" />
-    <Content Include="Scripts\scalejs-0.3.0.1.min.js" />
-    <Content Include="Scripts\scalejs.functional-0.2.9.js" />
-    <Content Include="Scripts\scalejs.functional-0.2.9.min.js" />
-    <Content Include="Scripts\scalejs.layout-cssgrid-0.2.4.5.js" />
-    <Content Include="Scripts\scalejs.layout-cssgrid-0.2.5.1.js" />
-    <Content Include="Scripts\scalejs.layout-cssgrid-0.2.6.1.js" />
-    <Content Include="Scripts\scalejs.layout-cssgrid-0.2.6.4.js" />
-    <Content Include="Scripts\scalejs.layout-cssgrid-0.2.6.6.js" />
-    <Content Include="Scripts\scalejs.layout-cssgrid-0.2.6.6.min.js" />
+    <Content Include="Scripts\scalejs-0.3.3.js" />
+    <Content Include="Scripts\scalejs-0.3.3.min.js" />
+    <Content Include="Scripts\scalejs.functional-0.2.10.js" />
+    <Content Include="Scripts\scalejs.functional-0.2.10.min.js" />
+    <Content Include="Scripts\scalejs.layout-cssgrid-0.2.7.32.js" />
+    <Content Include="Scripts\scalejs.layout-cssgrid-0.2.7.32.min.js" />
     <Content Include="Scripts\scalejs.layout-cssgrid-splitter-0.2.5.js" />
     <Content Include="Scripts\scalejs.layout-cssgrid-splitter-0.2.5.min.js" />
-    <Content Include="Scripts\scalejs.linq-linqjs-3.0.3.js" />
-    <Content Include="Scripts\scalejs.linq-linqjs-3.0.3.min.js" />
-    <Content Include="Scripts\scalejs.mvvm-0.3.0.0.js" />
-    <Content Include="Scripts\scalejs.mvvm-0.3.0.0.min.js" />
-    <Content Include="Scripts\scalejs.statechart-scion-0.2.1.30.js" />
-    <Content Include="Scripts\scalejs.statechart-scion-0.2.1.30.min.js" />
+    <Content Include="Scripts\scalejs.linq-linqjs-3.0.3.1.js" />
+    <Content Include="Scripts\scalejs.linq-linqjs-3.0.3.1.min.js" />
+    <Content Include="Scripts\scalejs.mvvm-0.3.4.4.js" />
+    <Content Include="Scripts\scalejs.mvvm-0.3.4.4.min.js" />
+    <Content Include="Scripts\scalejs.mvvm.bindings.js" />
+    <Content Include="Scripts\scalejs.mvvm.views.js" />
+    <Content Include="Scripts\scalejs.sandbox.js" />
+    <Content Include="Scripts\scalejs.statechart-scion-0.3.0.1.js" />
+    <Content Include="Scripts\scalejs.statechart-scion-0.3.0.1.min.js" />
+    <Content Include="Scripts\scalejs.styles.js" />
     <Content Include="Scripts\scion.js" />
     <Content Include="Scripts\text.js" />
     <Content Include="Scripts\_references.js" />
+    <Content Include="app\app.js" />
+    <Content Include="app\main\bindings\mainBindings.js" />
+    <Content Include="app\main\styles\main.css" />
+    <Content Include="app\main\viewmodels\mainViewModel.js" />
+    <Content Include="app\main\views\main.html" />
+    <Content Include="app\main\mainModule.js" />
     <Content Include="Scripts\_scalejs.intellisense.js" />
     <Content Include="test\all.tests.js" />
     <Content Include="test\mainViewModel.test.js" />
     <Content Include="config.js" />
-    <Content Include="css\global.css" />
     <Content Include="Properties\build.rjs" />
+    <Content Include="Properties\CSSGridLayout.nuspec" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -80,7 +85,7 @@
     <ScalejsProjectType>Application</ScalejsProjectType>
   </PropertyGroup>
   <PropertyGroup>
-    <RootNamespace>CssGridLayout</RootNamespace>
+    <RootNamespace>CSSGridLayout</RootNamespace>
   </PropertyGroup>
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" />
   <Import Project="$(SolutionDir)\.scalejs\Scalejs.targets" />

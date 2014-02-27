@@ -1,6 +1,6 @@
-﻿/*global define, setTimeout */
+﻿/*global define */
 define([
-    'scalejs!sandbox/main'
+    'sandbox!main'
 ], function (
     sandbox
 ) {
@@ -11,6 +11,7 @@ define([
             //messageBus = sandbox.reactive.messageBus,
             text = observable('Hello World'),
             width = observable(300);
+
         /*
         function dec() {
             if (width() > 100) {

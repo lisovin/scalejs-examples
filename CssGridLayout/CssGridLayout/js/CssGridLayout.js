@@ -420,6 +420,8 @@ define('scalejs',[],function () {
 
     return {
         load: function (name, req, load, config) {
+            var moduleNames;
+
             if (name === 'extensions') {
                 if (config.scalejs && config.scalejs.extensions) {
                     extensionNames = config.scalejs.extensions;
@@ -437,23 +439,32 @@ define('scalejs',[],function () {
                 return;
             }
 
-            if (name === 'application') {
+            if (name.indexOf('application') === 0) {
+                moduleNames = name
+                    .substring('application'.length + 1)
+                    .match(/([^,]+)/g) || [];
+
+                moduleNames = moduleNames.map(function (n) {
+                    if (n.indexOf('/') === -1) {
+                        return 'app/' + n + '/' + n + 'Module';
+                    }
+
+                    return n;
+                });
+
+                moduleNames.push('scalejs/application');
+
                 req(['scalejs!extensions'], function () {
-                    req(['scalejs/application'], function (application) {
+                    req(moduleNames, function () {
+                        var application = arguments[arguments.length - 1],
+                            modules = Array.prototype.slice.call(arguments, 0, arguments.length - 1);
+
+                        if (!config.isBuild) {
+                            application.registerModules.apply(null, modules);
+                        }
+
                         load(application);
                     });
-                });
-                return;
-            }
-
-            if (name.indexOf('sandbox') === 0) {
-                req(['scalejs!core', 'scalejs!extensions'], function (core) {
-                    if (config.isBuild) {
-                        load();
-                    } else {
-                        var sandbox = core.buildSandbox(name);
-                        load(sandbox);
-                    }
                 });
                 return;
             }
@@ -464,7 +475,7 @@ define('scalejs',[],function () {
         },
 
         write: function (pluginName, moduleName, write) {
-            if (pluginName === 'scalejs' && moduleName === 'application') {
+            if (pluginName === 'scalejs' && moduleName.indexOf('application') === 0) {
                 write('define("scalejs/extensions", ' + JSON.stringify(extensionNames) + ', function () { return Array.prototype.slice(arguments); })');
             }
         }
@@ -910,11 +921,8 @@ define('scalejs/base.log',[
             });
         }
 
-        if (typeof console.debug === 'function') {
-            self.debug = console.debug.bind(console);
-        } else {
-            self.debug = self.info;
-        }
+        // debug in IE doesn't output arguments with index > 0 so use info instead
+        self.debug = self.info;
     } else {
         logMethods.forEach(function (method) {
             self[method] = function () {};
@@ -1193,7 +1201,8 @@ define('scalejs/application',[
 define('scalejs.functional/functional',[],function () {
     
 
-    var _ = {};
+    var _ = {},
+        curry;
 
     function compose() {
         /// <summary>
@@ -1275,24 +1284,6 @@ define('scalejs.functional/functional',[],function () {
         };
     }
 
-    function curry(fn, n) {
-        if (arguments.length === 1) {
-            return curry(fn, fn.length);
-        }
-
-        var largs = Array.prototype.slice.call(arguments, 2);
-
-        if (largs.length >= n) {
-            return fn.apply(undefined, largs);
-        }
-
-        return function () {
-            var args = largs.concat(Array.prototype.slice.call(arguments, 0));
-            args.unshift(fn, n);
-            return curry.apply(undefined, args);
-        };
-    }
-
     // partial itself is partial, e.g. partial(_, a, _)(f) = partial(f, a, _)
     function partial() {
         var args = Array.prototype.slice.call(arguments, 0),
@@ -1316,6 +1307,25 @@ define('scalejs.functional/functional',[],function () {
         };
     }
 
+    curry = function (fn, n) {
+        if (arguments.length === 1) {
+            return curry(fn, fn.length);
+        }
+
+        var largs = Array.prototype.slice.call(arguments, 2);
+
+        if (largs.length >= n) {
+            return fn.apply(this, largs);
+        }
+
+        return function () {
+            var args = largs.concat(Array.prototype.slice.call(arguments, 0));
+            args.unshift(fn, n);
+            return curry.apply(this, args);
+        };
+    };
+
+
     return {
         _: _,
         compose: compose,
@@ -1332,37 +1342,32 @@ define('scalejs.functional/functional',[],function () {
 /**
  * Based on F# computation expressions http://msdn.microsoft.com/en-us/library/dd233182.aspx
  **/
-define('scalejs.functional/builder',[
-    'scalejs!core'
-], function (
-    core
-) {
+define('scalejs.functional/builder',[],function () {
     
 
-    var merge = core.object.merge,
-        clone = core.object.clone,
-        array = core.array;
-
     function builder(opts) {
-        var build;
+        var build,
+            self,
+            callExpr,
+            combine;
 
-        function callExpr(context, expr) {
+        callExpr = function (expr) {
             if (!expr || expr.kind !== '$') {
-                return typeof expr === 'function' ? expr.bind(context) : expr;
+                return expr;
             }
 
             if (typeof expr.expr === 'function') {
-                return expr.expr.call(context);
+                return expr.expr.call(this);
             }
 
             if (typeof expr.expr === 'string') {
-                return context[expr.expr];
+                return this[expr.expr];
             }
 
             throw new Error('Parameter in $(...) must be either a function or a string referencing a binding.');
-        }
+        };
 
-        function combine(method, context, expr, cexpr) {
+        combine = function (method, expr, cexpr) {
             function isReturnLikeMethod(method) {
                 return method === '$return' ||
                         method === '$RETURN' ||
@@ -1370,18 +1375,18 @@ define('scalejs.functional/builder',[
                         method === '$YIELD';
             }
 
-            if (typeof opts[method] !== 'function' &&
+            if (typeof self[method] !== 'function' &&
                     method !== '$then' &&
                     method !== '$else') {
                 throw new Error('This control construct may only be used if the computation expression builder ' +
                                 'defines a `' + method + '` method.');
             }
 
-            var e = callExpr(context, expr),
-                contextCopy,
+            var e = callExpr(expr),
+                //contextCopy,
                 cexprCopy;
 
-            if (cexpr.length > 0 && typeof opts.combine !== 'function') {
+            if (cexpr.length > 0 && typeof self.combine !== 'function') {
                 throw new Error('This control construct may only be used if the computation expression builder ' +
                                 'defines a `combine` method.');
             }
@@ -1389,57 +1394,57 @@ define('scalejs.functional/builder',[
             // if it's return then simply return
             if (isReturnLikeMethod(method)) {
                 if (cexpr.length === 0) {
-                    return opts[method](e);
+                    return self[method](e);
                 }
 
-                if (typeof opts.delay !== 'function') {
+                if (typeof self.delay !== 'function') {
                     throw new Error('This control construct may only be used if the computation expression builder ' +
                                     'defines a `delay` method.');
                 }
 
                 // combine with delay
-                return opts.combine(opts[method](e), opts.delay(function () {
-                    return build(context, cexpr);
+                return self.combine(self[method](e), self.delay(function () {
+                    return build(cexpr);
                 }));
             }
 
             // if it's not a return then simply combine the operations (e.g. no `delay` needed)
             if (method === '$for') {
-                return opts.combine(opts.$for(expr.items, function (item) {
-                    var cexpr = array.copy(expr.cexpr),
-                        ctx = merge(context);
-                    ctx[expr.name] = item;
-                    return build(ctx, cexpr);
-                }), build(context, cexpr));
+                return self.combine(self.$for(expr.items, function (item) {
+                    var cexpr = Array.prototype.slice.call(expr.cexpr);
+                    //ctx = merge(context);
+                    this[expr.name] = item;
+                    return build(cexpr);
+                }), build(cexpr));
             }
 
             if (method === '$while') {
-                if (typeof opts.delay !== 'function') {
+                if (typeof self.delay !== 'function') {
                     throw new Error('This control construct may only be used if the computation expression builder ' +
                                     'defines a `delay` method.');
                 }
 
-                e = opts.$while(expr.condition.bind(context), opts.delay(function () {
-                    var contextCopy = clone(context),
-                        cexprCopy = array.copy(expr.cexpr);
-                    return build(contextCopy, cexprCopy);
+                e = self.$while(expr.condition.bind(this), self.delay(function () {
+                    var //contextCopy = clone(context),
+                        cexprCopy = Array.prototype.slice.call(expr.cexpr);
+                    return build(cexprCopy);
                 }));
 
                 if (cexpr.length > 0) {
-                    return opts.combine(e, build(context, cexpr));
+                    return self.combine(e, build(cexpr));
                 }
 
                 return e;
             }
 
             if (method === '$then' || method === '$else') {
-                contextCopy = clone(context);
-                cexprCopy = array.copy(expr.cexpr);
-                return opts.combine(build(contextCopy, cexprCopy), cexpr);
+                //contextCopy = clone(context);
+                cexprCopy = Array.prototype.slice.call(expr.cexpr);
+                return self.combine(build(cexprCopy), cexpr);
             }
 
-            return opts.combine(opts[method](e), build(context, cexpr));
-        }
+            return self.combine(self[method](e), build(cexpr));
+        };
 
         if (!opts.missing) {
             opts.missing = function (expr) {
@@ -1453,12 +1458,14 @@ define('scalejs.functional/builder',[
             };
         }
 
-        build = function (context, cexpr) {
+        build = function (cexpr) {
             var expr;
 
+            cexpr = Array.prototype.slice.call(cexpr);
+
             if (cexpr.length === 0) {
-                if (opts.zero) {
-                    return opts.zero();
+                if (self.zero) {
+                    return self.zero();
                 }
 
                 throw new Error('Computation expression builder must define `zero` method.');
@@ -1467,36 +1474,36 @@ define('scalejs.functional/builder',[
             expr = cexpr.shift();
 
             if (expr.kind === 'let') {
-                context[expr.name] = callExpr(context, expr.expr);
-                return build(context, cexpr);
+                this[expr.name] = callExpr(expr.expr);
+                return build.call(this, cexpr);
             }
 
             if (expr.kind === 'do') {
-                expr.expr.call(context);
-                return build(context, cexpr);
+                expr.expr.call(this);
+                return build.call(this, cexpr);
             }
 
             if (expr.kind === 'letBind') {
-                return opts.bind(callExpr(context, expr.expr), function (bound) {
-                    context[expr.name] = bound;
-                    return build(context, cexpr);
-                });
+                return self.bind(expr.expr.bind(this), function (bound) {
+                    this[expr.name] = bound;
+                    return build.call(this, cexpr);
+                }.bind(this));
             }
 
             if (expr.kind === 'doBind' || expr.kind === '$') {
                 if (cexpr.length > 0) {
-                    return opts.bind(callExpr(context, expr.expr), function () {
-                        return build(context, cexpr);
-                    });
+                    return self.bind(expr.expr.bind(this), function () {
+                        return build.call(this, cexpr);
+                    }.bind(this));
                 }
 
-                if (typeof opts.$return !== 'function') {
+                if (typeof self.$return !== 'function') {
                     throw new Error('This control construct may only be used if the computation expression builder ' +
                                     'defines a `$return` method.');
                 }
 
-                return opts.bind(callExpr(context, expr.expr), function () {
-                    return opts.$return();
+                return self.bind(expr.expr.bind(this), function (x) {
+                    return self.$return(x);
                 });
             }
 
@@ -1504,67 +1511,84 @@ define('scalejs.functional/builder',[
                     expr.kind === '$RETURN' ||
                     expr.kind === '$yield' ||
                     expr.kind === '$YIELD') {
-                return combine(expr.kind, context, expr.expr, cexpr);
+                return combine(expr.kind, expr.expr, cexpr);
             }
 
             if (expr.kind === '$for' ||
                     expr.kind === '$while') {
-                return combine(expr.kind, context, expr, cexpr);
+                return combine(expr.kind, expr, cexpr);
             }
 
             if (expr.kind === '$if') {
-                if (expr.condition.call(context)) {
-                    return combine('$then', context, expr.thenExpr, cexpr);
+                if (expr.condition.call(this)) {
+                    return combine('$then', expr.thenExpr, cexpr);
                 }
 
                 if (expr.elseExpr) {
-                    return combine('$else', context, expr.elseExpr, cexpr);
+                    return combine('$else', expr.elseExpr, cexpr);
                 }
 
-                return combine(build(context, []), cexpr);
+                return combine(build([]), cexpr);
             }
 
-            if (typeof expr === 'function' && opts.call) {
-                opts.call(context, expr);
-                return build(context, cexpr);
+            if (typeof expr === 'function' && self.call) {
+                self.call(this);
+                return build.call(this, cexpr);
             }
 
             if (typeof expr === 'function') {
-                expr.call(context, expr);
-                return build(context, cexpr);
+                expr.call(this);
+                return build.call(this, cexpr);
             }
 
-            return combine('missing', context, expr, cexpr);
+            return combine('missing', expr, cexpr);
         };
 
         return function () {
-            var args = array.copy(arguments),
+            var args = Array.prototype.slice.call(arguments),
                 expression = function () {
                     var operations = Array.prototype.slice.call(arguments, 0),
-                        context = this || {},
                         result,
-                        toRun;
+                        delayed,
+                        //run,
+                        built;
+
+
+                    // Copy all opts to `self`. Nothing special (e.g. recursion, etc.) is required since opts
+                    // must be a flat object with builder methods
+                    self = {};
+                    Object.keys(opts).forEach(function (key) {
+                        self[key] = opts[key];
+                    });
 
                     if (this.mixins) {
                         this.mixins.forEach(function (mixin) {
                             if (mixin.beforeBuild) {
-                                mixin.beforeBuild(context, operations);
+                                mixin.beforeBuild(operations);
                             }
                         });
                     }
 
-                    if (opts.delay) {
-                        toRun = opts.delay(function () {
-                            return build(context, operations);
-                        });
-                    } else {
-                        toRun = build(context, operations);
-                    }
+                    built = function () {
+                        // pass the execution context of the caller
+                        return build.call(this, operations);
+                    };
 
-                    if (opts.run) {
-                        result = opts.run.apply(null, [toRun].concat(args));
+                    if (!self.run && !self.delay) {
+                        result = built();
                     } else {
-                        result = toRun;
+                        if (self.delay) {
+                            delayed = built;
+                            built = function () {
+                                return self.delay(delayed);
+                            };
+                        }
+
+                        result = built();
+
+                        if (self.run) {
+                            result = self.run.apply(self, [result].concat(args));
+                        }
                     }
 
                     if (this.mixins) {
@@ -1579,7 +1603,7 @@ define('scalejs.functional/builder',[
                 };
 
             function mixin() {
-                var context = {mixins: Array.prototype.slice.call(arguments, 0)},
+                var context = { mixins: Array.prototype.slice.call(arguments, 0) },
                     bound = expression.bind(context);
                 bound.mixin = function () {
                     Array.prototype.push.apply(context.mixins, arguments);
@@ -1744,41 +1768,71 @@ define('scalejs.functional/builder',[
 
 /*global define,console,document*/
 /*jslint nomen: true*/
-define('scalejs.functional/completeBuilder',[
+define('scalejs.functional/continuationBuilder',[
     './builder'
 ], function (
     builder
 ) {
     
 
-    var completeBuilder = builder({
-        bind: function (x, f) {
-            // x: function (completed) {...}
-            // f: function (bound) {
-            //      ...
-            //      return function (completed) {...}
+    var continuationBuilder,
+        continuation;
+
+    continuationBuilder = builder({
+        bind: function (f, g) {
+            // `f` is a function that would invoke a callback once they are continuationd.
+            // E.g.:
+            // f: function (continuationd) { 
+            //        ...
+            //        continuationd(result); 
             //    }
-            // completed: function (result) {...}
-            return function (completed) {
-                // Therefore to $let we pass result of x into f which would return "completable" funciton.
-                // Then we simply pass completed into that function and we are done.
-                return x(function (xResult) {
-                    var rest = f(xResult);
-                    rest(completed);
-                });
+            // 
+            // `g` is a function that needs to be bound to result of `f` and its result should have the same signature as `f`
+            // 
+            // To bind them we should return a function `h` with same signature such as `f`
+            return function (onSuccess, onError) {
+                f(function (fResult) {
+                    var rest = g(fResult);
+                    return rest(onSuccess, onError);
+                }, onError);
             };
         },
 
         $return: function (x) {
-            return function (complete) {
-                if (complete) {
-                    complete(x);
+            return function (onSuccess, onError) {
+                if (onSuccess) {
+                    if (typeof x === 'function') {
+                        x = x();
+                    }
+                    onSuccess(x);
                 }
+            };
+        },
+
+        delay: function (f) {
+            return f;
+        },
+
+        run: function (f) {
+            return function (onSuccess, onError) {
+                var delayed = f.call(this);
+                delayed.call(this, onSuccess, onError);
             };
         }
     });
 
-    return completeBuilder();
+    continuation = continuationBuilder().mixin({
+        beforeBuild: function (ops) {
+            //console.log('--->INTERCEPTED!', ops);
+            ops.forEach(function (op, i) {
+                if (typeof op === 'function') {
+                    ops[i] = builder.$DO(op);
+                }
+            });
+        }
+    });
+
+    return continuation;
 });
 
 /*global define*/
@@ -1786,12 +1840,12 @@ define('scalejs.functional',[
     'scalejs!core',
     './scalejs.functional/functional',
     './scalejs.functional/builder',
-    './scalejs.functional/completeBuilder'
+    './scalejs.functional/continuationBuilder'
 ], function (
     core,
     functional,
     builder,
-    complete
+    continuation
 ) {
     
 
@@ -1801,434 +1855,12 @@ define('scalejs.functional',[
         functional: merge(functional, {
             builder: builder,
             builders: {
-                complete: complete
+                continuation: continuation
             }
         })
     });
 });
 
-
-/** @license CSS.supports polyfill | @version 0.4 | MIT License | github.com/termi/CSS.supports */
-
-// ==ClosureCompiler==
-// @compilation_level ADVANCED_OPTIMIZATIONS
-// @warning_level VERBOSE
-// @jscomp_warning missingProperties
-// @output_file_name CSS.supports.js
-// @check_types
-// ==/ClosureCompiler==
-
-/*
-TODO::
-1. element.style.webkitProperty == element.style.WebkitProperty in Webkit (Chrome at least), so
-CSS.supporst("webkit-animation", "name") is true. Think this is wrong.
-*/
-
-;(function() {
-	
-
-	var global = window
-		, _CSS_supports
-		, msie
-		, testElement
-		, prevResultsCache
-		, _CSS = global["CSS"]
-	;
-
-	if( !_CSS ) {
-		_CSS = global["CSS"] = {};
-	}
-
-	// ---=== HAS CSS.supports support ===---
-	_CSS_supports = _CSS.supports;
-
-	// ---=== HAS supportsCSS support ===---
-	if( !_CSS_supports && global["supportsCSS"] ) {// Opera 12.10 impl
-		_CSS_supports = _CSS.supports = global["supportsCSS"].bind(global);
-		if( global.__proto__ ) {
-			delete global.__proto__["supportsCSS"];
-		}
-	}
-
-
-	if(typeof _CSS_supports === "function") {
-		if( (function() {
-			// Test for support [supports condition](http://www.w3.org/TR/css3-conditional/#supportscondition)
-			try {
-				_CSS_supports.call(_CSS, "(a:a)");
-				// SUCCESS
-				return !(global = _CSS_supports = null);//return true
-			}
-			catch(e) {//FAIL
-				//_CSS_supports = _CSS_supports.bind(global);
-			}
-		})() ) {
-			// EXIT
-			return;// Do not need anything to do. Exit from polyfill
-		}
-	}
-	else {
-		// ---=== NO CSS.supports support ===---
-
-		msie = "runtimeStyle" in document.documentElement;
-		testElement = global["document"].createElement("_");
-		prevResultsCache = {};
-
-		_CSS_supports = function(ToCamel_replacer, testStyle, testElement, propertyName, propertyValue) {
-			var name_and_value = propertyName + "\\/" + propertyValue;
-			if( name_and_value in prevResultsCache ) {
-				return prevResultsCache[name_and_value];
-			}
-
-			/* TODO:: for IE < 9:
-			 _ = document.documentElement.appendChild(document.createElement("_"))
-			 _.currentStyle[propertyName] == propertyValue
-			*/
-			var __bind__RE_FIRST_LETTER = this
-				, propertyName_CC = (propertyName + "").replace(__bind__RE_FIRST_LETTER, ToCamel_replacer)
-			;
-
-			var result = propertyName && propertyValue && (propertyName_CC in testStyle);
-
-			if( result ) {
-				/*if( msie ) {
-
-					try {
-						testElement.style[propertyName] = propertyValue;// IE throw here, if unsupported this syntax
-						testElement.style.cssText = "";
-					}
-					catch(e) {
-						result = false;
-					}
-
-					if( result ) {
-						testElement.id = uuid;
-						_document.body.appendChild(testElement);
-
-						if( (prevPropValue = testElement.currentStyle[propertyName]) != propertyValue ) {
-							_document.body.insertAdjacentHTML("beforeend", "<br style='display:none' id='" + uuid + "br'><style id='" + uuid + "style'>" +
-								"#" + uuid + "{display:none;height:0;width:0;visibility:hidden;position:absolute;position:fixed;" + propertyName + ":" + propertyValue + "}" +
-								"</style>");
-
-							if( !(propertyName in testElement.currentStyle) ) {
-								partOfCompoundPropName
-							}
-
-							if( /\(|\s/.test(propertyValue) ) {
-								currentPropValue = testElement.currentStyle[propertyName];
-								result = !!currentPropValue && currentPropValue != prevPropValue;
-							}
-							else {
-								result = testElement.currentStyle[propertyName] == propertyValue;
-							}
-							//_document.documentElement.removeChild(document.getElementById(uuid + "br"));
-							//_document.documentElement.removeChild(document.getElementById(uuid + "style"));
-						}
-
-						//_document.documentElement.removeChild(testElement);
-					}*/
-
-				if( msie ) {
-					if( /\(|\s/.test(propertyValue) ) {
-						try {
-							testStyle[propertyName_CC] = propertyValue;
-							result = !!testStyle[propertyName_CC];
-						}
-						catch(e) {
-							result = false;
-						}
-					}
-					else {
-						testStyle.cssText = "display:none;height:0;width:0;visibility:hidden;position:absolute;position:fixed;" + propertyName + ":" + propertyValue;
-						document.documentElement.appendChild(testElement);
-						result = testElement.currentStyle[propertyName_CC] == propertyValue;
-						document.documentElement.removeChild(testElement);
-					}
-				}
-				else {
-					testStyle.cssText = propertyName + ":" + propertyValue;
-					result = testStyle[propertyName_CC];
-					result = result == propertyValue || result && testStyle.length > 0;
-				}
-			}
-
-			testStyle.cssText = "";
-
-			return prevResultsCache[name_and_value] = result;
-		}.bind(
-			/(-)([a-z])/g // __bind__RE_FIRST_LETTER
-			, function(a, b, c) { // ToCamel_replacer
-				return c.toUpperCase()
-			}
-			, testElement.style // testStyle
-			, msie ? testElement : null // testElement
-		);
-	}
-
-	// _supportsCondition("(a:b) or (display:block) or (display:none) and (display:block1)")
-	function _supportsCondition(str) {
-		if(!str) {
-			_supportsCondition.throwSyntaxError();
-		}
-
-		/** @enum {number} @const */
-		var RMAP = {
-			NOT: 1
-			, AND: 2
-			, OR: 4
-			, PROPERTY: 8
-			, VALUE: 16
-			, GROUP_START: 32
-			, GROUP_END: 64
-		};
-
-		var resultsStack = []
-			, chr
-			, result
-			, valid = true
-			, isNot
-			, start
-			, currentPropertyName
-			, expectedPropertyValue
-			, passThisGroup
-			, nextRuleCanBe = 
-				RMAP.NOT | RMAP.GROUP_START | RMAP.PROPERTY
-			, currentRule
-			, i = -1
-			, newI
-			, len = str.length
-		;
-
-		resultsStack.push(void 0);
-
-		function _getResult() {
-			var l = resultsStack.length - 1;
-			if( l < 0 )valid = false;
-			return resultsStack[ l ];
-		}
-
-		/**
-		 * @param {string=} val
-		 * @private
-		 */
-		function _setResult(val) {
-			var l = resultsStack.length - 1;
-			if( l < 0 )valid = false;
-			result = resultsStack[ l ] = val;
-		}
-
-		/**
-		 * @param {string?} that
-		 * @param {string?} notThat
-		 * @param {number=} __i
-		 * @param {boolean=} cssValue
-		 * @return {(number|undefined)}
-		 * @private
-		 */
-		function _checkNext(that, notThat, __i, cssValue) {
-			newI = __i || i;
-
-			var chr
-				, isQuited
-				, isUrl
-				, special
-			;
-
-			if(cssValue) {
-				newI--;
-			}
-
-			do {
-				chr = str.charAt(++newI);
-
-				if(cssValue) {
-					special = chr && (isQuited || isUrl);
-					if(chr == "'" || chr == "\"") {
-						special = (isQuited = !isQuited);
-					}
-					else if(!isQuited) {
-						if(!isUrl && chr == "(") {
-							// TODO:: in Chrome: $0.style.background = "url('http://asd))')"; $0.style.background == "url(http://asd%29%29/)"
-							isUrl = true;
-							special = true;
-						}
-						else if(isUrl && chr == ")") {
-							isUrl = false;
-							special = true;
-						}
-					}
-				}
-			}
-			while(special || (chr && (!that || chr != that) && (!notThat || chr == notThat)));
-
-			if(that == null || chr == that) {
-				return newI;
-			}
-		}
-
-		while(++i < len) {
-			if(currentRule == RMAP.NOT) {
-				nextRuleCanBe = RMAP.GROUP_START | RMAP.PROPERTY;
-			}
-			else if(currentRule == RMAP.AND || currentRule == RMAP.OR || currentRule == RMAP.GROUP_START) {
-				nextRuleCanBe = RMAP.GROUP_START | RMAP.PROPERTY | RMAP.NOT;
-			}
-			else if(currentRule == RMAP.GROUP_END) {
-				nextRuleCanBe = RMAP.GROUP_START | RMAP.NOT | RMAP.OR | RMAP.AND;
-			}
-			else if(currentRule == RMAP.VALUE) {
-				nextRuleCanBe = RMAP.GROUP_END | RMAP.GROUP_START | RMAP.NOT | RMAP.OR | RMAP.AND;
-			}
-			else if(currentRule == RMAP.PROPERTY) {
-				nextRuleCanBe = RMAP.VALUE;
-			}
-
-			chr = str.charAt(i);
-
-			if(nextRuleCanBe & RMAP.NOT && chr == "n" && str.substr(i, 3) == "not") {
-				currentRule = RMAP.NOT;
-				i += 2;
-			}
-			else if(nextRuleCanBe & RMAP.AND && chr == "a" && str.substr(i, 3) == "and") {
-				currentRule = RMAP.AND;
-				i += 2;
-			}
-			else if(nextRuleCanBe & RMAP.OR && chr == "o" && str.substr(i, 2) == "or") {
-				currentRule = RMAP.OR;
-				i++;
-			}
-			else if(nextRuleCanBe & RMAP.GROUP_START && chr == "(" && _checkNext("(", " ")) {
-				currentRule = RMAP.GROUP_START;
-				i = newI - 1;
-			}
-			else if(nextRuleCanBe & RMAP.GROUP_END && chr == ")" && resultsStack.length > 1) {
-				currentRule = RMAP.GROUP_END;
-			}
-			else if(nextRuleCanBe & RMAP.PROPERTY && chr == "(" && (start = _checkNext(null, " ")) && _checkNext(":", null, start)) {
-				currentRule = RMAP.PROPERTY;
-				i = newI - 1;
-				currentPropertyName = str.substr(start, i - start + 1).trim();
-				start = 0;
-				expectedPropertyValue = null;
-				continue;
-			}
-			else if(nextRuleCanBe & RMAP.VALUE && (start = _checkNext(null, " ")) && _checkNext(")", null, start, true)) {
-				currentRule = RMAP.VALUE;
-				i = newI;
-				expectedPropertyValue = str.substr(start, i - start).trim();
-				start = 0;
-				chr = " ";
-			}
-			else if(chr == " ") {
-				continue;
-			}
-			else {
-				currentRule = 0;
-			}
-
-			if(!valid || !chr || !(currentRule & nextRuleCanBe)) {
-				_supportsCondition.throwSyntaxError();
-			}
-			valid = true;
-
-			if(currentRule == RMAP.OR) {
-				if(result === false) {
-					_setResult();
-					passThisGroup = false;
-				}
-				else if(result === true) {
-					passThisGroup = true;
-				}
-
-				continue;
-			}
-
-			if( passThisGroup ) {
-				continue;
-			}
-
-			result = _getResult();
-
-			if(currentRule == RMAP.NOT) {
-				isNot = true;
-
-				continue;
-			}
-
-			if(currentRule == RMAP.AND) {
-				if(result === false) {
-					passThisGroup = true;
-				}
-				else {
-					_setResult();
-				}
-
-				continue;
-			}
-
-			if(result === false && !(currentRule & (RMAP.GROUP_END | RMAP.GROUP_START))) {
-				_setResult(result);
-				continue;
-			}
-
-			if( currentRule == RMAP.GROUP_START ) { // Group start
-				resultsStack.push(void 0);
-			}
-			else if( currentRule == RMAP.GROUP_END ) { // Group end
-				passThisGroup = false;
-
-				resultsStack.pop();
-				if( _getResult() !== void 0) {
-					result = !!(result & _getResult());
-				}
-
-				isNot = false;
-			}
-			else if( currentRule == RMAP.VALUE ) { // Property value
-				_setResult(_CSS_supports(currentPropertyName, expectedPropertyValue));
-				if(isNot)result = !result;
-
-				isNot = false;
-				expectedPropertyValue = currentPropertyName = null;
-			}
-
-			_setResult(result);
-		}
-
-		if(!valid || result === void 0 || resultsStack.length > 1) {
-			_supportsCondition.throwSyntaxError();
-		}
-
-		return result;
-	}
-	_supportsCondition.throwSyntaxError = function() {
-		throw new Error("SYNTAX_ERR");
-	};
-
-	/**
-	 * @expose
-	 */
-	_CSS.supports = function(a, b) {
-		if(!arguments.length) {
-			throw new Error("WRONG_ARGUMENTS_ERR");//TODO:: DOMException ?
-		}
-
-		if(arguments.length == 1) {
-			return _supportsCondition(a);
-		}
-
-		return _CSS_supports(a, b);
-	};
-
-	global = testElement = null;// no need this any more
-})();
-
-define("CSS.supports", (function (global) {
-    return function () {
-        var ret, fn;
-        return ret || global.CSS;
-    };
-}(this)));
 
 
 
@@ -2237,7 +1869,7 @@ var parser = {trace: function trace() { },
 yy: {},
 symbols_: {"error":2,"stylesheet":3,"charset":4,"space_cdata_list":5,"import_list":6,"namespace_list":7,"general_list":8,"CHARSET_SYM":9,"wempty":10,"STRING":11,";":12,"import_item":13,"import":14,"IMPORT_SYM":15,"string_or_uri":16,"media_query_list":17,"namespace_item":18,"namespace":19,"NAMESPACE_SYM":20,"namespace_prefix":21,"IDENT":22,"URI":23,"general_item":24,"null":25,"ruleset":26,"media":27,"page":28,"font_face":29,"keyframes":30,"MEDIA_SYM":31,"{":32,"}":33,"media_query":34,"media_combinator":35,"(":36,")":37,":":38,",":39,"whitespace":40,"expr":41,"string_term":42,"PAGE_SYM":43,"page_ident":44,"pseudo_page":45,"declaration_list":46,"FONT_FACE_SYM":47,"unary_operator":48,"-":49,"+":50,"property":51,"*":52,"selector_list":53,"selector":54,"simple_selector":55,"combinator":56,">":57,"simple_selector_atom_list":58,"element_name":59,"simple_selector_atom":60,"HASH":61,"class":62,"attrib":63,"pseudo":64,".":65,"[":66,"]":67,"attrib_operator":68,"attrib_value":69,"=":70,"INCLUDES":71,"DASHMATCH":72,"PREFIXMATCH":73,"SUFFIXMATCH":74,"SUBSTRINGMATCH":75,"FUNCTION":76,"declaration_parts":77,"declaration":78,"IMPORTANT_SYM":79,"term":80,"operator":81,"computable_term":82,"NUMBER":83,"PERCENTAGE":84,"LENGTH":85,"EMS":86,"EXS":87,"ANGLE":88,"TIME":89,"FREQ":90,"UNICODERANGE":91,"hexcolor":92,"/":93,"S":94,"space_cdata":95,"CDO":96,"CDC":97,"keyframe_symbol":98,"keyframe_list":99,"keyframe":100,"keyframe_offset_list":101,"keyframe_offset":102,"KEYFRAMES":103,"$accept":0,"$end":1},
 terminals_: {2:"error",9:"CHARSET_SYM",11:"STRING",12:";",15:"IMPORT_SYM",20:"NAMESPACE_SYM",22:"IDENT",23:"URI",25:"null",31:"MEDIA_SYM",32:"{",33:"}",36:"(",37:")",38:":",39:",",43:"PAGE_SYM",47:"FONT_FACE_SYM",49:"-",50:"+",52:"*",57:">",61:"HASH",65:".",66:"[",67:"]",70:"=",71:"INCLUDES",72:"DASHMATCH",73:"PREFIXMATCH",74:"SUFFIXMATCH",75:"SUBSTRINGMATCH",76:"FUNCTION",79:"IMPORTANT_SYM",83:"NUMBER",84:"PERCENTAGE",85:"LENGTH",86:"EMS",87:"EXS",88:"ANGLE",89:"TIME",90:"FREQ",91:"UNICODERANGE",93:"/",94:"S",96:"CDO",97:"CDC",103:"KEYFRAMES"},
-productions_: [0,[3,5],[4,5],[4,0],[6,1],[6,2],[6,0],[13,1],[13,1],[14,6],[7,1],[7,2],[7,0],[18,1],[18,1],[19,6],[21,2],[21,1],[16,2],[16,2],[8,1],[8,2],[8,1],[24,1],[24,1],[24,1],[24,1],[24,1],[24,1],[27,8],[17,1],[17,2],[17,3],[17,0],[35,2],[35,2],[35,2],[35,2],[35,1],[34,1],[34,1],[34,0],[28,10],[44,1],[44,0],[45,2],[45,0],[29,7],[48,1],[48,1],[51,2],[51,3],[26,6],[53,1],[53,4],[54,1],[54,3],[56,2],[56,2],[56,0],[55,2],[55,3],[58,1],[58,2],[58,0],[60,1],[60,1],[60,1],[60,1],[62,2],[59,1],[59,1],[63,5],[63,9],[68,1],[68,1],[68,1],[68,1],[68,1],[68,1],[69,1],[69,1],[64,2],[64,6],[64,6],[64,3],[46,1],[46,2],[77,1],[77,1],[77,1],[78,5],[78,6],[78,0],[41,1],[41,3],[41,2],[80,1],[80,2],[80,1],[82,2],[82,2],[82,2],[82,2],[82,2],[82,2],[82,2],[82,2],[82,5],[42,2],[42,2],[42,2],[42,2],[42,1],[81,2],[81,2],[81,2],[81,0],[92,2],[40,1],[40,2],[10,1],[10,0],[5,1],[5,2],[5,0],[95,1],[95,1],[95,1],[30,8],[99,1],[99,2],[99,0],[100,6],[101,2],[101,4],[102,1],[102,1],[102,1],[98,2]],
+productions_: [0,[3,5],[4,5],[4,0],[6,1],[6,2],[6,0],[13,1],[13,1],[14,6],[7,1],[7,2],[7,0],[18,1],[18,1],[19,6],[21,2],[21,1],[16,2],[16,2],[8,1],[8,2],[8,1],[24,1],[24,1],[24,1],[24,1],[24,1],[24,1],[27,8],[17,1],[17,2],[17,3],[17,0],[35,2],[35,2],[35,2],[35,2],[35,1],[34,1],[34,1],[34,0],[28,10],[44,1],[44,0],[45,2],[45,0],[29,7],[48,1],[48,1],[51,2],[51,3],[26,6],[53,1],[53,4],[54,1],[54,3],[56,2],[56,2],[56,1],[56,0],[55,1],[55,2],[58,1],[58,2],[58,0],[60,1],[60,1],[60,1],[60,1],[62,2],[59,1],[59,1],[63,5],[63,9],[68,1],[68,1],[68,1],[68,1],[68,1],[68,1],[69,1],[69,1],[64,2],[64,6],[64,6],[64,3],[46,1],[46,2],[77,1],[77,1],[77,1],[78,5],[78,6],[78,0],[41,1],[41,3],[41,2],[80,1],[80,2],[80,1],[82,2],[82,2],[82,2],[82,2],[82,2],[82,2],[82,2],[82,2],[82,5],[42,2],[42,2],[42,2],[42,2],[42,1],[81,2],[81,2],[81,2],[81,0],[92,2],[40,1],[40,2],[10,1],[10,0],[5,1],[5,2],[5,0],[95,1],[95,1],[95,1],[30,8],[99,1],[99,2],[99,0],[100,6],[101,2],[101,4],[102,1],[102,1],[102,1],[98,2]],
 performAction: function anonymous(yytext, yyleng, yylineno, yy, yystate /* action[1] */, $$ /* vstack */, _$ /* lstack */) {
 /* this == yyval */
 
@@ -2406,19 +2038,19 @@ case 57:this.$ = $$[$0-1];
 break;
 case 58:this.$ = $$[$0-1];
 break;
-case 59:this.$ = "";
+case 59:this.$ = $$[$0];
 break;
-case 60:this.$ = $$[$0-1];
+case 60:this.$ = "";
 break;
-case 61:this.$ = $$[$0-2] + $$[$0-1];
+case 61:this.$ = $$[$0];
 break;
-case 62:this.$ = $$[$0];
+case 62:this.$ = $$[$0-1] + $$[$0];
 break;
-case 63:this.$ = $$[$0-1] + $$[$0];
+case 63:this.$ = $$[$0];
 break;
-case 64:this.$ = "";
+case 64:this.$ = $$[$0-1] + $$[$0];
 break;
-case 65:this.$ = $$[$0];
+case 65:this.$ = "";
 break;
 case 66:this.$ = $$[$0];
 break;
@@ -2426,17 +2058,17 @@ case 67:this.$ = $$[$0];
 break;
 case 68:this.$ = $$[$0];
 break;
-case 69:this.$ = $$[$0-1] + $$[$0];
+case 69:this.$ = $$[$0];
 break;
-case 70:this.$ = $$[$0];
+case 70:this.$ = $$[$0-1] + $$[$0];
 break;
 case 71:this.$ = $$[$0];
 break;
-case 72:this.$ = $$[$0-4] + $$[$0-2] + $$[$0];
+case 72:this.$ = $$[$0];
 break;
-case 73:this.$ = $$[$0-8] + $$[$0-6] + $$[$0-4] + $$[$0-3] + $$[$0-2] + $$[$0];
+case 73:this.$ = $$[$0-4] + $$[$0-2] + $$[$0];
 break;
-case 74:this.$ = $$[$0];
+case 74:this.$ = $$[$0-8] + $$[$0-6] + $$[$0-4] + $$[$0-3] + $$[$0-2] + $$[$0];
 break;
 case 75:this.$ = $$[$0];
 break;
@@ -2452,53 +2084,53 @@ case 80:this.$ = $$[$0];
 break;
 case 81:this.$ = $$[$0];
 break;
-case 82:this.$ = $$[$0-1] + $$[$0];
+case 82:this.$ = $$[$0];
 break;
-case 83:this.$ = $$[$0-5] + $$[$0-4] + $$[$0-2] + $$[$0];
+case 83:this.$ = $$[$0-1] + $$[$0];
 break;
-case 84:this.$ = $$[$0-5] + $$[$0-4] + $$[$0-2] + $$[$0]		/* cwdoh; modern browsers allow attrib in pseudo function? */;
+case 84:this.$ = $$[$0-5] + $$[$0-4] + $$[$0-2] + $$[$0];
 break;
-case 85:this.$ = $$[$0-2] + $$[$0-1] + $$[$0]				/* cwdoh; is "::" moz extension? */;
+case 85:this.$ = $$[$0-5] + $$[$0-4] + $$[$0-2] + $$[$0]		/* cwdoh; modern browsers allow attrib in pseudo function? */;
 break;
-case 86:
+case 86:this.$ = $$[$0-2] + $$[$0-1] + $$[$0]				/* cwdoh; is "::" moz extension? */;
+break;
+case 87:
   		this.$ = {};
   		if ( $$[$0] !== null ) {
   			this.$[ $$[$0][0] ] = $$[$0][1];
   		}
   	
 break;
-case 87:
+case 88:
   		this.$ = $$[$0-1];
   		if ( $$[$0] !== null ) {
 	  		this.$[ $$[$0][0] ] = $$[$0][1];
 	  	}
   	
 break;
-case 88:this.$ = $$[$0];
-break;
-case 89:this.$ = null;
+case 89:this.$ = $$[$0];
 break;
 case 90:this.$ = null;
 break;
-case 91:this.$ = [ $$[$0-4], $$[$0-1] ];
+case 91:this.$ = null;
 break;
-case 92:this.$ = [ $$[$0-5], $$[$0-2] + " !important" ];
+case 92:this.$ = [ $$[$0-4], $$[$0-1] ];
 break;
-case 93:this.$ = null;
+case 93:this.$ = [ $$[$0-5], $$[$0-2] + " !important" ];
 break;
-case 94:this.$ = $$[$0];
+case 94:this.$ = null;
 break;
-case 95:this.$ = $$[$0-2] + $$[$0-1] + $$[$0];
+case 95:this.$ = $$[$0];
 break;
-case 96:this.$ = $$[$0-1] + ' ' + $$[$0];
+case 96:this.$ = $$[$0-2] + $$[$0-1] + $$[$0];
 break;
-case 97:this.$ = $$[$0];
+case 97:this.$ = $$[$0-1] + ' ' + $$[$0];
 break;
-case 98:this.$ = $$[$0-1] + $$[$0];
+case 98:this.$ = $$[$0];
 break;
-case 99:this.$ = $$[$0];
+case 99:this.$ = $$[$0-1] + $$[$0];
 break;
-case 100:this.$ = $$[$0-1];
+case 100:this.$ = $$[$0];
 break;
 case 101:this.$ = $$[$0-1];
 break;
@@ -2514,9 +2146,9 @@ case 106:this.$ = $$[$0-1];
 break;
 case 107:this.$ = $$[$0-1];
 break;
-case 108:this.$ = $$[$0-4] + $$[$0-2] + $$[$0-1];
+case 108:this.$ = $$[$0-1];
 break;
-case 109:this.$ = $$[$0-1];
+case 109:this.$ = $$[$0-4] + $$[$0-2] + $$[$0-1];
 break;
 case 110:this.$ = $$[$0-1];
 break;
@@ -2524,65 +2156,67 @@ case 111:this.$ = $$[$0-1];
 break;
 case 112:this.$ = $$[$0-1];
 break;
-case 113:this.$ = $$[$0];
+case 113:this.$ = $$[$0-1];
 break;
-case 114:this.$ = $$[$0-1];
+case 114:this.$ = $$[$0];
 break;
 case 115:this.$ = $$[$0-1];
 break;
 case 116:this.$ = $$[$0-1];
 break;
-case 117:this.$ = "";
+case 117:this.$ = $$[$0-1];
 break;
-case 118:this.$ = $$[$0-1];
+case 118:this.$ = "";
 break;
-case 119:this.$ = ' ';
+case 119:this.$ = $$[$0-1];
 break;
 case 120:this.$ = ' ';
 break;
-case 121:this.$ = $$[$0];
+case 121:this.$ = ' ';
 break;
-case 122:this.$ = "";
+case 122:this.$ = $$[$0];
 break;
-case 123:this.$ = null;
+case 123:this.$ = "";
 break;
 case 124:this.$ = null;
 break;
-case 126:this.$ = null;
+case 125:this.$ = null;
 break;
 case 127:this.$ = null;
 break;
 case 128:this.$ = null;
 break;
-case 129:this.$ = { "type": "keyframes", "id": $$[$0-6],	"keyframes": $$[$0-2], "prefix": $$[$0-7] };
+case 129:this.$ = null;
 break;
-case 130:this.$ = [ $$[$0] ];
+case 130:this.$ = { "type": "keyframes", "id": $$[$0-6],	"keyframes": $$[$0-2], "prefix": $$[$0-7] };
 break;
-case 131:
+case 131:this.$ = [ $$[$0] ];
+break;
+case 132:
   		this.$ = $$[$0-1];
   		this.$.push( $$[$0] );
   	
 break;
-case 132:this.$ = [];
+case 133:this.$ = [];
 break;
-case 133:this.$ = { "type": "keyframe", "offset": $$[$0-5], "declarations": $$[$0-2] };
+case 134:this.$ = { "type": "keyframe", "offset": $$[$0-5], "declarations": $$[$0-2] };
 break;
-case 134:this.$ = $$[$0-1];
+case 135:this.$ = $$[$0-1];
 break;
-case 135:this.$ = $$[$0-3] + ", " + $$[$0-2];
-break;
-case 136:this.$ = $$[$0];
+case 136:this.$ = $$[$0-3] + ", " + $$[$0-2];
 break;
 case 137:this.$ = $$[$0];
 break;
 case 138:this.$ = $$[$0];
 break;
-case 139:this.$ = $$[$0-1].split( new RegExp("@([-a-zA-Z0-9]*)keyframes", "g") )[1]		/* only prefix */;
+case 139:this.$ = $$[$0];
+break;
+case 140:this.$ = $$[$0-1].split( new RegExp("@([-a-zA-Z0-9]*)keyframes", "g") )[1]		/* only prefix */;
 break;
 }
 },
-table: [{1:[2,3],3:1,4:2,9:[1,3],15:[2,3],20:[2,3],22:[2,3],25:[2,3],31:[2,3],32:[2,3],38:[2,3],39:[2,3],43:[2,3],47:[2,3],50:[2,3],52:[2,3],57:[2,3],61:[2,3],65:[2,3],66:[2,3],94:[2,3],96:[2,3],97:[2,3],103:[2,3]},{1:[3]},{1:[2,125],5:4,15:[2,125],20:[2,125],22:[2,125],25:[2,125],31:[2,125],32:[2,125],38:[2,125],39:[2,125],43:[2,125],47:[2,125],50:[2,125],52:[2,125],57:[2,125],61:[2,125],65:[2,125],66:[2,125],94:[1,6],95:5,96:[1,7],97:[1,8],103:[2,125]},{10:9,11:[2,122],40:10,94:[1,11]},{1:[2,6],5:16,6:12,13:14,14:15,15:[1,17],20:[2,6],22:[2,6],25:[2,6],31:[2,6],32:[2,6],38:[2,6],39:[2,6],43:[2,6],47:[2,6],50:[2,6],52:[2,6],57:[2,6],61:[2,6],65:[2,6],66:[2,6],94:[1,6],95:13,96:[1,7],97:[1,8],103:[2,6]},{1:[2,123],15:[2,123],20:[2,123],22:[2,123],25:[2,123],31:[2,123],32:[2,123],33:[2,123],38:[2,123],39:[2,123],43:[2,123],47:[2,123],50:[2,123],52:[2,123],57:[2,123],61:[2,123],65:[2,123],66:[2,123],94:[2,123],96:[2,123],97:[2,123],103:[2,123]},{1:[2,126],15:[2,126],20:[2,126],22:[2,126],25:[2,126],31:[2,126],32:[2,126],33:[2,126],38:[2,126],39:[2,126],43:[2,126],47:[2,126],50:[2,126],52:[2,126],57:[2,126],61:[2,126],65:[2,126],66:[2,126],94:[2,126],96:[2,126],97:[2,126],103:[2,126]},{1:[2,127],15:[2,127],20:[2,127],22:[2,127],25:[2,127],31:[2,127],32:[2,127],33:[2,127],38:[2,127],39:[2,127],43:[2,127],47:[2,127],50:[2,127],52:[2,127],57:[2,127],61:[2,127],65:[2,127],66:[2,127],94:[2,127],96:[2,127],97:[2,127],103:[2,127]},{1:[2,128],15:[2,128],20:[2,128],22:[2,128],25:[2,128],31:[2,128],32:[2,128],33:[2,128],38:[2,128],39:[2,128],43:[2,128],47:[2,128],50:[2,128],52:[2,128],57:[2,128],61:[2,128],65:[2,128],66:[2,128],94:[2,128],96:[2,128],97:[2,128],103:[2,128]},{11:[1,18]},{1:[2,121],11:[2,121],12:[2,121],15:[2,121],20:[2,121],22:[2,121],23:[2,121],25:[2,121],31:[2,121],32:[2,121],33:[2,121],36:[2,121],37:[2,121],38:[2,121],39:[2,121],43:[2,121],47:[2,121],49:[2,121],50:[2,121],52:[2,121],57:[2,121],61:[2,121],65:[2,121],66:[2,121],67:[2,121],70:[2,121],71:[2,121],72:[2,121],73:[2,121],74:[2,121],75:[2,121],76:[2,121],79:[2,121],83:[2,121],84:[2,121],85:[2,121],86:[2,121],87:[2,121],88:[2,121],89:[2,121],90:[2,121],91:[2,121],93:[2,121],94:[1,19],96:[2,121],97:[2,121],103:[2,121]},{1:[2,119],11:[2,119],12:[2,119],15:[2,119],20:[2,119],22:[2,119],23:[2,119],25:[2,119],31:[2,119],32:[2,119],33:[2,119],36:[2,119],37:[2,119],38:[2,119],39:[2,119],43:[2,119],47:[2,119],49:[2,119],50:[2,119],52:[2,119],57:[2,119],61:[2,119],65:[2,119],66:[2,119],67:[2,119],70:[2,119],71:[2,119],72:[2,119],73:[2,119],74:[2,119],75:[2,119],76:[2,119],79:[2,119],83:[2,119],84:[2,119],85:[2,119],86:[2,119],87:[2,119],88:[2,119],89:[2,119],90:[2,119],91:[2,119],93:[2,119],94:[2,119],96:[2,119],97:[2,119],103:[2,119]},{1:[2,12],5:23,7:20,13:21,14:15,15:[1,17],18:22,19:24,20:[1,25],22:[2,12],25:[2,12],31:[2,12],32:[2,12],38:[2,12],39:[2,12],43:[2,12],47:[2,12],50:[2,12],52:[2,12],57:[2,12],61:[2,12],65:[2,12],66:[2,12],94:[1,6],95:5,96:[1,7],97:[1,8],103:[2,12]},{1:[2,124],15:[2,124],20:[2,124],22:[2,124],25:[2,124],31:[2,124],32:[2,124],38:[2,124],39:[2,124],43:[2,124],47:[2,124],50:[2,124],52:[2,124],57:[2,124],61:[2,124],65:[2,124],66:[2,124],94:[2,124],96:[2,124],97:[2,124],103:[2,124]},{1:[2,4],15:[2,4],20:[2,4],22:[2,4],25:[2,4],31:[2,4],32:[2,4],38:[2,4],39:[2,4],43:[2,4],47:[2,4],50:[2,4],52:[2,4],57:[2,4],61:[2,4],65:[2,4],66:[2,4],94:[2,4],96:[2,4],97:[2,4],103:[2,4]},{1:[2,7],15:[2,7],20:[2,7],22:[2,7],25:[2,7],31:[2,7],32:[2,7],38:[2,7],39:[2,7],43:[2,7],47:[2,7],50:[2,7],52:[2,7],57:[2,7],61:[2,7],65:[2,7],66:[2,7],94:[2,7],96:[2,7],97:[2,7],103:[2,7]},{1:[2,8],15:[2,8],20:[2,8],22:[2,8],25:[2,8],31:[2,8],32:[2,8],38:[2,8],39:[2,8],43:[2,8],47:[2,8],50:[2,8],52:[2,8],57:[2,8],61:[2,8],65:[2,8],66:[2,8],94:[1,6],95:26,96:[1,7],97:[1,8],103:[2,8]},{10:27,11:[2,122],23:[2,122],40:10,94:[1,11]},{10:28,12:[2,122],40:10,94:[1,11]},{1:[2,120],11:[2,120],12:[2,120],15:[2,120],20:[2,120],22:[2,120],23:[2,120],25:[2,120],31:[2,120],32:[2,120],33:[2,120],36:[2,120],37:[2,120],38:[2,120],39:[2,120],43:[2,120],47:[2,120],49:[2,120],50:[2,120],52:[2,120],57:[2,120],61:[2,120],65:[2,120],66:[2,120],67:[2,120],70:[2,120],71:[2,120],72:[2,120],73:[2,120],74:[2,120],75:[2,120],76:[2,120],79:[2,120],83:[2,120],84:[2,120],85:[2,120],86:[2,120],87:[2,120],88:[2,120],89:[2,120],90:[2,120],91:[2,120],93:[2,120],94:[2,120],96:[2,120],97:[2,120],103:[2,120]},{1:[2,125],5:33,8:29,18:30,19:24,20:[1,25],22:[1,50],24:31,25:[1,32],26:34,27:35,28:36,29:37,30:38,31:[1,40],32:[2,125],38:[1,58],39:[2,125],43:[1,41],47:[1,42],50:[2,125],52:[1,51],53:39,54:44,55:46,57:[2,125],58:47,59:48,60:49,61:[1,52],62:53,63:54,64:55,65:[1,56],66:[1,57],94:[1,6],95:5,96:[1,7],97:[1,8],98:43,103:[1,45]},{1:[2,5],15:[2,5],20:[2,5],22:[2,5],25:[2,5],31:[2,5],32:[2,5],38:[2,5],39:[2,5],43:[2,5],47:[2,5],50:[2,5],52:[2,5],57:[2,5],61:[2,5],65:[2,5],66:[2,5],94:[2,5],96:[2,5],97:[2,5],103:[2,5]},{1:[2,10],20:[2,10],22:[2,10],25:[2,10],31:[2,10],32:[2,10],38:[2,10],39:[2,10],43:[2,10],47:[2,10],50:[2,10],52:[2,10],57:[2,10],61:[2,10],65:[2,10],66:[2,10],94:[2,10],96:[2,10],97:[2,10],103:[2,10]},{1:[2,8],15:[2,8],20:[2,8],22:[2,8],25:[2,8],31:[2,8],32:[2,8],38:[2,8],39:[2,8],43:[2,8],47:[2,8],50:[2,8],52:[2,8],57:[2,8],61:[2,8],65:[2,8],66:[2,8],94:[1,6],95:26,96:[1,7],97:[1,8],103:[2,8]},{1:[2,13],20:[2,13],22:[2,13],25:[2,13],31:[2,13],32:[2,13],38:[2,13],39:[2,13],43:[2,13],47:[2,13],50:[2,13],52:[2,13],57:[2,13],61:[2,13],65:[2,13],66:[2,13],94:[2,13],96:[2,13],97:[2,13],103:[2,13]},{10:59,11:[2,122],22:[2,122],23:[2,122],40:10,94:[1,11]},{1:[2,124],15:[2,124],20:[2,124],22:[2,124],25:[2,124],31:[2,124],32:[2,124],33:[2,124],38:[2,124],39:[2,124],43:[2,124],47:[2,124],50:[2,124],52:[2,124],57:[2,124],61:[2,124],65:[2,124],66:[2,124],94:[2,124],96:[2,124],97:[2,124],103:[2,124]},{11:[1,61],16:60,23:[1,62]},{12:[1,63]},{1:[2,1],5:65,22:[1,50],24:64,26:34,27:35,28:36,29:37,30:38,31:[1,40],32:[2,125],38:[1,58],39:[2,125],43:[1,41],47:[1,42],50:[2,125],52:[1,51],53:39,54:44,55:46,57:[2,125],58:47,59:48,60:49,61:[1,52],62:53,63:54,64:55,65:[1,56],66:[1,57],94:[1,6],95:5,96:[1,7],97:[1,8],98:43,103:[1,45]},{1:[2,11],20:[2,11],22:[2,11],25:[2,11],31:[2,11],32:[2,11],38:[2,11],39:[2,11],43:[2,11],47:[2,11],50:[2,11],52:[2,11],57:[2,11],61:[2,11],65:[2,11],66:[2,11],94:[2,11],96:[2,11],97:[2,11],103:[2,11]},{1:[2,20],22:[2,20],31:[2,20],32:[2,20],33:[2,20],38:[2,20],39:[2,20],43:[2,20],47:[2,20],50:[2,20],52:[2,20],57:[2,20],61:[2,20],65:[2,20],66:[2,20],94:[2,20],96:[2,20],97:[2,20],103:[2,20]},{1:[2,22],22:[2,22],31:[2,22],32:[2,22],33:[2,22],38:[2,22],39:[2,22],43:[2,22],47:[2,22],50:[2,22],52:[2,22],57:[2,22],61:[2,22],65:[2,22],66:[2,22],94:[2,22],96:[2,22],97:[2,22],103:[2,22]},{1:[2,14],20:[2,14],22:[2,14],25:[2,14],31:[2,14],32:[2,14],38:[2,14],39:[2,14],43:[2,14],47:[2,14],50:[2,14],52:[2,14],57:[2,14],61:[2,14],65:[2,14],66:[2,14],94:[1,6],95:26,96:[1,7],97:[1,8],103:[2,14]},{1:[2,23],22:[2,23],31:[2,23],32:[2,23],33:[2,23],38:[2,23],39:[2,23],43:[2,23],47:[2,23],50:[2,23],52:[2,23],57:[2,23],61:[2,23],65:[2,23],66:[2,23],94:[2,23],96:[2,23],97:[2,23],103:[2,23]},{1:[2,24],22:[2,24],31:[2,24],32:[2,24],33:[2,24],38:[2,24],39:[2,24],43:[2,24],47:[2,24],50:[2,24],52:[2,24],57:[2,24],61:[2,24],65:[2,24],66:[2,24],94:[2,24],96:[2,24],97:[2,24],103:[2,24]},{1:[2,25],22:[2,25],31:[2,25],32:[2,25],33:[2,25],38:[2,25],39:[2,25],43:[2,25],47:[2,25],50:[2,25],52:[2,25],57:[2,25],61:[2,25],65:[2,25],66:[2,25],94:[2,25],96:[2,25],97:[2,25],103:[2,25]},{1:[2,26],22:[2,26],31:[2,26],32:[2,26],33:[2,26],38:[2,26],39:[2,26],43:[2,26],47:[2,26],50:[2,26],52:[2,26],57:[2,26],61:[2,26],65:[2,26],66:[2,26],94:[2,26],96:[2,26],97:[2,26],103:[2,26]},{1:[2,27],22:[2,27],31:[2,27],32:[2,27],33:[2,27],38:[2,27],39:[2,27],43:[2,27],47:[2,27],50:[2,27],52:[2,27],57:[2,27],61:[2,27],65:[2,27],66:[2,27],94:[2,27],96:[2,27],97:[2,27],103:[2,27]},{32:[1,66],39:[1,67]},{10:68,11:[2,122],22:[2,122],23:[2,122],32:[2,122],36:[2,122],37:[2,122],38:[2,122],39:[2,122],40:10,49:[2,122],50:[2,122],61:[2,122],76:[2,122],83:[2,122],84:[2,122],85:[2,122],86:[2,122],87:[2,122],88:[2,122],89:[2,122],90:[2,122],91:[2,122],94:[1,11]},{10:69,22:[2,122],32:[2,122],38:[2,122],40:10,94:[1,11]},{10:70,32:[2,122],40:10,94:[1,11]},{22:[1,71]},{22:[2,59],32:[2,53],38:[2,59],39:[2,53],50:[1,73],52:[2,59],56:72,57:[1,74],61:[2,59],65:[2,59],66:[2,59],94:[2,59]},{10:75,22:[2,122],40:10,94:[1,11]},{22:[2,55],32:[2,55],38:[2,55],39:[2,55],50:[2,55],52:[2,55],57:[2,55],61:[2,55],65:[2,55],66:[2,55],94:[2,55]},{10:76,22:[2,122],32:[2,122],38:[1,58],39:[2,122],40:10,50:[2,122],52:[2,122],57:[2,122],60:77,61:[1,52],62:53,63:54,64:55,65:[1,56],66:[1,57],94:[1,11]},{22:[2,64],32:[2,64],38:[1,58],39:[2,64],50:[2,64],52:[2,64],57:[2,64],58:78,60:49,61:[1,52],62:53,63:54,64:55,65:[1,56],66:[1,57],94:[2,64]},{22:[2,62],32:[2,62],38:[2,62],39:[2,62],50:[2,62],52:[2,62],57:[2,62],61:[2,62],65:[2,62],66:[2,62],94:[2,62]},{22:[2,70],32:[2,70],38:[2,70],39:[2,70],50:[2,70],52:[2,70],57:[2,70],61:[2,70],65:[2,70],66:[2,70],94:[2,70]},{22:[2,71],32:[2,71],38:[2,71],39:[2,71],50:[2,71],52:[2,71],57:[2,71],61:[2,71],65:[2,71],66:[2,71],94:[2,71]},{22:[2,65],32:[2,65],38:[2,65],39:[2,65],50:[2,65],52:[2,65],57:[2,65],61:[2,65],65:[2,65],66:[2,65],94:[2,65]},{22:[2,66],32:[2,66],38:[2,66],39:[2,66],50:[2,66],52:[2,66],57:[2,66],61:[2,66],65:[2,66],66:[2,66],94:[2,66]},{22:[2,67],32:[2,67],38:[2,67],39:[2,67],50:[2,67],52:[2,67],57:[2,67],61:[2,67],65:[2,67],66:[2,67],94:[2,67]},{22:[2,68],32:[2,68],38:[2,68],39:[2,68],50:[2,68],52:[2,68],57:[2,68],61:[2,68],65:[2,68],66:[2,68],94:[2,68]},{22:[1,79]},{10:80,22:[2,122],40:10,94:[1,11]},{22:[1,81],38:[1,83],76:[1,82]},{10:86,11:[2,122],21:84,22:[1,85],23:[2,122],40:10,94:[1,11]},{11:[1,92],12:[2,33],17:87,22:[1,93],23:[1,94],34:88,36:[2,33],37:[2,33],38:[2,33],39:[2,33],41:89,42:90,48:98,49:[1,109],50:[1,110],61:[1,99],76:[1,108],80:91,82:97,83:[1,100],84:[1,101],85:[1,102],86:[1,103],87:[1,104],88:[1,105],89:[1,106],90:[1,107],91:[1,95],92:96,94:[2,33]},{10:111,11:[2,122],12:[2,122],22:[2,122],23:[2,122],36:[2,122],37:[2,122],38:[2,122],39:[2,122],40:10,49:[2,122],50:[2,122],61:[2,122],76:[2,122],83:[2,122],84:[2,122],85:[2,122],86:[2,122],87:[2,122],88:[2,122],89:[2,122],90:[2,122],91:[2,122],94:[1,11]},{10:112,11:[2,122],12:[2,122],22:[2,122],23:[2,122],36:[2,122],37:[2,122],38:[2,122],39:[2,122],40:10,49:[2,122],50:[2,122],61:[2,122],76:[2,122],83:[2,122],84:[2,122],85:[2,122],86:[2,122],87:[2,122],88:[2,122],89:[2,122],90:[2,122],91:[2,122],94:[1,11]},{1:[2,2],15:[2,2],20:[2,2],22:[2,2],25:[2,2],31:[2,2],32:[2,2],38:[2,2],39:[2,2],43:[2,2],47:[2,2],50:[2,2],52:[2,2],57:[2,2],61:[2,2],65:[2,2],66:[2,2],94:[2,2],96:[2,2],97:[2,2],103:[2,2]},{1:[2,21],22:[2,21],31:[2,21],32:[2,21],33:[2,21],38:[2,21],39:[2,21],43:[2,21],47:[2,21],50:[2,21],52:[2,21],57:[2,21],61:[2,21],65:[2,21],66:[2,21],94:[2,21],96:[2,21],97:[2,21],103:[2,21]},{1:[2,28],22:[2,28],31:[2,28],32:[2,28],33:[2,28],38:[2,28],39:[2,28],43:[2,28],47:[2,28],50:[2,28],52:[2,28],57:[2,28],61:[2,28],65:[2,28],66:[2,28],94:[1,6],95:26,96:[1,7],97:[1,8],103:[2,28]},{10:113,12:[2,122],22:[2,122],33:[2,122],40:10,52:[2,122],94:[1,11]},{10:114,22:[2,122],32:[2,122],38:[2,122],39:[2,122],40:10,50:[2,122],52:[2,122],57:[2,122],61:[2,122],65:[2,122],66:[2,122],94:[1,11]},{11:[1,92],17:115,22:[1,93],23:[1,94],32:[2,33],34:88,36:[2,33],37:[2,33],38:[2,33],39:[2,33],41:89,42:90,48:98,49:[1,109],50:[1,110],61:[1,99],76:[1,108],80:91,82:97,83:[1,100],84:[1,101],85:[1,102],86:[1,103],87:[1,104],88:[1,105],89:[1,106],90:[1,107],91:[1,95],92:96,94:[2,33]},{22:[1,117],32:[2,44],38:[2,44],44:116,94:[2,44]},{32:[1,118]},{10:119,32:[2,122],40:10,94:[1,11]},{22:[1,50],32:[2,64],38:[1,58],39:[2,64],50:[2,64],52:[1,51],55:120,57:[2,64],58:47,59:48,60:49,61:[1,52],62:53,63:54,64:55,65:[1,56],66:[1,57],94:[2,64]},{10:121,22:[2,122],32:[2,122],38:[2,122],39:[2,122],40:10,50:[2,122],52:[2,122],57:[2,122],61:[2,122],65:[2,122],66:[2,122],94:[1,11]},{10:122,22:[2,122],32:[2,122],38:[2,122],39:[2,122],40:10,50:[2,122],52:[2,122],57:[2,122],61:[2,122],65:[2,122],66:[2,122],94:[1,11]},{22:[2,139]},{22:[2,60],32:[2,60],38:[2,60],39:[2,60],50:[2,60],52:[2,60],57:[2,60],61:[2,60],65:[2,60],66:[2,60],94:[2,60]},{22:[2,63],32:[2,63],38:[2,63],39:[2,63],50:[2,63],52:[2,63],57:[2,63],61:[2,63],65:[2,63],66:[2,63],94:[2,63]},{10:123,22:[2,122],32:[2,122],38:[1,58],39:[2,122],40:10,50:[2,122],52:[2,122],57:[2,122],60:77,61:[1,52],62:53,63:54,64:55,65:[1,56],66:[1,57],94:[1,11]},{22:[2,69],32:[2,69],38:[2,69],39:[2,69],50:[2,69],52:[2,69],57:[2,69],61:[2,69],65:[2,69],66:[2,69],94:[2,69]},{22:[1,124]},{22:[2,82],32:[2,82],38:[2,82],39:[2,82],50:[2,82],52:[2,82],57:[2,82],61:[2,82],65:[2,82],66:[2,82],94:[2,82]},{10:125,22:[2,122],40:10,66:[2,122],94:[1,11]},{22:[1,126]},{11:[1,61],16:127,23:[1,62]},{10:128,11:[2,122],23:[2,122],40:10,94:[1,11]},{11:[2,17],23:[2,17]},{11:[1,92],12:[1,129],22:[1,93],23:[1,94],34:130,35:131,36:[1,132],37:[1,133],38:[1,134],39:[1,135],40:136,41:89,42:90,48:98,49:[1,109],50:[1,110],61:[1,99],76:[1,108],80:91,82:97,83:[1,100],84:[1,101],85:[1,102],86:[1,103],87:[1,104],88:[1,105],89:[1,106],90:[1,107],91:[1,95],92:96,94:[1,11]},{11:[2,30],12:[2,30],22:[2,30],23:[2,30],32:[2,30],36:[2,30],37:[2,30],38:[2,30],39:[2,30],49:[2,30],50:[2,30],61:[2,30],76:[2,30],83:[2,30],84:[2,30],85:[2,30],86:[2,30],87:[2,30],88:[2,30],89:[2,30],90:[2,30],91:[2,30],94:[2,30]},{11:[1,92],12:[2,39],22:[1,93],23:[1,94],32:[2,39],36:[2,39],37:[2,39],38:[2,39],39:[1,140],42:142,48:98,49:[1,109],50:[1,110],61:[1,99],70:[1,141],76:[1,108],80:138,81:137,82:97,83:[1,100],84:[1,101],85:[1,102],86:[1,103],87:[1,104],88:[1,105],89:[1,106],90:[1,107],91:[1,95],92:96,93:[1,139],94:[2,39]},{11:[2,40],12:[2,40],22:[2,40],23:[2,40],32:[2,40],36:[2,40],37:[2,40],38:[2,40],39:[2,40],49:[2,40],50:[2,40],61:[2,40],70:[2,40],76:[2,40],83:[2,40],84:[2,40],85:[2,40],86:[2,40],87:[2,40],88:[2,40],89:[2,40],90:[2,40],91:[2,40],93:[2,40],94:[2,40]},{11:[2,94],12:[2,94],22:[2,94],23:[2,94],32:[2,94],33:[2,94],36:[2,94],37:[2,94],38:[2,94],39:[2,94],49:[2,94],50:[2,94],52:[2,94],61:[2,94],70:[2,94],76:[2,94],79:[2,94],83:[2,94],84:[2,94],85:[2,94],86:[2,94],87:[2,94],88:[2,94],89:[2,94],90:[2,94],91:[2,94],93:[2,94],94:[2,94]},{10:143,11:[2,122],12:[2,122],22:[2,122],23:[2,122],32:[2,122],33:[2,122],36:[2,122],37:[2,122],38:[2,122],39:[2,122],40:10,49:[2,122],50:[2,122],52:[2,122],61:[2,122],70:[2,122],76:[2,122],79:[2,122],83:[2,122],84:[2,122],85:[2,122],86:[2,122],87:[2,122],88:[2,122],89:[2,122],90:[2,122],91:[2,122],93:[2,122],94:[1,11]},{10:144,11:[2,122],12:[2,122],22:[2,122],23:[2,122],32:[2,122],33:[2,122],36:[2,122],37:[2,122],38:[2,122],39:[2,122],40:10,49:[2,122],50:[2,122],52:[2,122],61:[2,122],70:[2,122],76:[2,122],79:[2,122],83:[2,122],84:[2,122],85:[2,122],86:[2,122],87:[2,122],88:[2,122],89:[2,122],90:[2,122],91:[2,122],93:[2,122],94:[1,11]},{10:145,11:[2,122],12:[2,122],22:[2,122],23:[2,122],32:[2,122],33:[2,122],36:[2,122],37:[2,122],38:[2,122],39:[2,122],40:10,49:[2,122],50:[2,122],52:[2,122],61:[2,122],70:[2,122],76:[2,122],79:[2,122],83:[2,122],84:[2,122],85:[2,122],86:[2,122],87:[2,122],88:[2,122],89:[2,122],90:[2,122],91:[2,122],93:[2,122],94:[1,11]},{10:146,11:[2,122],12:[2,122],22:[2,122],23:[2,122],32:[2,122],33:[2,122],36:[2,122],37:[2,122],38:[2,122],39:[2,122],40:10,49:[2,122],50:[2,122],52:[2,122],61:[2,122],70:[2,122],76:[2,122],79:[2,122],83:[2,122],84:[2,122],85:[2,122],86:[2,122],87:[2,122],88:[2,122],89:[2,122],90:[2,122],91:[2,122],93:[2,122],94:[1,11]},{11:[2,113],12:[2,113],22:[2,113],23:[2,113],32:[2,113],33:[2,113],36:[2,113],37:[2,113],38:[2,113],39:[2,113],49:[2,113],50:[2,113],52:[2,113],61:[2,113],70:[2,113],76:[2,113],79:[2,113],83:[2,113],84:[2,113],85:[2,113],86:[2,113],87:[2,113],88:[2,113],89:[2,113],90:[2,113],91:[2,113],93:[2,113],94:[2,113]},{11:[2,97],12:[2,97],22:[2,97],23:[2,97],32:[2,97],33:[2,97],36:[2,97],37:[2,97],38:[2,97],39:[2,97],49:[2,97],50:[2,97],52:[2,97],61:[2,97],70:[2,97],76:[2,97],79:[2,97],83:[2,97],84:[2,97],85:[2,97],86:[2,97],87:[2,97],88:[2,97],89:[2,97],90:[2,97],91:[2,97],93:[2,97],94:[2,97]},{76:[1,108],82:147,83:[1,100],84:[1,101],85:[1,102],86:[1,103],87:[1,104],88:[1,105],89:[1,106],90:[1,107]},{10:148,11:[2,122],12:[2,122],22:[2,122],23:[2,122],32:[2,122],33:[2,122],36:[2,122],37:[2,122],38:[2,122],39:[2,122],40:10,49:[2,122],50:[2,122],52:[2,122],61:[2,122],70:[2,122],76:[2,122],79:[2,122],83:[2,122],84:[2,122],85:[2,122],86:[2,122],87:[2,122],88:[2,122],89:[2,122],90:[2,122],91:[2,122],93:[2,122],94:[1,11]},{10:149,11:[2,122],12:[2,122],22:[2,122],23:[2,122],32:[2,122],33:[2,122],36:[2,122],37:[2,122],38:[2,122],39:[2,122],40:10,49:[2,122],50:[2,122],52:[2,122],61:[2,122],70:[2,122],76:[2,122],79:[2,122],83:[2,122],84:[2,122],85:[2,122],86:[2,122],87:[2,122],88:[2,122],89:[2,122],90:[2,122],91:[2,122],93:[2,122],94:[1,11]},{10:150,11:[2,122],12:[2,122],22:[2,122],23:[2,122],32:[2,122],33:[2,122],36:[2,122],37:[2,122],38:[2,122],39:[2,122],40:10,49:[2,122],50:[2,122],52:[2,122],61:[2,122],70:[2,122],76:[2,122],79:[2,122],83:[2,122],84:[2,122],85:[2,122],86:[2,122],87:[2,122],88:[2,122],89:[2,122],90:[2,122],91:[2,122],93:[2,122],94:[1,11]},{10:151,11:[2,122],12:[2,122],22:[2,122],23:[2,122],32:[2,122],33:[2,122],36:[2,122],37:[2,122],38:[2,122],39:[2,122],40:10,49:[2,122],50:[2,122],52:[2,122],61:[2,122],70:[2,122],76:[2,122],79:[2,122],83:[2,122],84:[2,122],85:[2,122],86:[2,122],87:[2,122],88:[2,122],89:[2,122],90:[2,122],91:[2,122],93:[2,122],94:[1,11]},{10:152,11:[2,122],12:[2,122],22:[2,122],23:[2,122],32:[2,122],33:[2,122],36:[2,122],37:[2,122],38:[2,122],39:[2,122],40:10,49:[2,122],50:[2,122],52:[2,122],61:[2,122],70:[2,122],76:[2,122],79:[2,122],83:[2,122],84:[2,122],85:[2,122],86:[2,122],87:[2,122],88:[2,122],89:[2,122],90:[2,122],91:[2,122],93:[2,122],94:[1,11]},{10:153,11:[2,122],12:[2,122],22:[2,122],23:[2,122],32:[2,122],33:[2,122],36:[2,122],37:[2,122],38:[2,122],39:[2,122],40:10,49:[2,122],50:[2,122],52:[2,122],61:[2,122],70:[2,122],76:[2,122],79:[2,122],83:[2,122],84:[2,122],85:[2,122],86:[2,122],87:[2,122],88:[2,122],89:[2,122],90:[2,122],91:[2,122],93:[2,122],94:[1,11]},{10:154,11:[2,122],12:[2,122],22:[2,122],23:[2,122],32:[2,122],33:[2,122],36:[2,122],37:[2,122],38:[2,122],39:[2,122],40:10,49:[2,122],50:[2,122],52:[2,122],61:[2,122],70:[2,122],76:[2,122],79:[2,122],83:[2,122],84:[2,122],85:[2,122],86:[2,122],87:[2,122],88:[2,122],89:[2,122],90:[2,122],91:[2,122],93:[2,122],94:[1,11]},{10:155,11:[2,122],12:[2,122],22:[2,122],23:[2,122],32:[2,122],33:[2,122],36:[2,122],37:[2,122],38:[2,122],39:[2,122],40:10,49:[2,122],50:[2,122],52:[2,122],61:[2,122],70:[2,122],76:[2,122],79:[2,122],83:[2,122],84:[2,122],85:[2,122],86:[2,122],87:[2,122],88:[2,122],89:[2,122],90:[2,122],91:[2,122],93:[2,122],94:[1,11]},{10:156,11:[2,122],12:[2,122],22:[2,122],23:[2,122],32:[2,122],33:[2,122],36:[2,122],37:[2,122],38:[2,122],39:[2,122],40:10,49:[2,122],50:[2,122],52:[2,122],61:[2,122],70:[2,122],76:[2,122],79:[2,122],83:[2,122],84:[2,122],85:[2,122],86:[2,122],87:[2,122],88:[2,122],89:[2,122],90:[2,122],91:[2,122],93:[2,122],94:[1,11]},{10:157,11:[2,122],22:[2,122],23:[2,122],40:10,49:[2,122],50:[2,122],61:[2,122],76:[2,122],83:[2,122],84:[2,122],85:[2,122],86:[2,122],87:[2,122],88:[2,122],89:[2,122],90:[2,122],91:[2,122],94:[1,11]},{76:[2,48],83:[2,48],84:[2,48],85:[2,48],86:[2,48],87:[2,48],88:[2,48],89:[2,48],90:[2,48]},{76:[2,49],83:[2,49],84:[2,49],85:[2,49],86:[2,49],87:[2,49],88:[2,49],89:[2,49],90:[2,49]},{11:[2,18],12:[2,18],22:[2,18],23:[2,18],36:[2,18],37:[2,18],38:[2,18],39:[2,18],49:[2,18],50:[2,18],61:[2,18],76:[2,18],83:[2,18],84:[2,18],85:[2,18],86:[2,18],87:[2,18],88:[2,18],89:[2,18],90:[2,18],91:[2,18],94:[2,18]},{11:[2,19],12:[2,19],22:[2,19],23:[2,19],36:[2,19],37:[2,19],38:[2,19],39:[2,19],49:[2,19],50:[2,19],61:[2,19],76:[2,19],83:[2,19],84:[2,19],85:[2,19],86:[2,19],87:[2,19],88:[2,19],89:[2,19],90:[2,19],91:[2,19],94:[2,19]},{10:162,12:[1,161],22:[1,164],33:[2,93],40:10,46:158,51:163,52:[1,165],77:159,78:160,94:[1,11]},{22:[1,50],32:[2,64],38:[1,58],39:[2,64],50:[2,64],52:[1,51],54:166,55:46,57:[2,64],58:47,59:48,60:49,61:[1,52],62:53,63:54,64:55,65:[1,56],66:[1,57],94:[2,64]},{11:[1,92],22:[1,93],23:[1,94],32:[1,167],34:130,35:131,36:[1,132],37:[1,133],38:[1,134],39:[1,135],40:136,41:89,42:90,48:98,49:[1,109],50:[1,110],61:[1,99],76:[1,108],80:91,82:97,83:[1,100],84:[1,101],85:[1,102],86:[1,103],87:[1,104],88:[1,105],89:[1,106],90:[1,107],91:[1,95],92:96,94:[1,11]},{32:[2,46],38:[1,169],45:168,94:[2,46]},{32:[2,43],38:[2,43],94:[2,43]},{10:170,12:[2,122],22:[2,122],33:[2,122],40:10,52:[2,122],94:[1,11]},{32:[1,171]},{22:[2,56],32:[2,56],38:[2,56],39:[2,56],50:[2,56],52:[2,56],57:[2,56],61:[2,56],65:[2,56],66:[2,56],94:[2,56]},{22:[2,57],32:[2,57],38:[2,57],39:[2,57],50:[2,57],52:[2,57],57:[2,57],61:[2,57],65:[2,57],66:[2,57],94:[2,57]},{22:[2,58],32:[2,58],38:[2,58],39:[2,58],50:[2,58],52:[2,58],57:[2,58],61:[2,58],65:[2,58],66:[2,58],94:[2,58]},{22:[2,61],32:[2,61],38:[2,61],39:[2,61],50:[2,61],52:[2,61],57:[2,61],61:[2,61],65:[2,61],66:[2,61],94:[2,61]},{10:172,40:10,67:[2,122],70:[2,122],71:[2,122],72:[2,122],73:[2,122],74:[2,122],75:[2,122],94:[1,11]},{22:[1,173],63:174,66:[1,57]},{22:[2,85],32:[2,85],38:[2,85],39:[2,85],50:[2,85],52:[2,85],57:[2,85],61:[2,85],65:[2,85],66:[2,85],94:[2,85]},{12:[1,175]},{11:[2,16],23:[2,16]},{1:[2,122],10:176,15:[2,122],20:[2,122],22:[2,122],25:[2,122],31:[2,122],32:[2,122],38:[2,122],39:[2,122],40:10,43:[2,122],47:[2,122],50:[2,122],52:[2,122],57:[2,122],61:[2,122],65:[2,122],66:[2,122],94:[1,11],96:[2,122],97:[2,122],103:[2,122]},{11:[2,31],12:[2,31],22:[2,31],23:[2,31],32:[2,31],36:[2,31],37:[2,31],38:[2,31],39:[2,31],49:[2,31],50:[2,31],61:[2,31],76:[2,31],83:[2,31],84:[2,31],85:[2,31],86:[2,31],87:[2,31],88:[2,31],89:[2,31],90:[2,31],91:[2,31],94:[2,31]},{11:[1,92],12:[2,41],22:[1,93],23:[1,94],32:[2,41],34:177,36:[2,41],37:[2,41],38:[2,41],39:[2,41],41:89,42:90,48:98,49:[1,109],50:[1,110],61:[1,99],76:[1,108],80:91,82:97,83:[1,100],84:[1,101],85:[1,102],86:[1,103],87:[1,104],88:[1,105],89:[1,106],90:[1,107],91:[1,95],92:96,94:[2,41]},{10:178,11:[2,122],12:[2,122],22:[2,122],23:[2,122],32:[2,122],36:[2,122],37:[2,122],38:[2,122],39:[2,122],40:10,49:[2,122],50:[2,122],61:[2,122],76:[2,122],83:[2,122],84:[2,122],85:[2,122],86:[2,122],87:[2,122],88:[2,122],89:[2,122],90:[2,122],91:[2,122],94:[1,11]},{10:179,11:[2,122],12:[2,122],22:[2,122],23:[2,122],32:[2,122],36:[2,122],37:[2,122],38:[2,122],39:[2,122],40:10,49:[2,122],50:[2,122],61:[2,122],76:[2,122],83:[2,122],84:[2,122],85:[2,122],86:[2,122],87:[2,122],88:[2,122],89:[2,122],90:[2,122],91:[2,122],94:[1,11]},{10:180,11:[2,122],12:[2,122],22:[2,122],23:[2,122],32:[2,122],36:[2,122],37:[2,122],38:[2,122],39:[2,122],40:10,49:[2,122],50:[2,122],61:[2,122],76:[2,122],83:[2,122],84:[2,122],85:[2,122],86:[2,122],87:[2,122],88:[2,122],89:[2,122],90:[2,122],91:[2,122],94:[1,11]},{10:181,11:[2,122],12:[2,122],22:[2,122],23:[2,122],32:[2,122],36:[2,122],37:[2,122],38:[2,122],39:[2,122],40:10,49:[2,122],50:[2,122],61:[2,122],76:[2,122],83:[2,122],84:[2,122],85:[2,122],86:[2,122],87:[2,122],88:[2,122],89:[2,122],90:[2,122],91:[2,122],94:[1,11]},{11:[2,38],12:[2,38],22:[2,38],23:[2,38],32:[2,38],36:[2,38],37:[2,38],38:[2,38],39:[2,38],49:[2,38],50:[2,38],61:[2,38],76:[2,38],83:[2,38],84:[2,38],85:[2,38],86:[2,38],87:[2,38],88:[2,38],89:[2,38],90:[2,38],91:[2,38],94:[1,19]},{11:[1,92],22:[1,93],23:[1,94],42:142,48:98,49:[1,109],50:[1,110],61:[1,99],76:[1,108],80:182,82:97,83:[1,100],84:[1,101],85:[1,102],86:[1,103],87:[1,104],88:[1,105],89:[1,106],90:[1,107],91:[1,95],92:96},{11:[2,96],12:[2,96],22:[2,96],23:[2,96],32:[2,96],33:[2,96],36:[2,96],37:[2,96],38:[2,96],39:[2,96],49:[2,96],50:[2,96],52:[2,96],61:[2,96],70:[2,96],76:[2,96],79:[2,96],83:[2,96],84:[2,96],85:[2,96],86:[2,96],87:[2,96],88:[2,96],89:[2,96],90:[2,96],91:[2,96],93:[2,96],94:[2,96]},{10:183,11:[2,122],22:[2,122],23:[2,122],40:10,49:[2,122],50:[2,122],61:[2,122],76:[2,122],83:[2,122],84:[2,122],85:[2,122],86:[2,122],87:[2,122],88:[2,122],89:[2,122],90:[2,122],91:[2,122],94:[1,11]},{10:184,11:[2,122],22:[2,122],23:[2,122],40:10,49:[2,122],50:[2,122],61:[2,122],76:[2,122],83:[2,122],84:[2,122],85:[2,122],86:[2,122],87:[2,122],88:[2,122],89:[2,122],90:[2,122],91:[2,122],94:[1,11]},{10:185,11:[2,122],22:[2,122],23:[2,122],40:10,49:[2,122],50:[2,122],61:[2,122],76:[2,122],83:[2,122],84:[2,122],85:[2,122],86:[2,122],87:[2,122],88:[2,122],89:[2,122],90:[2,122],91:[2,122],94:[1,11]},{11:[2,99],12:[2,99],22:[2,99],23:[2,99],32:[2,99],33:[2,99],36:[2,99],37:[2,99],38:[2,99],39:[2,99],49:[2,99],50:[2,99],52:[2,99],61:[2,99],70:[2,99],76:[2,99],79:[2,99],83:[2,99],84:[2,99],85:[2,99],86:[2,99],87:[2,99],88:[2,99],89:[2,99],90:[2,99],91:[2,99],93:[2,99],94:[2,99]},{11:[2,109],12:[2,109],22:[2,109],23:[2,109],32:[2,109],33:[2,109],36:[2,109],37:[2,109],38:[2,109],39:[2,109],49:[2,109],50:[2,109],52:[2,109],61:[2,109],70:[2,109],76:[2,109],79:[2,109],83:[2,109],84:[2,109],85:[2,109],86:[2,109],87:[2,109],88:[2,109],89:[2,109],90:[2,109],91:[2,109],93:[2,109],94:[2,109]},{11:[2,110],12:[2,110],22:[2,110],23:[2,110],32:[2,110],33:[2,110],36:[2,110],37:[2,110],38:[2,110],39:[2,110],49:[2,110],50:[2,110],52:[2,110],61:[2,110],70:[2,110],76:[2,110],79:[2,110],83:[2,110],84:[2,110],85:[2,110],86:[2,110],87:[2,110],88:[2,110],89:[2,110],90:[2,110],91:[2,110],93:[2,110],94:[2,110]},{11:[2,111],12:[2,111],22:[2,111],23:[2,111],32:[2,111],33:[2,111],36:[2,111],37:[2,111],38:[2,111],39:[2,111],49:[2,111],50:[2,111],52:[2,111],61:[2,111],70:[2,111],76:[2,111],79:[2,111],83:[2,111],84:[2,111],85:[2,111],86:[2,111],87:[2,111],88:[2,111],89:[2,111],90:[2,111],91:[2,111],93:[2,111],94:[2,111]},{11:[2,112],12:[2,112],22:[2,112],23:[2,112],32:[2,112],33:[2,112],36:[2,112],37:[2,112],38:[2,112],39:[2,112],49:[2,112],50:[2,112],52:[2,112],61:[2,112],70:[2,112],76:[2,112],79:[2,112],83:[2,112],84:[2,112],85:[2,112],86:[2,112],87:[2,112],88:[2,112],89:[2,112],90:[2,112],91:[2,112],93:[2,112],94:[2,112]},{11:[2,98],12:[2,98],22:[2,98],23:[2,98],32:[2,98],33:[2,98],36:[2,98],37:[2,98],38:[2,98],39:[2,98],49:[2,98],50:[2,98],52:[2,98],61:[2,98],70:[2,98],76:[2,98],79:[2,98],83:[2,98],84:[2,98],85:[2,98],86:[2,98],87:[2,98],88:[2,98],89:[2,98],90:[2,98],91:[2,98],93:[2,98],94:[2,98]},{11:[2,118],12:[2,118],22:[2,118],23:[2,118],32:[2,118],33:[2,118],36:[2,118],37:[2,118],38:[2,118],39:[2,118],49:[2,118],50:[2,118],52:[2,118],61:[2,118],70:[2,118],76:[2,118],79:[2,118],83:[2,118],84:[2,118],85:[2,118],86:[2,118],87:[2,118],88:[2,118],89:[2,118],90:[2,118],91:[2,118],93:[2,118],94:[2,118]},{11:[2,100],12:[2,100],22:[2,100],23:[2,100],32:[2,100],33:[2,100],36:[2,100],37:[2,100],38:[2,100],39:[2,100],49:[2,100],50:[2,100],52:[2,100],61:[2,100],70:[2,100],76:[2,100],79:[2,100],83:[2,100],84:[2,100],85:[2,100],86:[2,100],87:[2,100],88:[2,100],89:[2,100],90:[2,100],91:[2,100],93:[2,100],94:[2,100]},{11:[2,101],12:[2,101],22:[2,101],23:[2,101],32:[2,101],33:[2,101],36:[2,101],37:[2,101],38:[2,101],39:[2,101],49:[2,101],50:[2,101],52:[2,101],61:[2,101],70:[2,101],76:[2,101],79:[2,101],83:[2,101],84:[2,101],85:[2,101],86:[2,101],87:[2,101],88:[2,101],89:[2,101],90:[2,101],91:[2,101],93:[2,101],94:[2,101]},{11:[2,102],12:[2,102],22:[2,102],23:[2,102],32:[2,102],33:[2,102],36:[2,102],37:[2,102],38:[2,102],39:[2,102],49:[2,102],50:[2,102],52:[2,102],61:[2,102],70:[2,102],76:[2,102],79:[2,102],83:[2,102],84:[2,102],85:[2,102],86:[2,102],87:[2,102],88:[2,102],89:[2,102],90:[2,102],91:[2,102],93:[2,102],94:[2,102]},{11:[2,103],12:[2,103],22:[2,103],23:[2,103],32:[2,103],33:[2,103],36:[2,103],37:[2,103],38:[2,103],39:[2,103],49:[2,103],50:[2,103],52:[2,103],61:[2,103],70:[2,103],76:[2,103],79:[2,103],83:[2,103],84:[2,103],85:[2,103],86:[2,103],87:[2,103],88:[2,103],89:[2,103],90:[2,103],91:[2,103],93:[2,103],94:[2,103]},{11:[2,104],12:[2,104],22:[2,104],23:[2,104],32:[2,104],33:[2,104],36:[2,104],37:[2,104],38:[2,104],39:[2,104],49:[2,104],50:[2,104],52:[2,104],61:[2,104],70:[2,104],76:[2,104],79:[2,104],83:[2,104],84:[2,104],85:[2,104],86:[2,104],87:[2,104],88:[2,104],89:[2,104],90:[2,104],91:[2,104],93:[2,104],94:[2,104]},{11:[2,105],12:[2,105],22:[2,105],23:[2,105],32:[2,105],33:[2,105],36:[2,105],37:[2,105],38:[2,105],39:[2,105],49:[2,105],50:[2,105],52:[2,105],61:[2,105],70:[2,105],76:[2,105],79:[2,105],83:[2,105],84:[2,105],85:[2,105],86:[2,105],87:[2,105],88:[2,105],89:[2,105],90:[2,105],91:[2,105],93:[2,105],94:[2,105]},{11:[2,106],12:[2,106],22:[2,106],23:[2,106],32:[2,106],33:[2,106],36:[2,106],37:[2,106],38:[2,106],39:[2,106],49:[2,106],50:[2,106],52:[2,106],61:[2,106],70:[2,106],76:[2,106],79:[2,106],83:[2,106],84:[2,106],85:[2,106],86:[2,106],87:[2,106],88:[2,106],89:[2,106],90:[2,106],91:[2,106],93:[2,106],94:[2,106]},{11:[2,107],12:[2,107],22:[2,107],23:[2,107],32:[2,107],33:[2,107],36:[2,107],37:[2,107],38:[2,107],39:[2,107],49:[2,107],50:[2,107],52:[2,107],61:[2,107],70:[2,107],76:[2,107],79:[2,107],83:[2,107],84:[2,107],85:[2,107],86:[2,107],87:[2,107],88:[2,107],89:[2,107],90:[2,107],91:[2,107],93:[2,107],94:[2,107]},{11:[1,92],22:[1,93],23:[1,94],41:186,42:142,48:98,49:[1,109],50:[1,110],61:[1,99],76:[1,108],80:91,82:97,83:[1,100],84:[1,101],85:[1,102],86:[1,103],87:[1,104],88:[1,105],89:[1,106],90:[1,107],91:[1,95],92:96},{10:162,12:[1,161],22:[1,164],33:[1,187],40:10,51:163,52:[1,165],77:188,78:160,94:[1,11]},{12:[2,86],22:[2,86],33:[2,86],52:[2,86],94:[2,86]},{12:[2,88],22:[2,88],33:[2,88],52:[2,88],94:[2,88]},{12:[2,89],22:[2,89],33:[2,89],52:[2,89],94:[2,89]},{12:[2,90],22:[2,90],33:[2,90],52:[2,90],94:[2,90]},{38:[1,189]},{10:190,38:[2,122],40:10,94:[1,11]},{22:[1,191]},{22:[2,59],32:[2,54],38:[2,59],39:[2,54],50:[1,73],52:[2,59],56:72,57:[1,74],61:[2,59],65:[2,59],66:[2,59],94:[2,59]},{10:192,22:[2,122],25:[2,122],31:[2,122],32:[2,122],33:[2,122],38:[2,122],39:[2,122],40:10,43:[2,122],47:[2,122],50:[2,122],52:[2,122],57:[2,122],61:[2,122],65:[2,122],66:[2,122],94:[1,11],96:[2,122],97:[2,122],103:[2,122]},{10:193,32:[2,122],40:10,94:[1,11]},{22:[1,194]},{10:162,12:[1,161],22:[1,164],33:[2,93],40:10,46:195,51:163,52:[1,165],77:159,78:160,94:[1,11]},{10:196,11:[2,122],22:[2,122],33:[2,122],40:10,84:[2,122],94:[1,11]},{67:[1,197],68:198,70:[1,199],71:[1,200],72:[1,201],73:[1,202],74:[1,203],75:[1,204]},{10:205,37:[2,122],40:10,94:[1,11]},{10:206,37:[2,122],40:10,94:[1,11]},{1:[2,122],10:207,20:[2,122],22:[2,122],25:[2,122],31:[2,122],32:[2,122],38:[2,122],39:[2,122],40:10,43:[2,122],47:[2,122],50:[2,122],52:[2,122],57:[2,122],61:[2,122],65:[2,122],66:[2,122],94:[1,11],96:[2,122],97:[2,122],103:[2,122]},{1:[2,9],15:[2,9],20:[2,9],22:[2,9],25:[2,9],31:[2,9],32:[2,9],38:[2,9],39:[2,9],43:[2,9],47:[2,9],50:[2,9],52:[2,9],57:[2,9],61:[2,9],65:[2,9],66:[2,9],94:[2,9],96:[2,9],97:[2,9],103:[2,9]},{11:[2,32],12:[2,32],22:[2,32],23:[2,32],32:[2,32],36:[2,32],37:[2,32],38:[2,32],39:[2,32],49:[2,32],50:[2,32],61:[2,32],76:[2,32],83:[2,32],84:[2,32],85:[2,32],86:[2,32],87:[2,32],88:[2,32],89:[2,32],90:[2,32],91:[2,32],94:[2,32]},{11:[2,34],12:[2,34],22:[2,34],23:[2,34],32:[2,34],36:[2,34],37:[2,34],38:[2,34],39:[2,34],49:[2,34],50:[2,34],61:[2,34],76:[2,34],83:[2,34],84:[2,34],85:[2,34],86:[2,34],87:[2,34],88:[2,34],89:[2,34],90:[2,34],91:[2,34],94:[2,34]},{11:[2,35],12:[2,35],22:[2,35],23:[2,35],32:[2,35],36:[2,35],37:[2,35],38:[2,35],39:[2,35],49:[2,35],50:[2,35],61:[2,35],76:[2,35],83:[2,35],84:[2,35],85:[2,35],86:[2,35],87:[2,35],88:[2,35],89:[2,35],90:[2,35],91:[2,35],94:[2,35]},{11:[2,36],12:[2,36],22:[2,36],23:[2,36],32:[2,36],36:[2,36],37:[2,36],38:[2,36],39:[2,36],49:[2,36],50:[2,36],61:[2,36],76:[2,36],83:[2,36],84:[2,36],85:[2,36],86:[2,36],87:[2,36],88:[2,36],89:[2,36],90:[2,36],91:[2,36],94:[2,36]},{11:[2,37],12:[2,37],22:[2,37],23:[2,37],32:[2,37],36:[2,37],37:[2,37],38:[2,37],39:[2,37],49:[2,37],50:[2,37],61:[2,37],76:[2,37],83:[2,37],84:[2,37],85:[2,37],86:[2,37],87:[2,37],88:[2,37],89:[2,37],90:[2,37],91:[2,37],94:[2,37]},{11:[2,95],12:[2,95],22:[2,95],23:[2,95],32:[2,95],33:[2,95],36:[2,95],37:[2,95],38:[2,95],39:[2,95],49:[2,95],50:[2,95],52:[2,95],61:[2,95],70:[2,95],76:[2,95],79:[2,95],83:[2,95],84:[2,95],85:[2,95],86:[2,95],87:[2,95],88:[2,95],89:[2,95],90:[2,95],91:[2,95],93:[2,95],94:[2,95]},{11:[2,114],22:[2,114],23:[2,114],49:[2,114],50:[2,114],61:[2,114],76:[2,114],83:[2,114],84:[2,114],85:[2,114],86:[2,114],87:[2,114],88:[2,114],89:[2,114],90:[2,114],91:[2,114]},{11:[2,115],22:[2,115],23:[2,115],49:[2,115],50:[2,115],61:[2,115],76:[2,115],83:[2,115],84:[2,115],85:[2,115],86:[2,115],87:[2,115],88:[2,115],89:[2,115],90:[2,115],91:[2,115]},{11:[2,116],22:[2,116],23:[2,116],49:[2,116],50:[2,116],61:[2,116],76:[2,116],83:[2,116],84:[2,116],85:[2,116],86:[2,116],87:[2,116],88:[2,116],89:[2,116],90:[2,116],91:[2,116]},{11:[1,92],22:[1,93],23:[1,94],37:[1,208],39:[1,140],42:142,48:98,49:[1,109],50:[1,110],61:[1,99],70:[1,141],76:[1,108],80:138,81:137,82:97,83:[1,100],84:[1,101],85:[1,102],86:[1,103],87:[1,104],88:[1,105],89:[1,106],90:[1,107],91:[1,95],92:96,93:[1,139]},{1:[2,122],10:209,22:[2,122],31:[2,122],32:[2,122],33:[2,122],38:[2,122],39:[2,122],40:10,43:[2,122],47:[2,122],50:[2,122],52:[2,122],57:[2,122],61:[2,122],65:[2,122],66:[2,122],94:[1,11],96:[2,122],97:[2,122],103:[2,122]},{12:[2,87],22:[2,87],33:[2,87],52:[2,87],94:[2,87]},{10:210,11:[2,122],22:[2,122],23:[2,122],40:10,49:[2,122],50:[2,122],61:[2,122],76:[2,122],83:[2,122],84:[2,122],85:[2,122],86:[2,122],87:[2,122],88:[2,122],89:[2,122],90:[2,122],91:[2,122],94:[1,11]},{38:[2,50]},{10:211,38:[2,122],40:10,94:[1,11]},{5:65,8:212,22:[1,50],24:31,25:[1,32],26:34,27:35,28:36,29:37,30:38,31:[1,40],32:[2,125],33:[2,125],38:[1,58],39:[2,125],43:[1,41],47:[1,42],50:[2,125],52:[1,51],53:39,54:44,55:46,57:[2,125],58:47,59:48,60:49,61:[1,52],62:53,63:54,64:55,65:[1,56],66:[1,57],94:[1,6],95:5,96:[1,7],97:[1,8],98:43,103:[1,45]},{32:[1,213]},{32:[2,45],94:[2,45]},{10:162,12:[1,161],22:[1,164],33:[1,214],40:10,51:163,52:[1,165],77:188,78:160,94:[1,11]},{11:[1,220],22:[1,219],33:[2,132],84:[1,221],99:215,100:216,101:217,102:218},{22:[2,72],32:[2,72],37:[2,72],38:[2,72],39:[2,72],50:[2,72],52:[2,72],57:[2,72],61:[2,72],65:[2,72],66:[2,72],94:[2,72]},{10:222,11:[2,122],22:[2,122],40:10,94:[1,11]},{11:[2,74],22:[2,74],94:[2,74]},{11:[2,75],22:[2,75],94:[2,75]},{11:[2,76],22:[2,76],94:[2,76]},{11:[2,77],22:[2,77],94:[2,77]},{11:[2,78],22:[2,78],94:[2,78]},{11:[2,79],22:[2,79],94:[2,79]},{37:[1,223]},{37:[1,224]},{1:[2,15],20:[2,15],22:[2,15],25:[2,15],31:[2,15],32:[2,15],38:[2,15],39:[2,15],43:[2,15],47:[2,15],50:[2,15],52:[2,15],57:[2,15],61:[2,15],65:[2,15],66:[2,15],94:[2,15],96:[2,15],97:[2,15],103:[2,15]},{10:225,11:[2,122],12:[2,122],22:[2,122],23:[2,122],32:[2,122],33:[2,122],36:[2,122],37:[2,122],38:[2,122],39:[2,122],40:10,49:[2,122],50:[2,122],52:[2,122],61:[2,122],70:[2,122],76:[2,122],79:[2,122],83:[2,122],84:[2,122],85:[2,122],86:[2,122],87:[2,122],88:[2,122],89:[2,122],90:[2,122],91:[2,122],93:[2,122],94:[1,11]},{1:[2,52],22:[2,52],31:[2,52],32:[2,52],33:[2,52],38:[2,52],39:[2,52],43:[2,52],47:[2,52],50:[2,52],52:[2,52],57:[2,52],61:[2,52],65:[2,52],66:[2,52],94:[2,52],96:[2,52],97:[2,52],103:[2,52]},{11:[1,92],22:[1,93],23:[1,94],41:226,42:142,48:98,49:[1,109],50:[1,110],61:[1,99],76:[1,108],80:91,82:97,83:[1,100],84:[1,101],85:[1,102],86:[1,103],87:[1,104],88:[1,105],89:[1,106],90:[1,107],91:[1,95],92:96},{38:[2,51]},{5:65,22:[1,50],24:64,26:34,27:35,28:36,29:37,30:38,31:[1,40],32:[2,125],33:[1,227],38:[1,58],39:[2,125],43:[1,41],47:[1,42],50:[2,125],52:[1,51],53:39,54:44,55:46,57:[2,125],58:47,59:48,60:49,61:[1,52],62:53,63:54,64:55,65:[1,56],66:[1,57],94:[1,6],95:5,96:[1,7],97:[1,8],98:43,103:[1,45]},{10:228,12:[2,122],22:[2,122],33:[2,122],40:10,52:[2,122],94:[1,11]},{1:[2,122],10:229,22:[2,122],31:[2,122],32:[2,122],33:[2,122],38:[2,122],39:[2,122],40:10,43:[2,122],47:[2,122],50:[2,122],52:[2,122],57:[2,122],61:[2,122],65:[2,122],66:[2,122],94:[1,11],96:[2,122],97:[2,122],103:[2,122]},{11:[1,220],22:[1,219],33:[1,230],84:[1,221],100:231,101:217,102:218},{11:[2,130],22:[2,130],33:[2,130],84:[2,130]},{32:[1,232],39:[1,233]},{10:234,32:[2,122],39:[2,122],40:10,94:[1,11]},{32:[2,136],39:[2,136],94:[2,136]},{32:[2,137],39:[2,137],94:[2,137]},{32:[2,138],39:[2,138],94:[2,138]},{11:[1,237],22:[1,236],69:235},{22:[2,83],32:[2,83],38:[2,83],39:[2,83],50:[2,83],52:[2,83],57:[2,83],61:[2,83],65:[2,83],66:[2,83],94:[2,83]},{22:[2,84],32:[2,84],38:[2,84],39:[2,84],50:[2,84],52:[2,84],57:[2,84],61:[2,84],65:[2,84],66:[2,84],94:[2,84]},{11:[2,108],12:[2,108],22:[2,108],23:[2,108],32:[2,108],33:[2,108],36:[2,108],37:[2,108],38:[2,108],39:[2,108],49:[2,108],50:[2,108],52:[2,108],61:[2,108],70:[2,108],76:[2,108],79:[2,108],83:[2,108],84:[2,108],85:[2,108],86:[2,108],87:[2,108],88:[2,108],89:[2,108],90:[2,108],91:[2,108],93:[2,108],94:[2,108]},{10:238,11:[1,92],12:[2,122],22:[1,93],23:[1,94],33:[2,122],39:[1,140],40:10,42:142,48:98,49:[1,109],50:[1,110],52:[2,122],61:[1,99],70:[1,141],76:[1,108],79:[1,239],80:138,81:137,82:97,83:[1,100],84:[1,101],85:[1,102],86:[1,103],87:[1,104],88:[1,105],89:[1,106],90:[1,107],91:[1,95],92:96,93:[1,139],94:[1,11]},{1:[2,122],10:240,22:[2,122],31:[2,122],32:[2,122],33:[2,122],38:[2,122],39:[2,122],40:10,43:[2,122],47:[2,122],50:[2,122],52:[2,122],57:[2,122],61:[2,122],65:[2,122],66:[2,122],94:[1,11],96:[2,122],97:[2,122],103:[2,122]},{10:162,12:[1,161],22:[1,164],33:[2,93],40:10,46:241,51:163,52:[1,165],77:159,78:160,94:[1,11]},{1:[2,47],22:[2,47],31:[2,47],32:[2,47],33:[2,47],38:[2,47],39:[2,47],43:[2,47],47:[2,47],50:[2,47],52:[2,47],57:[2,47],61:[2,47],65:[2,47],66:[2,47],94:[2,47],96:[2,47],97:[2,47],103:[2,47]},{1:[2,122],10:242,22:[2,122],31:[2,122],32:[2,122],33:[2,122],38:[2,122],39:[2,122],40:10,43:[2,122],47:[2,122],50:[2,122],52:[2,122],57:[2,122],61:[2,122],65:[2,122],66:[2,122],94:[1,11],96:[2,122],97:[2,122],103:[2,122]},{11:[2,131],22:[2,131],33:[2,131],84:[2,131]},{10:243,12:[2,122],22:[2,122],33:[2,122],40:10,52:[2,122],94:[1,11]},{11:[1,220],22:[1,219],84:[1,221],102:244},{32:[2,134],39:[2,134]},{10:245,40:10,67:[2,122],94:[1,11]},{67:[2,80],94:[2,80]},{67:[2,81],94:[2,81]},{12:[2,91],22:[2,91],33:[2,91],52:[2,91],94:[2,91]},{10:246,12:[2,122],22:[2,122],33:[2,122],40:10,52:[2,122],94:[1,11]},{1:[2,29],22:[2,29],31:[2,29],32:[2,29],33:[2,29],38:[2,29],39:[2,29],43:[2,29],47:[2,29],50:[2,29],52:[2,29],57:[2,29],61:[2,29],65:[2,29],66:[2,29],94:[2,29],96:[2,29],97:[2,29],103:[2,29]},{10:162,12:[1,161],22:[1,164],33:[1,247],40:10,51:163,52:[1,165],77:188,78:160,94:[1,11]},{1:[2,129],22:[2,129],31:[2,129],32:[2,129],33:[2,129],38:[2,129],39:[2,129],43:[2,129],47:[2,129],50:[2,129],52:[2,129],57:[2,129],61:[2,129],65:[2,129],66:[2,129],94:[2,129],96:[2,129],97:[2,129],103:[2,129]},{10:162,12:[1,161],22:[1,164],33:[2,93],40:10,46:248,51:163,52:[1,165],77:159,78:160,94:[1,11]},{10:249,32:[2,122],39:[2,122],40:10,94:[1,11]},{67:[1,250]},{12:[2,92],22:[2,92],33:[2,92],52:[2,92],94:[2,92]},{1:[2,122],10:251,22:[2,122],31:[2,122],32:[2,122],33:[2,122],38:[2,122],39:[2,122],40:10,43:[2,122],47:[2,122],50:[2,122],52:[2,122],57:[2,122],61:[2,122],65:[2,122],66:[2,122],94:[1,11],96:[2,122],97:[2,122],103:[2,122]},{10:162,12:[1,161],22:[1,164],33:[1,252],40:10,51:163,52:[1,165],77:188,78:160,94:[1,11]},{32:[2,135],39:[2,135]},{22:[2,73],32:[2,73],37:[2,73],38:[2,73],39:[2,73],50:[2,73],52:[2,73],57:[2,73],61:[2,73],65:[2,73],66:[2,73],94:[2,73]},{1:[2,42],22:[2,42],31:[2,42],32:[2,42],33:[2,42],38:[2,42],39:[2,42],43:[2,42],47:[2,42],50:[2,42],52:[2,42],57:[2,42],61:[2,42],65:[2,42],66:[2,42],94:[2,42],96:[2,42],97:[2,42],103:[2,42]},{10:253,11:[2,122],22:[2,122],33:[2,122],40:10,84:[2,122],94:[1,11]},{11:[2,133],22:[2,133],33:[2,133],84:[2,133]}],
-defaultActions: {75:[2,139],190:[2,50],211:[2,51]},
+table: [{1:[2,3],3:1,4:2,9:[1,3],15:[2,3],20:[2,3],22:[2,3],25:[2,3],31:[2,3],32:[2,3],38:[2,3],39:[2,3],43:[2,3],47:[2,3],50:[2,3],52:[2,3],57:[2,3],61:[2,3],65:[2,3],66:[2,3],94:[2,3],96:[2,3],97:[2,3],103:[2,3]},{1:[3]},{1:[2,126],5:4,15:[2,126],20:[2,126],22:[2,126],25:[2,126],31:[2,126],32:[2,126],38:[2,126],39:[2,126],43:[2,126],47:[2,126],50:[2,126],52:[2,126],57:[2,126],61:[2,126],65:[2,126],66:[2,126],94:[1,6],95:5,96:[1,7],97:[1,8],103:[2,126]},{10:9,11:[2,123],40:10,94:[1,11]},{1:[2,6],5:16,6:12,13:14,14:15,15:[1,17],20:[2,6],22:[2,6],25:[2,6],31:[2,6],32:[2,6],38:[2,6],39:[2,6],43:[2,6],47:[2,6],50:[2,6],52:[2,6],57:[2,6],61:[2,6],65:[2,6],66:[2,6],94:[1,6],95:13,96:[1,7],97:[1,8],103:[2,6]},{1:[2,124],15:[2,124],20:[2,124],22:[2,124],25:[2,124],31:[2,124],32:[2,124],33:[2,124],38:[2,124],39:[2,124],43:[2,124],47:[2,124],50:[2,124],52:[2,124],57:[2,124],61:[2,124],65:[2,124],66:[2,124],94:[2,124],96:[2,124],97:[2,124],103:[2,124]},{1:[2,127],15:[2,127],20:[2,127],22:[2,127],25:[2,127],31:[2,127],32:[2,127],33:[2,127],38:[2,127],39:[2,127],43:[2,127],47:[2,127],50:[2,127],52:[2,127],57:[2,127],61:[2,127],65:[2,127],66:[2,127],94:[2,127],96:[2,127],97:[2,127],103:[2,127]},{1:[2,128],15:[2,128],20:[2,128],22:[2,128],25:[2,128],31:[2,128],32:[2,128],33:[2,128],38:[2,128],39:[2,128],43:[2,128],47:[2,128],50:[2,128],52:[2,128],57:[2,128],61:[2,128],65:[2,128],66:[2,128],94:[2,128],96:[2,128],97:[2,128],103:[2,128]},{1:[2,129],15:[2,129],20:[2,129],22:[2,129],25:[2,129],31:[2,129],32:[2,129],33:[2,129],38:[2,129],39:[2,129],43:[2,129],47:[2,129],50:[2,129],52:[2,129],57:[2,129],61:[2,129],65:[2,129],66:[2,129],94:[2,129],96:[2,129],97:[2,129],103:[2,129]},{11:[1,18]},{1:[2,122],11:[2,122],12:[2,122],15:[2,122],20:[2,122],22:[2,122],23:[2,122],25:[2,122],31:[2,122],32:[2,122],33:[2,122],36:[2,122],37:[2,122],38:[2,122],39:[2,122],43:[2,122],47:[2,122],49:[2,122],50:[2,122],52:[2,122],57:[2,122],61:[2,122],65:[2,122],66:[2,122],67:[2,122],70:[2,122],71:[2,122],72:[2,122],73:[2,122],74:[2,122],75:[2,122],76:[2,122],79:[2,122],83:[2,122],84:[2,122],85:[2,122],86:[2,122],87:[2,122],88:[2,122],89:[2,122],90:[2,122],91:[2,122],93:[2,122],94:[1,19],96:[2,122],97:[2,122],103:[2,122]},{1:[2,120],11:[2,120],12:[2,120],15:[2,120],20:[2,120],22:[2,120],23:[2,120],25:[2,120],31:[2,120],32:[2,120],33:[2,120],36:[2,120],37:[2,120],38:[2,120],39:[2,120],43:[2,120],47:[2,120],49:[2,120],50:[2,120],52:[2,120],57:[2,120],61:[2,120],65:[2,120],66:[2,120],67:[2,120],70:[2,120],71:[2,120],72:[2,120],73:[2,120],74:[2,120],75:[2,120],76:[2,120],79:[2,120],83:[2,120],84:[2,120],85:[2,120],86:[2,120],87:[2,120],88:[2,120],89:[2,120],90:[2,120],91:[2,120],93:[2,120],94:[2,120],96:[2,120],97:[2,120],103:[2,120]},{1:[2,12],5:23,7:20,13:21,14:15,15:[1,17],18:22,19:24,20:[1,25],22:[2,12],25:[2,12],31:[2,12],32:[2,12],38:[2,12],39:[2,12],43:[2,12],47:[2,12],50:[2,12],52:[2,12],57:[2,12],61:[2,12],65:[2,12],66:[2,12],94:[1,6],95:5,96:[1,7],97:[1,8],103:[2,12]},{1:[2,125],15:[2,125],20:[2,125],22:[2,125],25:[2,125],31:[2,125],32:[2,125],38:[2,125],39:[2,125],43:[2,125],47:[2,125],50:[2,125],52:[2,125],57:[2,125],61:[2,125],65:[2,125],66:[2,125],94:[2,125],96:[2,125],97:[2,125],103:[2,125]},{1:[2,4],15:[2,4],20:[2,4],22:[2,4],25:[2,4],31:[2,4],32:[2,4],38:[2,4],39:[2,4],43:[2,4],47:[2,4],50:[2,4],52:[2,4],57:[2,4],61:[2,4],65:[2,4],66:[2,4],94:[2,4],96:[2,4],97:[2,4],103:[2,4]},{1:[2,7],15:[2,7],20:[2,7],22:[2,7],25:[2,7],31:[2,7],32:[2,7],38:[2,7],39:[2,7],43:[2,7],47:[2,7],50:[2,7],52:[2,7],57:[2,7],61:[2,7],65:[2,7],66:[2,7],94:[2,7],96:[2,7],97:[2,7],103:[2,7]},{1:[2,8],15:[2,8],20:[2,8],22:[2,8],25:[2,8],31:[2,8],32:[2,8],38:[2,8],39:[2,8],43:[2,8],47:[2,8],50:[2,8],52:[2,8],57:[2,8],61:[2,8],65:[2,8],66:[2,8],94:[1,6],95:26,96:[1,7],97:[1,8],103:[2,8]},{10:27,11:[2,123],23:[2,123],40:10,94:[1,11]},{10:28,12:[2,123],40:10,94:[1,11]},{1:[2,121],11:[2,121],12:[2,121],15:[2,121],20:[2,121],22:[2,121],23:[2,121],25:[2,121],31:[2,121],32:[2,121],33:[2,121],36:[2,121],37:[2,121],38:[2,121],39:[2,121],43:[2,121],47:[2,121],49:[2,121],50:[2,121],52:[2,121],57:[2,121],61:[2,121],65:[2,121],66:[2,121],67:[2,121],70:[2,121],71:[2,121],72:[2,121],73:[2,121],74:[2,121],75:[2,121],76:[2,121],79:[2,121],83:[2,121],84:[2,121],85:[2,121],86:[2,121],87:[2,121],88:[2,121],89:[2,121],90:[2,121],91:[2,121],93:[2,121],94:[2,121],96:[2,121],97:[2,121],103:[2,121]},{1:[2,126],5:33,8:29,18:30,19:24,20:[1,25],22:[1,50],24:31,25:[1,32],26:34,27:35,28:36,29:37,30:38,31:[1,40],32:[2,126],38:[1,58],39:[2,126],43:[1,41],47:[1,42],50:[2,126],52:[1,51],53:39,54:44,55:46,57:[2,126],58:47,59:48,60:49,61:[1,52],62:53,63:54,64:55,65:[1,56],66:[1,57],94:[1,6],95:5,96:[1,7],97:[1,8],98:43,103:[1,45]},{1:[2,5],15:[2,5],20:[2,5],22:[2,5],25:[2,5],31:[2,5],32:[2,5],38:[2,5],39:[2,5],43:[2,5],47:[2,5],50:[2,5],52:[2,5],57:[2,5],61:[2,5],65:[2,5],66:[2,5],94:[2,5],96:[2,5],97:[2,5],103:[2,5]},{1:[2,10],20:[2,10],22:[2,10],25:[2,10],31:[2,10],32:[2,10],38:[2,10],39:[2,10],43:[2,10],47:[2,10],50:[2,10],52:[2,10],57:[2,10],61:[2,10],65:[2,10],66:[2,10],94:[2,10],96:[2,10],97:[2,10],103:[2,10]},{1:[2,8],15:[2,8],20:[2,8],22:[2,8],25:[2,8],31:[2,8],32:[2,8],38:[2,8],39:[2,8],43:[2,8],47:[2,8],50:[2,8],52:[2,8],57:[2,8],61:[2,8],65:[2,8],66:[2,8],94:[1,6],95:26,96:[1,7],97:[1,8],103:[2,8]},{1:[2,13],20:[2,13],22:[2,13],25:[2,13],31:[2,13],32:[2,13],38:[2,13],39:[2,13],43:[2,13],47:[2,13],50:[2,13],52:[2,13],57:[2,13],61:[2,13],65:[2,13],66:[2,13],94:[2,13],96:[2,13],97:[2,13],103:[2,13]},{10:59,11:[2,123],22:[2,123],23:[2,123],40:10,94:[1,11]},{1:[2,125],15:[2,125],20:[2,125],22:[2,125],25:[2,125],31:[2,125],32:[2,125],33:[2,125],38:[2,125],39:[2,125],43:[2,125],47:[2,125],50:[2,125],52:[2,125],57:[2,125],61:[2,125],65:[2,125],66:[2,125],94:[2,125],96:[2,125],97:[2,125],103:[2,125]},{11:[1,61],16:60,23:[1,62]},{12:[1,63]},{1:[2,1],5:65,22:[1,50],24:64,26:34,27:35,28:36,29:37,30:38,31:[1,40],32:[2,126],38:[1,58],39:[2,126],43:[1,41],47:[1,42],50:[2,126],52:[1,51],53:39,54:44,55:46,57:[2,126],58:47,59:48,60:49,61:[1,52],62:53,63:54,64:55,65:[1,56],66:[1,57],94:[1,6],95:5,96:[1,7],97:[1,8],98:43,103:[1,45]},{1:[2,11],20:[2,11],22:[2,11],25:[2,11],31:[2,11],32:[2,11],38:[2,11],39:[2,11],43:[2,11],47:[2,11],50:[2,11],52:[2,11],57:[2,11],61:[2,11],65:[2,11],66:[2,11],94:[2,11],96:[2,11],97:[2,11],103:[2,11]},{1:[2,20],22:[2,20],31:[2,20],32:[2,20],33:[2,20],38:[2,20],39:[2,20],43:[2,20],47:[2,20],50:[2,20],52:[2,20],57:[2,20],61:[2,20],65:[2,20],66:[2,20],94:[2,20],96:[2,20],97:[2,20],103:[2,20]},{1:[2,22],22:[2,22],31:[2,22],32:[2,22],33:[2,22],38:[2,22],39:[2,22],43:[2,22],47:[2,22],50:[2,22],52:[2,22],57:[2,22],61:[2,22],65:[2,22],66:[2,22],94:[2,22],96:[2,22],97:[2,22],103:[2,22]},{1:[2,14],20:[2,14],22:[2,14],25:[2,14],31:[2,14],32:[2,14],38:[2,14],39:[2,14],43:[2,14],47:[2,14],50:[2,14],52:[2,14],57:[2,14],61:[2,14],65:[2,14],66:[2,14],94:[1,6],95:26,96:[1,7],97:[1,8],103:[2,14]},{1:[2,23],22:[2,23],31:[2,23],32:[2,23],33:[2,23],38:[2,23],39:[2,23],43:[2,23],47:[2,23],50:[2,23],52:[2,23],57:[2,23],61:[2,23],65:[2,23],66:[2,23],94:[2,23],96:[2,23],97:[2,23],103:[2,23]},{1:[2,24],22:[2,24],31:[2,24],32:[2,24],33:[2,24],38:[2,24],39:[2,24],43:[2,24],47:[2,24],50:[2,24],52:[2,24],57:[2,24],61:[2,24],65:[2,24],66:[2,24],94:[2,24],96:[2,24],97:[2,24],103:[2,24]},{1:[2,25],22:[2,25],31:[2,25],32:[2,25],33:[2,25],38:[2,25],39:[2,25],43:[2,25],47:[2,25],50:[2,25],52:[2,25],57:[2,25],61:[2,25],65:[2,25],66:[2,25],94:[2,25],96:[2,25],97:[2,25],103:[2,25]},{1:[2,26],22:[2,26],31:[2,26],32:[2,26],33:[2,26],38:[2,26],39:[2,26],43:[2,26],47:[2,26],50:[2,26],52:[2,26],57:[2,26],61:[2,26],65:[2,26],66:[2,26],94:[2,26],96:[2,26],97:[2,26],103:[2,26]},{1:[2,27],22:[2,27],31:[2,27],32:[2,27],33:[2,27],38:[2,27],39:[2,27],43:[2,27],47:[2,27],50:[2,27],52:[2,27],57:[2,27],61:[2,27],65:[2,27],66:[2,27],94:[2,27],96:[2,27],97:[2,27],103:[2,27]},{32:[1,66],39:[1,67]},{10:68,11:[2,123],22:[2,123],23:[2,123],32:[2,123],36:[2,123],37:[2,123],38:[2,123],39:[2,123],40:10,49:[2,123],50:[2,123],61:[2,123],76:[2,123],83:[2,123],84:[2,123],85:[2,123],86:[2,123],87:[2,123],88:[2,123],89:[2,123],90:[2,123],91:[2,123],94:[1,11]},{10:69,22:[2,123],32:[2,123],38:[2,123],40:10,94:[1,11]},{10:70,32:[2,123],40:10,94:[1,11]},{22:[1,71]},{22:[2,60],32:[2,53],38:[2,60],39:[2,53],40:75,50:[1,73],52:[2,60],56:72,57:[1,74],61:[2,60],65:[2,60],66:[2,60],94:[1,11]},{10:76,22:[2,123],40:10,94:[1,11]},{22:[2,55],32:[2,55],38:[2,55],39:[2,55],50:[2,55],52:[2,55],57:[2,55],61:[2,55],65:[2,55],66:[2,55],94:[2,55]},{22:[2,61],32:[2,61],38:[1,58],39:[2,61],50:[2,61],52:[2,61],57:[2,61],60:77,61:[1,52],62:53,63:54,64:55,65:[1,56],66:[1,57],94:[2,61]},{22:[2,65],32:[2,65],38:[1,58],39:[2,65],50:[2,65],52:[2,65],57:[2,65],58:78,60:49,61:[1,52],62:53,63:54,64:55,65:[1,56],66:[1,57],94:[2,65]},{22:[2,63],32:[2,63],38:[2,63],39:[2,63],50:[2,63],52:[2,63],57:[2,63],61:[2,63],65:[2,63],66:[2,63],94:[2,63]},{22:[2,71],32:[2,71],38:[2,71],39:[2,71],50:[2,71],52:[2,71],57:[2,71],61:[2,71],65:[2,71],66:[2,71],94:[2,71]},{22:[2,72],32:[2,72],38:[2,72],39:[2,72],50:[2,72],52:[2,72],57:[2,72],61:[2,72],65:[2,72],66:[2,72],94:[2,72]},{22:[2,66],32:[2,66],38:[2,66],39:[2,66],50:[2,66],52:[2,66],57:[2,66],61:[2,66],65:[2,66],66:[2,66],94:[2,66]},{22:[2,67],32:[2,67],38:[2,67],39:[2,67],50:[2,67],52:[2,67],57:[2,67],61:[2,67],65:[2,67],66:[2,67],94:[2,67]},{22:[2,68],32:[2,68],38:[2,68],39:[2,68],50:[2,68],52:[2,68],57:[2,68],61:[2,68],65:[2,68],66:[2,68],94:[2,68]},{22:[2,69],32:[2,69],38:[2,69],39:[2,69],50:[2,69],52:[2,69],57:[2,69],61:[2,69],65:[2,69],66:[2,69],94:[2,69]},{22:[1,79]},{10:80,22:[2,123],40:10,94:[1,11]},{22:[1,81],38:[1,83],76:[1,82]},{10:86,11:[2,123],21:84,22:[1,85],23:[2,123],40:10,94:[1,11]},{11:[1,92],12:[2,33],17:87,22:[1,93],23:[1,94],34:88,36:[2,33],37:[2,33],38:[2,33],39:[2,33],41:89,42:90,48:98,49:[1,109],50:[1,110],61:[1,99],76:[1,108],80:91,82:97,83:[1,100],84:[1,101],85:[1,102],86:[1,103],87:[1,104],88:[1,105],89:[1,106],90:[1,107],91:[1,95],92:96,94:[2,33]},{10:111,11:[2,123],12:[2,123],22:[2,123],23:[2,123],36:[2,123],37:[2,123],38:[2,123],39:[2,123],40:10,49:[2,123],50:[2,123],61:[2,123],76:[2,123],83:[2,123],84:[2,123],85:[2,123],86:[2,123],87:[2,123],88:[2,123],89:[2,123],90:[2,123],91:[2,123],94:[1,11]},{10:112,11:[2,123],12:[2,123],22:[2,123],23:[2,123],36:[2,123],37:[2,123],38:[2,123],39:[2,123],40:10,49:[2,123],50:[2,123],61:[2,123],76:[2,123],83:[2,123],84:[2,123],85:[2,123],86:[2,123],87:[2,123],88:[2,123],89:[2,123],90:[2,123],91:[2,123],94:[1,11]},{1:[2,2],15:[2,2],20:[2,2],22:[2,2],25:[2,2],31:[2,2],32:[2,2],38:[2,2],39:[2,2],43:[2,2],47:[2,2],50:[2,2],52:[2,2],57:[2,2],61:[2,2],65:[2,2],66:[2,2],94:[2,2],96:[2,2],97:[2,2],103:[2,2]},{1:[2,21],22:[2,21],31:[2,21],32:[2,21],33:[2,21],38:[2,21],39:[2,21],43:[2,21],47:[2,21],50:[2,21],52:[2,21],57:[2,21],61:[2,21],65:[2,21],66:[2,21],94:[2,21],96:[2,21],97:[2,21],103:[2,21]},{1:[2,28],22:[2,28],31:[2,28],32:[2,28],33:[2,28],38:[2,28],39:[2,28],43:[2,28],47:[2,28],50:[2,28],52:[2,28],57:[2,28],61:[2,28],65:[2,28],66:[2,28],94:[1,6],95:26,96:[1,7],97:[1,8],103:[2,28]},{10:113,12:[2,123],22:[2,123],33:[2,123],40:10,52:[2,123],94:[1,11]},{10:114,22:[2,123],32:[2,123],38:[2,123],39:[2,123],40:10,50:[2,123],52:[2,123],57:[2,123],61:[2,123],65:[2,123],66:[2,123],94:[1,11]},{11:[1,92],17:115,22:[1,93],23:[1,94],32:[2,33],34:88,36:[2,33],37:[2,33],38:[2,33],39:[2,33],41:89,42:90,48:98,49:[1,109],50:[1,110],61:[1,99],76:[1,108],80:91,82:97,83:[1,100],84:[1,101],85:[1,102],86:[1,103],87:[1,104],88:[1,105],89:[1,106],90:[1,107],91:[1,95],92:96,94:[2,33]},{22:[1,117],32:[2,44],38:[2,44],44:116,94:[2,44]},{32:[1,118]},{10:119,32:[2,123],40:10,94:[1,11]},{22:[1,50],32:[2,65],38:[1,58],39:[2,65],50:[2,65],52:[1,51],55:120,57:[2,65],58:47,59:48,60:49,61:[1,52],62:53,63:54,64:55,65:[1,56],66:[1,57],94:[2,65]},{10:121,22:[2,123],32:[2,123],38:[2,123],39:[2,123],40:10,50:[2,123],52:[2,123],57:[2,123],61:[2,123],65:[2,123],66:[2,123],94:[1,11]},{10:122,22:[2,123],32:[2,123],38:[2,123],39:[2,123],40:10,50:[2,123],52:[2,123],57:[2,123],61:[2,123],65:[2,123],66:[2,123],94:[1,11]},{22:[2,59],32:[2,59],38:[2,59],39:[2,59],50:[2,59],52:[2,59],57:[2,59],61:[2,59],65:[2,59],66:[2,59],94:[1,19]},{22:[2,140]},{22:[2,64],32:[2,64],38:[2,64],39:[2,64],50:[2,64],52:[2,64],57:[2,64],61:[2,64],65:[2,64],66:[2,64],94:[2,64]},{22:[2,62],32:[2,62],38:[1,58],39:[2,62],50:[2,62],52:[2,62],57:[2,62],60:77,61:[1,52],62:53,63:54,64:55,65:[1,56],66:[1,57],94:[2,62]},{22:[2,70],32:[2,70],38:[2,70],39:[2,70],50:[2,70],52:[2,70],57:[2,70],61:[2,70],65:[2,70],66:[2,70],94:[2,70]},{22:[1,123]},{22:[2,83],32:[2,83],38:[2,83],39:[2,83],50:[2,83],52:[2,83],57:[2,83],61:[2,83],65:[2,83],66:[2,83],94:[2,83]},{10:124,22:[2,123],40:10,66:[2,123],94:[1,11]},{22:[1,125]},{11:[1,61],16:126,23:[1,62]},{10:127,11:[2,123],23:[2,123],40:10,94:[1,11]},{11:[2,17],23:[2,17]},{11:[1,92],12:[1,128],22:[1,93],23:[1,94],34:129,35:130,36:[1,131],37:[1,132],38:[1,133],39:[1,134],40:135,41:89,42:90,48:98,49:[1,109],50:[1,110],61:[1,99],76:[1,108],80:91,82:97,83:[1,100],84:[1,101],85:[1,102],86:[1,103],87:[1,104],88:[1,105],89:[1,106],90:[1,107],91:[1,95],92:96,94:[1,11]},{11:[2,30],12:[2,30],22:[2,30],23:[2,30],32:[2,30],36:[2,30],37:[2,30],38:[2,30],39:[2,30],49:[2,30],50:[2,30],61:[2,30],76:[2,30],83:[2,30],84:[2,30],85:[2,30],86:[2,30],87:[2,30],88:[2,30],89:[2,30],90:[2,30],91:[2,30],94:[2,30]},{11:[1,92],12:[2,39],22:[1,93],23:[1,94],32:[2,39],36:[2,39],37:[2,39],38:[2,39],39:[1,139],42:141,48:98,49:[1,109],50:[1,110],61:[1,99],70:[1,140],76:[1,108],80:137,81:136,82:97,83:[1,100],84:[1,101],85:[1,102],86:[1,103],87:[1,104],88:[1,105],89:[1,106],90:[1,107],91:[1,95],92:96,93:[1,138],94:[2,39]},{11:[2,40],12:[2,40],22:[2,40],23:[2,40],32:[2,40],36:[2,40],37:[2,40],38:[2,40],39:[2,40],49:[2,40],50:[2,40],61:[2,40],70:[2,40],76:[2,40],83:[2,40],84:[2,40],85:[2,40],86:[2,40],87:[2,40],88:[2,40],89:[2,40],90:[2,40],91:[2,40],93:[2,40],94:[2,40]},{11:[2,95],12:[2,95],22:[2,95],23:[2,95],32:[2,95],33:[2,95],36:[2,95],37:[2,95],38:[2,95],39:[2,95],49:[2,95],50:[2,95],52:[2,95],61:[2,95],70:[2,95],76:[2,95],79:[2,95],83:[2,95],84:[2,95],85:[2,95],86:[2,95],87:[2,95],88:[2,95],89:[2,95],90:[2,95],91:[2,95],93:[2,95],94:[2,95]},{10:142,11:[2,123],12:[2,123],22:[2,123],23:[2,123],32:[2,123],33:[2,123],36:[2,123],37:[2,123],38:[2,123],39:[2,123],40:10,49:[2,123],50:[2,123],52:[2,123],61:[2,123],70:[2,123],76:[2,123],79:[2,123],83:[2,123],84:[2,123],85:[2,123],86:[2,123],87:[2,123],88:[2,123],89:[2,123],90:[2,123],91:[2,123],93:[2,123],94:[1,11]},{10:143,11:[2,123],12:[2,123],22:[2,123],23:[2,123],32:[2,123],33:[2,123],36:[2,123],37:[2,123],38:[2,123],39:[2,123],40:10,49:[2,123],50:[2,123],52:[2,123],61:[2,123],70:[2,123],76:[2,123],79:[2,123],83:[2,123],84:[2,123],85:[2,123],86:[2,123],87:[2,123],88:[2,123],89:[2,123],90:[2,123],91:[2,123],93:[2,123],94:[1,11]},{10:144,11:[2,123],12:[2,123],22:[2,123],23:[2,123],32:[2,123],33:[2,123],36:[2,123],37:[2,123],38:[2,123],39:[2,123],40:10,49:[2,123],50:[2,123],52:[2,123],61:[2,123],70:[2,123],76:[2,123],79:[2,123],83:[2,123],84:[2,123],85:[2,123],86:[2,123],87:[2,123],88:[2,123],89:[2,123],90:[2,123],91:[2,123],93:[2,123],94:[1,11]},{10:145,11:[2,123],12:[2,123],22:[2,123],23:[2,123],32:[2,123],33:[2,123],36:[2,123],37:[2,123],38:[2,123],39:[2,123],40:10,49:[2,123],50:[2,123],52:[2,123],61:[2,123],70:[2,123],76:[2,123],79:[2,123],83:[2,123],84:[2,123],85:[2,123],86:[2,123],87:[2,123],88:[2,123],89:[2,123],90:[2,123],91:[2,123],93:[2,123],94:[1,11]},{11:[2,114],12:[2,114],22:[2,114],23:[2,114],32:[2,114],33:[2,114],36:[2,114],37:[2,114],38:[2,114],39:[2,114],49:[2,114],50:[2,114],52:[2,114],61:[2,114],70:[2,114],76:[2,114],79:[2,114],83:[2,114],84:[2,114],85:[2,114],86:[2,114],87:[2,114],88:[2,114],89:[2,114],90:[2,114],91:[2,114],93:[2,114],94:[2,114]},{11:[2,98],12:[2,98],22:[2,98],23:[2,98],32:[2,98],33:[2,98],36:[2,98],37:[2,98],38:[2,98],39:[2,98],49:[2,98],50:[2,98],52:[2,98],61:[2,98],70:[2,98],76:[2,98],79:[2,98],83:[2,98],84:[2,98],85:[2,98],86:[2,98],87:[2,98],88:[2,98],89:[2,98],90:[2,98],91:[2,98],93:[2,98],94:[2,98]},{76:[1,108],82:146,83:[1,100],84:[1,101],85:[1,102],86:[1,103],87:[1,104],88:[1,105],89:[1,106],90:[1,107]},{10:147,11:[2,123],12:[2,123],22:[2,123],23:[2,123],32:[2,123],33:[2,123],36:[2,123],37:[2,123],38:[2,123],39:[2,123],40:10,49:[2,123],50:[2,123],52:[2,123],61:[2,123],70:[2,123],76:[2,123],79:[2,123],83:[2,123],84:[2,123],85:[2,123],86:[2,123],87:[2,123],88:[2,123],89:[2,123],90:[2,123],91:[2,123],93:[2,123],94:[1,11]},{10:148,11:[2,123],12:[2,123],22:[2,123],23:[2,123],32:[2,123],33:[2,123],36:[2,123],37:[2,123],38:[2,123],39:[2,123],40:10,49:[2,123],50:[2,123],52:[2,123],61:[2,123],70:[2,123],76:[2,123],79:[2,123],83:[2,123],84:[2,123],85:[2,123],86:[2,123],87:[2,123],88:[2,123],89:[2,123],90:[2,123],91:[2,123],93:[2,123],94:[1,11]},{10:149,11:[2,123],12:[2,123],22:[2,123],23:[2,123],32:[2,123],33:[2,123],36:[2,123],37:[2,123],38:[2,123],39:[2,123],40:10,49:[2,123],50:[2,123],52:[2,123],61:[2,123],70:[2,123],76:[2,123],79:[2,123],83:[2,123],84:[2,123],85:[2,123],86:[2,123],87:[2,123],88:[2,123],89:[2,123],90:[2,123],91:[2,123],93:[2,123],94:[1,11]},{10:150,11:[2,123],12:[2,123],22:[2,123],23:[2,123],32:[2,123],33:[2,123],36:[2,123],37:[2,123],38:[2,123],39:[2,123],40:10,49:[2,123],50:[2,123],52:[2,123],61:[2,123],70:[2,123],76:[2,123],79:[2,123],83:[2,123],84:[2,123],85:[2,123],86:[2,123],87:[2,123],88:[2,123],89:[2,123],90:[2,123],91:[2,123],93:[2,123],94:[1,11]},{10:151,11:[2,123],12:[2,123],22:[2,123],23:[2,123],32:[2,123],33:[2,123],36:[2,123],37:[2,123],38:[2,123],39:[2,123],40:10,49:[2,123],50:[2,123],52:[2,123],61:[2,123],70:[2,123],76:[2,123],79:[2,123],83:[2,123],84:[2,123],85:[2,123],86:[2,123],87:[2,123],88:[2,123],89:[2,123],90:[2,123],91:[2,123],93:[2,123],94:[1,11]},{10:152,11:[2,123],12:[2,123],22:[2,123],23:[2,123],32:[2,123],33:[2,123],36:[2,123],37:[2,123],38:[2,123],39:[2,123],40:10,49:[2,123],50:[2,123],52:[2,123],61:[2,123],70:[2,123],76:[2,123],79:[2,123],83:[2,123],84:[2,123],85:[2,123],86:[2,123],87:[2,123],88:[2,123],89:[2,123],90:[2,123],91:[2,123],93:[2,123],94:[1,11]},{10:153,11:[2,123],12:[2,123],22:[2,123],23:[2,123],32:[2,123],33:[2,123],36:[2,123],37:[2,123],38:[2,123],39:[2,123],40:10,49:[2,123],50:[2,123],52:[2,123],61:[2,123],70:[2,123],76:[2,123],79:[2,123],83:[2,123],84:[2,123],85:[2,123],86:[2,123],87:[2,123],88:[2,123],89:[2,123],90:[2,123],91:[2,123],93:[2,123],94:[1,11]},{10:154,11:[2,123],12:[2,123],22:[2,123],23:[2,123],32:[2,123],33:[2,123],36:[2,123],37:[2,123],38:[2,123],39:[2,123],40:10,49:[2,123],50:[2,123],52:[2,123],61:[2,123],70:[2,123],76:[2,123],79:[2,123],83:[2,123],84:[2,123],85:[2,123],86:[2,123],87:[2,123],88:[2,123],89:[2,123],90:[2,123],91:[2,123],93:[2,123],94:[1,11]},{10:155,11:[2,123],12:[2,123],22:[2,123],23:[2,123],32:[2,123],33:[2,123],36:[2,123],37:[2,123],38:[2,123],39:[2,123],40:10,49:[2,123],50:[2,123],52:[2,123],61:[2,123],70:[2,123],76:[2,123],79:[2,123],83:[2,123],84:[2,123],85:[2,123],86:[2,123],87:[2,123],88:[2,123],89:[2,123],90:[2,123],91:[2,123],93:[2,123],94:[1,11]},{10:156,11:[2,123],22:[2,123],23:[2,123],40:10,49:[2,123],50:[2,123],61:[2,123],76:[2,123],83:[2,123],84:[2,123],85:[2,123],86:[2,123],87:[2,123],88:[2,123],89:[2,123],90:[2,123],91:[2,123],94:[1,11]},{76:[2,48],83:[2,48],84:[2,48],85:[2,48],86:[2,48],87:[2,48],88:[2,48],89:[2,48],90:[2,48]},{76:[2,49],83:[2,49],84:[2,49],85:[2,49],86:[2,49],87:[2,49],88:[2,49],89:[2,49],90:[2,49]},{11:[2,18],12:[2,18],22:[2,18],23:[2,18],36:[2,18],37:[2,18],38:[2,18],39:[2,18],49:[2,18],50:[2,18],61:[2,18],76:[2,18],83:[2,18],84:[2,18],85:[2,18],86:[2,18],87:[2,18],88:[2,18],89:[2,18],90:[2,18],91:[2,18],94:[2,18]},{11:[2,19],12:[2,19],22:[2,19],23:[2,19],36:[2,19],37:[2,19],38:[2,19],39:[2,19],49:[2,19],50:[2,19],61:[2,19],76:[2,19],83:[2,19],84:[2,19],85:[2,19],86:[2,19],87:[2,19],88:[2,19],89:[2,19],90:[2,19],91:[2,19],94:[2,19]},{10:161,12:[1,160],22:[1,163],33:[2,94],40:10,46:157,51:162,52:[1,164],77:158,78:159,94:[1,11]},{22:[1,50],32:[2,65],38:[1,58],39:[2,65],50:[2,65],52:[1,51],54:165,55:46,57:[2,65],58:47,59:48,60:49,61:[1,52],62:53,63:54,64:55,65:[1,56],66:[1,57],94:[2,65]},{11:[1,92],22:[1,93],23:[1,94],32:[1,166],34:129,35:130,36:[1,131],37:[1,132],38:[1,133],39:[1,134],40:135,41:89,42:90,48:98,49:[1,109],50:[1,110],61:[1,99],76:[1,108],80:91,82:97,83:[1,100],84:[1,101],85:[1,102],86:[1,103],87:[1,104],88:[1,105],89:[1,106],90:[1,107],91:[1,95],92:96,94:[1,11]},{32:[2,46],38:[1,168],45:167,94:[2,46]},{32:[2,43],38:[2,43],94:[2,43]},{10:169,12:[2,123],22:[2,123],33:[2,123],40:10,52:[2,123],94:[1,11]},{32:[1,170]},{22:[2,56],32:[2,56],38:[2,56],39:[2,56],50:[2,56],52:[2,56],57:[2,56],61:[2,56],65:[2,56],66:[2,56],94:[2,56]},{22:[2,57],32:[2,57],38:[2,57],39:[2,57],50:[2,57],52:[2,57],57:[2,57],61:[2,57],65:[2,57],66:[2,57],94:[2,57]},{22:[2,58],32:[2,58],38:[2,58],39:[2,58],50:[2,58],52:[2,58],57:[2,58],61:[2,58],65:[2,58],66:[2,58],94:[2,58]},{10:171,40:10,67:[2,123],70:[2,123],71:[2,123],72:[2,123],73:[2,123],74:[2,123],75:[2,123],94:[1,11]},{22:[1,172],63:173,66:[1,57]},{22:[2,86],32:[2,86],38:[2,86],39:[2,86],50:[2,86],52:[2,86],57:[2,86],61:[2,86],65:[2,86],66:[2,86],94:[2,86]},{12:[1,174]},{11:[2,16],23:[2,16]},{1:[2,123],10:175,15:[2,123],20:[2,123],22:[2,123],25:[2,123],31:[2,123],32:[2,123],38:[2,123],39:[2,123],40:10,43:[2,123],47:[2,123],50:[2,123],52:[2,123],57:[2,123],61:[2,123],65:[2,123],66:[2,123],94:[1,11],96:[2,123],97:[2,123],103:[2,123]},{11:[2,31],12:[2,31],22:[2,31],23:[2,31],32:[2,31],36:[2,31],37:[2,31],38:[2,31],39:[2,31],49:[2,31],50:[2,31],61:[2,31],76:[2,31],83:[2,31],84:[2,31],85:[2,31],86:[2,31],87:[2,31],88:[2,31],89:[2,31],90:[2,31],91:[2,31],94:[2,31]},{11:[1,92],12:[2,41],22:[1,93],23:[1,94],32:[2,41],34:176,36:[2,41],37:[2,41],38:[2,41],39:[2,41],41:89,42:90,48:98,49:[1,109],50:[1,110],61:[1,99],76:[1,108],80:91,82:97,83:[1,100],84:[1,101],85:[1,102],86:[1,103],87:[1,104],88:[1,105],89:[1,106],90:[1,107],91:[1,95],92:96,94:[2,41]},{10:177,11:[2,123],12:[2,123],22:[2,123],23:[2,123],32:[2,123],36:[2,123],37:[2,123],38:[2,123],39:[2,123],40:10,49:[2,123],50:[2,123],61:[2,123],76:[2,123],83:[2,123],84:[2,123],85:[2,123],86:[2,123],87:[2,123],88:[2,123],89:[2,123],90:[2,123],91:[2,123],94:[1,11]},{10:178,11:[2,123],12:[2,123],22:[2,123],23:[2,123],32:[2,123],36:[2,123],37:[2,123],38:[2,123],39:[2,123],40:10,49:[2,123],50:[2,123],61:[2,123],76:[2,123],83:[2,123],84:[2,123],85:[2,123],86:[2,123],87:[2,123],88:[2,123],89:[2,123],90:[2,123],91:[2,123],94:[1,11]},{10:179,11:[2,123],12:[2,123],22:[2,123],23:[2,123],32:[2,123],36:[2,123],37:[2,123],38:[2,123],39:[2,123],40:10,49:[2,123],50:[2,123],61:[2,123],76:[2,123],83:[2,123],84:[2,123],85:[2,123],86:[2,123],87:[2,123],88:[2,123],89:[2,123],90:[2,123],91:[2,123],94:[1,11]},{10:180,11:[2,123],12:[2,123],22:[2,123],23:[2,123],32:[2,123],36:[2,123],37:[2,123],38:[2,123],39:[2,123],40:10,49:[2,123],50:[2,123],61:[2,123],76:[2,123],83:[2,123],84:[2,123],85:[2,123],86:[2,123],87:[2,123],88:[2,123],89:[2,123],90:[2,123],91:[2,123],94:[1,11]},{11:[2,38],12:[2,38],22:[2,38],23:[2,38],32:[2,38],36:[2,38],37:[2,38],38:[2,38],39:[2,38],49:[2,38],50:[2,38],61:[2,38],76:[2,38],83:[2,38],84:[2,38],85:[2,38],86:[2,38],87:[2,38],88:[2,38],89:[2,38],90:[2,38],91:[2,38],94:[1,19]},{11:[1,92],22:[1,93],23:[1,94],42:141,48:98,49:[1,109],50:[1,110],61:[1,99],76:[1,108],80:181,82:97,83:[1,100],84:[1,101],85:[1,102],86:[1,103],87:[1,104],88:[1,105],89:[1,106],90:[1,107],91:[1,95],92:96},{11:[2,97],12:[2,97],22:[2,97],23:[2,97],32:[2,97],33:[2,97],36:[2,97],37:[2,97],38:[2,97],39:[2,97],49:[2,97],50:[2,97],52:[2,97],61:[2,97],70:[2,97],76:[2,97],79:[2,97],83:[2,97],84:[2,97],85:[2,97],86:[2,97],87:[2,97],88:[2,97],89:[2,97],90:[2,97],91:[2,97],93:[2,97],94:[2,97]},{10:182,11:[2,123],22:[2,123],23:[2,123],40:10,49:[2,123],50:[2,123],61:[2,123],76:[2,123],83:[2,123],84:[2,123],85:[2,123],86:[2,123],87:[2,123],88:[2,123],89:[2,123],90:[2,123],91:[2,123],94:[1,11]},{10:183,11:[2,123],22:[2,123],23:[2,123],40:10,49:[2,123],50:[2,123],61:[2,123],76:[2,123],83:[2,123],84:[2,123],85:[2,123],86:[2,123],87:[2,123],88:[2,123],89:[2,123],90:[2,123],91:[2,123],94:[1,11]},{10:184,11:[2,123],22:[2,123],23:[2,123],40:10,49:[2,123],50:[2,123],61:[2,123],76:[2,123],83:[2,123],84:[2,123],85:[2,123],86:[2,123],87:[2,123],88:[2,123],89:[2,123],90:[2,123],91:[2,123],94:[1,11]},{11:[2,100],12:[2,100],22:[2,100],23:[2,100],32:[2,100],33:[2,100],36:[2,100],37:[2,100],38:[2,100],39:[2,100],49:[2,100],50:[2,100],52:[2,100],61:[2,100],70:[2,100],76:[2,100],79:[2,100],83:[2,100],84:[2,100],85:[2,100],86:[2,100],87:[2,100],88:[2,100],89:[2,100],90:[2,100],91:[2,100],93:[2,100],94:[2,100]},{11:[2,110],12:[2,110],22:[2,110],23:[2,110],32:[2,110],33:[2,110],36:[2,110],37:[2,110],38:[2,110],39:[2,110],49:[2,110],50:[2,110],52:[2,110],61:[2,110],70:[2,110],76:[2,110],79:[2,110],83:[2,110],84:[2,110],85:[2,110],86:[2,110],87:[2,110],88:[2,110],89:[2,110],90:[2,110],91:[2,110],93:[2,110],94:[2,110]},{11:[2,111],12:[2,111],22:[2,111],23:[2,111],32:[2,111],33:[2,111],36:[2,111],37:[2,111],38:[2,111],39:[2,111],49:[2,111],50:[2,111],52:[2,111],61:[2,111],70:[2,111],76:[2,111],79:[2,111],83:[2,111],84:[2,111],85:[2,111],86:[2,111],87:[2,111],88:[2,111],89:[2,111],90:[2,111],91:[2,111],93:[2,111],94:[2,111]},{11:[2,112],12:[2,112],22:[2,112],23:[2,112],32:[2,112],33:[2,112],36:[2,112],37:[2,112],38:[2,112],39:[2,112],49:[2,112],50:[2,112],52:[2,112],61:[2,112],70:[2,112],76:[2,112],79:[2,112],83:[2,112],84:[2,112],85:[2,112],86:[2,112],87:[2,112],88:[2,112],89:[2,112],90:[2,112],91:[2,112],93:[2,112],94:[2,112]},{11:[2,113],12:[2,113],22:[2,113],23:[2,113],32:[2,113],33:[2,113],36:[2,113],37:[2,113],38:[2,113],39:[2,113],49:[2,113],50:[2,113],52:[2,113],61:[2,113],70:[2,113],76:[2,113],79:[2,113],83:[2,113],84:[2,113],85:[2,113],86:[2,113],87:[2,113],88:[2,113],89:[2,113],90:[2,113],91:[2,113],93:[2,113],94:[2,113]},{11:[2,99],12:[2,99],22:[2,99],23:[2,99],32:[2,99],33:[2,99],36:[2,99],37:[2,99],38:[2,99],39:[2,99],49:[2,99],50:[2,99],52:[2,99],61:[2,99],70:[2,99],76:[2,99],79:[2,99],83:[2,99],84:[2,99],85:[2,99],86:[2,99],87:[2,99],88:[2,99],89:[2,99],90:[2,99],91:[2,99],93:[2,99],94:[2,99]},{11:[2,119],12:[2,119],22:[2,119],23:[2,119],32:[2,119],33:[2,119],36:[2,119],37:[2,119],38:[2,119],39:[2,119],49:[2,119],50:[2,119],52:[2,119],61:[2,119],70:[2,119],76:[2,119],79:[2,119],83:[2,119],84:[2,119],85:[2,119],86:[2,119],87:[2,119],88:[2,119],89:[2,119],90:[2,119],91:[2,119],93:[2,119],94:[2,119]},{11:[2,101],12:[2,101],22:[2,101],23:[2,101],32:[2,101],33:[2,101],36:[2,101],37:[2,101],38:[2,101],39:[2,101],49:[2,101],50:[2,101],52:[2,101],61:[2,101],70:[2,101],76:[2,101],79:[2,101],83:[2,101],84:[2,101],85:[2,101],86:[2,101],87:[2,101],88:[2,101],89:[2,101],90:[2,101],91:[2,101],93:[2,101],94:[2,101]},{11:[2,102],12:[2,102],22:[2,102],23:[2,102],32:[2,102],33:[2,102],36:[2,102],37:[2,102],38:[2,102],39:[2,102],49:[2,102],50:[2,102],52:[2,102],61:[2,102],70:[2,102],76:[2,102],79:[2,102],83:[2,102],84:[2,102],85:[2,102],86:[2,102],87:[2,102],88:[2,102],89:[2,102],90:[2,102],91:[2,102],93:[2,102],94:[2,102]},{11:[2,103],12:[2,103],22:[2,103],23:[2,103],32:[2,103],33:[2,103],36:[2,103],37:[2,103],38:[2,103],39:[2,103],49:[2,103],50:[2,103],52:[2,103],61:[2,103],70:[2,103],76:[2,103],79:[2,103],83:[2,103],84:[2,103],85:[2,103],86:[2,103],87:[2,103],88:[2,103],89:[2,103],90:[2,103],91:[2,103],93:[2,103],94:[2,103]},{11:[2,104],12:[2,104],22:[2,104],23:[2,104],32:[2,104],33:[2,104],36:[2,104],37:[2,104],38:[2,104],39:[2,104],49:[2,104],50:[2,104],52:[2,104],61:[2,104],70:[2,104],76:[2,104],79:[2,104],83:[2,104],84:[2,104],85:[2,104],86:[2,104],87:[2,104],88:[2,104],89:[2,104],90:[2,104],91:[2,104],93:[2,104],94:[2,104]},{11:[2,105],12:[2,105],22:[2,105],23:[2,105],32:[2,105],33:[2,105],36:[2,105],37:[2,105],38:[2,105],39:[2,105],49:[2,105],50:[2,105],52:[2,105],61:[2,105],70:[2,105],76:[2,105],79:[2,105],83:[2,105],84:[2,105],85:[2,105],86:[2,105],87:[2,105],88:[2,105],89:[2,105],90:[2,105],91:[2,105],93:[2,105],94:[2,105]},{11:[2,106],12:[2,106],22:[2,106],23:[2,106],32:[2,106],33:[2,106],36:[2,106],37:[2,106],38:[2,106],39:[2,106],49:[2,106],50:[2,106],52:[2,106],61:[2,106],70:[2,106],76:[2,106],79:[2,106],83:[2,106],84:[2,106],85:[2,106],86:[2,106],87:[2,106],88:[2,106],89:[2,106],90:[2,106],91:[2,106],93:[2,106],94:[2,106]},{11:[2,107],12:[2,107],22:[2,107],23:[2,107],32:[2,107],33:[2,107],36:[2,107],37:[2,107],38:[2,107],39:[2,107],49:[2,107],50:[2,107],52:[2,107],61:[2,107],70:[2,107],76:[2,107],79:[2,107],83:[2,107],84:[2,107],85:[2,107],86:[2,107],87:[2,107],88:[2,107],89:[2,107],90:[2,107],91:[2,107],93:[2,107],94:[2,107]},{11:[2,108],12:[2,108],22:[2,108],23:[2,108],32:[2,108],33:[2,108],36:[2,108],37:[2,108],38:[2,108],39:[2,108],49:[2,108],50:[2,108],52:[2,108],61:[2,108],70:[2,108],76:[2,108],79:[2,108],83:[2,108],84:[2,108],85:[2,108],86:[2,108],87:[2,108],88:[2,108],89:[2,108],90:[2,108],91:[2,108],93:[2,108],94:[2,108]},{11:[1,92],22:[1,93],23:[1,94],41:185,42:141,48:98,49:[1,109],50:[1,110],61:[1,99],76:[1,108],80:91,82:97,83:[1,100],84:[1,101],85:[1,102],86:[1,103],87:[1,104],88:[1,105],89:[1,106],90:[1,107],91:[1,95],92:96},{10:161,12:[1,160],22:[1,163],33:[1,186],40:10,51:162,52:[1,164],77:187,78:159,94:[1,11]},{12:[2,87],22:[2,87],33:[2,87],52:[2,87],94:[2,87]},{12:[2,89],22:[2,89],33:[2,89],52:[2,89],94:[2,89]},{12:[2,90],22:[2,90],33:[2,90],52:[2,90],94:[2,90]},{12:[2,91],22:[2,91],33:[2,91],52:[2,91],94:[2,91]},{38:[1,188]},{10:189,38:[2,123],40:10,94:[1,11]},{22:[1,190]},{22:[2,60],32:[2,54],38:[2,60],39:[2,54],40:75,50:[1,73],52:[2,60],56:72,57:[1,74],61:[2,60],65:[2,60],66:[2,60],94:[1,11]},{10:191,22:[2,123],25:[2,123],31:[2,123],32:[2,123],33:[2,123],38:[2,123],39:[2,123],40:10,43:[2,123],47:[2,123],50:[2,123],52:[2,123],57:[2,123],61:[2,123],65:[2,123],66:[2,123],94:[1,11],96:[2,123],97:[2,123],103:[2,123]},{10:192,32:[2,123],40:10,94:[1,11]},{22:[1,193]},{10:161,12:[1,160],22:[1,163],33:[2,94],40:10,46:194,51:162,52:[1,164],77:158,78:159,94:[1,11]},{10:195,11:[2,123],22:[2,123],33:[2,123],40:10,84:[2,123],94:[1,11]},{67:[1,196],68:197,70:[1,198],71:[1,199],72:[1,200],73:[1,201],74:[1,202],75:[1,203]},{10:204,37:[2,123],40:10,94:[1,11]},{10:205,37:[2,123],40:10,94:[1,11]},{1:[2,123],10:206,20:[2,123],22:[2,123],25:[2,123],31:[2,123],32:[2,123],38:[2,123],39:[2,123],40:10,43:[2,123],47:[2,123],50:[2,123],52:[2,123],57:[2,123],61:[2,123],65:[2,123],66:[2,123],94:[1,11],96:[2,123],97:[2,123],103:[2,123]},{1:[2,9],15:[2,9],20:[2,9],22:[2,9],25:[2,9],31:[2,9],32:[2,9],38:[2,9],39:[2,9],43:[2,9],47:[2,9],50:[2,9],52:[2,9],57:[2,9],61:[2,9],65:[2,9],66:[2,9],94:[2,9],96:[2,9],97:[2,9],103:[2,9]},{11:[2,32],12:[2,32],22:[2,32],23:[2,32],32:[2,32],36:[2,32],37:[2,32],38:[2,32],39:[2,32],49:[2,32],50:[2,32],61:[2,32],76:[2,32],83:[2,32],84:[2,32],85:[2,32],86:[2,32],87:[2,32],88:[2,32],89:[2,32],90:[2,32],91:[2,32],94:[2,32]},{11:[2,34],12:[2,34],22:[2,34],23:[2,34],32:[2,34],36:[2,34],37:[2,34],38:[2,34],39:[2,34],49:[2,34],50:[2,34],61:[2,34],76:[2,34],83:[2,34],84:[2,34],85:[2,34],86:[2,34],87:[2,34],88:[2,34],89:[2,34],90:[2,34],91:[2,34],94:[2,34]},{11:[2,35],12:[2,35],22:[2,35],23:[2,35],32:[2,35],36:[2,35],37:[2,35],38:[2,35],39:[2,35],49:[2,35],50:[2,35],61:[2,35],76:[2,35],83:[2,35],84:[2,35],85:[2,35],86:[2,35],87:[2,35],88:[2,35],89:[2,35],90:[2,35],91:[2,35],94:[2,35]},{11:[2,36],12:[2,36],22:[2,36],23:[2,36],32:[2,36],36:[2,36],37:[2,36],38:[2,36],39:[2,36],49:[2,36],50:[2,36],61:[2,36],76:[2,36],83:[2,36],84:[2,36],85:[2,36],86:[2,36],87:[2,36],88:[2,36],89:[2,36],90:[2,36],91:[2,36],94:[2,36]},{11:[2,37],12:[2,37],22:[2,37],23:[2,37],32:[2,37],36:[2,37],37:[2,37],38:[2,37],39:[2,37],49:[2,37],50:[2,37],61:[2,37],76:[2,37],83:[2,37],84:[2,37],85:[2,37],86:[2,37],87:[2,37],88:[2,37],89:[2,37],90:[2,37],91:[2,37],94:[2,37]},{11:[2,96],12:[2,96],22:[2,96],23:[2,96],32:[2,96],33:[2,96],36:[2,96],37:[2,96],38:[2,96],39:[2,96],49:[2,96],50:[2,96],52:[2,96],61:[2,96],70:[2,96],76:[2,96],79:[2,96],83:[2,96],84:[2,96],85:[2,96],86:[2,96],87:[2,96],88:[2,96],89:[2,96],90:[2,96],91:[2,96],93:[2,96],94:[2,96]},{11:[2,115],22:[2,115],23:[2,115],49:[2,115],50:[2,115],61:[2,115],76:[2,115],83:[2,115],84:[2,115],85:[2,115],86:[2,115],87:[2,115],88:[2,115],89:[2,115],90:[2,115],91:[2,115]},{11:[2,116],22:[2,116],23:[2,116],49:[2,116],50:[2,116],61:[2,116],76:[2,116],83:[2,116],84:[2,116],85:[2,116],86:[2,116],87:[2,116],88:[2,116],89:[2,116],90:[2,116],91:[2,116]},{11:[2,117],22:[2,117],23:[2,117],49:[2,117],50:[2,117],61:[2,117],76:[2,117],83:[2,117],84:[2,117],85:[2,117],86:[2,117],87:[2,117],88:[2,117],89:[2,117],90:[2,117],91:[2,117]},{11:[1,92],22:[1,93],23:[1,94],37:[1,207],39:[1,139],42:141,48:98,49:[1,109],50:[1,110],61:[1,99],70:[1,140],76:[1,108],80:137,81:136,82:97,83:[1,100],84:[1,101],85:[1,102],86:[1,103],87:[1,104],88:[1,105],89:[1,106],90:[1,107],91:[1,95],92:96,93:[1,138]},{1:[2,123],10:208,22:[2,123],31:[2,123],32:[2,123],33:[2,123],38:[2,123],39:[2,123],40:10,43:[2,123],47:[2,123],50:[2,123],52:[2,123],57:[2,123],61:[2,123],65:[2,123],66:[2,123],94:[1,11],96:[2,123],97:[2,123],103:[2,123]},{12:[2,88],22:[2,88],33:[2,88],52:[2,88],94:[2,88]},{10:209,11:[2,123],22:[2,123],23:[2,123],40:10,49:[2,123],50:[2,123],61:[2,123],76:[2,123],83:[2,123],84:[2,123],85:[2,123],86:[2,123],87:[2,123],88:[2,123],89:[2,123],90:[2,123],91:[2,123],94:[1,11]},{38:[2,50]},{10:210,38:[2,123],40:10,94:[1,11]},{5:65,8:211,22:[1,50],24:31,25:[1,32],26:34,27:35,28:36,29:37,30:38,31:[1,40],32:[2,126],33:[2,126],38:[1,58],39:[2,126],43:[1,41],47:[1,42],50:[2,126],52:[1,51],53:39,54:44,55:46,57:[2,126],58:47,59:48,60:49,61:[1,52],62:53,63:54,64:55,65:[1,56],66:[1,57],94:[1,6],95:5,96:[1,7],97:[1,8],98:43,103:[1,45]},{32:[1,212]},{32:[2,45],94:[2,45]},{10:161,12:[1,160],22:[1,163],33:[1,213],40:10,51:162,52:[1,164],77:187,78:159,94:[1,11]},{11:[1,219],22:[1,218],33:[2,133],84:[1,220],99:214,100:215,101:216,102:217},{22:[2,73],32:[2,73],37:[2,73],38:[2,73],39:[2,73],50:[2,73],52:[2,73],57:[2,73],61:[2,73],65:[2,73],66:[2,73],94:[2,73]},{10:221,11:[2,123],22:[2,123],40:10,94:[1,11]},{11:[2,75],22:[2,75],94:[2,75]},{11:[2,76],22:[2,76],94:[2,76]},{11:[2,77],22:[2,77],94:[2,77]},{11:[2,78],22:[2,78],94:[2,78]},{11:[2,79],22:[2,79],94:[2,79]},{11:[2,80],22:[2,80],94:[2,80]},{37:[1,222]},{37:[1,223]},{1:[2,15],20:[2,15],22:[2,15],25:[2,15],31:[2,15],32:[2,15],38:[2,15],39:[2,15],43:[2,15],47:[2,15],50:[2,15],52:[2,15],57:[2,15],61:[2,15],65:[2,15],66:[2,15],94:[2,15],96:[2,15],97:[2,15],103:[2,15]},{10:224,11:[2,123],12:[2,123],22:[2,123],23:[2,123],32:[2,123],33:[2,123],36:[2,123],37:[2,123],38:[2,123],39:[2,123],40:10,49:[2,123],50:[2,123],52:[2,123],61:[2,123],70:[2,123],76:[2,123],79:[2,123],83:[2,123],84:[2,123],85:[2,123],86:[2,123],87:[2,123],88:[2,123],89:[2,123],90:[2,123],91:[2,123],93:[2,123],94:[1,11]},{1:[2,52],22:[2,52],31:[2,52],32:[2,52],33:[2,52],38:[2,52],39:[2,52],43:[2,52],47:[2,52],50:[2,52],52:[2,52],57:[2,52],61:[2,52],65:[2,52],66:[2,52],94:[2,52],96:[2,52],97:[2,52],103:[2,52]},{11:[1,92],22:[1,93],23:[1,94],41:225,42:141,48:98,49:[1,109],50:[1,110],61:[1,99],76:[1,108],80:91,82:97,83:[1,100],84:[1,101],85:[1,102],86:[1,103],87:[1,104],88:[1,105],89:[1,106],90:[1,107],91:[1,95],92:96},{38:[2,51]},{5:65,22:[1,50],24:64,26:34,27:35,28:36,29:37,30:38,31:[1,40],32:[2,126],33:[1,226],38:[1,58],39:[2,126],43:[1,41],47:[1,42],50:[2,126],52:[1,51],53:39,54:44,55:46,57:[2,126],58:47,59:48,60:49,61:[1,52],62:53,63:54,64:55,65:[1,56],66:[1,57],94:[1,6],95:5,96:[1,7],97:[1,8],98:43,103:[1,45]},{10:227,12:[2,123],22:[2,123],33:[2,123],40:10,52:[2,123],94:[1,11]},{1:[2,123],10:228,22:[2,123],31:[2,123],32:[2,123],33:[2,123],38:[2,123],39:[2,123],40:10,43:[2,123],47:[2,123],50:[2,123],52:[2,123],57:[2,123],61:[2,123],65:[2,123],66:[2,123],94:[1,11],96:[2,123],97:[2,123],103:[2,123]},{11:[1,219],22:[1,218],33:[1,229],84:[1,220],100:230,101:216,102:217},{11:[2,131],22:[2,131],33:[2,131],84:[2,131]},{32:[1,231],39:[1,232]},{10:233,32:[2,123],39:[2,123],40:10,94:[1,11]},{32:[2,137],39:[2,137],94:[2,137]},{32:[2,138],39:[2,138],94:[2,138]},{32:[2,139],39:[2,139],94:[2,139]},{11:[1,236],22:[1,235],69:234},{22:[2,84],32:[2,84],38:[2,84],39:[2,84],50:[2,84],52:[2,84],57:[2,84],61:[2,84],65:[2,84],66:[2,84],94:[2,84]},{22:[2,85],32:[2,85],38:[2,85],39:[2,85],50:[2,85],52:[2,85],57:[2,85],61:[2,85],65:[2,85],66:[2,85],94:[2,85]},{11:[2,109],12:[2,109],22:[2,109],23:[2,109],32:[2,109],33:[2,109],36:[2,109],37:[2,109],38:[2,109],39:[2,109],49:[2,109],50:[2,109],52:[2,109],61:[2,109],70:[2,109],76:[2,109],79:[2,109],83:[2,109],84:[2,109],85:[2,109],86:[2,109],87:[2,109],88:[2,109],89:[2,109],90:[2,109],91:[2,109],93:[2,109],94:[2,109]},{10:237,11:[1,92],12:[2,123],22:[1,93],23:[1,94],33:[2,123],39:[1,139],40:10,42:141,48:98,49:[1,109],50:[1,110],52:[2,123],61:[1,99],70:[1,140],76:[1,108],79:[1,238],80:137,81:136,82:97,83:[1,100],84:[1,101],85:[1,102],86:[1,103],87:[1,104],88:[1,105],89:[1,106],90:[1,107],91:[1,95],92:96,93:[1,138],94:[1,11]},{1:[2,123],10:239,22:[2,123],31:[2,123],32:[2,123],33:[2,123],38:[2,123],39:[2,123],40:10,43:[2,123],47:[2,123],50:[2,123],52:[2,123],57:[2,123],61:[2,123],65:[2,123],66:[2,123],94:[1,11],96:[2,123],97:[2,123],103:[2,123]},{10:161,12:[1,160],22:[1,163],33:[2,94],40:10,46:240,51:162,52:[1,164],77:158,78:159,94:[1,11]},{1:[2,47],22:[2,47],31:[2,47],32:[2,47],33:[2,47],38:[2,47],39:[2,47],43:[2,47],47:[2,47],50:[2,47],52:[2,47],57:[2,47],61:[2,47],65:[2,47],66:[2,47],94:[2,47],96:[2,47],97:[2,47],103:[2,47]},{1:[2,123],10:241,22:[2,123],31:[2,123],32:[2,123],33:[2,123],38:[2,123],39:[2,123],40:10,43:[2,123],47:[2,123],50:[2,123],52:[2,123],57:[2,123],61:[2,123],65:[2,123],66:[2,123],94:[1,11],96:[2,123],97:[2,123],103:[2,123]},{11:[2,132],22:[2,132],33:[2,132],84:[2,132]},{10:242,12:[2,123],22:[2,123],33:[2,123],40:10,52:[2,123],94:[1,11]},{11:[1,219],22:[1,218],84:[1,220],102:243},{32:[2,135],39:[2,135]},{10:244,40:10,67:[2,123],94:[1,11]},{67:[2,81],94:[2,81]},{67:[2,82],94:[2,82]},{12:[2,92],22:[2,92],33:[2,92],52:[2,92],94:[2,92]},{10:245,12:[2,123],22:[2,123],33:[2,123],40:10,52:[2,123],94:[1,11]},{1:[2,29],22:[2,29],31:[2,29],32:[2,29],33:[2,29],38:[2,29],39:[2,29],43:[2,29],47:[2,29],50:[2,29],52:[2,29],57:[2,29],61:[2,29],65:[2,29],66:[2,29],94:[2,29],96:[2,29],97:[2,29],103:[2,29]},{10:161,12:[1,160],22:[1,163],33:[1,246],40:10,51:162,52:[1,164],77:187,78:159,94:[1,11]},{1:[2,130],22:[2,130],31:[2,130],32:[2,130],33:[2,130],38:[2,130],39:[2,130],43:[2,130],47:[2,130],50:[2,130],52:[2,130],57:[2,130],61:[2,130],65:[2,130],66:[2,130],94:[2,130],96:[2,130],97:[2,130],103:[2,130]},{10:161,12:[1,160],22:[1,163],33:[2,94],40:10,46:247,51:162,52:[1,164],77:158,78:159,94:[1,11]},{10:248,32:[2,123],39:[2,123],40:10,94:[1,11]},{67:[1,249]},{12:[2,93],22:[2,93],33:[2,93],52:[2,93],94:[2,93]},{1:[2,123],10:250,22:[2,123],31:[2,123],32:[2,123],33:[2,123],38:[2,123],39:[2,123],40:10,43:[2,123],47:[2,123],50:[2,123],52:[2,123],57:[2,123],61:[2,123],65:[2,123],66:[2,123],94:[1,11],96:[2,123],97:[2,123],103:[2,123]},{10:161,12:[1,160],22:[1,163],33:[1,251],40:10,51:162,52:[1,164],77:187,78:159,94:[1,11]},{32:[2,136],39:[2,136]},{22:[2,74],32:[2,74],37:[2,74],38:[2,74],39:[2,74],50:[2,74],52:[2,74],57:[2,74],61:[2,74],65:[2,74],66:[2,74],94:[2,74]},{1:[2,42],22:[2,42],31:[2,42],32:[2,42],33:[2,42],38:[2,42],39:[2,42],43:[2,42],47:[2,42],50:[2,42],52:[2,42],57:[2,42],61:[2,42],65:[2,42],66:[2,42],94:[2,42],96:[2,42],97:[2,42],103:[2,42]},{10:252,11:[2,123],22:[2,123],33:[2,123],40:10,84:[2,123],94:[1,11]},{11:[2,134],22:[2,134],33:[2,134],84:[2,134]}],
+defaultActions: {76:[2,140],189:[2,50],210:[2,51]},
 parseError: function parseError(str, hash) {
     if (hash.recoverable) {
         this.trace(str);
@@ -3149,6 +2783,458 @@ return lexer;
 parser.lexer = lexer;
 return parser;
 });
+/** @license CSS.supports polyfill | @version 0.4 | MIT License | github.com/termi/CSS.supports */
+
+// ==ClosureCompiler==
+// @compilation_level ADVANCED_OPTIMIZATIONS
+// @warning_level VERBOSE
+// @jscomp_warning missingProperties
+// @output_file_name CSS.supports.js
+// @check_types
+// ==/ClosureCompiler==
+
+/*
+TODO::
+1. element.style.webkitProperty == element.style.WebkitProperty in Webkit (Chrome at least), so
+CSS.supporst("webkit-animation", "name") is true. Think this is wrong.
+*/
+
+;(function() {
+	
+
+	var global = window
+		, _CSS_supports
+		, msie
+		, testElement
+		, prevResultsCache
+		, _CSS = global["CSS"]
+	;
+
+	if( !_CSS ) {
+		_CSS = global["CSS"] = {};
+	}
+
+	// ---=== HAS CSS.supports support ===---
+	_CSS_supports = _CSS.supports;
+
+	// ---=== HAS supportsCSS support ===---
+	if( !_CSS_supports && global["supportsCSS"] ) {// Opera 12.10 impl
+		_CSS_supports = _CSS.supports = global["supportsCSS"].bind(global);
+		if( global.__proto__ ) {
+			delete global.__proto__["supportsCSS"];
+		}
+	}
+
+
+	if(typeof _CSS_supports === "function") {
+		if( (function() {
+			// Test for support [supports condition](http://www.w3.org/TR/css3-conditional/#supportscondition)
+			try {
+				_CSS_supports.call(_CSS, "(a:a)");
+				// SUCCESS
+				return !(global = _CSS_supports = null);//return true
+			}
+			catch(e) {//FAIL
+				//_CSS_supports = _CSS_supports.bind(global);
+			}
+		})() ) {
+			// EXIT
+			return;// Do not need anything to do. Exit from polyfill
+		}
+	}
+	else {
+		// ---=== NO CSS.supports support ===---
+
+		msie = "runtimeStyle" in document.documentElement;
+		testElement = global["document"].createElement("_");
+		prevResultsCache = {};
+
+		_CSS_supports = function(ToCamel_replacer, testStyle, testElement, propertyName, propertyValue) {
+			var name_and_value = propertyName + "\\/" + propertyValue;
+			if( name_and_value in prevResultsCache ) {
+				return prevResultsCache[name_and_value];
+			}
+
+			/* TODO:: for IE < 9:
+			 _ = document.documentElement.appendChild(document.createElement("_"))
+			 _.currentStyle[propertyName] == propertyValue
+			*/
+			var __bind__RE_FIRST_LETTER = this
+				, propertyName_CC = (propertyName + "").replace(__bind__RE_FIRST_LETTER, ToCamel_replacer)
+			;
+
+			var result = propertyName && propertyValue && (propertyName_CC in testStyle);
+
+			if( result ) {
+				/*if( msie ) {
+
+					try {
+						testElement.style[propertyName] = propertyValue;// IE throw here, if unsupported this syntax
+						testElement.style.cssText = "";
+					}
+					catch(e) {
+						result = false;
+					}
+
+					if( result ) {
+						testElement.id = uuid;
+						_document.body.appendChild(testElement);
+
+						if( (prevPropValue = testElement.currentStyle[propertyName]) != propertyValue ) {
+							_document.body.insertAdjacentHTML("beforeend", "<br style='display:none' id='" + uuid + "br'><style id='" + uuid + "style'>" +
+								"#" + uuid + "{display:none;height:0;width:0;visibility:hidden;position:absolute;position:fixed;" + propertyName + ":" + propertyValue + "}" +
+								"</style>");
+
+							if( !(propertyName in testElement.currentStyle) ) {
+								partOfCompoundPropName
+							}
+
+							if( /\(|\s/.test(propertyValue) ) {
+								currentPropValue = testElement.currentStyle[propertyName];
+								result = !!currentPropValue && currentPropValue != prevPropValue;
+							}
+							else {
+								result = testElement.currentStyle[propertyName] == propertyValue;
+							}
+							//_document.documentElement.removeChild(document.getElementById(uuid + "br"));
+							//_document.documentElement.removeChild(document.getElementById(uuid + "style"));
+						}
+
+						//_document.documentElement.removeChild(testElement);
+					}*/
+
+				if( msie ) {
+					if( /\(|\s/.test(propertyValue) ) {
+						try {
+							testStyle[propertyName_CC] = propertyValue;
+							result = !!testStyle[propertyName_CC];
+						}
+						catch(e) {
+							result = false;
+						}
+					}
+					else {
+						testStyle.cssText = "display:none;height:0;width:0;visibility:hidden;position:absolute;position:fixed;" + propertyName + ":" + propertyValue;
+						document.documentElement.appendChild(testElement);
+						result = testElement.currentStyle[propertyName_CC] == propertyValue;
+						document.documentElement.removeChild(testElement);
+					}
+				}
+				else {
+					testStyle.cssText = propertyName + ":" + propertyValue;
+					result = testStyle[propertyName_CC];
+					result = result == propertyValue || result && testStyle.length > 0;
+				}
+			}
+
+			testStyle.cssText = "";
+
+			return prevResultsCache[name_and_value] = result;
+		}.bind(
+			/(-)([a-z])/g // __bind__RE_FIRST_LETTER
+			, function(a, b, c) { // ToCamel_replacer
+				return c.toUpperCase()
+			}
+			, testElement.style // testStyle
+			, msie ? testElement : null // testElement
+		);
+	}
+
+	// _supportsCondition("(a:b) or (display:block) or (display:none) and (display:block1)")
+	function _supportsCondition(str) {
+		if(!str) {
+			_supportsCondition.throwSyntaxError();
+		}
+
+		/** @enum {number} @const */
+		var RMAP = {
+			NOT: 1
+			, AND: 2
+			, OR: 4
+			, PROPERTY: 8
+			, VALUE: 16
+			, GROUP_START: 32
+			, GROUP_END: 64
+		};
+
+		var resultsStack = []
+			, chr
+			, result
+			, valid = true
+			, isNot
+			, start
+			, currentPropertyName
+			, expectedPropertyValue
+			, passThisGroup
+			, nextRuleCanBe = 
+				RMAP.NOT | RMAP.GROUP_START | RMAP.PROPERTY
+			, currentRule
+			, i = -1
+			, newI
+			, len = str.length
+		;
+
+		resultsStack.push(void 0);
+
+		function _getResult() {
+			var l = resultsStack.length - 1;
+			if( l < 0 )valid = false;
+			return resultsStack[ l ];
+		}
+
+		/**
+		 * @param {string=} val
+		 * @private
+		 */
+		function _setResult(val) {
+			var l = resultsStack.length - 1;
+			if( l < 0 )valid = false;
+			result = resultsStack[ l ] = val;
+		}
+
+		/**
+		 * @param {string?} that
+		 * @param {string?} notThat
+		 * @param {number=} __i
+		 * @param {boolean=} cssValue
+		 * @return {(number|undefined)}
+		 * @private
+		 */
+		function _checkNext(that, notThat, __i, cssValue) {
+			newI = __i || i;
+
+			var chr
+				, isQuited
+				, isUrl
+				, special
+			;
+
+			if(cssValue) {
+				newI--;
+			}
+
+			do {
+				chr = str.charAt(++newI);
+
+				if(cssValue) {
+					special = chr && (isQuited || isUrl);
+					if(chr == "'" || chr == "\"") {
+						special = (isQuited = !isQuited);
+					}
+					else if(!isQuited) {
+						if(!isUrl && chr == "(") {
+							// TODO:: in Chrome: $0.style.background = "url('http://asd))')"; $0.style.background == "url(http://asd%29%29/)"
+							isUrl = true;
+							special = true;
+						}
+						else if(isUrl && chr == ")") {
+							isUrl = false;
+							special = true;
+						}
+					}
+				}
+			}
+			while(special || (chr && (!that || chr != that) && (!notThat || chr == notThat)));
+
+			if(that == null || chr == that) {
+				return newI;
+			}
+		}
+
+		while(++i < len) {
+			if(currentRule == RMAP.NOT) {
+				nextRuleCanBe = RMAP.GROUP_START | RMAP.PROPERTY;
+			}
+			else if(currentRule == RMAP.AND || currentRule == RMAP.OR || currentRule == RMAP.GROUP_START) {
+				nextRuleCanBe = RMAP.GROUP_START | RMAP.PROPERTY | RMAP.NOT;
+			}
+			else if(currentRule == RMAP.GROUP_END) {
+				nextRuleCanBe = RMAP.GROUP_START | RMAP.NOT | RMAP.OR | RMAP.AND;
+			}
+			else if(currentRule == RMAP.VALUE) {
+				nextRuleCanBe = RMAP.GROUP_END | RMAP.GROUP_START | RMAP.NOT | RMAP.OR | RMAP.AND;
+			}
+			else if(currentRule == RMAP.PROPERTY) {
+				nextRuleCanBe = RMAP.VALUE;
+			}
+
+			chr = str.charAt(i);
+
+			if(nextRuleCanBe & RMAP.NOT && chr == "n" && str.substr(i, 3) == "not") {
+				currentRule = RMAP.NOT;
+				i += 2;
+			}
+			else if(nextRuleCanBe & RMAP.AND && chr == "a" && str.substr(i, 3) == "and") {
+				currentRule = RMAP.AND;
+				i += 2;
+			}
+			else if(nextRuleCanBe & RMAP.OR && chr == "o" && str.substr(i, 2) == "or") {
+				currentRule = RMAP.OR;
+				i++;
+			}
+			else if(nextRuleCanBe & RMAP.GROUP_START && chr == "(" && _checkNext("(", " ")) {
+				currentRule = RMAP.GROUP_START;
+				i = newI - 1;
+			}
+			else if(nextRuleCanBe & RMAP.GROUP_END && chr == ")" && resultsStack.length > 1) {
+				currentRule = RMAP.GROUP_END;
+			}
+			else if(nextRuleCanBe & RMAP.PROPERTY && chr == "(" && (start = _checkNext(null, " ")) && _checkNext(":", null, start)) {
+				currentRule = RMAP.PROPERTY;
+				i = newI - 1;
+				currentPropertyName = str.substr(start, i - start + 1).trim();
+				start = 0;
+				expectedPropertyValue = null;
+				continue;
+			}
+			else if(nextRuleCanBe & RMAP.VALUE && (start = _checkNext(null, " ")) && _checkNext(")", null, start, true)) {
+				currentRule = RMAP.VALUE;
+				i = newI;
+				expectedPropertyValue = str.substr(start, i - start).trim();
+				start = 0;
+				chr = " ";
+			}
+			else if(chr == " ") {
+				continue;
+			}
+			else {
+				currentRule = 0;
+			}
+
+			if(!valid || !chr || !(currentRule & nextRuleCanBe)) {
+				_supportsCondition.throwSyntaxError();
+			}
+			valid = true;
+
+			if(currentRule == RMAP.OR) {
+				if(result === false) {
+					_setResult();
+					passThisGroup = false;
+				}
+				else if(result === true) {
+					passThisGroup = true;
+				}
+
+				continue;
+			}
+
+			if( passThisGroup ) {
+				continue;
+			}
+
+			result = _getResult();
+
+			if(currentRule == RMAP.NOT) {
+				isNot = true;
+
+				continue;
+			}
+
+			if(currentRule == RMAP.AND) {
+				if(result === false) {
+					passThisGroup = true;
+				}
+				else {
+					_setResult();
+				}
+
+				continue;
+			}
+
+			if(result === false && !(currentRule & (RMAP.GROUP_END | RMAP.GROUP_START))) {
+				_setResult(result);
+				continue;
+			}
+
+			if( currentRule == RMAP.GROUP_START ) { // Group start
+				resultsStack.push(void 0);
+			}
+			else if( currentRule == RMAP.GROUP_END ) { // Group end
+				passThisGroup = false;
+
+				resultsStack.pop();
+				if( _getResult() !== void 0) {
+					result = !!(result & _getResult());
+				}
+
+				isNot = false;
+			}
+			else if( currentRule == RMAP.VALUE ) { // Property value
+				_setResult(_CSS_supports(currentPropertyName, expectedPropertyValue));
+				if(isNot)result = !result;
+
+				isNot = false;
+				expectedPropertyValue = currentPropertyName = null;
+			}
+
+			_setResult(result);
+		}
+
+		if(!valid || result === void 0 || resultsStack.length > 1) {
+			_supportsCondition.throwSyntaxError();
+		}
+
+		return result;
+	}
+	_supportsCondition.throwSyntaxError = function() {
+		throw new Error("SYNTAX_ERR");
+	};
+
+	/**
+	 * @expose
+	 */
+	_CSS.supports = function(a, b) {
+		if(!arguments.length) {
+			throw new Error("WRONG_ARGUMENTS_ERR");//TODO:: DOMException ?
+		}
+
+		if(arguments.length == 1) {
+			return _supportsCondition(a);
+		}
+
+		return _CSS_supports(a, b);
+	};
+
+	global = testElement = null;// no need this any more
+})();
+
+define("CSS.supports", (function (global) {
+    return function () {
+        var ret, fn;
+        return ret || global.CSS;
+    };
+}(this)));
+
+/*--------------------------------------------------------------------------
+ * linq.js - LINQ for JavaScript
+ * ver 3.0.2-RC (Sep. 16th, 2012)
+ *
+ * created and maintained by neuecc <ils@neue.cc>
+ * licensed under MIT License
+ * http://linqjs.codeplex.com/
+ *------------------------------------------------------------------------*/
+(function(w,j){var l="enumerator is disposed",q="single:sequence contains more than one element.",a=false,b=null,e=true,g={Identity:function(a){return a},True:function(){return e},Blank:function(){}},i={Boolean:typeof e,Number:typeof 0,String:typeof"",Object:typeof{},Undefined:typeof j,Function:typeof function(){}},d={createLambda:function(a){if(a==b)return g.Identity;if(typeof a==i.String)if(a=="")return g.Identity;else if(a.indexOf("=>")==-1){var m=new RegExp("[$]+","g"),c=0,j;while(j=m.exec(a)){var e=j[0].length;if(e>c)c=e}for(var f=[],d=1;d<=c;d++){for(var h="",l=0;l<d;l++)h+="$";f.push(h)}var n=Array.prototype.join.call(f,",");return new Function(n,"return "+a)}else{var k=a.match(/^[(\s]*([^()]*?)[)\s]*=>(.*)/);return new Function(k[1],"return "+k[2])}return a},isIEnumerable:function(b){if(typeof Enumerator!==i.Undefined)try{new Enumerator(b);return e}catch(c){}return a},defineProperty:Object.defineProperties!=b?function(c,b,d){Object.defineProperty(c,b,{enumerable:a,configurable:e,writable:e,value:d})}:function(b,a,c){b[a]=c},compare:function(a,b){return a===b?0:a>b?1:-1},dispose:function(a){a!=b&&a.dispose()}},o={Before:0,Running:1,After:2},f=function(d,f,g){var c=new u,b=o.Before;this.current=c.current;this.moveNext=function(){try{switch(b){case o.Before:b=o.Running;d();case o.Running:if(f.apply(c))return e;else{this.dispose();return a}case o.After:return a}}catch(g){this.dispose();throw g;}};this.dispose=function(){if(b!=o.Running)return;try{g()}finally{b=o.After}}},u=function(){var c=b;this.current=function(){return c};this.yieldReturn=function(a){c=a;return e};this.yieldBreak=function(){return a}},c=function(a){this.getEnumerator=a};c.Utils={};c.Utils.createLambda=function(a){return d.createLambda(a)};c.Utils.createEnumerable=function(a){return new c(a)};c.Utils.createEnumerator=function(a,b,c){return new f(a,b,c)};c.Utils.extendTo=function(i){var e=i.prototype,f;if(i===Array){f=h.prototype;d.defineProperty(e,"getSource",function(){return this})}else{f=c.prototype;d.defineProperty(e,"getEnumerator",function(){return c.from(this).getEnumerator()})}for(var a in f){var g=f[a];if(e[a]==g)continue;if(e[a]!=b){a=a+"ByLinq";if(e[a]==g)continue}g instanceof Function&&d.defineProperty(e,a,g)}};c.choice=function(){var a=arguments;return new c(function(){return new f(function(){a=a[0]instanceof Array?a[0]:a[0].getEnumerator!=b?a[0].toArray():a},function(){return this.yieldReturn(a[Math.floor(Math.random()*a.length)])},g.Blank)})};c.cycle=function(){var a=arguments;return new c(function(){var c=0;return new f(function(){a=a[0]instanceof Array?a[0]:a[0].getEnumerator!=b?a[0].toArray():a},function(){if(c>=a.length)c=0;return this.yieldReturn(a[c++])},g.Blank)})};c.empty=function(){return new c(function(){return new f(g.Blank,function(){return a},g.Blank)})};c.from=function(j){if(j==b)return c.empty();if(j instanceof c)return j;if(typeof j==i.Number||typeof j==i.Boolean)return c.repeat(j,1);if(typeof j==i.String)return new c(function(){var b=0;return new f(g.Blank,function(){return b<j.length?this.yieldReturn(j.charAt(b++)):a},g.Blank)});if(typeof j!=i.Function){if(typeof j.length==i.Number)return new h(j);if(!(j instanceof Object)&&d.isIEnumerable(j))return new c(function(){var c=e,b;return new f(function(){b=new Enumerator(j)},function(){if(c)c=a;else b.moveNext();return b.atEnd()?a:this.yieldReturn(b.item())},g.Blank)});if(typeof Windows===i.Object&&typeof j.first===i.Function)return new c(function(){var c=e,b;return new f(function(){b=j.first()},function(){if(c)c=a;else b.moveNext();return b.hasCurrent?this.yieldReturn(b.current):this.yieldBreak()},g.Blank)})}return new c(function(){var b=[],c=0;return new f(function(){for(var a in j){var c=j[a];!(c instanceof Function)&&Object.prototype.hasOwnProperty.call(j,a)&&b.push({key:a,value:c})}},function(){return c<b.length?this.yieldReturn(b[c++]):a},g.Blank)})},c.make=function(a){return c.repeat(a,1)};c.matches=function(h,e,d){if(d==b)d="";if(e instanceof RegExp){d+=e.ignoreCase?"i":"";d+=e.multiline?"m":"";e=e.source}if(d.indexOf("g")===-1)d+="g";return new c(function(){var b;return new f(function(){b=new RegExp(e,d)},function(){var c=b.exec(h);return c?this.yieldReturn(c):a},g.Blank)})};c.range=function(e,d,a){if(a==b)a=1;return new c(function(){var b,c=0;return new f(function(){b=e-a},function(){return c++<d?this.yieldReturn(b+=a):this.yieldBreak()},g.Blank)})};c.rangeDown=function(e,d,a){if(a==b)a=1;return new c(function(){var b,c=0;return new f(function(){b=e+a},function(){return c++<d?this.yieldReturn(b-=a):this.yieldBreak()},g.Blank)})};c.rangeTo=function(d,e,a){if(a==b)a=1;return d<e?new c(function(){var b;return new f(function(){b=d-a},function(){var c=b+=a;return c<=e?this.yieldReturn(c):this.yieldBreak()},g.Blank)}):new c(function(){var b;return new f(function(){b=d+a},function(){var c=b-=a;return c>=e?this.yieldReturn(c):this.yieldBreak()},g.Blank)})};c.repeat=function(a,d){return d!=b?c.repeat(a).take(d):new c(function(){return new f(g.Blank,function(){return this.yieldReturn(a)},g.Blank)})};c.repeatWithFinalize=function(a,e){a=d.createLambda(a);e=d.createLambda(e);return new c(function(){var c;return new f(function(){c=a()},function(){return this.yieldReturn(c)},function(){if(c!=b){e(c);c=b}})})};c.generate=function(a,e){if(e!=b)return c.generate(a).take(e);a=d.createLambda(a);return new c(function(){return new f(g.Blank,function(){return this.yieldReturn(a())},g.Blank)})};c.toInfinity=function(d,a){if(d==b)d=0;if(a==b)a=1;return new c(function(){var b;return new f(function(){b=d-a},function(){return this.yieldReturn(b+=a)},g.Blank)})};c.toNegativeInfinity=function(d,a){if(d==b)d=0;if(a==b)a=1;return new c(function(){var b;return new f(function(){b=d+a},function(){return this.yieldReturn(b-=a)},g.Blank)})};c.unfold=function(h,b){b=d.createLambda(b);return new c(function(){var d=e,c;return new f(g.Blank,function(){if(d){d=a;c=h;return this.yieldReturn(c)}c=b(c);return this.yieldReturn(c)},g.Blank)})};c.defer=function(a){return new c(function(){var b;return new f(function(){b=c.from(a()).getEnumerator()},function(){return b.moveNext()?this.yieldReturn(b.current()):this.yieldBreak()},function(){d.dispose(b)})})};c.prototype.traverseBreadthFirst=function(g,b){var h=this;g=d.createLambda(g);b=d.createLambda(b);return new c(function(){var i,k=0,j=[];return new f(function(){i=h.getEnumerator()},function(){while(e){if(i.moveNext()){j.push(i.current());return this.yieldReturn(b(i.current(),k))}var f=c.from(j).selectMany(function(a){return g(a)});if(!f.any())return a;else{k++;j=[];d.dispose(i);i=f.getEnumerator()}}},function(){d.dispose(i)})})};c.prototype.traverseDepthFirst=function(g,b){var h=this;g=d.createLambda(g);b=d.createLambda(b);return new c(function(){var j=[],i;return new f(function(){i=h.getEnumerator()},function(){while(e){if(i.moveNext()){var f=b(i.current(),j.length);j.push(i);i=c.from(g(i.current())).getEnumerator();return this.yieldReturn(f)}if(j.length<=0)return a;d.dispose(i);i=j.pop()}},function(){try{d.dispose(i)}finally{c.from(j).forEach(function(a){a.dispose()})}})})};c.prototype.flatten=function(){var h=this;return new c(function(){var j,i=b;return new f(function(){j=h.getEnumerator()},function(){while(e){if(i!=b)if(i.moveNext())return this.yieldReturn(i.current());else i=b;if(j.moveNext())if(j.current()instanceof Array){d.dispose(i);i=c.from(j.current()).selectMany(g.Identity).flatten().getEnumerator();continue}else return this.yieldReturn(j.current());return a}},function(){try{d.dispose(j)}finally{d.dispose(i)}})})};c.prototype.pairwise=function(b){var e=this;b=d.createLambda(b);return new c(function(){var c;return new f(function(){c=e.getEnumerator();c.moveNext()},function(){var d=c.current();return c.moveNext()?this.yieldReturn(b(d,c.current())):a},function(){d.dispose(c)})})};c.prototype.scan=function(i,g){var h;if(g==b){g=d.createLambda(i);h=a}else{g=d.createLambda(g);h=e}var j=this;return new c(function(){var b,c,k=e;return new f(function(){b=j.getEnumerator()},function(){if(k){k=a;if(!h){if(b.moveNext())return this.yieldReturn(c=b.current())}else return this.yieldReturn(c=i)}return b.moveNext()?this.yieldReturn(c=g(c,b.current())):a},function(){d.dispose(b)})})};c.prototype.select=function(e){e=d.createLambda(e);if(e.length<=1)return new m(this,b,e);else{var g=this;return new c(function(){var b,c=0;return new f(function(){b=g.getEnumerator()},function(){return b.moveNext()?this.yieldReturn(e(b.current(),c++)):a},function(){d.dispose(b)})})}};c.prototype.selectMany=function(g,e){var h=this;g=d.createLambda(g);if(e==b)e=function(b,a){return a};e=d.createLambda(e);return new c(function(){var k,i=j,l=0;return new f(function(){k=h.getEnumerator()},function(){if(i===j)if(!k.moveNext())return a;do{if(i==b){var f=g(k.current(),l++);i=c.from(f).getEnumerator()}if(i.moveNext())return this.yieldReturn(e(k.current(),i.current()));d.dispose(i);i=b}while(k.moveNext());return a},function(){try{d.dispose(k)}finally{d.dispose(i)}})})};c.prototype.where=function(b){b=d.createLambda(b);if(b.length<=1)return new n(this,b);else{var e=this;return new c(function(){var c,g=0;return new f(function(){c=e.getEnumerator()},function(){while(c.moveNext())if(b(c.current(),g++))return this.yieldReturn(c.current());return a},function(){d.dispose(c)})})}};c.prototype.choose=function(a){a=d.createLambda(a);var e=this;return new c(function(){var c,g=0;return new f(function(){c=e.getEnumerator()},function(){while(c.moveNext()){var d=a(c.current(),g++);if(d!=b)return this.yieldReturn(d)}return this.yieldBreak()},function(){d.dispose(c)})})};c.prototype.ofType=function(c){var a;switch(c){case Number:a=i.Number;break;case String:a=i.String;break;case Boolean:a=i.Boolean;break;case Function:a=i.Function;break;default:a=b}return a===b?this.where(function(a){return a instanceof c}):this.where(function(b){return typeof b===a})};c.prototype.zip=function(){var i=arguments,e=d.createLambda(arguments[arguments.length-1]),g=this;if(arguments.length==2){var h=arguments[0];return new c(function(){var i,b,j=0;return new f(function(){i=g.getEnumerator();b=c.from(h).getEnumerator()},function(){return i.moveNext()&&b.moveNext()?this.yieldReturn(e(i.current(),b.current(),j++)):a},function(){try{d.dispose(i)}finally{d.dispose(b)}})})}else return new c(function(){var a,h=0;return new f(function(){var b=c.make(g).concat(c.from(i).takeExceptLast().select(c.from)).select(function(a){return a.getEnumerator()}).toArray();a=c.from(b)},function(){if(a.all(function(a){return a.moveNext()})){var c=a.select(function(a){return a.current()}).toArray();c.push(h++);return this.yieldReturn(e.apply(b,c))}else return this.yieldBreak()},function(){c.from(a).forEach(d.dispose)})})};c.prototype.merge=function(){var b=arguments,a=this;return new c(function(){var e,g=-1;return new f(function(){e=c.make(a).concat(c.from(b).select(c.from)).select(function(a){return a.getEnumerator()}).toArray()},function(){while(e.length>0){g=g>=e.length-1?0:g+1;var a=e[g];if(a.moveNext())return this.yieldReturn(a.current());else{a.dispose();e.splice(g--,1)}}return this.yieldBreak()},function(){c.from(e).forEach(d.dispose)})})};c.prototype.join=function(n,i,h,l,k){i=d.createLambda(i);h=d.createLambda(h);l=d.createLambda(l);k=d.createLambda(k);var m=this;return new c(function(){var o,r,p=b,q=0;return new f(function(){o=m.getEnumerator();r=c.from(n).toLookup(h,g.Identity,k)},function(){while(e){if(p!=b){var c=p[q++];if(c!==j)return this.yieldReturn(l(o.current(),c));c=b;q=0}if(o.moveNext()){var d=i(o.current());p=r.get(d).toArray()}else return a}},function(){d.dispose(o)})})};c.prototype.groupJoin=function(l,h,e,j,i){h=d.createLambda(h);e=d.createLambda(e);j=d.createLambda(j);i=d.createLambda(i);var k=this;return new c(function(){var m=k.getEnumerator(),n=b;return new f(function(){m=k.getEnumerator();n=c.from(l).toLookup(e,g.Identity,i)},function(){if(m.moveNext()){var b=n.get(h(m.current()));return this.yieldReturn(j(m.current(),b))}return a},function(){d.dispose(m)})})};c.prototype.all=function(b){b=d.createLambda(b);var c=e;this.forEach(function(d){if(!b(d)){c=a;return a}});return c};c.prototype.any=function(c){c=d.createLambda(c);var b=this.getEnumerator();try{if(arguments.length==0)return b.moveNext();while(b.moveNext())if(c(b.current()))return e;return a}finally{d.dispose(b)}};c.prototype.isEmpty=function(){return!this.any()};c.prototype.concat=function(){var e=this;if(arguments.length==1){var g=arguments[0];return new c(function(){var i,h;return new f(function(){i=e.getEnumerator()},function(){if(h==b){if(i.moveNext())return this.yieldReturn(i.current());h=c.from(g).getEnumerator()}return h.moveNext()?this.yieldReturn(h.current()):a},function(){try{d.dispose(i)}finally{d.dispose(h)}})})}else{var h=arguments;return new c(function(){var a;return new f(function(){a=c.make(e).concat(c.from(h).select(c.from)).select(function(a){return a.getEnumerator()}).toArray()},function(){while(a.length>0){var b=a[0];if(b.moveNext())return this.yieldReturn(b.current());else{b.dispose();a.splice(0,1)}}return this.yieldBreak()},function(){c.from(a).forEach(d.dispose)})})}};c.prototype.insert=function(h,b){var g=this;return new c(function(){var j,i,l=0,k=a;return new f(function(){j=g.getEnumerator();i=c.from(b).getEnumerator()},function(){if(l==h&&i.moveNext()){k=e;return this.yieldReturn(i.current())}if(j.moveNext()){l++;return this.yieldReturn(j.current())}return!k&&i.moveNext()?this.yieldReturn(i.current()):a},function(){try{d.dispose(j)}finally{d.dispose(i)}})})};c.prototype.alternate=function(a){var g=this;return new c(function(){var j,i,k,h;return new f(function(){if(a instanceof Array||a.getEnumerator!=b)k=c.from(c.from(a).toArray());else k=c.make(a);i=g.getEnumerator();if(i.moveNext())j=i.current()},function(){while(e){if(h!=b)if(h.moveNext())return this.yieldReturn(h.current());else h=b;if(j==b&&i.moveNext()){j=i.current();h=k.getEnumerator();continue}else if(j!=b){var a=j;j=b;return this.yieldReturn(a)}return this.yieldBreak()}},function(){try{d.dispose(i)}finally{d.dispose(h)}})})};c.prototype.contains=function(f,b){b=d.createLambda(b);var c=this.getEnumerator();try{while(c.moveNext())if(b(c.current())===f)return e;return a}finally{d.dispose(c)}};c.prototype.defaultIfEmpty=function(g){var h=this;if(g===j)g=b;return new c(function(){var b,c=e;return new f(function(){b=h.getEnumerator()},function(){if(b.moveNext()){c=a;return this.yieldReturn(b.current())}else if(c){c=a;return this.yieldReturn(g)}return a},function(){d.dispose(b)})})};c.prototype.distinct=function(a){return this.except(c.empty(),a)};c.prototype.distinctUntilChanged=function(b){b=d.createLambda(b);var e=this;return new c(function(){var c,g,h;return new f(function(){c=e.getEnumerator()},function(){while(c.moveNext()){var d=b(c.current());if(h){h=a;g=d;return this.yieldReturn(c.current())}if(g===d)continue;g=d;return this.yieldReturn(c.current())}return this.yieldBreak()},function(){d.dispose(c)})})};c.prototype.except=function(e,b){b=d.createLambda(b);var g=this;return new c(function(){var h,i;return new f(function(){h=g.getEnumerator();i=new r(b);c.from(e).forEach(function(a){i.add(a)})},function(){while(h.moveNext()){var b=h.current();if(!i.contains(b)){i.add(b);return this.yieldReturn(b)}}return a},function(){d.dispose(h)})})};c.prototype.intersect=function(e,b){b=d.createLambda(b);var g=this;return new c(function(){var h,i,j;return new f(function(){h=g.getEnumerator();i=new r(b);c.from(e).forEach(function(a){i.add(a)});j=new r(b)},function(){while(h.moveNext()){var b=h.current();if(!j.contains(b)&&i.contains(b)){j.add(b);return this.yieldReturn(b)}}return a},function(){d.dispose(h)})})};c.prototype.sequenceEqual=function(h,f){f=d.createLambda(f);var g=this.getEnumerator();try{var b=c.from(h).getEnumerator();try{while(g.moveNext())if(!b.moveNext()||f(g.current())!==f(b.current()))return a;return b.moveNext()?a:e}finally{d.dispose(b)}}finally{d.dispose(g)}};c.prototype.union=function(e,b){b=d.createLambda(b);var g=this;return new c(function(){var k,h,i;return new f(function(){k=g.getEnumerator();i=new r(b)},function(){var b;if(h===j){while(k.moveNext()){b=k.current();if(!i.contains(b)){i.add(b);return this.yieldReturn(b)}}h=c.from(e).getEnumerator()}while(h.moveNext()){b=h.current();if(!i.contains(b)){i.add(b);return this.yieldReturn(b)}}return a},function(){try{d.dispose(k)}finally{d.dispose(h)}})})};c.prototype.orderBy=function(b){return new k(this,b,a)};c.prototype.orderByDescending=function(a){return new k(this,a,e)};c.prototype.reverse=function(){var b=this;return new c(function(){var c,d;return new f(function(){c=b.toArray();d=c.length},function(){return d>0?this.yieldReturn(c[--d]):a},g.Blank)})};c.prototype.shuffle=function(){var b=this;return new c(function(){var c;return new f(function(){c=b.toArray()},function(){if(c.length>0){var b=Math.floor(Math.random()*c.length);return this.yieldReturn(c.splice(b,1)[0])}return a},g.Blank)})};c.prototype.weightedSample=function(a){a=d.createLambda(a);var e=this;return new c(function(){var c,d=0;return new f(function(){c=e.choose(function(e){var c=a(e);if(c<=0)return b;d+=c;return{value:e,bound:d}}).toArray()},function(){if(c.length>0){var f=Math.floor(Math.random()*d)+1,e=-1,a=c.length;while(a-e>1){var b=Math.floor((e+a)/2);if(c[b].bound>=f)a=b;else e=b}return this.yieldReturn(c[a].value)}return this.yieldBreak()},g.Blank)})};c.prototype.groupBy=function(i,h,e,g){var j=this;i=d.createLambda(i);h=d.createLambda(h);if(e!=b)e=d.createLambda(e);g=d.createLambda(g);return new c(function(){var c;return new f(function(){c=j.toLookup(i,h,g).toEnumerable().getEnumerator()},function(){while(c.moveNext())return e==b?this.yieldReturn(c.current()):this.yieldReturn(e(c.current().key(),c.current()));return a},function(){d.dispose(c)})})};c.prototype.partitionBy=function(j,i,g,h){var l=this;j=d.createLambda(j);i=d.createLambda(i);h=d.createLambda(h);var k;if(g==b){k=a;g=function(b,a){return new t(b,a)}}else{k=e;g=d.createLambda(g)}return new c(function(){var b,n,o,m=[];return new f(function(){b=l.getEnumerator();if(b.moveNext()){n=j(b.current());o=h(n);m.push(i(b.current()))}},function(){var d;while((d=b.moveNext())==e)if(o===h(j(b.current())))m.push(i(b.current()));else break;if(m.length>0){var f=k?g(n,c.from(m)):g(n,m);if(d){n=j(b.current());o=h(n);m=[i(b.current())]}else m=[];return this.yieldReturn(f)}return a},function(){d.dispose(b)})})};c.prototype.buffer=function(e){var b=this;return new c(function(){var c;return new f(function(){c=b.getEnumerator()},function(){var b=[],d=0;while(c.moveNext()){b.push(c.current());if(++d>=e)return this.yieldReturn(b)}return b.length>0?this.yieldReturn(b):a},function(){d.dispose(c)})})};c.prototype.aggregate=function(c,b,a){a=d.createLambda(a);return a(this.scan(c,b,a).last())};c.prototype.average=function(a){a=d.createLambda(a);var c=0,b=0;this.forEach(function(d){c+=a(d);++b});return c/b};c.prototype.count=function(a){a=a==b?g.True:d.createLambda(a);var c=0;this.forEach(function(d,b){if(a(d,b))++c});return c};c.prototype.max=function(a){if(a==b)a=g.Identity;return this.select(a).aggregate(function(a,b){return a>b?a:b})};c.prototype.min=function(a){if(a==b)a=g.Identity;return this.select(a).aggregate(function(a,b){return a<b?a:b})};c.prototype.maxBy=function(a){a=d.createLambda(a);return this.aggregate(function(b,c){return a(b)>a(c)?b:c})};c.prototype.minBy=function(a){a=d.createLambda(a);return this.aggregate(function(b,c){return a(b)<a(c)?b:c})};c.prototype.sum=function(a){if(a==b)a=g.Identity;return this.select(a).aggregate(0,function(a,b){return a+b})};c.prototype.elementAt=function(d){var c,b=a;this.forEach(function(g,f){if(f==d){c=g;b=e;return a}});if(!b)throw new Error("index is less than 0 or greater than or equal to the number of elements in source.");return c};c.prototype.elementAtOrDefault=function(g,c){if(c===j)c=b;var f,d=a;this.forEach(function(c,b){if(b==g){f=c;d=e;return a}});return!d?c:f};c.prototype.first=function(c){if(c!=b)return this.where(c).first();var f,d=a;this.forEach(function(b){f=b;d=e;return a});if(!d)throw new Error("first:No element satisfies the condition.");return f};c.prototype.firstOrDefault=function(d,c){if(c===j)c=b;if(d!=b)return this.where(d).firstOrDefault(b,c);var g,f=a;this.forEach(function(b){g=b;f=e;return a});return!f?c:g};c.prototype.last=function(c){if(c!=b)return this.where(c).last();var f,d=a;this.forEach(function(a){d=e;f=a});if(!d)throw new Error("last:No element satisfies the condition.");return f};c.prototype.lastOrDefault=function(d,c){if(c===j)c=b;if(d!=b)return this.where(d).lastOrDefault(b,c);var g,f=a;this.forEach(function(a){f=e;g=a});return!f?c:g};c.prototype.single=function(d){if(d!=b)return this.where(d).single();var f,c=a;this.forEach(function(a){if(!c){c=e;f=a}else throw new Error(q);});if(!c)throw new Error("single:No element satisfies the condition.");return f};c.prototype.singleOrDefault=function(f,c){if(c===j)c=b;if(f!=b)return this.where(f).singleOrDefault(b,c);var g,d=a;this.forEach(function(a){if(!d){d=e;g=a}else throw new Error(q);});return!d?c:g};c.prototype.skip=function(e){var b=this;return new c(function(){var c,g=0;return new f(function(){c=b.getEnumerator();while(g++<e&&c.moveNext());},function(){return c.moveNext()?this.yieldReturn(c.current()):a},function(){d.dispose(c)})})};c.prototype.skipWhile=function(b){b=d.createLambda(b);var g=this;return new c(function(){var c,i=0,h=a;return new f(function(){c=g.getEnumerator()},function(){while(!h)if(c.moveNext()){if(!b(c.current(),i++)){h=e;return this.yieldReturn(c.current())}continue}else return a;return c.moveNext()?this.yieldReturn(c.current()):a},function(){d.dispose(c)})})};c.prototype.take=function(e){var b=this;return new c(function(){var c,g=0;return new f(function(){c=b.getEnumerator()},function(){return g++<e&&c.moveNext()?this.yieldReturn(c.current()):a},function(){d.dispose(c)})})};c.prototype.takeWhile=function(b){b=d.createLambda(b);var e=this;return new c(function(){var c,g=0;return new f(function(){c=e.getEnumerator()},function(){return c.moveNext()&&b(c.current(),g++)?this.yieldReturn(c.current()):a},function(){d.dispose(c)})})};c.prototype.takeExceptLast=function(e){if(e==b)e=1;var g=this;return new c(function(){if(e<=0)return g.getEnumerator();var b,c=[];return new f(function(){b=g.getEnumerator()},function(){while(b.moveNext()){if(c.length==e){c.push(b.current());return this.yieldReturn(c.shift())}c.push(b.current())}return a},function(){d.dispose(b)})})};c.prototype.takeFromLast=function(e){if(e<=0||e==b)return c.empty();var g=this;return new c(function(){var j,h,i=[];return new f(function(){j=g.getEnumerator()},function(){while(j.moveNext()){i.length==e&&i.shift();i.push(j.current())}if(h==b)h=c.from(i).getEnumerator();return h.moveNext()?this.yieldReturn(h.current()):a},function(){d.dispose(h)})})};c.prototype.indexOf=function(d){var c=b;if(typeof d===i.Function)this.forEach(function(e,b){if(d(e,b)){c=b;return a}});else this.forEach(function(e,b){if(e===d){c=b;return a}});return c!==b?c:-1};c.prototype.lastIndexOf=function(b){var a=-1;if(typeof b===i.Function)this.forEach(function(d,c){if(b(d,c))a=c});else this.forEach(function(d,c){if(d===b)a=c});return a};c.prototype.asEnumerable=function(){return c.from(this)};c.prototype.toArray=function(){var a=[];this.forEach(function(b){a.push(b)});return a};c.prototype.toLookup=function(c,b,a){c=d.createLambda(c);b=d.createLambda(b);a=d.createLambda(a);var e=new r(a);this.forEach(function(g){var f=c(g),a=b(g),d=e.get(f);if(d!==j)d.push(a);else e.add(f,[a])});return new v(e)};c.prototype.toObject=function(b,a){b=d.createLambda(b);a=d.createLambda(a);var c={};this.forEach(function(d){c[b(d)]=a(d)});return c};c.prototype.toDictionary=function(c,b,a){c=d.createLambda(c);b=d.createLambda(b);a=d.createLambda(a);var e=new r(a);this.forEach(function(a){e.add(c(a),b(a))});return e};c.prototype.toJSONString=function(a,c){if(typeof JSON===i.Undefined||JSON.stringify==b)throw new Error("toJSONString can't find JSON.stringify. This works native JSON support Browser or include json2.js");return JSON.stringify(this.toArray(),a,c)};c.prototype.toJoinedString=function(a,c){if(a==b)a="";if(c==b)c=g.Identity;return this.select(c).toArray().join(a)};c.prototype.doAction=function(b){var e=this;b=d.createLambda(b);return new c(function(){var c,g=0;return new f(function(){c=e.getEnumerator()},function(){if(c.moveNext()){b(c.current(),g++);return this.yieldReturn(c.current())}return a},function(){d.dispose(c)})})};c.prototype.forEach=function(c){c=d.createLambda(c);var e=0,b=this.getEnumerator();try{while(b.moveNext())if(c(b.current(),e++)===a)break}finally{d.dispose(b)}};c.prototype.write=function(c,f){if(c==b)c="";f=d.createLambda(f);var g=e;this.forEach(function(b){if(g)g=a;else document.write(c);document.write(f(b))})};c.prototype.writeLine=function(a){a=d.createLambda(a);this.forEach(function(b){document.writeln(a(b)+"<br />")})};c.prototype.force=function(){var a=this.getEnumerator();try{while(a.moveNext());}finally{d.dispose(a)}};c.prototype.letBind=function(b){b=d.createLambda(b);var e=this;return new c(function(){var g;return new f(function(){g=c.from(b(e)).getEnumerator()},function(){return g.moveNext()?this.yieldReturn(g.current()):a},function(){d.dispose(g)})})};c.prototype.share=function(){var i=this,c,h=a;return new s(function(){return new f(function(){if(c==b)c=i.getEnumerator()},function(){if(h)throw new Error(l);return c.moveNext()?this.yieldReturn(c.current()):a},g.Blank)},function(){h=e;d.dispose(c)})};c.prototype.memoize=function(){var j=this,h,c,i=a;return new s(function(){var d=-1;return new f(function(){if(c==b){c=j.getEnumerator();h=[]}},function(){if(i)throw new Error(l);d++;return h.length<=d?c.moveNext()?this.yieldReturn(h[d]=c.current()):a:this.yieldReturn(h[d])},g.Blank)},function(){i=e;d.dispose(c);h=b})};c.prototype.catchError=function(b){b=d.createLambda(b);var e=this;return new c(function(){var c;return new f(function(){c=e.getEnumerator()},function(){try{return c.moveNext()?this.yieldReturn(c.current()):a}catch(d){b(d);return a}},function(){d.dispose(c)})})};c.prototype.finallyAction=function(b){b=d.createLambda(b);var e=this;return new c(function(){var c;return new f(function(){c=e.getEnumerator()},function(){return c.moveNext()?this.yieldReturn(c.current()):a},function(){try{d.dispose(c)}finally{b()}})})};c.prototype.log=function(a){a=d.createLambda(a);return this.doAction(function(b){typeof console!==i.Undefined&&console.log(a(b))})};c.prototype.trace=function(c,a){if(c==b)c="Trace";a=d.createLambda(a);return this.doAction(function(b){typeof console!==i.Undefined&&console.log(c,a(b))})};var k=function(f,b,c,e){var a=this;a.source=f;a.keySelector=d.createLambda(b);a.descending=c;a.parent=e};k.prototype=new c;k.prototype.createOrderedEnumerable=function(a,b){return new k(this.source,a,b,this)};k.prototype.thenBy=function(b){return this.createOrderedEnumerable(b,a)};k.prototype.thenByDescending=function(a){return this.createOrderedEnumerable(a,e)};k.prototype.getEnumerator=function(){var h=this,d,c,e=0;return new f(function(){d=[];c=[];h.source.forEach(function(b,a){d.push(b);c.push(a)});var a=p.create(h,b);a.GenerateKeys(d);c.sort(function(b,c){return a.compare(b,c)})},function(){return e<c.length?this.yieldReturn(d[c[e++]]):a},g.Blank)};var p=function(c,d,e){var a=this;a.keySelector=c;a.descending=d;a.child=e;a.keys=b};p.create=function(a,d){var c=new p(a.keySelector,a.descending,d);return a.parent!=b?p.create(a.parent,c):c};p.prototype.GenerateKeys=function(d){var a=this;for(var f=d.length,g=a.keySelector,e=new Array(f),c=0;c<f;c++)e[c]=g(d[c]);a.keys=e;a.child!=b&&a.child.GenerateKeys(d)};p.prototype.compare=function(e,f){var a=this,c=d.compare(a.keys[e],a.keys[f]);return c==0?a.child!=b?a.child.compare(e,f):d.compare(e,f):a.descending?-c:c};var s=function(a,b){this.dispose=b;c.call(this,a)};s.prototype=new c;var h=function(a){this.getSource=function(){return a}};h.prototype=new c;h.prototype.any=function(a){return a==b?this.getSource().length>0:c.prototype.any.apply(this,arguments)};h.prototype.count=function(a){return a==b?this.getSource().length:c.prototype.count.apply(this,arguments)};h.prototype.elementAt=function(a){var b=this.getSource();return 0<=a&&a<b.length?b[a]:c.prototype.elementAt.apply(this,arguments)};h.prototype.elementAtOrDefault=function(c,a){if(a===j)a=b;var d=this.getSource();return 0<=c&&c<d.length?d[c]:a};h.prototype.first=function(d){var a=this.getSource();return d==b&&a.length>0?a[0]:c.prototype.first.apply(this,arguments)};h.prototype.firstOrDefault=function(e,a){if(a===j)a=b;if(e!=b)return c.prototype.firstOrDefault.apply(this,arguments);var d=this.getSource();return d.length>0?d[0]:a};h.prototype.last=function(d){var a=this.getSource();return d==b&&a.length>0?a[a.length-1]:c.prototype.last.apply(this,arguments)};h.prototype.lastOrDefault=function(e,a){if(a===j)a=b;if(e!=b)return c.prototype.lastOrDefault.apply(this,arguments);var d=this.getSource();return d.length>0?d[d.length-1]:a};h.prototype.skip=function(d){var b=this.getSource();return new c(function(){var c;return new f(function(){c=d<0?0:d},function(){return c<b.length?this.yieldReturn(b[c++]):a},g.Blank)})};h.prototype.takeExceptLast=function(a){if(a==b)a=1;return this.take(this.getSource().length-a)};h.prototype.takeFromLast=function(a){return this.skip(this.getSource().length-a)};h.prototype.reverse=function(){var b=this.getSource();return new c(function(){var c;return new f(function(){c=b.length},function(){return c>0?this.yieldReturn(b[--c]):a},g.Blank)})};h.prototype.sequenceEqual=function(d,e){return(d instanceof h||d instanceof Array)&&e==b&&c.from(d).count()!=this.count()?a:c.prototype.sequenceEqual.apply(this,arguments)};h.prototype.toJoinedString=function(a,e){var d=this.getSource();if(e!=b||!(d instanceof Array))return c.prototype.toJoinedString.apply(this,arguments);if(a==b)a="";return d.join(a)};h.prototype.getEnumerator=function(){var a=this.getSource(),b=-1;return{current:function(){return a[b]},moveNext:function(){return++b<a.length},dispose:g.Blank}};var n=function(b,a){this.prevSource=b;this.prevPredicate=a};n.prototype=new c;n.prototype.where=function(a){a=d.createLambda(a);if(a.length<=1){var e=this.prevPredicate,b=function(b){return e(b)&&a(b)};return new n(this.prevSource,b)}else return c.prototype.where.call(this,a)};n.prototype.select=function(a){a=d.createLambda(a);return a.length<=1?new m(this.prevSource,this.prevPredicate,a):c.prototype.select.call(this,a)};n.prototype.getEnumerator=function(){var c=this.prevPredicate,e=this.prevSource,b;return new f(function(){b=e.getEnumerator()},function(){while(b.moveNext())if(c(b.current()))return this.yieldReturn(b.current());return a},function(){d.dispose(b)})};var m=function(c,a,b){this.prevSource=c;this.prevPredicate=a;this.prevSelector=b};m.prototype=new c;m.prototype.where=function(a){a=d.createLambda(a);return a.length<=1?new n(this,a):c.prototype.where.call(this,a)};m.prototype.select=function(a){var b=this;a=d.createLambda(a);if(a.length<=1){var f=b.prevSelector,e=function(b){return a(f(b))};return new m(b.prevSource,b.prevPredicate,e)}else return c.prototype.select.call(b,a)};m.prototype.getEnumerator=function(){var e=this.prevPredicate,g=this.prevSelector,h=this.prevSource,c;return new f(function(){c=h.getEnumerator()},function(){while(c.moveNext())if(e==b||e(c.current()))return this.yieldReturn(g(c.current()));return a},function(){d.dispose(c)})};var r=function(){var d=function(a,b){return Object.prototype.hasOwnProperty.call(a,b)},h=function(a){return a===b?"null":a===j?"undefined":typeof a.toString===i.Function?a.toString():Object.prototype.toString.call(a)},m=function(d,c){var a=this;a.key=d;a.value=c;a.prev=b;a.next=b},k=function(){this.first=b;this.last=b};k.prototype={addLast:function(c){var a=this;if(a.last!=b){a.last.next=c;c.prev=a.last;a.last=c}else a.first=a.last=c},replace:function(c,a){if(c.prev!=b){c.prev.next=a;a.prev=c.prev}else this.first=a;if(c.next!=b){c.next.prev=a;a.next=c.next}else this.last=a},remove:function(a){if(a.prev!=b)a.prev.next=a.next;else this.first=a.next;if(a.next!=b)a.next.prev=a.prev;else this.last=a.prev}};var l=function(c){var a=this;a.countField=0;a.entryList=new k;a.buckets={};a.compareSelector=c==b?g.Identity:c};l.prototype={add:function(i,j){var a=this,g=a.compareSelector(i),f=h(g),c=new m(i,j);if(d(a.buckets,f)){for(var b=a.buckets[f],e=0;e<b.length;e++)if(a.compareSelector(b[e].key)===g){a.entryList.replace(b[e],c);b[e]=c;return}b.push(c)}else a.buckets[f]=[c];a.countField++;a.entryList.addLast(c)},"get":function(i){var a=this,c=a.compareSelector(i),g=h(c);if(!d(a.buckets,g))return j;for(var e=a.buckets[g],b=0;b<e.length;b++){var f=e[b];if(a.compareSelector(f.key)===c)return f.value}return j},"set":function(k,l){var b=this,g=b.compareSelector(k),j=h(g);if(d(b.buckets,j))for(var f=b.buckets[j],c=0;c<f.length;c++)if(b.compareSelector(f[c].key)===g){var i=new m(k,l);b.entryList.replace(f[c],i);f[c]=i;return e}return a},contains:function(j){var b=this,f=b.compareSelector(j),i=h(f);if(!d(b.buckets,i))return a;for(var g=b.buckets[i],c=0;c<g.length;c++)if(b.compareSelector(g[c].key)===f)return e;return a},clear:function(){this.countField=0;this.buckets={};this.entryList=new k},remove:function(g){var a=this,f=a.compareSelector(g),e=h(f);if(!d(a.buckets,e))return;for(var b=a.buckets[e],c=0;c<b.length;c++)if(a.compareSelector(b[c].key)===f){a.entryList.remove(b[c]);b.splice(c,1);if(b.length==0)delete a.buckets[e];a.countField--;return}},count:function(){return this.countField},toEnumerable:function(){var d=this;return new c(function(){var c;return new f(function(){c=d.entryList.first},function(){if(c!=b){var d={key:c.key,value:c.value};c=c.next;return this.yieldReturn(d)}return a},g.Blank)})}};return l}(),v=function(a){var b=this;b.count=function(){return a.count()};b.get=function(b){return c.from(a.get(b))};b.contains=function(b){return a.contains(b)};b.toEnumerable=function(){return a.toEnumerable().select(function(a){return new t(a.key,a.value)})}},t=function(b,a){this.key=function(){return b};h.call(this,a)};t.prototype=new h;if(typeof define===i.Function&&define.amd)define("linqjs",[],function(){return c});else if(typeof module!==i.Undefined&&module.exports)module.exports=c;else w.Enumerable=c})(this);
+
+/*global define*/
+define('scalejs.linq-linqjs',[
+    'scalejs!core',
+    'linqjs'
+], function (
+    core,
+    Enumerable
+) {
+    
+
+    Enumerable.Utils.extendTo(Array);
+
+    core.registerExtension({
+        linq: {
+            enumerable: Enumerable
+        }
+    });
+});
+
+
 
 /*global define, document, window, console */
 define('scalejs.layout-cssgrid/utils',[],function () {
@@ -3228,6 +3314,7 @@ define('scalejs.layout-cssgrid/utils',[],function () {
     };
 });
 /*global define, require, document, console*/
+/*jslint regexp: true */
 define('scalejs.layout-cssgrid/utils.sheetLoader',[
     'cssparser',
     './utils'
@@ -3248,7 +3335,15 @@ define('scalejs.layout-cssgrid/utils.sheetLoader',[
         loadedStyleSheets[url] = null;
 
         getUrl(url, function (stylesheet) {
-            var parsed = cssParser.parse(stylesheet);
+            var parsed;
+
+            if (stylesheet.length === 0) {
+                parsed = {
+                    rulelist: []
+                };
+            } else {
+                parsed = cssParser.parse(stylesheet);
+            }
 
             loadedStyleSheets[url] = parsed;
 
@@ -3261,7 +3356,52 @@ define('scalejs.layout-cssgrid/utils.sheetLoader',[
     }
 
     function loadAllStyleSheets(onLoaded) {
-        var loadedStyleSheets = {};
+        var loadedStyleSheets = {},
+            styleSheets = toArray(document.styleSheets),
+            hrefExists,
+            allHtml = document.documentElement.innerHTML,
+            removeComments = /<!--(.|\n|\r)*-->/gm,
+            getStyles = /<style.*?>((.|\n|\r)*?)<\/style>/gm,
+            headerStyles = [],
+            match;
+
+        // collects styles from html
+
+        // clean out comments to remove commented out styles
+        allHtml.replace(removeComments, '');
+
+        // extract contents of style tags
+        while (true) {
+            match = getStyles.exec(allHtml);
+            if (!match) {
+                break;
+            }
+
+            headerStyles.push(match[1]);
+        }
+
+        headerStyles.forEach(function (styleText, i) {
+            var parsed;
+
+            if (stylesheet.length === 0) {
+                parsed = {
+                    rulelist: []
+                };
+            } else {
+                parsed = cssParser.parse(styleText);
+            }
+
+            loadedStyleSheets['head' + i] = parsed;
+        });
+
+        // if no styleSheets have href, call onLoaded
+        hrefExists = styleSheets.some(function (s) {
+            return s.href;
+        });
+
+        if (!hrefExists) {
+            onLoaded(loadedStyleSheets);
+        }
 
         toArray(document.styleSheets)
             .forEach(function (sheet) {
@@ -3282,10 +3422,10 @@ define('scalejs.layout-cssgrid/utils.sheetLoader',[
                 }
             });
     }
-
+    /* Removed due to conflict with fabric code using 'in' with object prototype.
     Object.getPrototypeOf(cssParser).parseError = function (error, details) {
         console.log(error, details);
-    };
+    };*/
 
     return {
         loadAllStyleSheets: loadAllStyleSheets
@@ -3937,8 +4077,9 @@ define('scalejs.layout-cssgrid/gridLayout',[
                         return r && tr.type !== FR;
                     }, true);
                 });
-
-                noFrItem = noFrItems[0];
+                
+                 /* MATCHES FIRST ELEMENT IN AUTO TRACK
+                noFrItem = noFrItems[0]; 
                 if (noFrItem) {
                     //trackSize = getMeasureValue(noFrItem.element, dimension) + frameSize(noFrItem.element, dimension);
                     trackSize = Math.ceil(parseFloat(noFrItem.element.style[dimension], 10)) + frameSize(noFrItem.element, dimension);
@@ -3949,6 +4090,28 @@ define('scalejs.layout-cssgrid/gridLayout',[
                     // set it to 0 so that reduce would properly calculate
                     track.pixels = 0;
                     track.pixels = noFrItem[tracksProperty].reduce(function (r, tr) { return r - tr.pixels; }, trackSize);
+                } else {
+                    track.pixels = 0;
+                }*/
+
+                var trackSizes = noFrItems
+                 .select(function (noFrItem) {
+                     var ceil = Math.ceil(parseFloat(noFrItem.element.style[dimension], 10));
+                     var frameSz = frameSize(noFrItem.element, dimension);
+                     trackSize = ceil + frameSz;
+                     if (isNaN(trackSize)) {
+                         noFrItem.element.style[dimension] = '';
+                         trackSize = noFrItem.element[offsetProperty];
+                     }
+                     // set it to 0 so that reduce would properly calculate
+                     var track_pixels = 0;
+                     track_pixels = noFrItem[tracksProperty].reduce(function (r, tr) { return r - ((tr.pixels !== undefined) ? (tr.pixels) : (0)); }, trackSize);
+
+                     return track_pixels;
+                 }).toArray();
+
+                if (trackSizes !== undefined && trackSizes.length > 0) {
+                    track.pixels = trackSizes.max();
                 } else {
                     track.pixels = 0;
                 }
@@ -3965,7 +4128,8 @@ define('scalejs.layout-cssgrid/gridLayout',[
         totalFRs = frs.reduce(function (sum, track) { return sum + track.size; }, 0);
 
         frs.forEach(function (track) {
-            track.pixels = size * track.size / totalFRs;
+            var planned_size = size * track.size / totalFRs;
+            track.pixels = Math.max(0, planned_size);
         });
     }
 
@@ -3977,7 +4141,7 @@ define('scalejs.layout-cssgrid/gridLayout',[
     }
 
     /*jslint unparam:true*/
-    return function gridLayout(gridElement, selector, properties, media, gridItems) {
+    return function gridLayout(gridElement, properties, media, gridItems) {
         var columnTracks,
             rowTracks,
             mappedItems;
@@ -3991,6 +4155,8 @@ define('scalejs.layout-cssgrid/gridLayout',[
         sizeTracks(rowTracks, gridElement.offsetHeight, HEIGHT);
         //console.log(width, height);
 
+        gridElement.style.position = 'relative';
+
         //gridElement.style.position = 'relative';
         //console.log('--->' + properties[GRIDROWS]);
         //console.log(gridTracksParser.parse(properties[GRIDROWS]));
@@ -3999,9 +4165,7 @@ define('scalejs.layout-cssgrid/gridLayout',[
             var width,
                 height,
                 left,
-                top,
-                parentLeft = 0,
-                parentTop = 0;
+                top;
 
             item.element.style.position = 'absolute';
 
@@ -4020,20 +4184,7 @@ define('scalejs.layout-cssgrid/gridLayout',[
             top = rowTracks
                 .filter(function (track) { return track.index < item.row; })
                 .reduce(function (sum, track) { return sum + track.pixels; }, 0);
-
-            if (item.element.parentNode) {
-                parentLeft = parseInt(item.element.parentNode.left, 10);
-                if (isNaN(parentLeft)) {
-                    parentLeft = 0;
-                }
-            }
-
-            if (item.element.parentNode) {
-                parentTop = parseInt(item.element.parentNode.top, 10);
-                if (isNaN(parentTop)) {
-                    parentTop = 0;
-                }
-            }
+            
 
             width -= frameSize(item.element, WIDTH);
             height -= frameSize(item.element, HEIGHT);
@@ -4042,8 +4193,8 @@ define('scalejs.layout-cssgrid/gridLayout',[
 
             item.element.style.width = width + PX;
             item.element.style.height = height + PX;
-            item.element.style.left = left + parentLeft + PX;
-            item.element.style.top = top + parentTop + PX;
+            item.element.style.left = left + PX;
+            item.element.style.top = top + PX;
         });
     };
 });
@@ -4051,16 +4202,22 @@ define('scalejs.layout-cssgrid/gridLayout',[
 define('scalejs.layout-cssgrid/cssGridLayout',[
     'scalejs!core',
     './utils.sheetLoader',
-    './gridLayout'
+    './gridLayout',
+    './utils',
+    'CSS.supports',
+    'scalejs.linq-linqjs'
 ], function (
     core,
     sheetLoader,
-    gridLayout
+    gridLayout,
+    utils,
+    css
 ) {
     
 
     var cssGridRules,
         cssGridSelectors,
+        merge = core.object.merge,
         listeners = [];
 
     function onLayoutDone(callback) {
@@ -4071,92 +4228,216 @@ define('scalejs.layout-cssgrid/cssGridLayout',[
         };
     }
 
-    function notifyLayoutDone(gridElement, selector) {
+    function notifyLayoutDone(gridElement) {
         listeners.forEach(function (l) {
-            l(gridElement, selector);
+            l(gridElement);
         });
     }
 
     /*jslint unparam:true*/
-    function doLayout(element) {
-        cssGridSelectors.forEach(function (grid) {
-            var selector = grid.selector,
-                gridElement,
-                properties = grid.properties,
-                grid_items,
-                gridStyle;
+    function doLayout() {
+        var gridElements,
+            defaultGridProperties = {
+                'display': 'grid',
+                'grid-rows': 'auto',
+                'grid-columns': 'auto'
+            },
+            defaultGridItemProperties = {
+                'grid-row': '1',
+                'grid-row-align': 'stretch',
+                'grid-row-span': '1',
+                'grid-column': '1',
+                'grid-column-align': 'stretch',
+                'grid-column-span': '1'
+            };
 
-            gridElement = document.getElementById(grid.selector.substring(1));
-            if (gridElement === null) { return; }
 
-            gridStyle = gridElement.getAttribute("style");
-            if (gridStyle !== null) {
-                gridStyle.split('; ').forEach(function (property) {
-                    var tokens = property.split(':'),
-                        value;
+        function createOverride(f, propertyNames) {
+            var result = {};
 
-                    if (tokens.length === 2) {
-                        property = tokens[0].trim();
-                        value = tokens[1].trim();
-
-                        if (property.indexOf('-ms-grid') === 0) {
-                            properties[property.substring(4)] = value;
-                        }
+            propertyNames
+                .forEach(function (p) {
+                    var v = f(p);
+                    if (v !== undefined) {
+                        result[p] = f(p);
                     }
                 });
+
+            return result;
+        }
+
+        function createCssGridOverride(gridElement, propertyNames) {
+            // save rules that match the gridElement (parent grid rules only)
+            var override,
+                matchedRules = cssGridSelectors
+                    .filter(function (rule) {
+                        return utils.toArray(document.querySelectorAll(rule.selector))
+                            .any(function (match) {
+                                return gridElement === match;
+                            });
+                    });
+
+            override = createOverride(function (property) {
+                var rulesWithProperty = matchedRules
+                    // list of rules with itemProperty defined
+                    .filter(function (matchedRule) {
+                        return (matchedRule.properties[property] !== undefined);
+                    });
+
+                // warning about css conflicts
+                if (rulesWithProperty.length > 1) {
+                    console.log('WARNING: gridElement ', gridElement, ' matched to multiple rules with property "' + property + '".' +
+                                'Will use the rule ', rulesWithProperty[0]);
+                }
+
+                if (rulesWithProperty.length > 0) {
+                    return rulesWithProperty[0].properties[property];
+                }
+            }, propertyNames);
+
+            return override;
+        }
+
+        function createCssGridItemOverride(gridItemElement, propertyNames) {
+            // for each grid rule, save it if it matches the element
+            var override,
+                matchedItemRules = cssGridRules
+                    // filter out parent rules (rules present in cssGridSelectors)
+                    .filter(function (rule) {
+                        return !cssGridSelectors.any(function (gridSelector) {
+                            return gridSelector === rule;
+                        });
+                    })
+                    // filter to rules that match gridItemElement
+                    .filter(function (rule) {
+                        var matchedElements = utils.toArray(document.querySelectorAll(rule.selector));
+                        return matchedElements.any(function (match) {
+                            return gridItemElement === match;
+                        });
+                    });
+
+
+            override = createOverride(function (itemProperty) {
+                var rulesWithProperty = matchedItemRules
+                    // list of rules with itemProperty defined
+                    .filter(function (matchedItemRule) {
+                        return (matchedItemRule.properties[itemProperty] !== undefined);
+                    });
+
+                // warning about css conflicts
+                if (rulesWithProperty.length > 1) {
+                    console.log('WARNING: gridItemElement ' + gridItemElement + ' matched to multiple rules with property "' + itemProperty + '".' +
+                                'Will use the rule ', rulesWithProperty[0]);
+                }
+
+                if (rulesWithProperty.length > 0) {
+                    return rulesWithProperty[0].properties[itemProperty];
+                }
+            }, propertyNames);
+
+            return override;
+        }
+
+        function createDataGridOverride(gridElement, gridPropertyNames) {
+            var override = createOverride(function (property) {
+                if (gridElement.hasAttribute('data-ms-' + property)) {
+                    return gridElement.getAttribute('data-ms-' + property);
+                }
+            }, gridPropertyNames);
+
+            return override;
+        }
+
+        function createStyleGridOverride(gridElement) {
+            // extract grid properties from inline style, add to gridProperties
+            var gridElementStyle = gridElement.getAttribute("style"),
+                override = {};
+
+            if (!gridElementStyle) {
+                return;
             }
-            Object.keys(properties).forEach(function (key) {
-                gridElement.setAttribute('data-ms-' + key, properties[key]);
+
+            gridElementStyle.split('; ').forEach(function (styleProperty) {
+                var tokens = styleProperty.split(':'),
+                    propertyName,
+                    propertyValue;
+
+                if (tokens.length === 2) {
+                    propertyName = tokens[0].trim();
+                    propertyValue = tokens[1].trim();
+
+                    if (propertyName.indexOf('-ms-grid') === 0) {
+                        override[propertyName.substring(4)] = propertyValue;
+                    }
+                }
             });
 
-            grid_items = cssGridRules
-                .filter(function (item) { return item !== grid; })
-                .map(function (item) {
-                    var grid_item = {},
-                        style,
-                        gridItemElement;
+            // store style attrib values as attibutes of element
+            Object.keys(override)
+                // for each grid-related property of gridElement
+                .forEach(function (propertyKey) {
+                    // store value as attribute
+                    gridElement.setAttribute('data-ms-' + propertyKey, override[propertyKey]);
+                });
 
-                    gridItemElement = document.getElementById(item.selector.substring(1));
-                    if (gridItemElement === null || gridItemElement.parentNode !== gridElement) {
-                        return;
-                    }
+            return override;
+        }
 
-                    grid_item.element = gridItemElement;
-                    grid_item.details = item;
 
-                    style = grid_item.element.getAttribute("style");
-                    if (style !== null) {
-                        style.split(';').forEach(function (property) {
-                            var tokens = property.split(':'),
-                                value;
+       // get the list of unique grids (a grid can be matched to more than one style rule therefore distinct)
+        gridElements = cssGridSelectors
+            .selectMany(function (gridSelector) {
+                return document.querySelectorAll(gridSelector.selector);
+            })
+            .distinct()
+            .toArray();
 
-                            if (tokens.length === 2) {
-                                property = tokens[0].trim();
-                                value = tokens[1].trim();
+        // for each grid parent, properties from each source (style>data attribute>css<defaults)
+        gridElements
+            .forEach(function (gridElement) {
+                var cssGridProperties,
+                    dataGridProperties,
+                    styleGridProperties,
+                    gridProperties,
+                    gridItemData = [];
 
-                                if (property.indexOf('-ms-grid') === 0) {
-                                    grid_item.details.properties[property.substring(4)] = value;
-                                }
-                            }
+                cssGridProperties = createCssGridOverride(gridElement, Object.keys(defaultGridProperties));
+                dataGridProperties = createDataGridOverride(gridElement, Object.keys(defaultGridProperties));
+                styleGridProperties = createStyleGridOverride(gridElement);
+
+                gridProperties = merge(defaultGridProperties, cssGridProperties, dataGridProperties, styleGridProperties);
+
+                // for all children of gridElement, merge properties from each source (style > data attribute > css > defaults)
+                utils.toArray(gridElement.children)
+                    .forEach(function (gridItemElement) {
+                        var cssGridItemProperties,
+                            dataGridItemProperties,
+                            styleGridItemProperties,
+                            gridItemProperties;
+
+                        cssGridItemProperties = createCssGridItemOverride(gridItemElement, Object.keys(defaultGridItemProperties));
+                        dataGridItemProperties = createDataGridOverride(gridItemElement, Object.keys(defaultGridItemProperties));
+                        styleGridItemProperties = createStyleGridOverride(gridItemElement);
+
+                        gridItemProperties = merge(defaultGridItemProperties, cssGridItemProperties, dataGridItemProperties, styleGridItemProperties);
+
+                        gridItemData.push({
+                            element: gridItemElement,
+                            details: { properties: gridItemProperties }
                         });
-                    }
-
-                    Object.keys(grid_item.details.properties).forEach(function (key) {
-                        grid_item.element.setAttribute('data-ms-' + key, grid_item.details.properties[key]);
                     });
-                    return grid_item;
-                })
-                .filter(function (item) { return item; });
 
-            gridLayout(gridElement, selector, properties, 'screen', grid_items);
 
-            notifyLayoutDone(gridElement, selector);
-        });
+                gridLayout(gridElement, gridProperties, 'screen', gridItemData);
+
+                notifyLayoutDone(gridElement);
+            });
+
     }
 
-    function polyfill() {
+
+    function parseAllStyles(onLoaded) {
         sheetLoader.loadAllStyleSheets(function (stylesheets) {
-            if (cssGridRules) { return; }
 
             cssGridRules = Object.keys(stylesheets)
                 .reduce(function (acc, url) {
@@ -4196,43 +4477,68 @@ define('scalejs.layout-cssgrid/cssGridLayout',[
                 return rule.properties.display === 'grid';
             });
 
-            window.addEventListener('resize', function () {
-                doLayout();
-            });
+            onLoaded();
         });
     }
 
-    function invalidate() {
-        setTimeout(doLayout, 0);
+    function invalidate(reparse) {
+        if (reparse === true) {
+            setTimeout(function () {
+                parseAllStyles(function () {
+                    doLayout();
+                });
+            }, 0);
+        } else {
+            setTimeout(doLayout, 0);
+        }
     }
 
     return {
-        polyfill: polyfill,
+        doLayout: doLayout,
         invalidate: invalidate,
-        onLayoutDone: onLayoutDone
+        onLayoutDone: onLayoutDone,
+        notifyLayoutDone: notifyLayoutDone
     };
 });
 
-/*global define*/
+/*global define */
+/*global window */
 define('scalejs.layout-cssgrid',[
     'scalejs!core',
-    'CSS.supports',
-    './scalejs.layout-cssgrid/cssGridLayout'
+    './scalejs.layout-cssgrid/cssGridLayout',
+    'CSS.supports'
 ], function (
     core,
-    css,
-    cssGridLayout
+    cssGridLayout,
+    css
 ) {
     
 
+    var exposed_invalidate;
+
+
     //console.log('is -ms-grid supported? ' + (css.supports('display', '-ms-grid') || false));
     if (!css.supports('display', '-ms-grid')) {
-        cssGridLayout.polyfill();
+        //register resize here
+        window.addEventListener('resize', function () {
+            cssGridLayout.doLayout();
+        });
+
+        exposed_invalidate = cssGridLayout.invalidate;
+
+    } else {
+        window.addEventListener('resize', function () {
+            cssGridLayout.notifyLayoutDone();
+        });
+
+        exposed_invalidate = function () {
+            cssGridLayout.notifyLayoutDone();
+        };
     }
 
     core.registerExtension({
         layout: {
-            invalidate: cssGridLayout.invalidate,
+            invalidate: exposed_invalidate,
             onLayoutDone: cssGridLayout.onLayoutDone
         }
     });
@@ -5668,7 +5974,7 @@ else {
 })(this);
 define("hammer", function(){});
 
-// Knockout JavaScript library v2.3.0
+// Knockout JavaScript library v3.0.0
 // (c) Steven Sanderson - http://knockoutjs.com/
 // License: MIT (http://www.opensource.org/licenses/mit-license.php)
 
@@ -5714,7 +6020,7 @@ ko.exportSymbol = function(koPath, object) {
 ko.exportProperty = function(owner, publicName, object) {
   owner[publicName] = object;
 };
-ko.version = "2.3.0";
+ko.version = "3.0.0";
 
 ko.exportSymbol('version', ko.version);
 ko.utils = (function () {
@@ -5830,7 +6136,7 @@ ko.utils = (function () {
         },
 
         addOrRemoveItem: function(array, value, included) {
-            var existingEntryIndex = array.indexOf ? array.indexOf(value) : ko.utils.arrayIndexOf(array, value);
+            var existingEntryIndex = ko.utils.arrayIndexOf(ko.utils.peekObservable(array), value);
             if (existingEntryIndex < 0) {
                 if (included)
                     array.push(value);
@@ -5852,6 +6158,18 @@ ko.utils = (function () {
         },
 
         objectForEach: objectForEach,
+
+        objectMap: function(source, mapping) {
+            if (!source)
+                return source;
+            var target = {};
+            for (var prop in source) {
+                if (source.hasOwnProperty(prop)) {
+                    target[prop] = mapping(source[prop], prop, source);
+                }
+            }
+            return target;
+        },
 
         emptyDomNode: function (domNode) {
             while (domNode.firstChild) {
@@ -5900,6 +6218,45 @@ ko.utils = (function () {
             }
         },
 
+        fixUpContinuousNodeArray: function(continuousNodeArray, parentNode) {
+            // Before acting on a set of nodes that were previously outputted by a template function, we have to reconcile
+            // them against what is in the DOM right now. It may be that some of the nodes have already been removed, or that
+            // new nodes might have been inserted in the middle, for example by a binding. Also, there may previously have been
+            // leading comment nodes (created by rewritten string-based templates) that have since been removed during binding.
+            // So, this function translates the old "map" output array into its best guess of the set of current DOM nodes.
+            //
+            // Rules:
+            //   [A] Any leading nodes that have been removed should be ignored
+            //       These most likely correspond to memoization nodes that were already removed during binding
+            //       See https://github.com/SteveSanderson/knockout/pull/440
+            //   [B] We want to output a continuous series of nodes. So, ignore any nodes that have already been removed,
+            //       and include any nodes that have been inserted among the previous collection
+
+            if (continuousNodeArray.length) {
+                // The parent node can be a virtual element; so get the real parent node
+                parentNode = (parentNode.nodeType === 8 && parentNode.parentNode) || parentNode;
+
+                // Rule [A]
+                while (continuousNodeArray.length && continuousNodeArray[0].parentNode !== parentNode)
+                    continuousNodeArray.splice(0, 1);
+
+                // Rule [B]
+                if (continuousNodeArray.length > 1) {
+                    var current = continuousNodeArray[0], last = continuousNodeArray[continuousNodeArray.length - 1];
+                    // Replace with the actual new continuous node set
+                    continuousNodeArray.length = 0;
+                    while (current !== last) {
+                        continuousNodeArray.push(current);
+                        current = current.nextSibling;
+                        if (!current) // Won't happen, except if the developer has manually removed some DOM elements (then we're in an undefined scenario)
+                            return;
+                    }
+                    continuousNodeArray.push(last);
+                }
+            }
+            return continuousNodeArray;
+        },
+
         setOptionNodeSelectionState: function (optionNode, isSelected) {
             // IE6 sometimes throws "unknown error" if you try to write to .selected directly, whereas Firefox struggles with setAttribute. Pick one based on browser.
             if (ieVersion < 7)
@@ -5934,18 +6291,22 @@ ko.utils = (function () {
         },
 
         domNodeIsContainedBy: function (node, containedByNode) {
+            if (node === containedByNode)
+                return true;
+            if (node.nodeType === 11)
+                return false; // Fixes issue #1162 - can't use node.contains for document fragments on IE8
+            if (containedByNode.contains)
+                return containedByNode.contains(node.nodeType === 3 ? node.parentNode : node);
             if (containedByNode.compareDocumentPosition)
                 return (containedByNode.compareDocumentPosition(node) & 16) == 16;
-            while (node != null) {
-                if (node == containedByNode)
-                    return true;
+            while (node && node != containedByNode) {
                 node = node.parentNode;
             }
-            return false;
+            return !!node;
         },
 
         domNodeIsAttachedToDocument: function (node) {
-            return ko.utils.domNodeIsContainedBy(node, node.ownerDocument);
+            return ko.utils.domNodeIsContainedBy(node, node.ownerDocument.documentElement);
         },
 
         anyDomNodeIsAttachedToDocument: function(nodes) {
@@ -6230,30 +6591,32 @@ ko.utils.domData = new (function () {
     var uniqueId = 0;
     var dataStoreKeyExpandoPropertyName = "__ko__" + (new Date).getTime();
     var dataStore = {};
+
+    function getAll(node, createIfNotFound) {
+        var dataStoreKey = node[dataStoreKeyExpandoPropertyName];
+        var hasExistingDataStore = dataStoreKey && (dataStoreKey !== "null") && dataStore[dataStoreKey];
+        if (!hasExistingDataStore) {
+            if (!createIfNotFound)
+                return undefined;
+            dataStoreKey = node[dataStoreKeyExpandoPropertyName] = "ko" + uniqueId++;
+            dataStore[dataStoreKey] = {};
+        }
+        return dataStore[dataStoreKey];
+    }
+
     return {
         get: function (node, key) {
-            var allDataForNode = ko.utils.domData.getAll(node, false);
+            var allDataForNode = getAll(node, false);
             return allDataForNode === undefined ? undefined : allDataForNode[key];
         },
         set: function (node, key, value) {
             if (value === undefined) {
                 // Make sure we don't actually create a new domData key if we are actually deleting a value
-                if (ko.utils.domData.getAll(node, false) === undefined)
+                if (getAll(node, false) === undefined)
                     return;
             }
-            var allDataForNode = ko.utils.domData.getAll(node, true);
+            var allDataForNode = getAll(node, true);
             allDataForNode[key] = value;
-        },
-        getAll: function (node, createIfNotFound) {
-            var dataStoreKey = node[dataStoreKeyExpandoPropertyName];
-            var hasExistingDataStore = dataStoreKey && (dataStoreKey !== "null") && dataStore[dataStoreKey];
-            if (!hasExistingDataStore) {
-                if (!createIfNotFound)
-                    return undefined;
-                dataStoreKey = node[dataStoreKeyExpandoPropertyName] = "ko" + uniqueId++;
-                dataStore[dataStoreKey] = {};
-            }
-            return dataStore[dataStoreKey];
         },
         clear: function (node) {
             var dataStoreKey = node[dataStoreKeyExpandoPropertyName];
@@ -6263,15 +6626,19 @@ ko.utils.domData = new (function () {
                 return true; // Exposing "did clean" flag purely so specs can infer whether things have been cleaned up as intended
             }
             return false;
+        },
+
+        nextKey: function () {
+            return (uniqueId++) + dataStoreKeyExpandoPropertyName;
         }
-    }
+    };
 })();
 
 ko.exportSymbol('utils.domData', ko.utils.domData);
 ko.exportSymbol('utils.domData.clear', ko.utils.domData.clear); // Exporting only so specs can clear up after themselves fully
 
 ko.utils.domNodeDisposal = new (function () {
-    var domDataKey = "__ko_domNodeDisposal__" + (new Date).getTime();
+    var domDataKey = ko.utils.domData.nextKey();
     var cleanableNodeTypes = { 1: true, 8: true, 9: true };       // Element, Comment, Document
     var cleanableNodeTypesWithDescendants = { 1: true, 9: true }; // Element, Document
 
@@ -6554,12 +6921,17 @@ ko.extenders = {
     },
 
     'notify': function(target, notifyWhen) {
-        target["equalityComparer"] = notifyWhen == "always"
-            ? function() { return false } // Treat all values as not equal
-            : ko.observable["fn"]["equalityComparer"];
-        return target;
+        target["equalityComparer"] = notifyWhen == "always" ?
+            null :  // null equalityComparer means to always notify
+            valuesArePrimitiveAndEqual;
     }
 };
+
+var primitiveTypes = { 'undefined':1, 'boolean':1, 'number':1, 'string':1 };
+function valuesArePrimitiveAndEqual(a, b) {
+    var oldValueIsPrimitive = (a === null) || (typeof(a) in primitiveTypes);
+    return oldValueIsPrimitive ? (a === b) : false;
+}
 
 function applyExtenders(requestedExtenders) {
     var target = this;
@@ -6567,7 +6939,7 @@ function applyExtenders(requestedExtenders) {
         ko.utils.objectForEach(requestedExtenders, function(key, value) {
             var extenderHandler = ko.extenders[key];
             if (typeof extenderHandler == 'function') {
-                target = extenderHandler(target, value);
+                target = extenderHandler(target, value) || target;
             }
         });
     }
@@ -6615,16 +6987,23 @@ ko.subscribable['fn'] = {
 
     "notifySubscribers": function (valueToNotify, event) {
         event = event || defaultEvent;
-        if (this._subscriptions[event]) {
-            ko.dependencyDetection.ignore(function() {
-                ko.utils.arrayForEach(this._subscriptions[event].slice(0), function (subscription) {
+        if (this.hasSubscriptionsForEvent(event)) {
+            try {
+                ko.dependencyDetection.begin();
+                for (var a = this._subscriptions[event].slice(0), i = 0, subscription; subscription = a[i]; ++i) {
                     // In case a subscription was disposed during the arrayForEach cycle, check
                     // for isDisposed on each subscription before invoking its callback
                     if (subscription && (subscription.isDisposed !== true))
                         subscription.callback(valueToNotify);
-                });
-            }, this);
+                }
+            } finally {
+                ko.dependencyDetection.end();
+            }
         }
+    },
+
+    hasSubscriptionsForEvent: function(event) {
+        return this._subscriptions[event] && this._subscriptions[event].length;
     },
 
     getSubscriptionsCount: function () {
@@ -6651,7 +7030,7 @@ ko.dependencyDetection = (function () {
 
     return {
         begin: function (callback) {
-            _frames.push({ callback: callback, distinctDependencies:[] });
+            _frames.push(callback && { callback: callback, distinctDependencies:[] });
         },
 
         end: function () {
@@ -6680,8 +7059,6 @@ ko.dependencyDetection = (function () {
         }
     };
 })();
-var primitiveTypes = { 'undefined':true, 'boolean':true, 'number':true, 'string':true };
-
 ko.observable = function (initialValue) {
     var _latestValue = initialValue;
 
@@ -6690,7 +7067,7 @@ ko.observable = function (initialValue) {
             // Write
 
             // Ignore writes if the value hasn't changed
-            if ((!observable['equalityComparer']) || !observable['equalityComparer'](_latestValue, arguments[0])) {
+            if (!observable['equalityComparer'] || !observable['equalityComparer'](_latestValue, arguments[0])) {
                 observable.valueWillMutate();
                 _latestValue = arguments[0];
                 if (DEBUG) observable._latestValue = _latestValue;
@@ -6719,10 +7096,7 @@ ko.observable = function (initialValue) {
 }
 
 ko.observable['fn'] = {
-    "equalityComparer": function valuesArePrimitiveAndEqual(a, b) {
-        var oldValueIsPrimitive = (a === null) || (typeof(a) in primitiveTypes);
-        return oldValueIsPrimitive ? (a === b) : false;
-    }
+    "equalityComparer": valuesArePrimitiveAndEqual
 };
 
 var protoProperty = ko.observable.protoProperty = "__ko_proto__";
@@ -6760,14 +7134,14 @@ ko.observableArray = function (initialValues) {
 
     var result = ko.observable(initialValues);
     ko.utils.extend(result, ko.observableArray['fn']);
-    return result;
+    return result.extend({'trackArrayChanges':true});
 };
 
 ko.observableArray['fn'] = {
     'remove': function (valueOrPredicate) {
         var underlyingArray = this.peek();
         var removedValues = [];
-        var predicate = typeof valueOrPredicate == "function" ? valueOrPredicate : function (value) { return value === valueOrPredicate; };
+        var predicate = typeof valueOrPredicate == "function" && !ko.isObservable(valueOrPredicate) ? valueOrPredicate : function (value) { return value === valueOrPredicate; };
         for (var i = 0; i < underlyingArray.length; i++) {
             var value = underlyingArray[i];
             if (predicate(value)) {
@@ -6805,7 +7179,7 @@ ko.observableArray['fn'] = {
 
     'destroy': function (valueOrPredicate) {
         var underlyingArray = this.peek();
-        var predicate = typeof valueOrPredicate == "function" ? valueOrPredicate : function (value) { return value === valueOrPredicate; };
+        var predicate = typeof valueOrPredicate == "function" && !ko.isObservable(valueOrPredicate) ? valueOrPredicate : function (value) { return value === valueOrPredicate; };
         this.valueWillMutate();
         for (var i = underlyingArray.length - 1; i >= 0; i--) {
             var value = underlyingArray[i];
@@ -6852,6 +7226,7 @@ ko.utils.arrayForEach(["pop", "push", "reverse", "shift", "sort", "splice", "uns
         // (for consistency with mutating regular observables)
         var underlyingArray = this.peek();
         this.valueWillMutate();
+        this.cacheDiffForKnownOperation(underlyingArray, methodName, arguments);
         var methodCallResult = underlyingArray[methodName].apply(underlyingArray, arguments);
         this.valueHasMutated();
         return methodCallResult;
@@ -6867,10 +7242,134 @@ ko.utils.arrayForEach(["slice"], function (methodName) {
 });
 
 ko.exportSymbol('observableArray', ko.observableArray);
+var arrayChangeEventName = 'arrayChange';
+ko.extenders['trackArrayChanges'] = function(target) {
+    // Only modify the target observable once
+    if (target.cacheDiffForKnownOperation) {
+        return;
+    }
+    var trackingChanges = false,
+        cachedDiff = null,
+        pendingNotifications = 0,
+        underlyingSubscribeFunction = target.subscribe;
+
+    // Intercept "subscribe" calls, and for array change events, ensure change tracking is enabled
+    target.subscribe = target['subscribe'] = function(callback, callbackTarget, event) {
+        if (event === arrayChangeEventName) {
+            trackChanges();
+        }
+        return underlyingSubscribeFunction.apply(this, arguments);
+    };
+
+    function trackChanges() {
+        // Calling 'trackChanges' multiple times is the same as calling it once
+        if (trackingChanges) {
+            return;
+        }
+
+        trackingChanges = true;
+
+        // Intercept "notifySubscribers" to track how many times it was called.
+        var underlyingNotifySubscribersFunction = target['notifySubscribers'];
+        target['notifySubscribers'] = function(valueToNotify, event) {
+            if (!event || event === defaultEvent) {
+                ++pendingNotifications;
+            }
+            return underlyingNotifySubscribersFunction.apply(this, arguments);
+        };
+
+        // Each time the array changes value, capture a clone so that on the next
+        // change it's possible to produce a diff
+        var previousContents = [].concat(target.peek() || []);
+        cachedDiff = null;
+        target.subscribe(function(currentContents) {
+            // Make a copy of the current contents and ensure it's an array
+            currentContents = [].concat(currentContents || []);
+
+            // Compute the diff and issue notifications, but only if someone is listening
+            if (target.hasSubscriptionsForEvent(arrayChangeEventName)) {
+                var changes = getChanges(previousContents, currentContents);
+                if (changes.length) {
+                    target['notifySubscribers'](changes, arrayChangeEventName);
+                }
+            }
+
+            // Eliminate references to the old, removed items, so they can be GCed
+            previousContents = currentContents;
+            cachedDiff = null;
+            pendingNotifications = 0;
+        });
+    }
+
+    function getChanges(previousContents, currentContents) {
+        // We try to re-use cached diffs.
+        // The only scenario where pendingNotifications > 1 is when using the KO 'deferred updates' plugin,
+        // which without this check would not be compatible with arrayChange notifications. Without that
+        // plugin, notifications are always issued immediately so we wouldn't be queueing up more than one.
+        if (!cachedDiff || pendingNotifications > 1) {
+            cachedDiff = ko.utils.compareArrays(previousContents, currentContents, { 'sparse': true });
+        }
+
+        return cachedDiff;
+    }
+
+    target.cacheDiffForKnownOperation = function(rawArray, operationName, args) {
+        // Only run if we're currently tracking changes for this observable array
+        // and there aren't any pending deferred notifications.
+        if (!trackingChanges || pendingNotifications) {
+            return;
+        }
+        var diff = [],
+            arrayLength = rawArray.length,
+            argsLength = args.length,
+            offset = 0;
+
+        function pushDiff(status, value, index) {
+            diff.push({ 'status': status, 'value': value, 'index': index });
+        }
+        switch (operationName) {
+            case 'push':
+                offset = arrayLength;
+            case 'unshift':
+                for (var index = 0; index < argsLength; index++) {
+                    pushDiff('added', args[index], offset + index);
+                }
+                break;
+
+            case 'pop':
+                offset = arrayLength - 1;
+            case 'shift':
+                if (arrayLength) {
+                    pushDiff('deleted', rawArray[offset], offset);
+                }
+                break;
+
+            case 'splice':
+                // Negative start index means 'from end of array'. After that we clamp to [0...arrayLength].
+                // See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/splice
+                var startIndex = Math.min(Math.max(0, args[0] < 0 ? arrayLength + args[0] : args[0]), arrayLength),
+                    endDeleteIndex = argsLength === 1 ? arrayLength : Math.min(startIndex + (args[1] || 0), arrayLength),
+                    endAddIndex = startIndex + argsLength - 2,
+                    endIndex = Math.max(endDeleteIndex, endAddIndex);
+                for (var index = startIndex, argsIndex = 2; index < endIndex; ++index, ++argsIndex) {
+                    if (index < endDeleteIndex)
+                        pushDiff('deleted', rawArray[index], index);
+                    if (index < endAddIndex)
+                        pushDiff('added', args[argsIndex], index);
+                }
+                break;
+
+            default:
+                return;
+        }
+        cachedDiff = diff;
+    };
+};
 ko.dependentObservable = function (evaluatorFunctionOrOptions, evaluatorFunctionTarget, options) {
     var _latestValue,
         _hasBeenEvaluated = false,
         _isBeingEvaluated = false,
+        _suppressDisposalUntilDisposeWhenReturnsFalse = false,
         readFunction = evaluatorFunctionOrOptions;
 
     if (readFunction && typeof readFunction == "object") {
@@ -6915,12 +7414,16 @@ ko.dependentObservable = function (evaluatorFunctionOrOptions, evaluatorFunction
             return;
         }
 
-        // Don't dispose on first evaluation, because the "disposeWhen" callback might
-        // e.g., dispose when the associated DOM element isn't in the doc, and it's not
-        // going to be in the doc until *after* the first evaluation
-        if (_hasBeenEvaluated && disposeWhen()) {
-            dispose();
-            return;
+        if (disposeWhen && disposeWhen()) {
+            // See comment below about _suppressDisposalUntilDisposeWhenReturnsFalse
+            if (!_suppressDisposalUntilDisposeWhenReturnsFalse) {
+                dispose();
+                _hasBeenEvaluated = true;
+                return;
+            }
+        } else {
+            // It just did return false, so we can stop suppressing now
+            _suppressDisposalUntilDisposeWhenReturnsFalse = false;
         }
 
         _isBeingEvaluated = true;
@@ -6937,7 +7440,7 @@ ko.dependentObservable = function (evaluatorFunctionOrOptions, evaluatorFunction
                     addSubscriptionToDependency(subscribable); // Brand new subscription - add it
             });
 
-            var newValue = readFunction.call(evaluatorFunctionTarget);
+            var newValue = evaluatorFunctionTarget ? readFunction.call(evaluatorFunctionTarget) : readFunction();
 
             // For each subscription no longer being used, remove it from the active subscriptions list and dispose it
             for (var i = disposalCandidates.length - 1; i >= 0; i--) {
@@ -6946,12 +7449,13 @@ ko.dependentObservable = function (evaluatorFunctionOrOptions, evaluatorFunction
             }
             _hasBeenEvaluated = true;
 
-            dependentObservable["notifySubscribers"](_latestValue, "beforeChange");
+            if (!dependentObservable['equalityComparer'] || !dependentObservable['equalityComparer'](_latestValue, newValue)) {
+                dependentObservable["notifySubscribers"](_latestValue, "beforeChange");
 
-            _latestValue = newValue;
-            if (DEBUG) dependentObservable._latestValue = _latestValue;
-            dependentObservable["notifySubscribers"](_latestValue);
-
+                _latestValue = newValue;
+                if (DEBUG) dependentObservable._latestValue = _latestValue;
+                dependentObservable["notifySubscribers"](_latestValue);
+            }
         } finally {
             ko.dependencyDetection.end();
             _isBeingEvaluated = false;
@@ -6992,7 +7496,8 @@ ko.dependentObservable = function (evaluatorFunctionOrOptions, evaluatorFunction
     // By here, "options" is always non-null
     var writeFunction = options["write"],
         disposeWhenNodeIsRemoved = options["disposeWhenNodeIsRemoved"] || options.disposeWhenNodeIsRemoved || null,
-        disposeWhen = options["disposeWhen"] || options.disposeWhen || function() { return false; },
+        disposeWhenOption = options["disposeWhen"] || options.disposeWhen,
+        disposeWhen = disposeWhenOption,
         dispose = disposeAllSubscriptionsToDependencies,
         _subscriptionsToDependencies = [],
         evaluationTimeoutInstance = null;
@@ -7014,24 +7519,37 @@ ko.dependentObservable = function (evaluatorFunctionOrOptions, evaluatorFunction
     ko.exportProperty(dependentObservable, 'isActive', dependentObservable.isActive);
     ko.exportProperty(dependentObservable, 'getDependenciesCount', dependentObservable.getDependenciesCount);
 
+    // Add a "disposeWhen" callback that, on each evaluation, disposes if the node was removed without using ko.removeNode.
+    if (disposeWhenNodeIsRemoved) {
+        // Since this computed is associated with a DOM node, and we don't want to dispose the computed
+        // until the DOM node is *removed* from the document (as opposed to never having been in the document),
+        // we'll prevent disposal until "disposeWhen" first returns false.
+        _suppressDisposalUntilDisposeWhenReturnsFalse = true;
+
+        // Only watch for the node's disposal if the value really is a node. It might not be,
+        // e.g., { disposeWhenNodeIsRemoved: true } can be used to opt into the "only dispose
+        // after first false result" behaviour even if there's no specific node to watch. This
+        // technique is intended for KO's internal use only and shouldn't be documented or used
+        // by application code, as it's likely to change in a future version of KO.
+        if (disposeWhenNodeIsRemoved.nodeType) {
+            disposeWhen = function () {
+                return !ko.utils.domNodeIsAttachedToDocument(disposeWhenNodeIsRemoved) || (disposeWhenOption && disposeWhenOption());
+            };
+        }
+    }
+
     // Evaluate, unless deferEvaluation is true
     if (options['deferEvaluation'] !== true)
         evaluateImmediate();
 
-    // Build "disposeWhenNodeIsRemoved" and "disposeWhenNodeIsRemovedCallback" option values.
-    // But skip if isActive is false (there will never be any dependencies to dispose).
-    // (Note: "disposeWhenNodeIsRemoved" option both proactively disposes as soon as the node is removed using ko.removeNode(),
-    // plus adds a "disposeWhen" callback that, on each evaluation, disposes if the node was removed by some other means.)
+    // Attach a DOM node disposal callback so that the computed will be proactively disposed as soon as the node is
+    // removed using ko.removeNode. But skip if isActive is false (there will never be any dependencies to dispose).
     if (disposeWhenNodeIsRemoved && isActive()) {
         dispose = function() {
             ko.utils.domNodeDisposal.removeDisposeCallback(disposeWhenNodeIsRemoved, dispose);
             disposeAllSubscriptionsToDependencies();
         };
         ko.utils.domNodeDisposal.addDisposeCallback(disposeWhenNodeIsRemoved, dispose);
-        var existingDisposeWhenFunction = disposeWhen;
-        disposeWhen = function () {
-            return !ko.utils.domNodeIsAttachedToDocument(disposeWhenNodeIsRemoved) || existingDisposeWhenFunction();
-        }
     }
 
     return dependentObservable;
@@ -7044,7 +7562,9 @@ ko.isComputed = function(instance) {
 var protoProp = ko.observable.protoProperty; // == "__ko_proto__"
 ko.dependentObservable[protoProp] = ko.observable;
 
-ko.dependentObservable['fn'] = {};
+ko.dependentObservable['fn'] = {
+    "equalityComparer": valuesArePrimitiveAndEqual
+};
 ko.dependentObservable['fn'][protoProp] = ko.dependentObservable;
 
 ko.exportSymbol('dependentObservable', ko.dependentObservable);
@@ -7219,170 +7739,162 @@ ko.exportSymbol('selectExtensions', ko.selectExtensions);
 ko.exportSymbol('selectExtensions.readValue', ko.selectExtensions.readValue);
 ko.exportSymbol('selectExtensions.writeValue', ko.selectExtensions.writeValue);
 ko.expressionRewriting = (function () {
-    var restoreCapturedTokensRegex = /\@ko_token_(\d+)\@/g;
     var javaScriptReservedWords = ["true", "false", "null", "undefined"];
 
     // Matches something that can be assigned to--either an isolated identifier or something ending with a property accessor
     // This is designed to be simple and avoid false negatives, but could produce false positives (e.g., a+b.c).
+    // This also will not properly handle nested brackets (e.g., obj1[obj2['prop']]; see #911).
     var javaScriptAssignmentTarget = /^(?:[$_a-z][$\w]*|(.+)(\.\s*[$_a-z][$\w]*|\[.+\]))$/i;
 
-    function restoreTokens(string, tokens) {
-        var prevValue = null;
-        while (string != prevValue) { // Keep restoring tokens until it no longer makes a difference (they may be nested)
-            prevValue = string;
-            string = string.replace(restoreCapturedTokensRegex, function (match, tokenIndex) {
-                return tokens[tokenIndex];
-            });
-        }
-        return string;
-    }
-
     function getWriteableValue(expression) {
-        if (ko.utils.arrayIndexOf(javaScriptReservedWords, ko.utils.stringTrim(expression).toLowerCase()) >= 0)
+        if (ko.utils.arrayIndexOf(javaScriptReservedWords, expression) >= 0)
             return false;
         var match = expression.match(javaScriptAssignmentTarget);
         return match === null ? false : match[1] ? ('Object(' + match[1] + ')' + match[2]) : expression;
     }
 
-    function ensureQuoted(key) {
-        var trimmedKey = ko.utils.stringTrim(key);
-        switch (trimmedKey.length && trimmedKey.charAt(0)) {
-            case "'":
-            case '"':
-                return key;
-            default:
-                return "'" + trimmedKey + "'";
+    // The following regular expressions will be used to split an object-literal string into tokens
+
+        // These two match strings, either with double quotes or single quotes
+    var stringDouble = '"(?:[^"\\\\]|\\\\.)*"',
+        stringSingle = "'(?:[^'\\\\]|\\\\.)*'",
+        // Matches a regular expression (text enclosed by slashes), but will also match sets of divisions
+        // as a regular expression (this is handled by the parsing loop below).
+        stringRegexp = '/(?:[^/\\\\]|\\\\.)*/\w*',
+        // These characters have special meaning to the parser and must not appear in the middle of a
+        // token, except as part of a string.
+        specials = ',"\'{}()/:[\\]',
+        // Match text (at least two characters) that does not contain any of the above special characters,
+        // although some of the special characters are allowed to start it (all but the colon and comma).
+        // The text can contain spaces, but leading or trailing spaces are skipped.
+        everyThingElse = '[^\\s:,/][^' + specials + ']*[^\\s' + specials + ']',
+        // Match any non-space character not matched already. This will match colons and commas, since they're
+        // not matched by "everyThingElse", but will also match any other single character that wasn't already
+        // matched (for example: in "a: 1, b: 2", each of the non-space characters will be matched by oneNotSpace).
+        oneNotSpace = '[^\\s]',
+
+        // Create the actual regular expression by or-ing the above strings. The order is important.
+        bindingToken = RegExp(stringDouble + '|' + stringSingle + '|' + stringRegexp + '|' + everyThingElse + '|' + oneNotSpace, 'g'),
+
+        // Match end of previous token to determine whether a slash is a division or regex.
+        divisionLookBehind = /[\])"'A-Za-z0-9_$]+$/,
+        keywordRegexLookBehind = {'in':1,'return':1,'typeof':1};
+
+    function parseObjectLiteral(objectLiteralString) {
+        // Trim leading and trailing spaces from the string
+        var str = ko.utils.stringTrim(objectLiteralString);
+
+        // Trim braces '{' surrounding the whole object literal
+        if (str.charCodeAt(0) === 123) str = str.slice(1, -1);
+
+        // Split into tokens
+        var result = [], toks = str.match(bindingToken), key, values, depth = 0;
+
+        if (toks) {
+            // Append a comma so that we don't need a separate code block to deal with the last item
+            toks.push(',');
+
+            for (var i = 0, tok; tok = toks[i]; ++i) {
+                var c = tok.charCodeAt(0);
+                // A comma signals the end of a key/value pair if depth is zero
+                if (c === 44) { // ","
+                    if (depth <= 0) {
+                        if (key)
+                            result.push(values ? {key: key, value: values.join('')} : {'unknown': key});
+                        key = values = depth = 0;
+                        continue;
+                    }
+                // Simply skip the colon that separates the name and value
+                } else if (c === 58) { // ":"
+                    if (!values)
+                        continue;
+                // A set of slashes is initially matched as a regular expression, but could be division
+                } else if (c === 47 && i && tok.length > 1) {  // "/"
+                    // Look at the end of the previous token to determine if the slash is actually division
+                    var match = toks[i-1].match(divisionLookBehind);
+                    if (match && !keywordRegexLookBehind[match[0]]) {
+                        // The slash is actually a division punctuator; re-parse the remainder of the string (not including the slash)
+                        str = str.substr(str.indexOf(tok) + 1);
+                        toks = str.match(bindingToken);
+                        toks.push(',');
+                        i = -1;
+                        // Continue with just the slash
+                        tok = '/';
+                    }
+                // Increment depth for parentheses, braces, and brackets so that interior commas are ignored
+                } else if (c === 40 || c === 123 || c === 91) { // '(', '{', '['
+                    ++depth;
+                } else if (c === 41 || c === 125 || c === 93) { // ')', '}', ']'
+                    --depth;
+                // The key must be a single token; if it's a string, trim the quotes
+                } else if (!key && !values) {
+                    key = (c === 34 || c === 39) /* '"', "'" */ ? tok.slice(1, -1) : tok;
+                    continue;
+                }
+                if (values)
+                    values.push(tok);
+                else
+                    values = [tok];
+            }
         }
+        return result;
+    }
+
+    // Two-way bindings include a write function that allow the handler to update the value even if it's not an observable.
+    var twoWayBindings = {};
+
+    function preProcessBindings(bindingsStringOrKeyValueArray, bindingOptions) {
+        bindingOptions = bindingOptions || {};
+
+        function processKeyValue(key, val) {
+            var writableVal;
+            function callPreprocessHook(obj) {
+                return (obj && obj['preprocess']) ? (val = obj['preprocess'](val, key, processKeyValue)) : true;
+            }
+            if (!callPreprocessHook(ko['getBindingHandler'](key)))
+                return;
+
+            if (twoWayBindings[key] && (writableVal = getWriteableValue(val))) {
+                // For two-way bindings, provide a write method in case the value
+                // isn't a writable observable.
+                propertyAccessorResultStrings.push("'" + key + "':function(_z){" + writableVal + "=_z}");
+            }
+
+            // Values are wrapped in a function so that each value can be accessed independently
+            if (makeValueAccessors) {
+                val = 'function(){return ' + val + ' }';
+            }
+            resultStrings.push("'" + key + "':" + val);
+        }
+
+        var resultStrings = [],
+            propertyAccessorResultStrings = [],
+            makeValueAccessors = bindingOptions['valueAccessors'],
+            keyValueArray = typeof bindingsStringOrKeyValueArray === "string" ?
+                parseObjectLiteral(bindingsStringOrKeyValueArray) : bindingsStringOrKeyValueArray;
+
+        ko.utils.arrayForEach(keyValueArray, function(keyValue) {
+            processKeyValue(keyValue.key || keyValue['unknown'], keyValue.value);
+        });
+
+        if (propertyAccessorResultStrings.length)
+            processKeyValue('_ko_property_writers', "{" + propertyAccessorResultStrings.join(",") + "}");
+
+        return resultStrings.join(",");
     }
 
     return {
         bindingRewriteValidators: [],
 
-        parseObjectLiteral: function(objectLiteralString) {
-            // A full tokeniser+lexer would add too much weight to this library, so here's a simple parser
-            // that is sufficient just to split an object literal string into a set of top-level key-value pairs
+        twoWayBindings: twoWayBindings,
 
-            var str = ko.utils.stringTrim(objectLiteralString);
-            if (str.length < 3)
-                return [];
-            if (str.charAt(0) === "{")// Ignore any braces surrounding the whole object literal
-                str = str.substring(1, str.length - 1);
+        parseObjectLiteral: parseObjectLiteral,
 
-            // Pull out any string literals and regex literals
-            var tokens = [];
-            var tokenStart = null, tokenEndChar;
-            for (var position = 0; position < str.length; position++) {
-                var c = str.charAt(position);
-                if (tokenStart === null) {
-                    switch (c) {
-                        case '"':
-                        case "'":
-                        case "/":
-                            tokenStart = position;
-                            tokenEndChar = c;
-                            break;
-                    }
-                } else if ((c == tokenEndChar) && (str.charAt(position - 1) !== "\\")) {
-                    var token = str.substring(tokenStart, position + 1);
-                    tokens.push(token);
-                    var replacement = "@ko_token_" + (tokens.length - 1) + "@";
-                    str = str.substring(0, tokenStart) + replacement + str.substring(position + 1);
-                    position -= (token.length - replacement.length);
-                    tokenStart = null;
-                }
-            }
-
-            // Next pull out balanced paren, brace, and bracket blocks
-            tokenStart = null;
-            tokenEndChar = null;
-            var tokenDepth = 0, tokenStartChar = null;
-            for (var position = 0; position < str.length; position++) {
-                var c = str.charAt(position);
-                if (tokenStart === null) {
-                    switch (c) {
-                        case "{": tokenStart = position; tokenStartChar = c;
-                                  tokenEndChar = "}";
-                                  break;
-                        case "(": tokenStart = position; tokenStartChar = c;
-                                  tokenEndChar = ")";
-                                  break;
-                        case "[": tokenStart = position; tokenStartChar = c;
-                                  tokenEndChar = "]";
-                                  break;
-                    }
-                }
-
-                if (c === tokenStartChar)
-                    tokenDepth++;
-                else if (c === tokenEndChar) {
-                    tokenDepth--;
-                    if (tokenDepth === 0) {
-                        var token = str.substring(tokenStart, position + 1);
-                        tokens.push(token);
-                        var replacement = "@ko_token_" + (tokens.length - 1) + "@";
-                        str = str.substring(0, tokenStart) + replacement + str.substring(position + 1);
-                        position -= (token.length - replacement.length);
-                        tokenStart = null;
-                    }
-                }
-            }
-
-            // Now we can safely split on commas to get the key/value pairs
-            var result = [];
-            var keyValuePairs = str.split(",");
-            for (var i = 0, j = keyValuePairs.length; i < j; i++) {
-                var pair = keyValuePairs[i];
-                var colonPos = pair.indexOf(":");
-                if ((colonPos > 0) && (colonPos < pair.length - 1)) {
-                    var key = pair.substring(0, colonPos);
-                    var value = pair.substring(colonPos + 1);
-                    result.push({ 'key': restoreTokens(key, tokens), 'value': restoreTokens(value, tokens) });
-                } else {
-                    result.push({ 'unknown': restoreTokens(pair, tokens) });
-                }
-            }
-            return result;
-        },
-
-        preProcessBindings: function (objectLiteralStringOrKeyValueArray) {
-            var keyValueArray = typeof objectLiteralStringOrKeyValueArray === "string"
-                ? ko.expressionRewriting.parseObjectLiteral(objectLiteralStringOrKeyValueArray)
-                : objectLiteralStringOrKeyValueArray;
-            var resultStrings = [], propertyAccessorResultStrings = [];
-
-            var keyValueEntry;
-            for (var i = 0; keyValueEntry = keyValueArray[i]; i++) {
-                if (resultStrings.length > 0)
-                    resultStrings.push(",");
-
-                if (keyValueEntry['key']) {
-                    var quotedKey = ensureQuoted(keyValueEntry['key']), val = keyValueEntry['value'];
-                    resultStrings.push(quotedKey);
-                    resultStrings.push(":");
-                    resultStrings.push(val);
-
-                    if (val = getWriteableValue(ko.utils.stringTrim(val))) {
-                        if (propertyAccessorResultStrings.length > 0)
-                            propertyAccessorResultStrings.push(", ");
-                        propertyAccessorResultStrings.push(quotedKey + " : function(__ko_value) { " + val + " = __ko_value; }");
-                    }
-                } else if (keyValueEntry['unknown']) {
-                    resultStrings.push(keyValueEntry['unknown']);
-                }
-            }
-
-            var combinedResult = resultStrings.join("");
-            if (propertyAccessorResultStrings.length > 0) {
-                var allPropertyAccessors = propertyAccessorResultStrings.join("");
-                combinedResult = combinedResult + ", '_ko_property_writers' : { " + allPropertyAccessors + " } ";
-            }
-
-            return combinedResult;
-        },
+        preProcessBindings: preProcessBindings,
 
         keyValueArrayContainsKey: function(keyValueArray, key) {
             for (var i = 0; i < keyValueArray.length; i++)
-                if (ko.utils.stringTrim(keyValueArray[i]['key']) == key)
+                if (keyValueArray[i]['key'] == key)
                     return true;
             return false;
         },
@@ -7390,15 +7902,15 @@ ko.expressionRewriting = (function () {
         // Internal, private KO utility for updating model properties from within bindings
         // property:            If the property being updated is (or might be) an observable, pass it here
         //                      If it turns out to be a writable observable, it will be written to directly
-        // allBindingsAccessor: All bindings in the current execution context.
+        // allBindings:         An object with a get method to retrieve bindings in the current execution context.
         //                      This will be searched for a '_ko_property_writers' property in case you're writing to a non-observable
         // key:                 The key identifying the property to be written. Example: for { hasFocus: myValue }, write to 'myValue' by specifying the key 'hasFocus'
         // value:               The value to be written
         // checkIfDifferent:    If true, and if the property being written is a writable observable, the value will only be written if
         //                      it is !== existing value on that writable observable
-        writeValueToProperty: function(property, allBindingsAccessor, key, value, checkIfDifferent) {
+        writeValueToProperty: function(property, allBindings, key, value, checkIfDifferent) {
             if (!property || !ko.isObservable(property)) {
-                var propWriters = allBindingsAccessor()['_ko_property_writers'];
+                var propWriters = allBindings.get('_ko_property_writers');
                 if (propWriters && propWriters[key])
                     propWriters[key](value);
             } else if (ko.isWriteableObservable(property) && (!checkIfDifferent || property.peek() !== value)) {
@@ -7413,10 +7925,20 @@ ko.exportSymbol('expressionRewriting.bindingRewriteValidators', ko.expressionRew
 ko.exportSymbol('expressionRewriting.parseObjectLiteral', ko.expressionRewriting.parseObjectLiteral);
 ko.exportSymbol('expressionRewriting.preProcessBindings', ko.expressionRewriting.preProcessBindings);
 
+// Making bindings explicitly declare themselves as "two way" isn't ideal in the long term (it would be better if
+// all bindings could use an official 'property writer' API without needing to declare that they might). However,
+// since this is not, and has never been, a public API (_ko_property_writers was never documented), it's acceptable
+// as an internal implementation detail in the short term.
+// For those developers who rely on _ko_property_writers in their custom bindings, we expose _twoWayBindings as an
+// undocumented feature that makes it relatively easy to upgrade to KO 3.0. However, this is still not an official
+// public API, and we reserve the right to remove it at any time if we create a real public property writers API.
+ko.exportSymbol('expressionRewriting._twoWayBindings', ko.expressionRewriting.twoWayBindings);
+
 // For backward compatibility, define the following aliases. (Previously, these function names were misleading because
 // they referred to JSON specifically, even though they actually work with arbitrary JavaScript object literal expressions.)
 ko.exportSymbol('jsonExpressionRewriting', ko.expressionRewriting);
-ko.exportSymbol('jsonExpressionRewriting.insertPropertyAccessorsIntoJson', ko.expressionRewriting.preProcessBindings);(function() {
+ko.exportSymbol('jsonExpressionRewriting.insertPropertyAccessorsIntoJson', ko.expressionRewriting.preProcessBindings);
+(function() {
     // "Virtual elements" is an abstraction on top of the usual DOM API which understands the notion that comment nodes
     // may be used to represent hierarchy (in addition to the DOM's natural hierarchy).
     // If you call the DOM-manipulating functions on ko.virtualElements, you will be able to read and write the state
@@ -7430,16 +7952,16 @@ ko.exportSymbol('jsonExpressionRewriting.insertPropertyAccessorsIntoJson', ko.ex
     // So, use node.text where available, and node.nodeValue elsewhere
     var commentNodesHaveTextProperty = document && document.createComment("test").text === "<!--test-->";
 
-    var startCommentRegex = commentNodesHaveTextProperty ? /^<!--\s*ko(?:\s+(.+\s*\:[\s\S]*))?\s*-->$/ : /^\s*ko(?:\s+(.+\s*\:[\s\S]*))?\s*$/;
+    var startCommentRegex = commentNodesHaveTextProperty ? /^<!--\s*ko(?:\s+([\s\S]+))?\s*-->$/ : /^\s*ko(?:\s+([\s\S]+))?\s*$/;
     var endCommentRegex =   commentNodesHaveTextProperty ? /^<!--\s*\/ko\s*-->$/ : /^\s*\/ko\s*$/;
     var htmlTagsWithOptionallyClosingChildren = { 'ul': true, 'ol': true };
 
     function isStartComment(node) {
-        return (node.nodeType == 8) && (commentNodesHaveTextProperty ? node.text : node.nodeValue).match(startCommentRegex);
+        return (node.nodeType == 8) && startCommentRegex.test(commentNodesHaveTextProperty ? node.text : node.nodeValue);
     }
 
     function isEndComment(node) {
-        return (node.nodeType == 8) && (commentNodesHaveTextProperty ? node.text : node.nodeValue).match(endCommentRegex);
+        return (node.nodeType == 8) && endCommentRegex.test(commentNodesHaveTextProperty ? node.text : node.nodeValue);
     }
 
     function getVirtualChildren(startComment, allowUnbalanced) {
@@ -7566,8 +8088,10 @@ ko.exportSymbol('jsonExpressionRewriting.insertPropertyAccessorsIntoJson', ko.ex
             return node.nextSibling;
         },
 
+        hasBindingValue: isStartComment,
+
         virtualNodeBindingValue: function(node) {
-            var regexMatch = isStartComment(node);
+            var regexMatch = (commentNodesHaveTextProperty ? node.text : node.nodeValue).match(startCommentRegex);
             return regexMatch ? regexMatch[1] : null;
         },
 
@@ -7620,7 +8144,7 @@ ko.exportSymbol('virtualElements.setDomNodeChildren', ko.virtualElements.setDomN
         'nodeHasBindings': function(node) {
             switch (node.nodeType) {
                 case 1: return node.getAttribute(defaultBindingAttributeName) != null;   // Element
-                case 8: return ko.virtualElements.virtualNodeBindingValue(node) != null; // Comment node
+                case 8: return ko.virtualElements.hasBindingValue(node); // Comment node
                 default: return false;
             }
         },
@@ -7628,6 +8152,11 @@ ko.exportSymbol('virtualElements.setDomNodeChildren', ko.virtualElements.setDomN
         'getBindings': function(node, bindingContext) {
             var bindingsString = this['getBindingsString'](node, bindingContext);
             return bindingsString ? this['parseBindingsString'](bindingsString, bindingContext, node) : null;
+        },
+
+        'getBindingAccessors': function(node, bindingContext) {
+            var bindingsString = this['getBindingsString'](node, bindingContext);
+            return bindingsString ? this['parseBindingsString'](bindingsString, bindingContext, node, {'valueAccessors':true}) : null;
         },
 
         // The following function is only used internally by this default provider.
@@ -7642,9 +8171,9 @@ ko.exportSymbol('virtualElements.setDomNodeChildren', ko.virtualElements.setDomN
 
         // The following function is only used internally by this default provider.
         // It's not part of the interface definition for a general binding provider.
-        'parseBindingsString': function(bindingsString, bindingContext, node) {
+        'parseBindingsString': function(bindingsString, bindingContext, node, options) {
             try {
-                var bindingFunction = createBindingsStringEvaluatorViaCache(bindingsString, this.bindingCache);
+                var bindingFunction = createBindingsStringEvaluatorViaCache(bindingsString, this.bindingCache, options);
                 return bindingFunction(bindingContext, node);
             } catch (ex) {
                 ex.message = "Unable to parse bindings.\nBindings value: " + bindingsString + "\nMessage: " + ex.message;
@@ -7655,17 +8184,17 @@ ko.exportSymbol('virtualElements.setDomNodeChildren', ko.virtualElements.setDomN
 
     ko.bindingProvider['instance'] = new ko.bindingProvider();
 
-    function createBindingsStringEvaluatorViaCache(bindingsString, cache) {
-        var cacheKey = bindingsString;
+    function createBindingsStringEvaluatorViaCache(bindingsString, cache, options) {
+        var cacheKey = bindingsString + (options && options['valueAccessors'] || '');
         return cache[cacheKey]
-            || (cache[cacheKey] = createBindingsStringEvaluator(bindingsString));
+            || (cache[cacheKey] = createBindingsStringEvaluator(bindingsString, options));
     }
 
-    function createBindingsStringEvaluator(bindingsString) {
+    function createBindingsStringEvaluator(bindingsString, options) {
         // Build the source for a function that evaluates "expression"
         // For each scope variable, add an extra level of "with" nesting
         // Example result: with(sc1) { with(sc0) { return (expression) } }
-        var rewrittenBindings = ko.expressionRewriting.preProcessBindings(bindingsString),
+        var rewrittenBindings = ko.expressionRewriting.preProcessBindings(bindingsString, options),
             functionBody = "with($context){with($data||{}){return{" + rewrittenBindings + "}}}";
         return new Function("$context", "$element", functionBody);
     }
@@ -7675,32 +8204,174 @@ ko.exportSymbol('bindingProvider', ko.bindingProvider);
 (function () {
     ko.bindingHandlers = {};
 
-    ko.bindingContext = function(dataItem, parentBindingContext, dataItemAlias) {
-        if (parentBindingContext) {
-            ko.utils.extend(this, parentBindingContext); // Inherit $root and any custom properties
-            this['$parentContext'] = parentBindingContext;
-            this['$parent'] = parentBindingContext['$data'];
-            this['$parents'] = (parentBindingContext['$parents'] || []).slice(0);
-            this['$parents'].unshift(this['$parent']);
-        } else {
-            this['$parents'] = [];
-            this['$root'] = dataItem;
-            // Export 'ko' in the binding context so it will be available in bindings and templates
-            // even if 'ko' isn't exported as a global, such as when using an AMD loader.
-            // See https://github.com/SteveSanderson/knockout/issues/490
-            this['ko'] = ko;
+    // The following element types will not be recursed into during binding. In the future, we
+    // may consider adding <template> to this list, because such elements' contents are always
+    // intended to be bound in a different context from where they appear in the document.
+    var bindingDoesNotRecurseIntoElementTypes = {
+        // Don't want bindings that operate on text nodes to mutate <script> contents,
+        // because it's unexpected and a potential XSS issue
+        'script': true
+    };
+
+    // Use an overridable method for retrieving binding handlers so that a plugins may support dynamically created handlers
+    ko['getBindingHandler'] = function(bindingKey) {
+        return ko.bindingHandlers[bindingKey];
+    };
+
+    // The ko.bindingContext constructor is only called directly to create the root context. For child
+    // contexts, use bindingContext.createChildContext or bindingContext.extend.
+    ko.bindingContext = function(dataItemOrAccessor, parentContext, dataItemAlias, extendCallback) {
+
+        // The binding context object includes static properties for the current, parent, and root view models.
+        // If a view model is actually stored in an observable, the corresponding binding context object, and
+        // any child contexts, must be updated when the view model is changed.
+        function updateContext() {
+            // Most of the time, the context will directly get a view model object, but if a function is given,
+            // we call the function to retrieve the view model. If the function accesses any obsevables (or is
+            // itself an observable), the dependency is tracked, and those observables can later cause the binding
+            // context to be updated.
+            var dataItem = isFunc ? dataItemOrAccessor() : dataItemOrAccessor;
+
+            if (parentContext) {
+                // When a "parent" context is given, register a dependency on the parent context. Thus whenever the
+                // parent context is updated, this context will also be updated.
+                if (parentContext._subscribable)
+                    parentContext._subscribable();
+
+                // Copy $root and any custom properties from the parent context
+                ko.utils.extend(self, parentContext);
+
+                // Because the above copy overwrites our own properties, we need to reset them.
+                // During the first execution, "subscribable" isn't set, so don't bother doing the update then.
+                if (subscribable) {
+                    self._subscribable = subscribable;
+                }
+            } else {
+                self['$parents'] = [];
+                self['$root'] = dataItem;
+
+                // Export 'ko' in the binding context so it will be available in bindings and templates
+                // even if 'ko' isn't exported as a global, such as when using an AMD loader.
+                // See https://github.com/SteveSanderson/knockout/issues/490
+                self['ko'] = ko;
+            }
+            self['$rawData'] = dataItemOrAccessor;
+            self['$data'] = dataItem;
+            if (dataItemAlias)
+                self[dataItemAlias] = dataItem;
+
+            // The extendCallback function is provided when creating a child context or extending a context.
+            // It handles the specific actions needed to finish setting up the binding context. Actions in this
+            // function could also add dependencies to this binding context.
+            if (extendCallback)
+                extendCallback(self, parentContext, dataItem);
+
+            return self['$data'];
         }
-        this['$data'] = dataItem;
-        if (dataItemAlias)
-            this[dataItemAlias] = dataItem;
+        function disposeWhen() {
+            return nodes && !ko.utils.anyDomNodeIsAttachedToDocument(nodes);
+        }
+
+        var self = this,
+            isFunc = typeof(dataItemOrAccessor) == "function",
+            nodes,
+            subscribable = ko.dependentObservable(updateContext, null, { disposeWhen: disposeWhen, disposeWhenNodeIsRemoved: true });
+
+        // At this point, the binding context has been initialized, and the "subscribable" computed observable is
+        // subscribed to any observables that were accessed in the process. If there is nothing to track, the
+        // computed will be inactive, and we can safely throw it away. If it's active, the computed is stored in
+        // the context object.
+        if (subscribable.isActive()) {
+            self._subscribable = subscribable;
+
+            // Always notify because even if the model ($data) hasn't changed, other context properties might have changed
+            subscribable['equalityComparer'] = null;
+
+            // We need to be able to dispose of this computed observable when it's no longer needed. This would be
+            // easy if we had a single node to watch, but binding contexts can be used by many different nodes, and
+            // we cannot assume that those nodes have any relation to each other. So instead we track any node that
+            // the context is attached to, and dispose the computed when all of those nodes have been cleaned.
+
+            // Add properties to *subscribable* instead of *self* because any properties added to *self* may be overwritten on updates
+            nodes = [];
+            subscribable._addNode = function(node) {
+                nodes.push(node);
+                ko.utils.domNodeDisposal.addDisposeCallback(node, function(node) {
+                    ko.utils.arrayRemoveItem(nodes, node);
+                    if (!nodes.length) {
+                        subscribable.dispose();
+                        self._subscribable = subscribable = undefined;
+                    }
+                });
+            };
+        }
     }
-    ko.bindingContext.prototype['createChildContext'] = function (dataItem, dataItemAlias) {
-        return new ko.bindingContext(dataItem, this, dataItemAlias);
+
+    // Extend the binding context hierarchy with a new view model object. If the parent context is watching
+    // any obsevables, the new child context will automatically get a dependency on the parent context.
+    // But this does not mean that the $data value of the child context will also get updated. If the child
+    // view model also depends on the parent view model, you must provide a function that returns the correct
+    // view model on each update.
+    ko.bindingContext.prototype['createChildContext'] = function (dataItemOrAccessor, dataItemAlias, extendCallback) {
+        return new ko.bindingContext(dataItemOrAccessor, this, dataItemAlias, function(self, parentContext) {
+            // Extend the context hierarchy by setting the appropriate pointers
+            self['$parentContext'] = parentContext;
+            self['$parent'] = parentContext['$data'];
+            self['$parents'] = (parentContext['$parents'] || []).slice(0);
+            self['$parents'].unshift(self['$parent']);
+            if (extendCallback)
+                extendCallback(self);
+        });
     };
+
+    // Extend the binding context with new custom properties. This doesn't change the context hierarchy.
+    // Similarly to "child" contexts, provide a function here to make sure that the correct values are set
+    // when an observable view model is updated.
     ko.bindingContext.prototype['extend'] = function(properties) {
-        var clone = ko.utils.extend(new ko.bindingContext(), this);
-        return ko.utils.extend(clone, properties);
+        return new ko.bindingContext(this['$rawData'], this, null, function(self) {
+            ko.utils.extend(self, typeof(properties) == "function" ? properties() : properties);
+        });
     };
+
+    // Returns the valueAccesor function for a binding value
+    function makeValueAccessor(value) {
+        return function() {
+            return value;
+        };
+    }
+
+    // Returns the value of a valueAccessor function
+    function evaluateValueAccessor(valueAccessor) {
+        return valueAccessor();
+    }
+
+    // Given a function that returns bindings, create and return a new object that contains
+    // binding value-accessors functions. Each accessor function calls the original function
+    // so that it always gets the latest value and all dependencies are captured. This is used
+    // by ko.applyBindingsToNode and getBindingsAndMakeAccessors.
+    function makeAccessorsFromFunction(callback) {
+        return ko.utils.objectMap(ko.dependencyDetection.ignore(callback), function(value, key) {
+            return function() {
+                return callback()[key];
+            };
+        });
+    }
+
+    // Given a bindings function or object, create and return a new object that contains
+    // binding value-accessors functions. This is used by ko.applyBindingsToNode.
+    function makeBindingAccessors(bindings, context, node) {
+        if (typeof bindings === 'function') {
+            return makeAccessorsFromFunction(bindings.bind(null, context, node));
+        } else {
+            return ko.utils.objectMap(bindings, makeValueAccessor);
+        }
+    }
+
+    // This function is used if the binding provider doesn't include a getBindingAccessors function.
+    // It must be called with 'this' set to the provider instance.
+    function getBindingsAndMakeAccessors(node, context) {
+        return makeAccessorsFromFunction(this['getBindings'].bind(this, node, context));
+    }
 
     function validateThatBindingIsAllowedForVirtualElements(bindingName) {
         var validator = ko.virtualElements.allowedBindings[bindingName];
@@ -7708,16 +8379,33 @@ ko.exportSymbol('bindingProvider', ko.bindingProvider);
             throw new Error("The binding '" + bindingName + "' cannot be used with virtual elements")
     }
 
-    function applyBindingsToDescendantsInternal (viewModel, elementOrVirtualElement, bindingContextsMayDifferFromDomParentElement) {
-        var currentChild, nextInQueue = ko.virtualElements.firstChild(elementOrVirtualElement);
+    function applyBindingsToDescendantsInternal (bindingContext, elementOrVirtualElement, bindingContextsMayDifferFromDomParentElement) {
+        var currentChild,
+            nextInQueue = ko.virtualElements.firstChild(elementOrVirtualElement),
+            provider = ko.bindingProvider['instance'],
+            preprocessNode = provider['preprocessNode'];
+
+        // Preprocessing allows a binding provider to mutate a node before bindings are applied to it. For example it's
+        // possible to insert new siblings after it, and/or replace the node with a different one. This can be used to
+        // implement custom binding syntaxes, such as {{ value }} for string interpolation, or custom element types that
+        // trigger insertion of <template> contents at that point in the document.
+        if (preprocessNode) {
+            while (currentChild = nextInQueue) {
+                nextInQueue = ko.virtualElements.nextSibling(currentChild);
+                preprocessNode.call(provider, currentChild);
+            }
+            // Reset nextInQueue for the next loop
+            nextInQueue = ko.virtualElements.firstChild(elementOrVirtualElement);
+        }
+
         while (currentChild = nextInQueue) {
             // Keep a record of the next child *before* applying bindings, in case the binding removes the current child from its position
             nextInQueue = ko.virtualElements.nextSibling(currentChild);
-            applyBindingsToNodeAndDescendantsInternal(viewModel, currentChild, bindingContextsMayDifferFromDomParentElement);
+            applyBindingsToNodeAndDescendantsInternal(bindingContext, currentChild, bindingContextsMayDifferFromDomParentElement);
         }
     }
 
-    function applyBindingsToNodeAndDescendantsInternal (viewModel, nodeVerified, bindingContextMayDifferFromDomParentElement) {
+    function applyBindingsToNodeAndDescendantsInternal (bindingContext, nodeVerified, bindingContextMayDifferFromDomParentElement) {
         var shouldBindDescendants = true;
 
         // Perf optimisation: Apply bindings only if...
@@ -7731,137 +8419,218 @@ ko.exportSymbol('bindingProvider', ko.bindingProvider);
         var shouldApplyBindings = (isElement && bindingContextMayDifferFromDomParentElement)             // Case (1)
                                || ko.bindingProvider['instance']['nodeHasBindings'](nodeVerified);       // Case (2)
         if (shouldApplyBindings)
-            shouldBindDescendants = applyBindingsToNodeInternal(nodeVerified, null, viewModel, bindingContextMayDifferFromDomParentElement).shouldBindDescendants;
+            shouldBindDescendants = applyBindingsToNodeInternal(nodeVerified, null, bindingContext, bindingContextMayDifferFromDomParentElement)['shouldBindDescendants'];
 
-        if (shouldBindDescendants) {
+        if (shouldBindDescendants && !bindingDoesNotRecurseIntoElementTypes[ko.utils.tagNameLower(nodeVerified)]) {
             // We're recursing automatically into (real or virtual) child nodes without changing binding contexts. So,
             //  * For children of a *real* element, the binding context is certainly the same as on their DOM .parentNode,
             //    hence bindingContextsMayDifferFromDomParentElement is false
             //  * For children of a *virtual* element, we can't be sure. Evaluating .parentNode on those children may
             //    skip over any number of intermediate virtual elements, any of which might define a custom binding context,
             //    hence bindingContextsMayDifferFromDomParentElement is true
-            applyBindingsToDescendantsInternal(viewModel, nodeVerified, /* bindingContextsMayDifferFromDomParentElement: */ !isElement);
+            applyBindingsToDescendantsInternal(bindingContext, nodeVerified, /* bindingContextsMayDifferFromDomParentElement: */ !isElement);
         }
     }
 
-    var boundElementDomDataKey = '__ko_boundElement';
-    function applyBindingsToNodeInternal (node, bindings, viewModelOrBindingContext, bindingContextMayDifferFromDomParentElement) {
-        // Need to be sure that inits are only run once, and updates never run until all the inits have been run
-        var initPhase = 0; // 0 = before all inits, 1 = during inits, 2 = after all inits
+    var boundElementDomDataKey = ko.utils.domData.nextKey();
 
-        // Each time the dependentObservable is evaluated (after data changes),
-        // the binding attribute is reparsed so that it can pick out the correct
-        // model properties in the context of the changed data.
-        // DOM event callbacks need to be able to access this changed data,
-        // so we need a single parsedBindings variable (shared by all callbacks
-        // associated with this node's bindings) that all the closures can access.
-        var parsedBindings;
-        function makeValueAccessor(bindingKey) {
-            return function () { return parsedBindings[bindingKey] }
-        }
-        function parsedBindingsAccessor() {
-            return parsedBindings;
-        }
 
-        var bindingHandlerThatControlsDescendantBindings;
+    function topologicalSortBindings(bindings) {
+        // Depth-first sort
+        var result = [],                // The list of key/handler pairs that we will return
+            bindingsConsidered = {},    // A temporary record of which bindings are already in 'result'
+            cyclicDependencyStack = []; // Keeps track of a depth-search so that, if there's a cycle, we know which bindings caused it
+        ko.utils.objectForEach(bindings, function pushBinding(bindingKey) {
+            if (!bindingsConsidered[bindingKey]) {
+                var binding = ko['getBindingHandler'](bindingKey);
+                if (binding) {
+                    // First add dependencies (if any) of the current binding
+                    if (binding['after']) {
+                        cyclicDependencyStack.push(bindingKey);
+                        ko.utils.arrayForEach(binding['after'], function(bindingDependencyKey) {
+                            if (bindings[bindingDependencyKey]) {
+                                if (ko.utils.arrayIndexOf(cyclicDependencyStack, bindingDependencyKey) !== -1) {
+                                    throw Error("Cannot combine the following bindings, because they have a cyclic dependency: " + cyclicDependencyStack.join(", "));
+                                } else {
+                                    pushBinding(bindingDependencyKey);
+                                }
+                            }
+                        });
+                        cyclicDependencyStack.pop();
+                    }
+                    // Next add the current binding
+                    result.push({ key: bindingKey, handler: binding });
+                }
+                bindingsConsidered[bindingKey] = true;
+            }
+        });
 
+        return result;
+    }
+
+    function applyBindingsToNodeInternal(node, sourceBindings, bindingContext, bindingContextMayDifferFromDomParentElement) {
         // Prevent multiple applyBindings calls for the same node, except when a binding value is specified
         var alreadyBound = ko.utils.domData.get(node, boundElementDomDataKey);
-        if (!bindings) {
+        if (!sourceBindings) {
             if (alreadyBound) {
                 throw Error("You cannot apply bindings multiple times to the same element.");
             }
             ko.utils.domData.set(node, boundElementDomDataKey, true);
         }
 
-        ko.dependentObservable(
-            function () {
-                // Ensure we have a nonnull binding context to work with
-                var bindingContextInstance = viewModelOrBindingContext && (viewModelOrBindingContext instanceof ko.bindingContext)
-                    ? viewModelOrBindingContext
-                    : new ko.bindingContext(ko.utils.unwrapObservable(viewModelOrBindingContext));
-                var viewModel = bindingContextInstance['$data'];
+        // Optimization: Don't store the binding context on this node if it's definitely the same as on node.parentNode, because
+        // we can easily recover it just by scanning up the node's ancestors in the DOM
+        // (note: here, parent node means "real DOM parent" not "virtual parent", as there's no O(1) way to find the virtual parent)
+        if (!alreadyBound && bindingContextMayDifferFromDomParentElement)
+            ko.storedBindingContextForNode(node, bindingContext);
 
-                // Optimization: Don't store the binding context on this node if it's definitely the same as on node.parentNode, because
-                // we can easily recover it just by scanning up the node's ancestors in the DOM
-                // (note: here, parent node means "real DOM parent" not "virtual parent", as there's no O(1) way to find the virtual parent)
-                if (!alreadyBound && bindingContextMayDifferFromDomParentElement)
-                    ko.storedBindingContextForNode(node, bindingContextInstance);
+        // Use bindings if given, otherwise fall back on asking the bindings provider to give us some bindings
+        var bindings;
+        if (sourceBindings && typeof sourceBindings !== 'function') {
+            bindings = sourceBindings;
+        } else {
+            var provider = ko.bindingProvider['instance'],
+                getBindings = provider['getBindingAccessors'] || getBindingsAndMakeAccessors;
 
-                // Use evaluatedBindings if given, otherwise fall back on asking the bindings provider to give us some bindings
-                var evaluatedBindings = (typeof bindings == "function") ? bindings(bindingContextInstance, node) : bindings;
-                parsedBindings = evaluatedBindings || ko.bindingProvider['instance']['getBindings'](node, bindingContextInstance);
+            if (sourceBindings || bindingContext._subscribable) {
+                // When an obsevable view model is used, the binding context will expose an observable _subscribable value.
+                // Get the binding from the provider within a computed observable so that we can update the bindings whenever
+                // the binding context is updated.
+                var bindingsUpdater = ko.dependentObservable(
+                    function() {
+                        bindings = sourceBindings ? sourceBindings(bindingContext, node) : getBindings.call(provider, node, bindingContext);
+                        // Register a dependency on the binding context
+                        if (bindings && bindingContext._subscribable)
+                            bindingContext._subscribable();
+                        return bindings;
+                    },
+                    null, { disposeWhenNodeIsRemoved: node }
+                );
 
-                if (parsedBindings) {
-                    // First run all the inits, so bindings can register for notification on changes
-                    if (initPhase === 0) {
-                        initPhase = 1;
-                        ko.utils.objectForEach(parsedBindings, function(bindingKey) {
-                            var binding = ko.bindingHandlers[bindingKey];
-                            if (binding && node.nodeType === 8)
-                                validateThatBindingIsAllowedForVirtualElements(bindingKey);
+                if (!bindings || !bindingsUpdater.isActive())
+                    bindingsUpdater = null;
+            } else {
+                bindings = ko.dependencyDetection.ignore(getBindings, provider, [node, bindingContext]);
+            }
+        }
 
-                            if (binding && typeof binding["init"] == "function") {
-                                var handlerInitFn = binding["init"];
-                                var initResult = handlerInitFn(node, makeValueAccessor(bindingKey), parsedBindingsAccessor, viewModel, bindingContextInstance);
+        var bindingHandlerThatControlsDescendantBindings;
+        if (bindings) {
+            // Return the value accessor for a given binding. When bindings are static (won't be updated because of a binding
+            // context update), just return the value accessor from the binding. Otherwise, return a function that always gets
+            // the latest binding value and registers a dependency on the binding updater.
+            var getValueAccessor = bindingsUpdater
+                ? function(bindingKey) {
+                    return function() {
+                        return evaluateValueAccessor(bindingsUpdater()[bindingKey]);
+                    };
+                } : function(bindingKey) {
+                    return bindings[bindingKey];
+                };
 
-                                // If this binding handler claims to control descendant bindings, make a note of this
-                                if (initResult && initResult['controlsDescendantBindings']) {
-                                    if (bindingHandlerThatControlsDescendantBindings !== undefined)
-                                        throw new Error("Multiple bindings (" + bindingHandlerThatControlsDescendantBindings + " and " + bindingKey + ") are trying to control descendant bindings of the same element. You cannot use these bindings together on the same element.");
-                                    bindingHandlerThatControlsDescendantBindings = bindingKey;
-                                }
-                            }
-                        });
-                        initPhase = 2;
-                    }
+            // Use of allBindings as a function is maintained for backwards compatibility, but its use is deprecated
+            function allBindings() {
+                return ko.utils.objectMap(bindingsUpdater ? bindingsUpdater() : bindings, evaluateValueAccessor);
+            }
+            // The following is the 3.x allBindings API
+            allBindings['get'] = function(key) {
+                return bindings[key] && evaluateValueAccessor(getValueAccessor(key));
+            };
+            allBindings['has'] = function(key) {
+                return key in bindings;
+            };
 
-                    // ... then run all the updates, which might trigger changes even on the first evaluation
-                    if (initPhase === 2) {
-                        ko.utils.objectForEach(parsedBindings, function(bindingKey) {
-                            var binding = ko.bindingHandlers[bindingKey];
-                            if (binding && typeof binding["update"] == "function") {
-                                var handlerUpdateFn = binding["update"];
-                                handlerUpdateFn(node, makeValueAccessor(bindingKey), parsedBindingsAccessor, viewModel, bindingContextInstance);
-                            }
-                        });
-                    }
+            // First put the bindings into the right order
+            var orderedBindings = topologicalSortBindings(bindings);
+
+            // Go through the sorted bindings, calling init and update for each
+            ko.utils.arrayForEach(orderedBindings, function(bindingKeyAndHandler) {
+                // Note that topologicalSortBindings has already filtered out any nonexistent binding handlers,
+                // so bindingKeyAndHandler.handler will always be nonnull.
+                var handlerInitFn = bindingKeyAndHandler.handler["init"],
+                    handlerUpdateFn = bindingKeyAndHandler.handler["update"],
+                    bindingKey = bindingKeyAndHandler.key;
+
+                if (node.nodeType === 8) {
+                    validateThatBindingIsAllowedForVirtualElements(bindingKey);
                 }
-            },
-            null,
-            { disposeWhenNodeIsRemoved : node }
-        );
+
+                try {
+                    // Run init, ignoring any dependencies
+                    if (typeof handlerInitFn == "function") {
+                        ko.dependencyDetection.ignore(function() {
+                            var initResult = handlerInitFn(node, getValueAccessor(bindingKey), allBindings, bindingContext['$data'], bindingContext);
+
+                            // If this binding handler claims to control descendant bindings, make a note of this
+                            if (initResult && initResult['controlsDescendantBindings']) {
+                                if (bindingHandlerThatControlsDescendantBindings !== undefined)
+                                    throw new Error("Multiple bindings (" + bindingHandlerThatControlsDescendantBindings + " and " + bindingKey + ") are trying to control descendant bindings of the same element. You cannot use these bindings together on the same element.");
+                                bindingHandlerThatControlsDescendantBindings = bindingKey;
+                            }
+                        });
+                    }
+
+                    // Run update in its own computed wrapper
+                    if (typeof handlerUpdateFn == "function") {
+                        ko.dependentObservable(
+                            function() {
+                                handlerUpdateFn(node, getValueAccessor(bindingKey), allBindings, bindingContext['$data'], bindingContext);
+                            },
+                            null,
+                            { disposeWhenNodeIsRemoved: node }
+                        );
+                    }
+                } catch (ex) {
+                    ex.message = "Unable to process binding \"" + bindingKey + ": " + bindings[bindingKey] + "\"\nMessage: " + ex.message;
+                    throw ex;
+                }
+            });
+        }
 
         return {
-            shouldBindDescendants: bindingHandlerThatControlsDescendantBindings === undefined
+            'shouldBindDescendants': bindingHandlerThatControlsDescendantBindings === undefined
         };
     };
 
-    var storedBindingContextDomDataKey = "__ko_bindingContext__";
+    var storedBindingContextDomDataKey = ko.utils.domData.nextKey();
     ko.storedBindingContextForNode = function (node, bindingContext) {
-        if (arguments.length == 2)
+        if (arguments.length == 2) {
             ko.utils.domData.set(node, storedBindingContextDomDataKey, bindingContext);
-        else
+            if (bindingContext._subscribable)
+                bindingContext._subscribable._addNode(node);
+        } else {
             return ko.utils.domData.get(node, storedBindingContextDomDataKey);
+        }
     }
 
-    ko.applyBindingsToNode = function (node, bindings, viewModel) {
+    function getBindingContext(viewModelOrBindingContext) {
+        return viewModelOrBindingContext && (viewModelOrBindingContext instanceof ko.bindingContext)
+            ? viewModelOrBindingContext
+            : new ko.bindingContext(viewModelOrBindingContext);
+    }
+
+    ko.applyBindingAccessorsToNode = function (node, bindings, viewModelOrBindingContext) {
         if (node.nodeType === 1) // If it's an element, workaround IE <= 8 HTML parsing weirdness
             ko.virtualElements.normaliseVirtualElementDomStructure(node);
-        return applyBindingsToNodeInternal(node, bindings, viewModel, true);
+        return applyBindingsToNodeInternal(node, bindings, getBindingContext(viewModelOrBindingContext), true);
     };
 
-    ko.applyBindingsToDescendants = function(viewModel, rootNode) {
+    ko.applyBindingsToNode = function (node, bindings, viewModelOrBindingContext) {
+        var context = getBindingContext(viewModelOrBindingContext);
+        return ko.applyBindingAccessorsToNode(node, makeBindingAccessors(bindings, context, node), context);
+    };
+
+    ko.applyBindingsToDescendants = function(viewModelOrBindingContext, rootNode) {
         if (rootNode.nodeType === 1 || rootNode.nodeType === 8)
-            applyBindingsToDescendantsInternal(viewModel, rootNode, true);
+            applyBindingsToDescendantsInternal(getBindingContext(viewModelOrBindingContext), rootNode, true);
     };
 
-    ko.applyBindings = function (viewModel, rootNode) {
+    ko.applyBindings = function (viewModelOrBindingContext, rootNode) {
         if (rootNode && (rootNode.nodeType !== 1) && (rootNode.nodeType !== 8))
             throw new Error("ko.applyBindings: first parameter should be your view model; second parameter should be a DOM node");
         rootNode = rootNode || window.document.body; // Make "rootNode" parameter optional
 
-        applyBindingsToNodeAndDescendantsInternal(viewModel, rootNode, true);
+        applyBindingsToNodeAndDescendantsInternal(getBindingContext(viewModelOrBindingContext), rootNode, true);
     };
 
     // Retrieving binding context from arbitrary nodes
@@ -7885,13 +8654,14 @@ ko.exportSymbol('bindingProvider', ko.bindingProvider);
     ko.exportSymbol('bindingHandlers', ko.bindingHandlers);
     ko.exportSymbol('applyBindings', ko.applyBindings);
     ko.exportSymbol('applyBindingsToDescendants', ko.applyBindingsToDescendants);
+    ko.exportSymbol('applyBindingAccessorsToNode', ko.applyBindingAccessorsToNode);
     ko.exportSymbol('applyBindingsToNode', ko.applyBindingsToNode);
     ko.exportSymbol('contextFor', ko.contextFor);
     ko.exportSymbol('dataFor', ko.dataFor);
 })();
 var attrHtmlToJavascriptMap = { 'class': 'className', 'for': 'htmlFor' };
 ko.bindingHandlers['attr'] = {
-    'update': function(element, valueAccessor, allBindingsAccessor) {
+    'update': function(element, valueAccessor, allBindings) {
         var value = ko.utils.unwrapObservable(valueAccessor()) || {};
         ko.utils.objectForEach(value, function(attrName, attrValue) {
             attrValue = ko.utils.unwrapObservable(attrValue);
@@ -7927,50 +8697,111 @@ ko.bindingHandlers['attr'] = {
         });
     }
 };
+(function() {
+
 ko.bindingHandlers['checked'] = {
-    'init': function (element, valueAccessor, allBindingsAccessor) {
-        var updateHandler = function() {
-            var valueToWrite;
-            if (element.type == "checkbox") {
-                valueToWrite = element.checked;
-            } else if ((element.type == "radio") && (element.checked)) {
-                valueToWrite = element.value;
-            } else {
-                return; // "checked" binding only responds to checkboxes and selected radio buttons
+    'after': ['value', 'attr'],
+    'init': function (element, valueAccessor, allBindings) {
+        function checkedValue() {
+            return allBindings['has']('checkedValue')
+                ? ko.utils.unwrapObservable(allBindings.get('checkedValue'))
+                : element.value;
+        }
+
+        function updateModel() {
+            // This updates the model value from the view value.
+            // It runs in response to DOM events (click) and changes in checkedValue.
+            var isChecked = element.checked,
+                elemValue = useCheckedValue ? checkedValue() : isChecked;
+
+            // When we're first setting up this computed, don't change any model state.
+            if (!shouldSet) {
+                return;
             }
 
-            var modelValue = valueAccessor(), unwrappedValue = ko.utils.unwrapObservable(modelValue);
-            if ((element.type == "checkbox") && (unwrappedValue instanceof Array)) {
-                // For checkboxes bound to an array, we add/remove the checkbox value to that array
-                // This works for both observable and non-observable arrays
-                ko.utils.addOrRemoveItem(modelValue, element.value, element.checked);
+            // We can ignore unchecked radio buttons, because some other radio
+            // button will be getting checked, and that one can take care of updating state.
+            if (isRadio && !isChecked) {
+                return;
+            }
+
+            var modelValue = ko.dependencyDetection.ignore(valueAccessor);
+            if (isValueArray) {
+                if (oldElemValue !== elemValue) {
+                    // When we're responding to the checkedValue changing, and the element is
+                    // currently checked, replace the old elem value with the new elem value
+                    // in the model array.
+                    if (isChecked) {
+                        ko.utils.addOrRemoveItem(modelValue, elemValue, true);
+                        ko.utils.addOrRemoveItem(modelValue, oldElemValue, false);
+                    }
+
+                    oldElemValue = elemValue;
+                } else {
+                    // When we're responding to the user having checked/unchecked a checkbox,
+                    // add/remove the element value to the model array.
+                    ko.utils.addOrRemoveItem(modelValue, elemValue, isChecked);
+                }
             } else {
-                ko.expressionRewriting.writeValueToProperty(modelValue, allBindingsAccessor, 'checked', valueToWrite, true);
+                ko.expressionRewriting.writeValueToProperty(modelValue, allBindings, 'checked', elemValue, true);
             }
         };
-        ko.utils.registerEventHandler(element, "click", updateHandler);
+
+        function updateView() {
+            // This updates the view value from the model value.
+            // It runs in response to changes in the bound (checked) value.
+            var modelValue = ko.utils.unwrapObservable(valueAccessor());
+
+            if (isValueArray) {
+                // When a checkbox is bound to an array, being checked represents its value being present in that array
+                element.checked = ko.utils.arrayIndexOf(modelValue, checkedValue()) >= 0;
+            } else if (isCheckbox) {
+                // When a checkbox is bound to any other value (not an array), being checked represents the value being trueish
+                element.checked = modelValue;
+            } else {
+                // For radio buttons, being checked means that the radio button's value corresponds to the model value
+                element.checked = (checkedValue() === modelValue);
+            }
+        };
+
+        var isCheckbox = element.type == "checkbox",
+            isRadio = element.type == "radio";
+
+        // Only bind to check boxes and radio buttons
+        if (!isCheckbox && !isRadio) {
+            return;
+        }
+
+        var isValueArray = isCheckbox && (ko.utils.unwrapObservable(valueAccessor()) instanceof Array),
+            oldElemValue = isValueArray ? checkedValue() : undefined,
+            useCheckedValue = isRadio || isValueArray,
+            shouldSet = false;
 
         // IE 6 won't allow radio buttons to be selected unless they have a name
-        if ((element.type == "radio") && !element.name)
+        if (isRadio && !element.name)
             ko.bindingHandlers['uniqueName']['init'](element, function() { return true });
-    },
-    'update': function (element, valueAccessor) {
-        var value = ko.utils.unwrapObservable(valueAccessor());
 
-        if (element.type == "checkbox") {
-            if (value instanceof Array) {
-                // When bound to an array, the checkbox being checked represents its value being present in that array
-                element.checked = ko.utils.arrayIndexOf(value, element.value) >= 0;
-            } else {
-                // When bound to any other value (not an array), the checkbox being checked represents the value being trueish
-                element.checked = value;
-            }
-        } else if (element.type == "radio") {
-            element.checked = (element.value == value);
-        }
+        // Set up two computeds to update the binding:
+
+        // The first responds to changes in the checkedValue value and to element clicks
+        ko.dependentObservable(updateModel, null, { disposeWhenNodeIsRemoved: element });
+        ko.utils.registerEventHandler(element, "click", updateModel);
+
+        // The second responds to changes in the model value (the one associated with the checked binding)
+        ko.dependentObservable(updateView, null, { disposeWhenNodeIsRemoved: element });
+
+        shouldSet = true;
     }
 };
-var classesWrittenByBindingKey = '__ko__cssValue';
+ko.expressionRewriting.twoWayBindings['checked'] = true;
+
+ko.bindingHandlers['checkedValue'] = {
+    'update': function (element, valueAccessor) {
+        element.value = ko.utils.unwrapObservable(valueAccessor());
+    }
+};
+
+})();var classesWrittenByBindingKey = '__ko__cssValue';
 ko.bindingHandlers['css'] = {
     'update': function (element, valueAccessor) {
         var value = ko.utils.unwrapObservable(valueAccessor());
@@ -8006,19 +8837,19 @@ ko.bindingHandlers['disable'] = {
 // e.g. click:handler instead of the usual full-length event:{click:handler}
 function makeEventHandlerShortcut(eventName) {
     ko.bindingHandlers[eventName] = {
-        'init': function(element, valueAccessor, allBindingsAccessor, viewModel) {
+        'init': function(element, valueAccessor, allBindings, viewModel, bindingContext) {
             var newValueAccessor = function () {
                 var result = {};
                 result[eventName] = valueAccessor();
                 return result;
             };
-            return ko.bindingHandlers['event']['init'].call(this, element, newValueAccessor, allBindingsAccessor, viewModel);
+            return ko.bindingHandlers['event']['init'].call(this, element, newValueAccessor, allBindings, viewModel, bindingContext);
         }
     }
 }
 
 ko.bindingHandlers['event'] = {
-    'init' : function (element, valueAccessor, allBindingsAccessor, viewModel) {
+    'init' : function (element, valueAccessor, allBindings, viewModel, bindingContext) {
         var eventsToHandle = valueAccessor() || {};
         ko.utils.objectForEach(eventsToHandle, function(eventName) {
             if (typeof eventName == "string") {
@@ -8027,11 +8858,11 @@ ko.bindingHandlers['event'] = {
                     var handlerFunction = valueAccessor()[eventName];
                     if (!handlerFunction)
                         return;
-                    var allBindings = allBindingsAccessor();
 
                     try {
                         // Take all the event args, and prefix with the viewmodel
                         var argsForHandler = ko.utils.makeArray(arguments);
+                        viewModel = bindingContext['$data'];
                         argsForHandler.unshift(viewModel);
                         handlerReturnValue = handlerFunction.apply(viewModel, argsForHandler);
                     } finally {
@@ -8043,7 +8874,7 @@ ko.bindingHandlers['event'] = {
                         }
                     }
 
-                    var bubble = allBindings[eventName + 'Bubble'] !== false;
+                    var bubble = allBindings.get(eventName + 'Bubble') !== false;
                     if (!bubble) {
                         event.cancelBubble = true;
                         if (event.stopPropagation)
@@ -8083,11 +8914,11 @@ ko.bindingHandlers['foreach'] = {
             };
         };
     },
-    'init': function(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+    'init': function(element, valueAccessor, allBindings, viewModel, bindingContext) {
         return ko.bindingHandlers['template']['init'](element, ko.bindingHandlers['foreach'].makeTemplateValueAccessor(valueAccessor));
     },
-    'update': function(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
-        return ko.bindingHandlers['template']['update'](element, ko.bindingHandlers['foreach'].makeTemplateValueAccessor(valueAccessor), allBindingsAccessor, viewModel, bindingContext);
+    'update': function(element, valueAccessor, allBindings, viewModel, bindingContext) {
+        return ko.bindingHandlers['template']['update'](element, ko.bindingHandlers['foreach'].makeTemplateValueAccessor(valueAccessor), allBindings, viewModel, bindingContext);
     }
 };
 ko.expressionRewriting.bindingRewriteValidators['foreach'] = false; // Can't rewrite control flow bindings
@@ -8095,7 +8926,7 @@ ko.virtualElements.allowedBindings['foreach'] = true;
 var hasfocusUpdatingProperty = '__ko_hasfocusUpdating';
 var hasfocusLastValue = '__ko_hasfocusLastValue';
 ko.bindingHandlers['hasfocus'] = {
-    'init': function(element, valueAccessor, allBindingsAccessor) {
+    'init': function(element, valueAccessor, allBindings) {
         var handleElementFocusChange = function(isFocused) {
             // Where possible, ignore which event was raised and determine focus state using activeElement,
             // as this avoids phantom focus/blur events raised when changing tabs in modern browsers.
@@ -8116,7 +8947,7 @@ ko.bindingHandlers['hasfocus'] = {
                 isFocused = (active === element);
             }
             var modelValue = valueAccessor();
-            ko.expressionRewriting.writeValueToProperty(modelValue, allBindingsAccessor, 'hasfocus', isFocused, true);
+            ko.expressionRewriting.writeValueToProperty(modelValue, allBindings, 'hasfocus', isFocused, true);
 
             //cache the latest value, so we can avoid unnecessarily calling focus/blur in the update function
             element[hasfocusLastValue] = isFocused;
@@ -8138,8 +8969,10 @@ ko.bindingHandlers['hasfocus'] = {
         }
     }
 };
+ko.expressionRewriting.twoWayBindings['hasfocus'] = true;
 
 ko.bindingHandlers['hasFocus'] = ko.bindingHandlers['hasfocus']; // Make "hasFocus" an alias
+ko.expressionRewriting.twoWayBindings['hasFocus'] = true;
 ko.bindingHandlers['html'] = {
     'init': function() {
         // Prevent binding on the dynamically-injected HTML (as developers are unlikely to expect that, and it has security implications)
@@ -8150,15 +8983,15 @@ ko.bindingHandlers['html'] = {
         ko.utils.setHtml(element, valueAccessor());
     }
 };
-var withIfDomDataKey = '__ko_withIfBindingData';
+var withIfDomDataKey = ko.utils.domData.nextKey();
 // Makes a binding like with or if
 function makeWithIfBinding(bindingKey, isWith, isNot, makeContextCallback) {
     ko.bindingHandlers[bindingKey] = {
-        'init': function(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+        'init': function(element) {
             ko.utils.domData.set(element, withIfDomDataKey, {});
             return { 'controlsDescendantBindings': true };
         },
-        'update': function(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+        'update': function(element, valueAccessor, allBindings, viewModel, bindingContext) {
             var withIfData = ko.utils.domData.get(element, withIfDomDataKey),
                 dataValue = ko.utils.unwrapObservable(valueAccessor()),
                 shouldDisplay = !isNot !== !dataValue, // equivalent to isNot ? !dataValue : !!dataValue
@@ -8195,19 +9028,6 @@ makeWithIfBinding('with', true /* isWith */, false /* isNot */,
         return bindingContext['createChildContext'](dataValue);
     }
 );
-function ensureDropdownSelectionIsConsistentWithModelValue(element, modelValue, preferModelValue) {
-    if (preferModelValue) {
-        if (modelValue !== ko.selectExtensions.readValue(element))
-            ko.selectExtensions.writeValue(element, modelValue);
-    }
-
-    // No matter which direction we're syncing in, we want the end result to be equality between dropdown value and model value.
-    // If they aren't equal, either we prefer the dropdown value, or the model value couldn't be represented, so either way,
-    // change the model value to match the dropdown.
-    if (modelValue !== ko.selectExtensions.readValue(element))
-        ko.dependencyDetection.ignore(ko.utils.triggerEvent, null, [element, "change"]);
-};
-
 ko.bindingHandlers['options'] = {
     'init': function(element) {
         if (ko.utils.tagNameLower(element) !== "select")
@@ -8221,24 +9041,23 @@ ko.bindingHandlers['options'] = {
         // Ensures that the binding processor doesn't try to bind the options
         return { 'controlsDescendantBindings': true };
     },
-    'update': function (element, valueAccessor, allBindingsAccessor) {
+    'update': function (element, valueAccessor, allBindings) {
+        function selectedOptions() {
+            return ko.utils.arrayFilter(element.options, function (node) { return node.selected; });
+        }
+
         var selectWasPreviouslyEmpty = element.length == 0;
         var previousScrollTop = (!selectWasPreviouslyEmpty && element.multiple) ? element.scrollTop : null;
 
         var unwrappedArray = ko.utils.unwrapObservable(valueAccessor());
-        var allBindings = allBindingsAccessor();
-        var includeDestroyed = allBindings['optionsIncludeDestroyed'];
+        var includeDestroyed = allBindings.get('optionsIncludeDestroyed');
         var captionPlaceholder = {};
         var captionValue;
         var previousSelectedValues;
         if (element.multiple) {
-            previousSelectedValues = ko.utils.arrayMap(element.selectedOptions || ko.utils.arrayFilter(element.childNodes, function (node) {
-                    return node.tagName && (ko.utils.tagNameLower(node) === "option") && node.selected;
-                }), function (node) {
-                    return ko.selectExtensions.readValue(node);
-                });
-        } else if (element.selectedIndex >= 0) {
-            previousSelectedValues = [ ko.selectExtensions.readValue(element.options[element.selectedIndex]) ];
+            previousSelectedValues = ko.utils.arrayMap(selectedOptions(), ko.selectExtensions.readValue);
+        } else {
+            previousSelectedValues = element.selectedIndex >= 0 ? [ ko.selectExtensions.readValue(element.options[element.selectedIndex]) ] : [];
         }
 
         if (unwrappedArray) {
@@ -8251,8 +9070,8 @@ ko.bindingHandlers['options'] = {
             });
 
             // If caption is included, add it to the array
-            if ('optionsCaption' in allBindings) {
-                captionValue = ko.utils.unwrapObservable(allBindings['optionsCaption']);
+            if (allBindings['has']('optionsCaption')) {
+                captionValue = ko.utils.unwrapObservable(allBindings.get('optionsCaption'));
                 // If caption value is null or undefined, don't show a caption
                 if (captionValue !== null && captionValue !== undefined) {
                     filteredArray.unshift(captionPlaceholder);
@@ -8277,21 +9096,23 @@ ko.bindingHandlers['options'] = {
         // The first is when the whole array is being updated directly from this binding handler.
         // The second is when an observable value for a specific array entry is updated.
         // oldOptions will be empty in the first case, but will be filled with the previously generated option in the second.
+        var itemUpdate = false;
         function optionForArrayItem(arrayEntry, index, oldOptions) {
             if (oldOptions.length) {
-                previousSelectedValues = oldOptions[0].selected && [ ko.selectExtensions.readValue(oldOptions[0]) ];
+                previousSelectedValues = oldOptions[0].selected ? [ ko.selectExtensions.readValue(oldOptions[0]) ] : [];
+                itemUpdate = true;
             }
             var option = document.createElement("option");
             if (arrayEntry === captionPlaceholder) {
-                ko.utils.setHtml(option, captionValue);
+                ko.utils.setTextContent(option, allBindings.get('optionsCaption'));
                 ko.selectExtensions.writeValue(option, undefined);
             } else {
                 // Apply a value to the option element
-                var optionValue = applyToObject(arrayEntry, allBindings['optionsValue'], arrayEntry);
+                var optionValue = applyToObject(arrayEntry, allBindings.get('optionsValue'), arrayEntry);
                 ko.selectExtensions.writeValue(option, ko.utils.unwrapObservable(optionValue));
 
                 // Apply some text to the option element
-                var optionText = applyToObject(arrayEntry, allBindings['optionsText'], optionValue);
+                var optionText = applyToObject(arrayEntry, allBindings.get('optionsText'), optionValue);
                 ko.utils.setTextContent(option, optionText);
             }
             return [option];
@@ -8300,31 +9121,45 @@ ko.bindingHandlers['options'] = {
         function setSelectionCallback(arrayEntry, newOptions) {
             // IE6 doesn't like us to assign selection to OPTION nodes before they're added to the document.
             // That's why we first added them without selection. Now it's time to set the selection.
-            if (previousSelectedValues) {
+            if (previousSelectedValues.length) {
                 var isSelected = ko.utils.arrayIndexOf(previousSelectedValues, ko.selectExtensions.readValue(newOptions[0])) >= 0;
                 ko.utils.setOptionNodeSelectionState(newOptions[0], isSelected);
+
+                // If this option was changed from being selected during a single-item update, notify the change
+                if (itemUpdate && !isSelected)
+                    ko.dependencyDetection.ignore(ko.utils.triggerEvent, null, [element, "change"]);
             }
         }
 
         var callback = setSelectionCallback;
-        if (allBindings['optionsAfterRender']) {
+        if (allBindings['has']('optionsAfterRender')) {
             callback = function(arrayEntry, newOptions) {
                 setSelectionCallback(arrayEntry, newOptions);
-                ko.dependencyDetection.ignore(allBindings['optionsAfterRender'], null, [newOptions[0], arrayEntry !== captionPlaceholder ? arrayEntry : undefined]);
+                ko.dependencyDetection.ignore(allBindings.get('optionsAfterRender'), null, [newOptions[0], arrayEntry !== captionPlaceholder ? arrayEntry : undefined]);
             }
         }
 
         ko.utils.setDomNodeChildrenFromArrayMapping(element, filteredArray, optionForArrayItem, null, callback);
 
-        // Clear previousSelectedValues so that future updates to individual objects don't get stale data
-        previousSelectedValues = null;
-
-        if (selectWasPreviouslyEmpty && ('value' in allBindings)) {
-            // Ensure consistency between model value and selected option.
-            // If the dropdown is being populated for the first time here (or was otherwise previously empty),
-            // the dropdown selection state is meaningless, so we preserve the model value.
-            ensureDropdownSelectionIsConsistentWithModelValue(element, ko.utils.peekObservable(allBindings['value']), /* preferModelValue */ true);
+        // Determine if the selection has changed as a result of updating the options list
+        var selectionChanged;
+        if (element.multiple) {
+            // For a multiple-select box, compare the new selection count to the previous one
+            // But if nothing was selected before, the selection can't have changed
+            selectionChanged = previousSelectedValues.length && selectedOptions().length < previousSelectedValues.length;
+        } else {
+            // For a single-select box, compare the current value to the previous value
+            // But if nothing was selected before or nothing is selected now, just look for a change in selection
+            selectionChanged = (previousSelectedValues.length && element.selectedIndex >= 0)
+                ? (ko.selectExtensions.readValue(element.options[element.selectedIndex]) !== previousSelectedValues[0])
+                : (previousSelectedValues.length || element.selectedIndex >= 0);
         }
+
+        // Ensure consistency between model value and selected option.
+        // If the dropdown was changed so that selection is no longer the same,
+        // notify the value or selectedOptions binding.
+        if (selectionChanged)
+            ko.dependencyDetection.ignore(ko.utils.triggerEvent, null, [element, "change"]);
 
         // Workaround for IE bug
         ko.utils.ensureSelectElementIsRenderedCorrectly(element);
@@ -8333,16 +9168,17 @@ ko.bindingHandlers['options'] = {
             element.scrollTop = previousScrollTop;
     }
 };
-ko.bindingHandlers['options'].optionValueDomDataKey = '__ko.optionValueDomData__';
+ko.bindingHandlers['options'].optionValueDomDataKey = ko.utils.domData.nextKey();
 ko.bindingHandlers['selectedOptions'] = {
-    'init': function (element, valueAccessor, allBindingsAccessor) {
+    'after': ['options', 'foreach'],
+    'init': function (element, valueAccessor, allBindings) {
         ko.utils.registerEventHandler(element, "change", function () {
             var value = valueAccessor(), valueToWrite = [];
             ko.utils.arrayForEach(element.getElementsByTagName("option"), function(node) {
                 if (node.selected)
                     valueToWrite.push(ko.selectExtensions.readValue(node));
             });
-            ko.expressionRewriting.writeValueToProperty(value, allBindingsAccessor, 'selectedOptions', valueToWrite);
+            ko.expressionRewriting.writeValueToProperty(value, allBindings, 'selectedOptions', valueToWrite);
         });
     },
     'update': function (element, valueAccessor) {
@@ -8358,6 +9194,7 @@ ko.bindingHandlers['selectedOptions'] = {
         }
     }
 };
+ko.expressionRewriting.twoWayBindings['selectedOptions'] = true;
 ko.bindingHandlers['style'] = {
     'update': function (element, valueAccessor) {
         var value = ko.utils.unwrapObservable(valueAccessor() || {});
@@ -8368,13 +9205,13 @@ ko.bindingHandlers['style'] = {
     }
 };
 ko.bindingHandlers['submit'] = {
-    'init': function (element, valueAccessor, allBindingsAccessor, viewModel) {
+    'init': function (element, valueAccessor, allBindings, viewModel, bindingContext) {
         if (typeof valueAccessor() != "function")
             throw new Error("The value for a submit binding must be a function");
         ko.utils.registerEventHandler(element, "submit", function (event) {
             var handlerReturnValue;
             var value = valueAccessor();
-            try { handlerReturnValue = value.call(viewModel, element); }
+            try { handlerReturnValue = value.call(bindingContext['$data'], element); }
             finally {
                 if (handlerReturnValue !== true) { // Normally we want to prevent default action. Developer can override this be explicitly returning true.
                     if (event.preventDefault)
@@ -8387,6 +9224,11 @@ ko.bindingHandlers['submit'] = {
     }
 };
 ko.bindingHandlers['text'] = {
+	'init': function() {
+		// Prevent binding on the dynamically-injected text node (as developers are unlikely to expect that, and it has security implications).
+		// It should also make things faster, as we no longer have to consider whether the text node might be bindable.
+        return { 'controlsDescendantBindings': true };
+	},
     'update': function (element, valueAccessor) {
         ko.utils.setTextContent(element, valueAccessor());
     }
@@ -8402,10 +9244,11 @@ ko.bindingHandlers['uniqueName'] = {
 };
 ko.bindingHandlers['uniqueName'].currentIndex = 0;
 ko.bindingHandlers['value'] = {
-    'init': function (element, valueAccessor, allBindingsAccessor) {
+    'after': ['options', 'foreach'],
+    'init': function (element, valueAccessor, allBindings) {
         // Always catch "change" event; possibly other events too if asked
         var eventsToCatch = ["change"];
-        var requestedEventsToCatch = allBindingsAccessor()["valueUpdate"];
+        var requestedEventsToCatch = allBindings.get("valueUpdate");
         var propertyChangedFired = false;
         if (requestedEventsToCatch) {
             if (typeof requestedEventsToCatch == "string") // Allow both individual event names, and arrays of event names
@@ -8418,7 +9261,7 @@ ko.bindingHandlers['value'] = {
             propertyChangedFired = false;
             var modelValue = valueAccessor();
             var elementValue = ko.selectExtensions.readValue(element);
-            ko.expressionRewriting.writeValueToProperty(modelValue, allBindingsAccessor, 'value', elementValue);
+            ko.expressionRewriting.writeValueToProperty(modelValue, allBindings, 'value', elementValue);
         }
 
         // Workaround for https://github.com/SteveSanderson/knockout/issues/122
@@ -8456,20 +9299,22 @@ ko.bindingHandlers['value'] = {
             var applyValueAction = function () { ko.selectExtensions.writeValue(element, newValue); };
             applyValueAction();
 
-            // Workaround for IE6 bug: It won't reliably apply values to SELECT nodes during the same execution thread
-            // right after you've changed the set of OPTION nodes on it. So for that node type, we'll schedule a second thread
-            // to apply the value as well.
-            var alsoApplyAsynchronously = valueIsSelectOption;
-            if (alsoApplyAsynchronously)
-                setTimeout(applyValueAction, 0);
+            if (valueIsSelectOption) {
+                if (newValue !== ko.selectExtensions.readValue(element)) {
+                    // If you try to set a model value that can't be represented in an already-populated dropdown, reject that change,
+                    // because you're not allowed to have a model value that disagrees with a visible UI selection.
+                    ko.dependencyDetection.ignore(ko.utils.triggerEvent, null, [element, "change"]);
+                } else {
+                    // Workaround for IE6 bug: It won't reliably apply values to SELECT nodes during the same execution thread
+                    // right after you've changed the set of OPTION nodes on it. So for that node type, we'll schedule a second thread
+                    // to apply the value as well.
+                    setTimeout(applyValueAction, 0);
+                }
+            }
         }
-
-        // If you try to set a model value that can't be represented in an already-populated dropdown, reject that change,
-        // because you're not allowed to have a model value that disagrees with a visible UI selection.
-        if (valueIsSelectOption && (element.length > 0))
-            ensureDropdownSelectionIsConsistentWithModelValue(element, newValue, /* preferModelValue */ false);
     }
 };
+ko.expressionRewriting.twoWayBindings['value'] = true;
 ko.bindingHandlers['visible'] = {
     'update': function (element, valueAccessor) {
         var value = ko.utils.unwrapObservable(valueAccessor());
@@ -8579,7 +9424,7 @@ ko.templateRewriting = (function () {
     function constructMemoizedTagReplacement(dataBindAttributeValue, tagToRetain, nodeName, templateEngine) {
         var dataBindKeyValueArray = ko.expressionRewriting.parseObjectLiteral(dataBindAttributeValue);
         validateDataBindValuesForRewriting(dataBindKeyValueArray);
-        var rewrittenDataBindAttributeValue = ko.expressionRewriting.preProcessBindings(dataBindKeyValueArray);
+        var rewrittenDataBindAttributeValue = ko.expressionRewriting.preProcessBindings(dataBindKeyValueArray, {'valueAccessors':true});
 
         // For no obvious reason, Opera fails to evaluate rewrittenDataBindAttributeValue unless it's wrapped in an additional
         // anonymous function, even though Opera's built-in debugger can evaluate it anyway. No other browser requires this
@@ -8609,7 +9454,7 @@ ko.templateRewriting = (function () {
             return ko.memoization.memoize(function (domNode, bindingContext) {
                 var nodeToBind = domNode.nextSibling;
                 if (nodeToBind && nodeToBind.nodeName.toLowerCase() === nodeName) {
-                    ko.applyBindingsToNode(nodeToBind, bindings, bindingContext);
+                    ko.applyBindingAccessorsToNode(nodeToBind, bindings, bindingContext);
                 }
             });
         }
@@ -8669,11 +9514,12 @@ ko.exportSymbol('__tr_ambtns', ko.templateRewriting.applyMemoizedBindingsToNextS
         }
     };
 
+    var dataDomDataPrefix = ko.utils.domData.nextKey() + "_";
     ko.templateSources.domElement.prototype['data'] = function(key /*, valueToWrite */) {
         if (arguments.length === 1) {
-            return ko.utils.domData.get(this.domElement, "templateSourceData_" + key);
+            return ko.utils.domData.get(this.domElement, dataDomDataPrefix + key);
         } else {
-            ko.utils.domData.set(this.domElement, "templateSourceData_" + key, arguments[1]);
+            ko.utils.domData.set(this.domElement, dataDomDataPrefix + key, arguments[1]);
         }
     };
 
@@ -8682,7 +9528,7 @@ ko.exportSymbol('__tr_ambtns', ko.templateRewriting.applyMemoizedBindingsToNextS
     // For compatibility, you can also read "text"; it will be serialized from the nodes on demand.
     // Writing to "text" is still supported, but then the template data will not be available as DOM nodes.
 
-    var anonymousTemplatesDomDataKey = "__ko_anon_template__";
+    var anonymousTemplatesDomDataKey = ko.utils.domData.nextKey();
     ko.templateSources.anonymousTemplate = function(element) {
         this.domElement = element;
     }
@@ -8721,12 +9567,11 @@ ko.exportSymbol('__tr_ambtns', ko.templateRewriting.applyMemoizedBindingsToNextS
         _templateEngine = templateEngine;
     }
 
-    function invokeForEachNodeOrCommentInContinuousRange(firstNode, lastNode, action) {
+    function invokeForEachNodeInContinuousRange(firstNode, lastNode, action) {
         var node, nextInQueue = firstNode, firstOutOfRangeNode = ko.virtualElements.nextSibling(lastNode);
         while (nextInQueue && ((node = nextInQueue) !== firstOutOfRangeNode)) {
             nextInQueue = ko.virtualElements.nextSibling(node);
-            if (node.nodeType === 1 || node.nodeType === 8)
-                action(node);
+            action(node, nextInQueue);
         }
     }
 
@@ -8738,16 +9583,52 @@ ko.exportSymbol('__tr_ambtns', ko.templateRewriting.applyMemoizedBindingsToNextS
         // (2) Unmemoizes any memos in the DOM subtree (e.g., to activate bindings that had been memoized during template rewriting)
 
         if (continuousNodeArray.length) {
-            var firstNode = continuousNodeArray[0], lastNode = continuousNodeArray[continuousNodeArray.length - 1];
+            var firstNode = continuousNodeArray[0],
+                lastNode = continuousNodeArray[continuousNodeArray.length - 1],
+                parentNode = firstNode.parentNode,
+                provider = ko.bindingProvider['instance'],
+                preprocessNode = provider['preprocessNode'];
+
+            if (preprocessNode) {
+                invokeForEachNodeInContinuousRange(firstNode, lastNode, function(node, nextNodeInRange) {
+                    var nodePreviousSibling = node.previousSibling;
+                    var newNodes = preprocessNode.call(provider, node);
+                    if (newNodes) {
+                        if (node === firstNode)
+                            firstNode = newNodes[0] || nextNodeInRange;
+                        if (node === lastNode)
+                            lastNode = newNodes[newNodes.length - 1] || nodePreviousSibling;
+                    }
+                });
+
+                // Because preprocessNode can change the nodes, including the first and last nodes, update continuousNodeArray to match.
+                // We need the full set, including inner nodes, because the unmemoize step might remove the first node (and so the real
+                // first node needs to be in the array).
+                continuousNodeArray.length = 0;
+                if (!firstNode) { // preprocessNode might have removed all the nodes, in which case there's nothing left to do
+                    return;
+                }
+                if (firstNode === lastNode) {
+                    continuousNodeArray.push(firstNode);
+                } else {
+                    continuousNodeArray.push(firstNode, lastNode);
+                    ko.utils.fixUpContinuousNodeArray(continuousNodeArray, parentNode);
+                }
+            }
 
             // Need to applyBindings *before* unmemoziation, because unmemoization might introduce extra nodes (that we don't want to re-bind)
             // whereas a regular applyBindings won't introduce new memoized nodes
-            invokeForEachNodeOrCommentInContinuousRange(firstNode, lastNode, function(node) {
-                ko.applyBindings(bindingContext, node);
+            invokeForEachNodeInContinuousRange(firstNode, lastNode, function(node) {
+                if (node.nodeType === 1 || node.nodeType === 8)
+                    ko.applyBindings(bindingContext, node);
             });
-            invokeForEachNodeOrCommentInContinuousRange(firstNode, lastNode, function(node) {
-                ko.memoization.unmemoizeDomNodeAndDescendants(node, [bindingContext]);
+            invokeForEachNodeInContinuousRange(firstNode, lastNode, function(node) {
+                if (node.nodeType === 1 || node.nodeType === 8)
+                    ko.memoization.unmemoizeDomNodeAndDescendants(node, [bindingContext]);
             });
+
+            // Make sure any changes done by applyBindings or unmemoize are reflected in the array
+            ko.utils.fixUpContinuousNodeArray(continuousNodeArray, parentNode);
         }
     }
 
@@ -8840,8 +9721,9 @@ ko.exportSymbol('__tr_ambtns', ko.templateRewriting.applyMemoizedBindingsToNextS
         // This will be called by setDomNodeChildrenFromArrayMapping to get the nodes to add to targetNode
         var executeTemplateForArrayItem = function (arrayValue, index) {
             // Support selecting template as a function of the data being rendered
-            arrayItemContext = parentBindingContext['createChildContext'](ko.utils.unwrapObservable(arrayValue), options['as']);
-            arrayItemContext['$index'] = index;
+            arrayItemContext = parentBindingContext['createChildContext'](arrayValue, options['as'], function(context) {
+                context['$index'] = index;
+            });
             var templateName = typeof(template) == 'function' ? template(arrayValue, arrayItemContext) : template;
             return executeTemplate(null, "ignoreTargetNode", templateName, arrayItemContext, options);
         }
@@ -8870,7 +9752,7 @@ ko.exportSymbol('__tr_ambtns', ko.templateRewriting.applyMemoizedBindingsToNextS
         }, null, { disposeWhenNodeIsRemoved: targetNode });
     };
 
-    var templateComputedDomDataKey = '__ko__templateComputedDomDataKey__';
+    var templateComputedDomDataKey = ko.utils.domData.nextKey();
     function disposeOldComputedAndStoreNewOne(element, newComputed) {
         var oldComputed = ko.utils.domData.get(element, templateComputedDomDataKey);
         if (oldComputed && (typeof(oldComputed.dispose) == 'function'))
@@ -8882,15 +9764,18 @@ ko.exportSymbol('__tr_ambtns', ko.templateRewriting.applyMemoizedBindingsToNextS
         'init': function(element, valueAccessor) {
             // Support anonymous templates
             var bindingValue = ko.utils.unwrapObservable(valueAccessor());
-            if ((typeof bindingValue != "string") && (!bindingValue['name']) && (element.nodeType == 1 || element.nodeType == 8)) {
+            if (typeof bindingValue == "string" || bindingValue['name']) {
+                // It's a named template - clear the element
+                ko.virtualElements.emptyNode(element);
+            } else {
                 // It's an anonymous template - store the element contents, then clear the element
-                var templateNodes = element.nodeType == 1 ? element.childNodes : ko.virtualElements.childNodes(element),
+                var templateNodes = ko.virtualElements.childNodes(element),
                     container = ko.utils.moveCleanedNodesToContainerElement(templateNodes); // This also removes the nodes from their current parent
                 new ko.templateSources.anonymousTemplate(element)['nodes'](container);
             }
             return { 'controlsDescendantBindings': true };
         },
-        'update': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+        'update': function (element, valueAccessor, allBindings, viewModel, bindingContext) {
             var templateName = ko.utils.unwrapObservable(valueAccessor()),
                 options = {},
                 shouldDisplay = true,
@@ -8951,17 +9836,20 @@ ko.utils.compareArrays = (function () {
     var statusNotInOld = 'added', statusNotInNew = 'deleted';
 
     // Simple calculation based on Levenshtein distance.
-    function compareArrays(oldArray, newArray, dontLimitMoves) {
+    function compareArrays(oldArray, newArray, options) {
+        // For backward compatibility, if the third arg is actually a bool, interpret
+        // it as the old parameter 'dontLimitMoves'. Newer code should use { dontLimitMoves: true }.
+        options = (typeof options === 'boolean') ? { 'dontLimitMoves': options } : (options || {});
         oldArray = oldArray || [];
         newArray = newArray || [];
 
         if (oldArray.length <= newArray.length)
-            return compareSmallArrayToBigArray(oldArray, newArray, statusNotInOld, statusNotInNew, dontLimitMoves);
+            return compareSmallArrayToBigArray(oldArray, newArray, statusNotInOld, statusNotInNew, options);
         else
-            return compareSmallArrayToBigArray(newArray, oldArray, statusNotInNew, statusNotInOld, dontLimitMoves);
+            return compareSmallArrayToBigArray(newArray, oldArray, statusNotInNew, statusNotInOld, options);
     }
 
-    function compareSmallArrayToBigArray(smlArray, bigArray, statusNotInSml, statusNotInBig, dontLimitMoves) {
+    function compareSmallArrayToBigArray(smlArray, bigArray, statusNotInSml, statusNotInBig, options) {
         var myMin = Math.min,
             myMax = Math.max,
             editDistanceMatrix = [],
@@ -9006,10 +9894,13 @@ ko.utils.compareArrays = (function () {
                     'value': smlArray[--smlIndex],
                     'index': smlIndex });
             } else {
-                editScript.push({
-                    'status': "retained",
-                    'value': bigArray[--bigIndex] });
+                --bigIndex;
                 --smlIndex;
+                if (!options['sparse']) {
+                    editScript.push({
+                        'status': "retained",
+                        'value': bigArray[bigIndex] });
+                }
             }
         }
 
@@ -9019,7 +9910,7 @@ ko.utils.compareArrays = (function () {
             var limitFailedCompares = smlIndexMax * 10, failedCompares,
                 a, d, notInSmlItem, notInBigItem;
             // Go through the items that have been added and deleted and try to find matches between them.
-            for (failedCompares = a = 0; (dontLimitMoves || failedCompares < limitFailedCompares) && (notInSmlItem = notInSml[a]); a++) {
+            for (failedCompares = a = 0; (options['dontLimitMoves'] || failedCompares < limitFailedCompares) && (notInSmlItem = notInSml[a]); a++) {
                 for (d = 0; notInBigItem = notInBig[d]; d++) {
                     if (notInSmlItem['value'] === notInBigItem['value']) {
                         notInSmlItem['moved'] = notInBigItem['index'];
@@ -9051,47 +9942,11 @@ ko.exportSymbol('utils.compareArrays', ko.utils.compareArrays);
     // "callbackAfterAddingNodes" will be invoked after any "mapping"-generated nodes are inserted into the container node
     // You can use this, for example, to activate bindings on those nodes.
 
-    function fixUpNodesToBeMovedOrRemoved(contiguousNodeArray) {
-        // Before moving, deleting, or replacing a set of nodes that were previously outputted by the "map" function, we have to reconcile
-        // them against what is in the DOM right now. It may be that some of the nodes have already been removed from the document,
-        // or that new nodes might have been inserted in the middle, for example by a binding. Also, there may previously have been
-        // leading comment nodes (created by rewritten string-based templates) that have since been removed during binding.
-        // So, this function translates the old "map" output array into its best guess of what set of current DOM nodes should be removed.
-        //
-        // Rules:
-        //   [A] Any leading nodes that aren't in the document any more should be ignored
-        //       These most likely correspond to memoization nodes that were already removed during binding
-        //       See https://github.com/SteveSanderson/knockout/pull/440
-        //   [B] We want to output a contiguous series of nodes that are still in the document. So, ignore any nodes that
-        //       have already been removed, and include any nodes that have been inserted among the previous collection
-
-        // Rule [A]
-        while (contiguousNodeArray.length && !ko.utils.domNodeIsAttachedToDocument(contiguousNodeArray[0]))
-            contiguousNodeArray.splice(0, 1);
-
-        // Rule [B]
-        if (contiguousNodeArray.length > 1) {
-            // Build up the actual new contiguous node set
-            var current = contiguousNodeArray[0], last = contiguousNodeArray[contiguousNodeArray.length - 1], newContiguousSet = [current];
-            while (current !== last) {
-                current = current.nextSibling;
-                if (!current) // Won't happen, except if the developer has manually removed some DOM elements (then we're in an undefined scenario)
-                    return;
-                newContiguousSet.push(current);
-            }
-
-            // ... then mutate the input array to match this.
-            // (The following line replaces the contents of contiguousNodeArray with newContiguousSet)
-            Array.prototype.splice.apply(contiguousNodeArray, [0, contiguousNodeArray.length].concat(newContiguousSet));
-        }
-        return contiguousNodeArray;
-    }
-
     function mapNodeAndRefreshWhenChanged(containerNode, mapping, valueToMap, callbackAfterAddingNodes, index) {
         // Map this array value inside a dependentObservable so we re-map when any dependency changes
         var mappedNodes = [];
         var dependentObservable = ko.dependentObservable(function() {
-            var newMappedNodes = mapping(valueToMap, index, fixUpNodesToBeMovedOrRemoved(mappedNodes)) || [];
+            var newMappedNodes = mapping(valueToMap, index, ko.utils.fixUpContinuousNodeArray(mappedNodes, containerNode)) || [];
 
             // On subsequent evaluations, just replace the previously-inserted DOM nodes
             if (mappedNodes.length > 0) {
@@ -9108,7 +9963,7 @@ ko.exportSymbol('utils.compareArrays', ko.utils.compareArrays);
         return { mappedNodes : mappedNodes, dependentObservable : (dependentObservable.isActive() ? dependentObservable : undefined) };
     }
 
-    var lastMappingResultDomDataKey = "setDomNodeChildrenFromArrayMapping_lastMappingResult";
+    var lastMappingResultDomDataKey = ko.utils.domData.nextKey();
 
     ko.utils.setDomNodeChildrenFromArrayMapping = function (domNode, array, mapping, options, callbackAfterAddingNodes) {
         // Compare the provided array against the previous one
@@ -9135,9 +9990,9 @@ ko.exportSymbol('utils.compareArrays', ko.utils.compareArrays);
             mapData = lastMappingResult[oldPosition];
             if (newMappingResultIndex !== oldPosition)
                 itemsForMoveCallbacks[editScriptIndex] = mapData;
-            // Since updating the index might change the nodes, do so before calling fixUpNodesToBeMovedOrRemoved
+            // Since updating the index might change the nodes, do so before calling fixUpContinuousNodeArray
             mapData.indexObservable(newMappingResultIndex++);
-            fixUpNodesToBeMovedOrRemoved(mapData.mappedNodes);
+            ko.utils.fixUpContinuousNodeArray(mapData.mappedNodes, domNode);
             newMappingResult.push(mapData);
             itemsToProcess.push(mapData);
         }
@@ -9166,7 +10021,7 @@ ko.exportSymbol('utils.compareArrays', ko.utils.compareArrays);
                             mapData.dependentObservable.dispose();
 
                         // Queue these nodes for later removal
-                        nodesToDelete.push.apply(nodesToDelete, fixUpNodesToBeMovedOrRemoved(mapData.mappedNodes));
+                        nodesToDelete.push.apply(nodesToDelete, ko.utils.fixUpContinuousNodeArray(mapData.mappedNodes, domNode));
                         if (options['beforeRemove']) {
                             itemsForBeforeRemoveCallbacks[i] = mapData;
                             itemsToProcess.push(mapData);
@@ -9414,8 +10269,8 @@ define('scalejs.layout-cssgrid-splitter/splitter', [
                 var newDefinitions = updateDefinitions(e.gesture[deltaProperty]);
                 if (newDefinitions) {
                     element.parentNode.setAttribute('style', '-ms-grid-' + rowOrColumn + 's: ' + newDefinitions.join(' '));
-                    if (core.layout && core.layout.invalidate) {
-                        core.layout.invalidate();
+                    if (core.layout.cssGrid) {
+                        core.layout.cssGrid.layout();
                     }
                 }
             }
@@ -9491,36 +10346,8 @@ define('scalejs.layout-cssgrid-splitter',[
 });
 
 
-/*--------------------------------------------------------------------------
- * linq.js - LINQ for JavaScript
- * ver 3.0.2-RC (Sep. 16th, 2012)
- *
- * created and maintained by neuecc <ils@neue.cc>
- * licensed under MIT License
- * http://linqjs.codeplex.com/
- *------------------------------------------------------------------------*/
-(function(w,j){var l="enumerator is disposed",q="single:sequence contains more than one element.",a=false,b=null,e=true,g={Identity:function(a){return a},True:function(){return e},Blank:function(){}},i={Boolean:typeof e,Number:typeof 0,String:typeof"",Object:typeof{},Undefined:typeof j,Function:typeof function(){}},d={createLambda:function(a){if(a==b)return g.Identity;if(typeof a==i.String)if(a=="")return g.Identity;else if(a.indexOf("=>")==-1){var m=new RegExp("[$]+","g"),c=0,j;while(j=m.exec(a)){var e=j[0].length;if(e>c)c=e}for(var f=[],d=1;d<=c;d++){for(var h="",l=0;l<d;l++)h+="$";f.push(h)}var n=Array.prototype.join.call(f,",");return new Function(n,"return "+a)}else{var k=a.match(/^[(\s]*([^()]*?)[)\s]*=>(.*)/);return new Function(k[1],"return "+k[2])}return a},isIEnumerable:function(b){if(typeof Enumerator!==i.Undefined)try{new Enumerator(b);return e}catch(c){}return a},defineProperty:Object.defineProperties!=b?function(c,b,d){Object.defineProperty(c,b,{enumerable:a,configurable:e,writable:e,value:d})}:function(b,a,c){b[a]=c},compare:function(a,b){return a===b?0:a>b?1:-1},dispose:function(a){a!=b&&a.dispose()}},o={Before:0,Running:1,After:2},f=function(d,f,g){var c=new u,b=o.Before;this.current=c.current;this.moveNext=function(){try{switch(b){case o.Before:b=o.Running;d();case o.Running:if(f.apply(c))return e;else{this.dispose();return a}case o.After:return a}}catch(g){this.dispose();throw g;}};this.dispose=function(){if(b!=o.Running)return;try{g()}finally{b=o.After}}},u=function(){var c=b;this.current=function(){return c};this.yieldReturn=function(a){c=a;return e};this.yieldBreak=function(){return a}},c=function(a){this.getEnumerator=a};c.Utils={};c.Utils.createLambda=function(a){return d.createLambda(a)};c.Utils.createEnumerable=function(a){return new c(a)};c.Utils.createEnumerator=function(a,b,c){return new f(a,b,c)};c.Utils.extendTo=function(i){var e=i.prototype,f;if(i===Array){f=h.prototype;d.defineProperty(e,"getSource",function(){return this})}else{f=c.prototype;d.defineProperty(e,"getEnumerator",function(){return c.from(this).getEnumerator()})}for(var a in f){var g=f[a];if(e[a]==g)continue;if(e[a]!=b){a=a+"ByLinq";if(e[a]==g)continue}g instanceof Function&&d.defineProperty(e,a,g)}};c.choice=function(){var a=arguments;return new c(function(){return new f(function(){a=a[0]instanceof Array?a[0]:a[0].getEnumerator!=b?a[0].toArray():a},function(){return this.yieldReturn(a[Math.floor(Math.random()*a.length)])},g.Blank)})};c.cycle=function(){var a=arguments;return new c(function(){var c=0;return new f(function(){a=a[0]instanceof Array?a[0]:a[0].getEnumerator!=b?a[0].toArray():a},function(){if(c>=a.length)c=0;return this.yieldReturn(a[c++])},g.Blank)})};c.empty=function(){return new c(function(){return new f(g.Blank,function(){return a},g.Blank)})};c.from=function(j){if(j==b)return c.empty();if(j instanceof c)return j;if(typeof j==i.Number||typeof j==i.Boolean)return c.repeat(j,1);if(typeof j==i.String)return new c(function(){var b=0;return new f(g.Blank,function(){return b<j.length?this.yieldReturn(j.charAt(b++)):a},g.Blank)});if(typeof j!=i.Function){if(typeof j.length==i.Number)return new h(j);if(!(j instanceof Object)&&d.isIEnumerable(j))return new c(function(){var c=e,b;return new f(function(){b=new Enumerator(j)},function(){if(c)c=a;else b.moveNext();return b.atEnd()?a:this.yieldReturn(b.item())},g.Blank)});if(typeof Windows===i.Object&&typeof j.first===i.Function)return new c(function(){var c=e,b;return new f(function(){b=j.first()},function(){if(c)c=a;else b.moveNext();return b.hasCurrent?this.yieldReturn(b.current):this.yieldBreak()},g.Blank)})}return new c(function(){var b=[],c=0;return new f(function(){for(var a in j){var c=j[a];!(c instanceof Function)&&Object.prototype.hasOwnProperty.call(j,a)&&b.push({key:a,value:c})}},function(){return c<b.length?this.yieldReturn(b[c++]):a},g.Blank)})},c.make=function(a){return c.repeat(a,1)};c.matches=function(h,e,d){if(d==b)d="";if(e instanceof RegExp){d+=e.ignoreCase?"i":"";d+=e.multiline?"m":"";e=e.source}if(d.indexOf("g")===-1)d+="g";return new c(function(){var b;return new f(function(){b=new RegExp(e,d)},function(){var c=b.exec(h);return c?this.yieldReturn(c):a},g.Blank)})};c.range=function(e,d,a){if(a==b)a=1;return new c(function(){var b,c=0;return new f(function(){b=e-a},function(){return c++<d?this.yieldReturn(b+=a):this.yieldBreak()},g.Blank)})};c.rangeDown=function(e,d,a){if(a==b)a=1;return new c(function(){var b,c=0;return new f(function(){b=e+a},function(){return c++<d?this.yieldReturn(b-=a):this.yieldBreak()},g.Blank)})};c.rangeTo=function(d,e,a){if(a==b)a=1;return d<e?new c(function(){var b;return new f(function(){b=d-a},function(){var c=b+=a;return c<=e?this.yieldReturn(c):this.yieldBreak()},g.Blank)}):new c(function(){var b;return new f(function(){b=d+a},function(){var c=b-=a;return c>=e?this.yieldReturn(c):this.yieldBreak()},g.Blank)})};c.repeat=function(a,d){return d!=b?c.repeat(a).take(d):new c(function(){return new f(g.Blank,function(){return this.yieldReturn(a)},g.Blank)})};c.repeatWithFinalize=function(a,e){a=d.createLambda(a);e=d.createLambda(e);return new c(function(){var c;return new f(function(){c=a()},function(){return this.yieldReturn(c)},function(){if(c!=b){e(c);c=b}})})};c.generate=function(a,e){if(e!=b)return c.generate(a).take(e);a=d.createLambda(a);return new c(function(){return new f(g.Blank,function(){return this.yieldReturn(a())},g.Blank)})};c.toInfinity=function(d,a){if(d==b)d=0;if(a==b)a=1;return new c(function(){var b;return new f(function(){b=d-a},function(){return this.yieldReturn(b+=a)},g.Blank)})};c.toNegativeInfinity=function(d,a){if(d==b)d=0;if(a==b)a=1;return new c(function(){var b;return new f(function(){b=d+a},function(){return this.yieldReturn(b-=a)},g.Blank)})};c.unfold=function(h,b){b=d.createLambda(b);return new c(function(){var d=e,c;return new f(g.Blank,function(){if(d){d=a;c=h;return this.yieldReturn(c)}c=b(c);return this.yieldReturn(c)},g.Blank)})};c.defer=function(a){return new c(function(){var b;return new f(function(){b=c.from(a()).getEnumerator()},function(){return b.moveNext()?this.yieldReturn(b.current()):this.yieldBreak()},function(){d.dispose(b)})})};c.prototype.traverseBreadthFirst=function(g,b){var h=this;g=d.createLambda(g);b=d.createLambda(b);return new c(function(){var i,k=0,j=[];return new f(function(){i=h.getEnumerator()},function(){while(e){if(i.moveNext()){j.push(i.current());return this.yieldReturn(b(i.current(),k))}var f=c.from(j).selectMany(function(a){return g(a)});if(!f.any())return a;else{k++;j=[];d.dispose(i);i=f.getEnumerator()}}},function(){d.dispose(i)})})};c.prototype.traverseDepthFirst=function(g,b){var h=this;g=d.createLambda(g);b=d.createLambda(b);return new c(function(){var j=[],i;return new f(function(){i=h.getEnumerator()},function(){while(e){if(i.moveNext()){var f=b(i.current(),j.length);j.push(i);i=c.from(g(i.current())).getEnumerator();return this.yieldReturn(f)}if(j.length<=0)return a;d.dispose(i);i=j.pop()}},function(){try{d.dispose(i)}finally{c.from(j).forEach(function(a){a.dispose()})}})})};c.prototype.flatten=function(){var h=this;return new c(function(){var j,i=b;return new f(function(){j=h.getEnumerator()},function(){while(e){if(i!=b)if(i.moveNext())return this.yieldReturn(i.current());else i=b;if(j.moveNext())if(j.current()instanceof Array){d.dispose(i);i=c.from(j.current()).selectMany(g.Identity).flatten().getEnumerator();continue}else return this.yieldReturn(j.current());return a}},function(){try{d.dispose(j)}finally{d.dispose(i)}})})};c.prototype.pairwise=function(b){var e=this;b=d.createLambda(b);return new c(function(){var c;return new f(function(){c=e.getEnumerator();c.moveNext()},function(){var d=c.current();return c.moveNext()?this.yieldReturn(b(d,c.current())):a},function(){d.dispose(c)})})};c.prototype.scan=function(i,g){var h;if(g==b){g=d.createLambda(i);h=a}else{g=d.createLambda(g);h=e}var j=this;return new c(function(){var b,c,k=e;return new f(function(){b=j.getEnumerator()},function(){if(k){k=a;if(!h){if(b.moveNext())return this.yieldReturn(c=b.current())}else return this.yieldReturn(c=i)}return b.moveNext()?this.yieldReturn(c=g(c,b.current())):a},function(){d.dispose(b)})})};c.prototype.select=function(e){e=d.createLambda(e);if(e.length<=1)return new m(this,b,e);else{var g=this;return new c(function(){var b,c=0;return new f(function(){b=g.getEnumerator()},function(){return b.moveNext()?this.yieldReturn(e(b.current(),c++)):a},function(){d.dispose(b)})})}};c.prototype.selectMany=function(g,e){var h=this;g=d.createLambda(g);if(e==b)e=function(b,a){return a};e=d.createLambda(e);return new c(function(){var k,i=j,l=0;return new f(function(){k=h.getEnumerator()},function(){if(i===j)if(!k.moveNext())return a;do{if(i==b){var f=g(k.current(),l++);i=c.from(f).getEnumerator()}if(i.moveNext())return this.yieldReturn(e(k.current(),i.current()));d.dispose(i);i=b}while(k.moveNext());return a},function(){try{d.dispose(k)}finally{d.dispose(i)}})})};c.prototype.where=function(b){b=d.createLambda(b);if(b.length<=1)return new n(this,b);else{var e=this;return new c(function(){var c,g=0;return new f(function(){c=e.getEnumerator()},function(){while(c.moveNext())if(b(c.current(),g++))return this.yieldReturn(c.current());return a},function(){d.dispose(c)})})}};c.prototype.choose=function(a){a=d.createLambda(a);var e=this;return new c(function(){var c,g=0;return new f(function(){c=e.getEnumerator()},function(){while(c.moveNext()){var d=a(c.current(),g++);if(d!=b)return this.yieldReturn(d)}return this.yieldBreak()},function(){d.dispose(c)})})};c.prototype.ofType=function(c){var a;switch(c){case Number:a=i.Number;break;case String:a=i.String;break;case Boolean:a=i.Boolean;break;case Function:a=i.Function;break;default:a=b}return a===b?this.where(function(a){return a instanceof c}):this.where(function(b){return typeof b===a})};c.prototype.zip=function(){var i=arguments,e=d.createLambda(arguments[arguments.length-1]),g=this;if(arguments.length==2){var h=arguments[0];return new c(function(){var i,b,j=0;return new f(function(){i=g.getEnumerator();b=c.from(h).getEnumerator()},function(){return i.moveNext()&&b.moveNext()?this.yieldReturn(e(i.current(),b.current(),j++)):a},function(){try{d.dispose(i)}finally{d.dispose(b)}})})}else return new c(function(){var a,h=0;return new f(function(){var b=c.make(g).concat(c.from(i).takeExceptLast().select(c.from)).select(function(a){return a.getEnumerator()}).toArray();a=c.from(b)},function(){if(a.all(function(a){return a.moveNext()})){var c=a.select(function(a){return a.current()}).toArray();c.push(h++);return this.yieldReturn(e.apply(b,c))}else return this.yieldBreak()},function(){c.from(a).forEach(d.dispose)})})};c.prototype.merge=function(){var b=arguments,a=this;return new c(function(){var e,g=-1;return new f(function(){e=c.make(a).concat(c.from(b).select(c.from)).select(function(a){return a.getEnumerator()}).toArray()},function(){while(e.length>0){g=g>=e.length-1?0:g+1;var a=e[g];if(a.moveNext())return this.yieldReturn(a.current());else{a.dispose();e.splice(g--,1)}}return this.yieldBreak()},function(){c.from(e).forEach(d.dispose)})})};c.prototype.join=function(n,i,h,l,k){i=d.createLambda(i);h=d.createLambda(h);l=d.createLambda(l);k=d.createLambda(k);var m=this;return new c(function(){var o,r,p=b,q=0;return new f(function(){o=m.getEnumerator();r=c.from(n).toLookup(h,g.Identity,k)},function(){while(e){if(p!=b){var c=p[q++];if(c!==j)return this.yieldReturn(l(o.current(),c));c=b;q=0}if(o.moveNext()){var d=i(o.current());p=r.get(d).toArray()}else return a}},function(){d.dispose(o)})})};c.prototype.groupJoin=function(l,h,e,j,i){h=d.createLambda(h);e=d.createLambda(e);j=d.createLambda(j);i=d.createLambda(i);var k=this;return new c(function(){var m=k.getEnumerator(),n=b;return new f(function(){m=k.getEnumerator();n=c.from(l).toLookup(e,g.Identity,i)},function(){if(m.moveNext()){var b=n.get(h(m.current()));return this.yieldReturn(j(m.current(),b))}return a},function(){d.dispose(m)})})};c.prototype.all=function(b){b=d.createLambda(b);var c=e;this.forEach(function(d){if(!b(d)){c=a;return a}});return c};c.prototype.any=function(c){c=d.createLambda(c);var b=this.getEnumerator();try{if(arguments.length==0)return b.moveNext();while(b.moveNext())if(c(b.current()))return e;return a}finally{d.dispose(b)}};c.prototype.isEmpty=function(){return!this.any()};c.prototype.concat=function(){var e=this;if(arguments.length==1){var g=arguments[0];return new c(function(){var i,h;return new f(function(){i=e.getEnumerator()},function(){if(h==b){if(i.moveNext())return this.yieldReturn(i.current());h=c.from(g).getEnumerator()}return h.moveNext()?this.yieldReturn(h.current()):a},function(){try{d.dispose(i)}finally{d.dispose(h)}})})}else{var h=arguments;return new c(function(){var a;return new f(function(){a=c.make(e).concat(c.from(h).select(c.from)).select(function(a){return a.getEnumerator()}).toArray()},function(){while(a.length>0){var b=a[0];if(b.moveNext())return this.yieldReturn(b.current());else{b.dispose();a.splice(0,1)}}return this.yieldBreak()},function(){c.from(a).forEach(d.dispose)})})}};c.prototype.insert=function(h,b){var g=this;return new c(function(){var j,i,l=0,k=a;return new f(function(){j=g.getEnumerator();i=c.from(b).getEnumerator()},function(){if(l==h&&i.moveNext()){k=e;return this.yieldReturn(i.current())}if(j.moveNext()){l++;return this.yieldReturn(j.current())}return!k&&i.moveNext()?this.yieldReturn(i.current()):a},function(){try{d.dispose(j)}finally{d.dispose(i)}})})};c.prototype.alternate=function(a){var g=this;return new c(function(){var j,i,k,h;return new f(function(){if(a instanceof Array||a.getEnumerator!=b)k=c.from(c.from(a).toArray());else k=c.make(a);i=g.getEnumerator();if(i.moveNext())j=i.current()},function(){while(e){if(h!=b)if(h.moveNext())return this.yieldReturn(h.current());else h=b;if(j==b&&i.moveNext()){j=i.current();h=k.getEnumerator();continue}else if(j!=b){var a=j;j=b;return this.yieldReturn(a)}return this.yieldBreak()}},function(){try{d.dispose(i)}finally{d.dispose(h)}})})};c.prototype.contains=function(f,b){b=d.createLambda(b);var c=this.getEnumerator();try{while(c.moveNext())if(b(c.current())===f)return e;return a}finally{d.dispose(c)}};c.prototype.defaultIfEmpty=function(g){var h=this;if(g===j)g=b;return new c(function(){var b,c=e;return new f(function(){b=h.getEnumerator()},function(){if(b.moveNext()){c=a;return this.yieldReturn(b.current())}else if(c){c=a;return this.yieldReturn(g)}return a},function(){d.dispose(b)})})};c.prototype.distinct=function(a){return this.except(c.empty(),a)};c.prototype.distinctUntilChanged=function(b){b=d.createLambda(b);var e=this;return new c(function(){var c,g,h;return new f(function(){c=e.getEnumerator()},function(){while(c.moveNext()){var d=b(c.current());if(h){h=a;g=d;return this.yieldReturn(c.current())}if(g===d)continue;g=d;return this.yieldReturn(c.current())}return this.yieldBreak()},function(){d.dispose(c)})})};c.prototype.except=function(e,b){b=d.createLambda(b);var g=this;return new c(function(){var h,i;return new f(function(){h=g.getEnumerator();i=new r(b);c.from(e).forEach(function(a){i.add(a)})},function(){while(h.moveNext()){var b=h.current();if(!i.contains(b)){i.add(b);return this.yieldReturn(b)}}return a},function(){d.dispose(h)})})};c.prototype.intersect=function(e,b){b=d.createLambda(b);var g=this;return new c(function(){var h,i,j;return new f(function(){h=g.getEnumerator();i=new r(b);c.from(e).forEach(function(a){i.add(a)});j=new r(b)},function(){while(h.moveNext()){var b=h.current();if(!j.contains(b)&&i.contains(b)){j.add(b);return this.yieldReturn(b)}}return a},function(){d.dispose(h)})})};c.prototype.sequenceEqual=function(h,f){f=d.createLambda(f);var g=this.getEnumerator();try{var b=c.from(h).getEnumerator();try{while(g.moveNext())if(!b.moveNext()||f(g.current())!==f(b.current()))return a;return b.moveNext()?a:e}finally{d.dispose(b)}}finally{d.dispose(g)}};c.prototype.union=function(e,b){b=d.createLambda(b);var g=this;return new c(function(){var k,h,i;return new f(function(){k=g.getEnumerator();i=new r(b)},function(){var b;if(h===j){while(k.moveNext()){b=k.current();if(!i.contains(b)){i.add(b);return this.yieldReturn(b)}}h=c.from(e).getEnumerator()}while(h.moveNext()){b=h.current();if(!i.contains(b)){i.add(b);return this.yieldReturn(b)}}return a},function(){try{d.dispose(k)}finally{d.dispose(h)}})})};c.prototype.orderBy=function(b){return new k(this,b,a)};c.prototype.orderByDescending=function(a){return new k(this,a,e)};c.prototype.reverse=function(){var b=this;return new c(function(){var c,d;return new f(function(){c=b.toArray();d=c.length},function(){return d>0?this.yieldReturn(c[--d]):a},g.Blank)})};c.prototype.shuffle=function(){var b=this;return new c(function(){var c;return new f(function(){c=b.toArray()},function(){if(c.length>0){var b=Math.floor(Math.random()*c.length);return this.yieldReturn(c.splice(b,1)[0])}return a},g.Blank)})};c.prototype.weightedSample=function(a){a=d.createLambda(a);var e=this;return new c(function(){var c,d=0;return new f(function(){c=e.choose(function(e){var c=a(e);if(c<=0)return b;d+=c;return{value:e,bound:d}}).toArray()},function(){if(c.length>0){var f=Math.floor(Math.random()*d)+1,e=-1,a=c.length;while(a-e>1){var b=Math.floor((e+a)/2);if(c[b].bound>=f)a=b;else e=b}return this.yieldReturn(c[a].value)}return this.yieldBreak()},g.Blank)})};c.prototype.groupBy=function(i,h,e,g){var j=this;i=d.createLambda(i);h=d.createLambda(h);if(e!=b)e=d.createLambda(e);g=d.createLambda(g);return new c(function(){var c;return new f(function(){c=j.toLookup(i,h,g).toEnumerable().getEnumerator()},function(){while(c.moveNext())return e==b?this.yieldReturn(c.current()):this.yieldReturn(e(c.current().key(),c.current()));return a},function(){d.dispose(c)})})};c.prototype.partitionBy=function(j,i,g,h){var l=this;j=d.createLambda(j);i=d.createLambda(i);h=d.createLambda(h);var k;if(g==b){k=a;g=function(b,a){return new t(b,a)}}else{k=e;g=d.createLambda(g)}return new c(function(){var b,n,o,m=[];return new f(function(){b=l.getEnumerator();if(b.moveNext()){n=j(b.current());o=h(n);m.push(i(b.current()))}},function(){var d;while((d=b.moveNext())==e)if(o===h(j(b.current())))m.push(i(b.current()));else break;if(m.length>0){var f=k?g(n,c.from(m)):g(n,m);if(d){n=j(b.current());o=h(n);m=[i(b.current())]}else m=[];return this.yieldReturn(f)}return a},function(){d.dispose(b)})})};c.prototype.buffer=function(e){var b=this;return new c(function(){var c;return new f(function(){c=b.getEnumerator()},function(){var b=[],d=0;while(c.moveNext()){b.push(c.current());if(++d>=e)return this.yieldReturn(b)}return b.length>0?this.yieldReturn(b):a},function(){d.dispose(c)})})};c.prototype.aggregate=function(c,b,a){a=d.createLambda(a);return a(this.scan(c,b,a).last())};c.prototype.average=function(a){a=d.createLambda(a);var c=0,b=0;this.forEach(function(d){c+=a(d);++b});return c/b};c.prototype.count=function(a){a=a==b?g.True:d.createLambda(a);var c=0;this.forEach(function(d,b){if(a(d,b))++c});return c};c.prototype.max=function(a){if(a==b)a=g.Identity;return this.select(a).aggregate(function(a,b){return a>b?a:b})};c.prototype.min=function(a){if(a==b)a=g.Identity;return this.select(a).aggregate(function(a,b){return a<b?a:b})};c.prototype.maxBy=function(a){a=d.createLambda(a);return this.aggregate(function(b,c){return a(b)>a(c)?b:c})};c.prototype.minBy=function(a){a=d.createLambda(a);return this.aggregate(function(b,c){return a(b)<a(c)?b:c})};c.prototype.sum=function(a){if(a==b)a=g.Identity;return this.select(a).aggregate(0,function(a,b){return a+b})};c.prototype.elementAt=function(d){var c,b=a;this.forEach(function(g,f){if(f==d){c=g;b=e;return a}});if(!b)throw new Error("index is less than 0 or greater than or equal to the number of elements in source.");return c};c.prototype.elementAtOrDefault=function(g,c){if(c===j)c=b;var f,d=a;this.forEach(function(c,b){if(b==g){f=c;d=e;return a}});return!d?c:f};c.prototype.first=function(c){if(c!=b)return this.where(c).first();var f,d=a;this.forEach(function(b){f=b;d=e;return a});if(!d)throw new Error("first:No element satisfies the condition.");return f};c.prototype.firstOrDefault=function(d,c){if(c===j)c=b;if(d!=b)return this.where(d).firstOrDefault(b,c);var g,f=a;this.forEach(function(b){g=b;f=e;return a});return!f?c:g};c.prototype.last=function(c){if(c!=b)return this.where(c).last();var f,d=a;this.forEach(function(a){d=e;f=a});if(!d)throw new Error("last:No element satisfies the condition.");return f};c.prototype.lastOrDefault=function(d,c){if(c===j)c=b;if(d!=b)return this.where(d).lastOrDefault(b,c);var g,f=a;this.forEach(function(a){f=e;g=a});return!f?c:g};c.prototype.single=function(d){if(d!=b)return this.where(d).single();var f,c=a;this.forEach(function(a){if(!c){c=e;f=a}else throw new Error(q);});if(!c)throw new Error("single:No element satisfies the condition.");return f};c.prototype.singleOrDefault=function(f,c){if(c===j)c=b;if(f!=b)return this.where(f).singleOrDefault(b,c);var g,d=a;this.forEach(function(a){if(!d){d=e;g=a}else throw new Error(q);});return!d?c:g};c.prototype.skip=function(e){var b=this;return new c(function(){var c,g=0;return new f(function(){c=b.getEnumerator();while(g++<e&&c.moveNext());},function(){return c.moveNext()?this.yieldReturn(c.current()):a},function(){d.dispose(c)})})};c.prototype.skipWhile=function(b){b=d.createLambda(b);var g=this;return new c(function(){var c,i=0,h=a;return new f(function(){c=g.getEnumerator()},function(){while(!h)if(c.moveNext()){if(!b(c.current(),i++)){h=e;return this.yieldReturn(c.current())}continue}else return a;return c.moveNext()?this.yieldReturn(c.current()):a},function(){d.dispose(c)})})};c.prototype.take=function(e){var b=this;return new c(function(){var c,g=0;return new f(function(){c=b.getEnumerator()},function(){return g++<e&&c.moveNext()?this.yieldReturn(c.current()):a},function(){d.dispose(c)})})};c.prototype.takeWhile=function(b){b=d.createLambda(b);var e=this;return new c(function(){var c,g=0;return new f(function(){c=e.getEnumerator()},function(){return c.moveNext()&&b(c.current(),g++)?this.yieldReturn(c.current()):a},function(){d.dispose(c)})})};c.prototype.takeExceptLast=function(e){if(e==b)e=1;var g=this;return new c(function(){if(e<=0)return g.getEnumerator();var b,c=[];return new f(function(){b=g.getEnumerator()},function(){while(b.moveNext()){if(c.length==e){c.push(b.current());return this.yieldReturn(c.shift())}c.push(b.current())}return a},function(){d.dispose(b)})})};c.prototype.takeFromLast=function(e){if(e<=0||e==b)return c.empty();var g=this;return new c(function(){var j,h,i=[];return new f(function(){j=g.getEnumerator()},function(){while(j.moveNext()){i.length==e&&i.shift();i.push(j.current())}if(h==b)h=c.from(i).getEnumerator();return h.moveNext()?this.yieldReturn(h.current()):a},function(){d.dispose(h)})})};c.prototype.indexOf=function(d){var c=b;if(typeof d===i.Function)this.forEach(function(e,b){if(d(e,b)){c=b;return a}});else this.forEach(function(e,b){if(e===d){c=b;return a}});return c!==b?c:-1};c.prototype.lastIndexOf=function(b){var a=-1;if(typeof b===i.Function)this.forEach(function(d,c){if(b(d,c))a=c});else this.forEach(function(d,c){if(d===b)a=c});return a};c.prototype.asEnumerable=function(){return c.from(this)};c.prototype.toArray=function(){var a=[];this.forEach(function(b){a.push(b)});return a};c.prototype.toLookup=function(c,b,a){c=d.createLambda(c);b=d.createLambda(b);a=d.createLambda(a);var e=new r(a);this.forEach(function(g){var f=c(g),a=b(g),d=e.get(f);if(d!==j)d.push(a);else e.add(f,[a])});return new v(e)};c.prototype.toObject=function(b,a){b=d.createLambda(b);a=d.createLambda(a);var c={};this.forEach(function(d){c[b(d)]=a(d)});return c};c.prototype.toDictionary=function(c,b,a){c=d.createLambda(c);b=d.createLambda(b);a=d.createLambda(a);var e=new r(a);this.forEach(function(a){e.add(c(a),b(a))});return e};c.prototype.toJSONString=function(a,c){if(typeof JSON===i.Undefined||JSON.stringify==b)throw new Error("toJSONString can't find JSON.stringify. This works native JSON support Browser or include json2.js");return JSON.stringify(this.toArray(),a,c)};c.prototype.toJoinedString=function(a,c){if(a==b)a="";if(c==b)c=g.Identity;return this.select(c).toArray().join(a)};c.prototype.doAction=function(b){var e=this;b=d.createLambda(b);return new c(function(){var c,g=0;return new f(function(){c=e.getEnumerator()},function(){if(c.moveNext()){b(c.current(),g++);return this.yieldReturn(c.current())}return a},function(){d.dispose(c)})})};c.prototype.forEach=function(c){c=d.createLambda(c);var e=0,b=this.getEnumerator();try{while(b.moveNext())if(c(b.current(),e++)===a)break}finally{d.dispose(b)}};c.prototype.write=function(c,f){if(c==b)c="";f=d.createLambda(f);var g=e;this.forEach(function(b){if(g)g=a;else document.write(c);document.write(f(b))})};c.prototype.writeLine=function(a){a=d.createLambda(a);this.forEach(function(b){document.writeln(a(b)+"<br />")})};c.prototype.force=function(){var a=this.getEnumerator();try{while(a.moveNext());}finally{d.dispose(a)}};c.prototype.letBind=function(b){b=d.createLambda(b);var e=this;return new c(function(){var g;return new f(function(){g=c.from(b(e)).getEnumerator()},function(){return g.moveNext()?this.yieldReturn(g.current()):a},function(){d.dispose(g)})})};c.prototype.share=function(){var i=this,c,h=a;return new s(function(){return new f(function(){if(c==b)c=i.getEnumerator()},function(){if(h)throw new Error(l);return c.moveNext()?this.yieldReturn(c.current()):a},g.Blank)},function(){h=e;d.dispose(c)})};c.prototype.memoize=function(){var j=this,h,c,i=a;return new s(function(){var d=-1;return new f(function(){if(c==b){c=j.getEnumerator();h=[]}},function(){if(i)throw new Error(l);d++;return h.length<=d?c.moveNext()?this.yieldReturn(h[d]=c.current()):a:this.yieldReturn(h[d])},g.Blank)},function(){i=e;d.dispose(c);h=b})};c.prototype.catchError=function(b){b=d.createLambda(b);var e=this;return new c(function(){var c;return new f(function(){c=e.getEnumerator()},function(){try{return c.moveNext()?this.yieldReturn(c.current()):a}catch(d){b(d);return a}},function(){d.dispose(c)})})};c.prototype.finallyAction=function(b){b=d.createLambda(b);var e=this;return new c(function(){var c;return new f(function(){c=e.getEnumerator()},function(){return c.moveNext()?this.yieldReturn(c.current()):a},function(){try{d.dispose(c)}finally{b()}})})};c.prototype.log=function(a){a=d.createLambda(a);return this.doAction(function(b){typeof console!==i.Undefined&&console.log(a(b))})};c.prototype.trace=function(c,a){if(c==b)c="Trace";a=d.createLambda(a);return this.doAction(function(b){typeof console!==i.Undefined&&console.log(c,a(b))})};var k=function(f,b,c,e){var a=this;a.source=f;a.keySelector=d.createLambda(b);a.descending=c;a.parent=e};k.prototype=new c;k.prototype.createOrderedEnumerable=function(a,b){return new k(this.source,a,b,this)};k.prototype.thenBy=function(b){return this.createOrderedEnumerable(b,a)};k.prototype.thenByDescending=function(a){return this.createOrderedEnumerable(a,e)};k.prototype.getEnumerator=function(){var h=this,d,c,e=0;return new f(function(){d=[];c=[];h.source.forEach(function(b,a){d.push(b);c.push(a)});var a=p.create(h,b);a.GenerateKeys(d);c.sort(function(b,c){return a.compare(b,c)})},function(){return e<c.length?this.yieldReturn(d[c[e++]]):a},g.Blank)};var p=function(c,d,e){var a=this;a.keySelector=c;a.descending=d;a.child=e;a.keys=b};p.create=function(a,d){var c=new p(a.keySelector,a.descending,d);return a.parent!=b?p.create(a.parent,c):c};p.prototype.GenerateKeys=function(d){var a=this;for(var f=d.length,g=a.keySelector,e=new Array(f),c=0;c<f;c++)e[c]=g(d[c]);a.keys=e;a.child!=b&&a.child.GenerateKeys(d)};p.prototype.compare=function(e,f){var a=this,c=d.compare(a.keys[e],a.keys[f]);return c==0?a.child!=b?a.child.compare(e,f):d.compare(e,f):a.descending?-c:c};var s=function(a,b){this.dispose=b;c.call(this,a)};s.prototype=new c;var h=function(a){this.getSource=function(){return a}};h.prototype=new c;h.prototype.any=function(a){return a==b?this.getSource().length>0:c.prototype.any.apply(this,arguments)};h.prototype.count=function(a){return a==b?this.getSource().length:c.prototype.count.apply(this,arguments)};h.prototype.elementAt=function(a){var b=this.getSource();return 0<=a&&a<b.length?b[a]:c.prototype.elementAt.apply(this,arguments)};h.prototype.elementAtOrDefault=function(c,a){if(a===j)a=b;var d=this.getSource();return 0<=c&&c<d.length?d[c]:a};h.prototype.first=function(d){var a=this.getSource();return d==b&&a.length>0?a[0]:c.prototype.first.apply(this,arguments)};h.prototype.firstOrDefault=function(e,a){if(a===j)a=b;if(e!=b)return c.prototype.firstOrDefault.apply(this,arguments);var d=this.getSource();return d.length>0?d[0]:a};h.prototype.last=function(d){var a=this.getSource();return d==b&&a.length>0?a[a.length-1]:c.prototype.last.apply(this,arguments)};h.prototype.lastOrDefault=function(e,a){if(a===j)a=b;if(e!=b)return c.prototype.lastOrDefault.apply(this,arguments);var d=this.getSource();return d.length>0?d[d.length-1]:a};h.prototype.skip=function(d){var b=this.getSource();return new c(function(){var c;return new f(function(){c=d<0?0:d},function(){return c<b.length?this.yieldReturn(b[c++]):a},g.Blank)})};h.prototype.takeExceptLast=function(a){if(a==b)a=1;return this.take(this.getSource().length-a)};h.prototype.takeFromLast=function(a){return this.skip(this.getSource().length-a)};h.prototype.reverse=function(){var b=this.getSource();return new c(function(){var c;return new f(function(){c=b.length},function(){return c>0?this.yieldReturn(b[--c]):a},g.Blank)})};h.prototype.sequenceEqual=function(d,e){return(d instanceof h||d instanceof Array)&&e==b&&c.from(d).count()!=this.count()?a:c.prototype.sequenceEqual.apply(this,arguments)};h.prototype.toJoinedString=function(a,e){var d=this.getSource();if(e!=b||!(d instanceof Array))return c.prototype.toJoinedString.apply(this,arguments);if(a==b)a="";return d.join(a)};h.prototype.getEnumerator=function(){var a=this.getSource(),b=-1;return{current:function(){return a[b]},moveNext:function(){return++b<a.length},dispose:g.Blank}};var n=function(b,a){this.prevSource=b;this.prevPredicate=a};n.prototype=new c;n.prototype.where=function(a){a=d.createLambda(a);if(a.length<=1){var e=this.prevPredicate,b=function(b){return e(b)&&a(b)};return new n(this.prevSource,b)}else return c.prototype.where.call(this,a)};n.prototype.select=function(a){a=d.createLambda(a);return a.length<=1?new m(this.prevSource,this.prevPredicate,a):c.prototype.select.call(this,a)};n.prototype.getEnumerator=function(){var c=this.prevPredicate,e=this.prevSource,b;return new f(function(){b=e.getEnumerator()},function(){while(b.moveNext())if(c(b.current()))return this.yieldReturn(b.current());return a},function(){d.dispose(b)})};var m=function(c,a,b){this.prevSource=c;this.prevPredicate=a;this.prevSelector=b};m.prototype=new c;m.prototype.where=function(a){a=d.createLambda(a);return a.length<=1?new n(this,a):c.prototype.where.call(this,a)};m.prototype.select=function(a){var b=this;a=d.createLambda(a);if(a.length<=1){var f=b.prevSelector,e=function(b){return a(f(b))};return new m(b.prevSource,b.prevPredicate,e)}else return c.prototype.select.call(b,a)};m.prototype.getEnumerator=function(){var e=this.prevPredicate,g=this.prevSelector,h=this.prevSource,c;return new f(function(){c=h.getEnumerator()},function(){while(c.moveNext())if(e==b||e(c.current()))return this.yieldReturn(g(c.current()));return a},function(){d.dispose(c)})};var r=function(){var d=function(a,b){return Object.prototype.hasOwnProperty.call(a,b)},h=function(a){return a===b?"null":a===j?"undefined":typeof a.toString===i.Function?a.toString():Object.prototype.toString.call(a)},m=function(d,c){var a=this;a.key=d;a.value=c;a.prev=b;a.next=b},k=function(){this.first=b;this.last=b};k.prototype={addLast:function(c){var a=this;if(a.last!=b){a.last.next=c;c.prev=a.last;a.last=c}else a.first=a.last=c},replace:function(c,a){if(c.prev!=b){c.prev.next=a;a.prev=c.prev}else this.first=a;if(c.next!=b){c.next.prev=a;a.next=c.next}else this.last=a},remove:function(a){if(a.prev!=b)a.prev.next=a.next;else this.first=a.next;if(a.next!=b)a.next.prev=a.prev;else this.last=a.prev}};var l=function(c){var a=this;a.countField=0;a.entryList=new k;a.buckets={};a.compareSelector=c==b?g.Identity:c};l.prototype={add:function(i,j){var a=this,g=a.compareSelector(i),f=h(g),c=new m(i,j);if(d(a.buckets,f)){for(var b=a.buckets[f],e=0;e<b.length;e++)if(a.compareSelector(b[e].key)===g){a.entryList.replace(b[e],c);b[e]=c;return}b.push(c)}else a.buckets[f]=[c];a.countField++;a.entryList.addLast(c)},"get":function(i){var a=this,c=a.compareSelector(i),g=h(c);if(!d(a.buckets,g))return j;for(var e=a.buckets[g],b=0;b<e.length;b++){var f=e[b];if(a.compareSelector(f.key)===c)return f.value}return j},"set":function(k,l){var b=this,g=b.compareSelector(k),j=h(g);if(d(b.buckets,j))for(var f=b.buckets[j],c=0;c<f.length;c++)if(b.compareSelector(f[c].key)===g){var i=new m(k,l);b.entryList.replace(f[c],i);f[c]=i;return e}return a},contains:function(j){var b=this,f=b.compareSelector(j),i=h(f);if(!d(b.buckets,i))return a;for(var g=b.buckets[i],c=0;c<g.length;c++)if(b.compareSelector(g[c].key)===f)return e;return a},clear:function(){this.countField=0;this.buckets={};this.entryList=new k},remove:function(g){var a=this,f=a.compareSelector(g),e=h(f);if(!d(a.buckets,e))return;for(var b=a.buckets[e],c=0;c<b.length;c++)if(a.compareSelector(b[c].key)===f){a.entryList.remove(b[c]);b.splice(c,1);if(b.length==0)delete a.buckets[e];a.countField--;return}},count:function(){return this.countField},toEnumerable:function(){var d=this;return new c(function(){var c;return new f(function(){c=d.entryList.first},function(){if(c!=b){var d={key:c.key,value:c.value};c=c.next;return this.yieldReturn(d)}return a},g.Blank)})}};return l}(),v=function(a){var b=this;b.count=function(){return a.count()};b.get=function(b){return c.from(a.get(b))};b.contains=function(b){return a.contains(b)};b.toEnumerable=function(){return a.toEnumerable().select(function(a){return new t(a.key,a.value)})}},t=function(b,a){this.key=function(){return b};h.call(this,a)};t.prototype=new h;if(typeof define===i.Function&&define.amd)define("linqjs",[],function(){return c});else if(typeof module!==i.Undefined&&module.exports)module.exports=c;else w.Enumerable=c})(this);
-
-/*global define*/
-define('scalejs.linq-linqjs',[
-    'scalejs!core',
-    'linqjs'
-], function (
-    core,
-    Enumerable
-) {
-    
-
-    core.registerExtension({
-        linq: {
-            enumerable: Enumerable
-        }
-    });
-});
-
-
-/// Knockout Mapping plugin v2.3.4
-/// (c) 2012 Steven Sanderson, Roy Jacobs - http://knockoutjs.com/
+/// Knockout Mapping plugin v2.4.0
+/// (c) 2013 Steven Sanderson, Roy Jacobs - http://knockoutjs.com/
 /// License: MIT (http://www.opensource.org/licenses/mit-license.php)
 (function (factory) {
 	// Module systems magic dance.
@@ -9603,57 +10430,54 @@ define('scalejs.linq-linqjs',[
 	exports.fromJS = function (jsObject /*, inputOptions, target*/ ) {
 		if (arguments.length == 0) throw new Error("When calling ko.fromJS, pass the object you want to convert.");
 
-		// When mapping is completed, even with an exception, reset the nesting level
-		window.setTimeout(function () {
-			mappingNesting = 0;
-		}, 0);
-
-		if (!mappingNesting++) {
-			dependentObservables = [];
-			visitedObjects = new objectLookup();
-		}
-
-		var options;
-		var target;
-
-		if (arguments.length == 2) {
-			if (arguments[1][mappingProperty]) {
-				target = arguments[1];
-			} else {
-				options = arguments[1];
+		try {
+			if (!mappingNesting++) {
+				dependentObservables = [];
+				visitedObjects = new objectLookup();
 			}
-		}
-		if (arguments.length == 3) {
-			options = arguments[1];
-			target = arguments[2];
-		}
 
-		if (target) {
-			options = merge(options, target[mappingProperty]);
-		}
-		options = fillOptions(options);
+			var options;
+			var target;
 
-		var result = updateViewModel(target, jsObject, options);
-		if (target) {
-			result = target;
-		}
+			if (arguments.length == 2) {
+				if (arguments[1][mappingProperty]) {
+					target = arguments[1];
+				} else {
+					options = arguments[1];
+				}
+			}
+			if (arguments.length == 3) {
+				options = arguments[1];
+				target = arguments[2];
+			}
 
-		// Evaluate any dependent observables that were proxied.
-		// Do this in a timeout to defer execution. Basically, any user code that explicitly looks up the DO will perform the first evaluation. Otherwise,
-		// it will be done by this code.
-		if (!--mappingNesting) {
-			window.setTimeout(function () {
+			if (target) {
+				options = merge(options, target[mappingProperty]);
+			}
+			options = fillOptions(options);
+
+			var result = updateViewModel(target, jsObject, options);
+			if (target) {
+				result = target;
+			}
+
+			// Evaluate any dependent observables that were proxied.
+			// Do this after the model's observables have been created
+			if (!--mappingNesting) {
 				while (dependentObservables.length) {
 					var DO = dependentObservables.pop();
 					if (DO) DO();
 				}
-			}, 0);
+			}
+
+			// Save any new mapping options in the view model, so that updateFromJS can use them later.
+			result[mappingProperty] = merge(result[mappingProperty], options);
+
+			return result;
+		} catch(e) {
+			mappingNesting = 0;
+			throw e;
 		}
-
-		// Save any new mapping options in the view model, so that updateFromJS can use them later.
-		result[mappingProperty] = merge(result[mappingProperty], options);
-
-		return result;
 	};
 
 	exports.fromJSON = function (jsonString /*, options, target*/ ) {
@@ -9710,8 +10534,8 @@ define('scalejs.linq-linqjs',[
 
 	exports.getType = function(x) {
 		if ((x) && (typeof (x) === "object")) {
-			if (x.constructor == (new Date).constructor) return "date";
-			if (Object.prototype.toString.call(x) === "[object Array]") return "array";
+			if (x.constructor === Date) return "date";
+			if (x.constructor === Array) return "array";
 		}
 		return typeof x;
 	}
@@ -9990,6 +10814,7 @@ define('scalejs.linq-linqjs',[
 					if (ko.isWriteableObservable(mappedRootObject[indexer])) {
 						mappedRootObject[indexer](ko.utils.unwrapObservable(value));
 					} else {
+						value = mappedRootObject[indexer] === undefined ? value : ko.utils.unwrapObservable(value);
 						mappedRootObject[indexer] = value;
 					}
 
@@ -10319,27 +11144,83 @@ define('scalejs.linq-linqjs',[
 }));
 
 
-//knockout-classBindingProvider v0.4.0 | (c) 2012 Ryan Niemeyer | http://www.opensource.org/licenses/mit-license
-// modified by Peter Lisovin:
-// - requirejs-ified
-// - added a `log` option
-// - added a log warning if binding handler isn't found)
-/*global define*/
-define('scalejs.mvvm/classBindingProvider',['knockout'], function (ko) {
-    
+// knockout-classBindingProvider 0.5.0 | (c) 2013 Ryan Niemeyer |  http://www.opensource.org/licenses/mit-license
+;(function (factory) {
+    //AMD
+    if (typeof define === "function" && define.amd) {
+        define('scalejs.mvvm/classBindingProvider',["knockout", "exports"], factory);
+        //normal script tag
+    } else {
+        factory(ko);
+    }
+}(function (ko, exports, undefined) {
+    var objectMap = function (source, mapping) {
+        var target, prop;
+
+        if (!source) {
+            return source;
+        }
+
+        target = {};
+        for (prop in source) {
+            if (source.hasOwnProperty(prop)) {
+                target[prop] = mapping(source[prop], prop, source);
+            }
+        }
+        return target;
+    };
+
+    var makeValueAccessor = function (value) {
+        return function () {
+            return value;
+        };
+    };
+
+    // Make Knockout think that we're using observable view models by adding a "_subscribable" function to all binding contexts.
+    // This makes Knockout watch any observables accessed in the getBindingAccessors function.
+    // Hopefully this hack will be unnecessary in later versions.
+    if (ko.version >= "3.0.0") {
+        (function () {
+            // Create and retrieve a binding context object
+            var dummyDiv = document.createElement('div');
+            ko.applyBindings(null, dummyDiv);
+            var context = ko.contextFor(dummyDiv);
+
+            // Add a dummy _subscribable, with a dummy _addNode, to the binding context prototype
+            var isMinified = !ko.storedBindingContextForNode,
+                subscribableName = isMinified ? 'A' : '_subscribable',
+                addNodeName = isMinified ? 'wb' : '_addNode',
+                dummySubscribable = function () { };
+            dummySubscribable[addNodeName] = dummySubscribable;
+            context.constructor.prototype[subscribableName] = dummySubscribable;
+
+            ko.cleanNode(dummyDiv);
+        })();
+    }
+
     //a bindingProvider that uses something different than data-bind attributes
     //  bindings - an object that contains the binding classes
     //  options - is an object that can include "attribute", "virtualAttribute", bindingRouter, and "fallback" options
-    return function classBindingProvider(options) {
-        var existingProvider = new ko.bindingProvider(),
-            bindings = {},
-            bindingRouter,
-            attribute,
-            virtualAttribute;
+    var classBindingsProvider = function (bindings, options) {
+        var existingProvider = new ko.bindingProvider();
+
+        options = options || {};
+
+        //override the attribute
+        this.attribute = options.attribute || "data-class";
+
+        //override the virtual attribute
+        this.virtualAttribute = "ko " + (options.virtualAttribute || "class") + ":";
+
+        //fallback to the existing binding provider, if bindings are not found
+        this.fallback = options.fallback;
+
+        //this object holds the binding classes
+        this.bindings = bindings || {};
 
         //returns a binding class, given the class name and the bindings object
-        function defaultBindingRouter(className) {
-            var classPath, bindingObject;
+        this.bindingRouter = options.bindingRouter || function (className, bindings) {
+            var i, j, classPath, bindingObject;
 
             //if the class name matches a property directly, then return it
             if (bindings[className]) {
@@ -10348,117 +11229,124 @@ define('scalejs.mvvm/classBindingProvider',['knockout'], function (ko) {
 
             //search for sub-properites that might contain the bindings
             classPath = className.split(".");
-            bindingObject = classPath.reduce(function (bindingObject, cp) { return bindingObject[cp]; }, bindings);
+            bindingObject = bindings;
+
+            for (i = 0, j = classPath.length; i < j; i++) {
+                bindingObject = bindingObject[classPath[i]];
+            }
 
             return bindingObject;
-        }
+        };
 
-        function registerBindings(newBindings) {
-            //allow bindings to be registered after instantiation
-	        ko.utils.extend(bindings, newBindings);
-        }
+        //allow bindings to be registered after instantiation
+        this.registerBindings = function (newBindings) {
+            ko.utils.extend(this.bindings, newBindings);
+        };
 
-        function nodeHasBindings(node) {
-            //determine if an element has any bindings
+        //determine if an element has any bindings
+        this.nodeHasBindings = function (node) {
             var result, value;
 
             if (node.nodeType === 1) {
-                result = node.getAttribute(attribute);
-            } else if (node.nodeType === 8) {
-                value = (node.nodeValue || node.text || '').toString();
-                result = value.indexOf(virtualAttribute) > -1;
+                result = node.getAttribute(this.attribute);
+            }
+            else if (node.nodeType === 8) {
+                value = "" + node.nodeValue || node.text;
+                result = value.indexOf(this.virtualAttribute) > -1;
             }
 
-            if (!result && options.fallback) {
+            if (!result && this.fallback) {
                 result = existingProvider.nodeHasBindings(node);
             }
 
-
             return result;
-        }
+        };
 
-        function getBindings(node, bindingContext) {
-            //return the bindings given a node and the bindingContext
-            var bindingAccessor,
-                binding,
-                bindingName,
-                result = {},
-                value,
-                index,
-                classes = "";
+        //return the bindings given a node and the bindingContext
+        this.getBindingsFunction = function (getAccessors) {
+            return function (node, bindingContext) {
+                var i, j, bindingAccessor, binding,
+                    result = {},
+                    value, index,
+                    classes = "";
 
-            if (node.nodeType === 1) {
-                classes = node.getAttribute(attribute);
-            } else if (node.nodeType === 8) {
-                value = (node.nodeValue || node.text || '').toString();
-                index = value.indexOf(virtualAttribute);
-
-                if (index > -1) {
-                    classes = value.substring(index + virtualAttribute.length);
+                if (node.nodeType === 1) {
+                    classes = node.getAttribute(this.attribute);
                 }
-            }
+                else if (node.nodeType === 8) {
+                    value = "" + node.nodeValue || node.text;
+                    index = value.indexOf(this.virtualAttribute);
 
-            if (classes) {
-                classes = classes
-                    .replace(/^(\s|\u00A0)+|(\s|\u00A0)+$/g, "")
-                    .replace(/(\s|\u00A0){2,}/g, " ")
-                    .split(' ');
-                //evaluate each class, build a single object to return
-                classes.forEach(function (cp) {
-                    bindingAccessor = bindingRouter(cp);
-                    if (bindingAccessor) {
-                        binding = typeof bindingAccessor === "function"
-                            ? bindingAccessor.call(bindingContext.$data, bindingContext, classes)
-                            : bindingAccessor;
-                        ko.utils.extend(result, binding);
+                    if (index > -1) {
+                        classes = value.substring(index + this.virtualAttribute.length);
                     }
-                });
-            } else if (options.fallback) {
-                result = existingProvider.getBindings(node, bindingContext);
-            }
+                }
 
-            //inspect the returned bindings
-            for (bindingName in result) {
-                if (result.hasOwnProperty(bindingName) &&
-                        bindingName !== "_ko_property_writers" &&
-                            bindingName !== 'valueUpdate' &&
-                                !ko.bindingHandlers[bindingName]) {
-                    if (options.log) {
-                        if (binding) {
-                            options.log('Unknown binding handler "' + bindingName + '" found in',
-                                        node,
-                                        'defined in data-class "' + classes + '" as',
-                                        binding,
-                                        'Make sure that binding handler\'s name spelled correctly ' +
-                                        'and that it\'s properly registered. ' +
-                                        'The binding will be ignored.');
+                if (classes) {
+                    classes = classes.replace(/^(\s|\u00A0)+|(\s|\u00A0)+$/g, "").replace(/(\s|\u00A0){2,}/g, " ").split(' ');
+                    //evaluate each class, build a single object to return
+                    for (i = 0, j = classes.length; i < j; i++) {
+                        bindingAccessor = this.bindingRouter(classes[i], this.bindings);
+                        if (bindingAccessor) {
+                            binding = typeof bindingAccessor == "function" ? bindingAccessor.call(bindingContext.$data, bindingContext, classes) : bindingAccessor;
+                            if (getAccessors)
+                                binding = objectMap(binding, makeValueAccessor);
+                            ko.utils.extend(result, binding);
                         } else {
-                            options.log('Unknown binding handler "' + bindingName + '" in',
-                                        node,
-                                        'Make sure that it\'s name spelled correctly and that it\'s ' +
-                                        'properly registered. ' +
-                                        'The binding will be ignored.');
+                            if (options.log) {
+                                options.log('No binding function provided for data class "' +
+                                            classes[i] + '" in element ',
+                                            node,
+                                            '\nMake sure data class is spelled correctly ' +
+                                            'and that it\'s binding function is registered.');
+                            }
                         }
                     }
                 }
-            }
+                else if (this.fallback) {
+                    result = existingProvider[getAccessors ? 'getBindingAccessors' : 'getBindings'](node, bindingContext);
+                }
 
-            return result;
-        }
+                if (options.log) {
+                    for (bindingName in result) {
+                        if (result.hasOwnProperty(bindingName) &&
+                                bindingName !== "_ko_property_writers" &&
+                                    bindingName !== 'valueUpdate' &&
+                                        bindingName !== 'optionsText' &&
+                                            !ko.bindingHandlers[bindingName]) {
+                            if (binding) {
+                                options.log('Unknown binding handler "' + bindingName + '" found in element',
+                                            node,
+                                            ' defined in data-class "' + classes + '" as',
+                                            binding,
+                                            '\nMake sure that binding handler\'s name is spelled correctly ' +
+                                            'and that it\'s properly registered. ' +
+                                            '\nThe binding will be ignored.');
+                            } else {
+                                options.log('Unknown binding handler "' + bindingName + '" in',
+                                            node,
+                                            '\nMake sure that it\'s name spelled correctly and that it\'s ' +
+                                            'properly registered. ' +
+                                            '\nThe binding will be ignored.');
+                            }
+                        }
+                    }
+                }
 
-        options = options || {};
-        attribute = options.attribute || "data-class";
-        virtualAttribute = "ko " + (options.virtualAttribute || "class") + ":";
-        bindingRouter = options.bindingRouter || defaultBindingRouter;
-
-        return {
-            registerBindings: registerBindings,
-            getBindings: getBindings,
-            nodeHasBindings: nodeHasBindings,
-            bindingRouter: bindingRouter
+                return result;
+            };
         };
+
+        this.getBindings = this.getBindingsFunction(false);
+        this.getBindingAccessors = this.getBindingsFunction(true);
     };
-});
+
+    if (!exports) {
+        ko.classBindingProvider = classBindingsProvider;
+    }
+
+    return classBindingsProvider;
+}));
 /*global define,document*/
 define('scalejs.mvvm/htmlTemplateSource',[
     'knockout',
@@ -10469,64 +11357,64 @@ define('scalejs.mvvm/htmlTemplateSource',[
 ) {
     
 
-	var toArray = core.array.toArray,
+    var toArray = core.array.toArray,
         has = core.object.has,
         templateEngine = new ko.nativeTemplateEngine(),
-		templates = {
+        templates = {
             data: {}
         };
 
-	function registerTemplates(templatesHtml) {
-		// iterate through all templates (e.g. children of root in templatesHtml)
-		// for every child get its templateId and templateHtml 
-		// and add it to 'templates'			
-		var div = document.createElement('div');
-		div.innerHTML = templatesHtml;
-		toArray(div.childNodes).forEach(function (childNode) {
-			if (childNode.nodeType === 1 && has(childNode, 'id')) {
-				templates[childNode.id] = childNode.innerHTML;
-			}
-		});
-	}
+    function registerTemplates(templatesHtml) {
+        // iterate through all templates (e.g. children of root in templatesHtml)
+        // for every child get its templateId and templateHtml 
+        // and add it to 'templates'            
+        var div = document.createElement('div');
+        div.innerHTML = templatesHtml;
+        toArray(div.childNodes).forEach(function (childNode) {
+            if (childNode.nodeType === 1 && has(childNode, 'id')) {
+                templates[childNode.id] = childNode.innerHTML;
+            }
+        });
+    }
 
-	function makeTemplateSource(templateId) {
-		function data(key, value) {
+    function makeTemplateSource(templateId) {
+        function data(key, value) {
             if (!has(templates.data, templateId)) {
                 templates.data[templateId] = {};
             }
 
             // if called with only key then return the associated value
-			if (arguments.length === 1) {
-				return templates.data[templateId][key];
-			}
+            if (arguments.length === 1) {
+                return templates.data[templateId][key];
+            }
 
-			// if called with key and value then store the value
-			templates.data[templateId][key] = value;
-		}
+            // if called with key and value then store the value
+            templates.data[templateId][key] = value;
+        }
 
-		function text(value) {
-			// if no value return the template content since that's what KO wants
-			if (arguments.length === 0) {
-				return templates[templateId];
-			}
+        function text(value) {
+            // if no value return the template content since that's what KO wants
+            if (arguments.length === 0) {
+                return templates[templateId];
+            }
 
             throw new Error('An attempt to override template "' + templateId + '" with content "' + value + '" ' +
                             'Template overriding is not supported.');
-		}
+        }
 
-		return {
-			data: data,
-			text: text
-		};
-	}
+        return {
+            data: data,
+            text: text
+        };
+    }
 
     templateEngine.makeTemplateSource = makeTemplateSource;
 
     ko.setTemplateEngine(templateEngine);
 
     return {
-		registerTemplates: registerTemplates
-	};
+        registerTemplates: registerTemplates
+    };
 });
 
 /*global define,document,setTimeout*/
@@ -10663,27 +11551,25 @@ define('scalejs.mvvm/mvvm',[
     'knockout',
     'knockout.mapping',
     'scalejs!core',
-    './classBindingProvider',
+    'scalejs.mvvm/classBindingProvider',
     './htmlTemplateSource',
     './selectableArray',
-    './ko.utils',
-    'module'
+    './ko.utils'
 ], function (
     ko,
     mapping,
     core,
-    createClassBindingProvider,
+    ClassBindingProvider,
     htmlTemplateSource,
     selectableArray,
-    koUtils,
-    module
+    koUtils
 ) {
     
 
     var merge = core.object.merge,
         toArray = core.array.toArray,
-        classBindingProvider = createClassBindingProvider({
-            log: module.config().logWarnings ? core.log.warn : undefined,
+        classBindingProvider = new ClassBindingProvider({}, {
+            log: core.log.warn,
             fallback: true
         }),
         root = ko.observable();
@@ -10711,8 +11597,8 @@ define('scalejs.mvvm/mvvm',[
         return JSON.parse(toJson(viewModel));
     }
 
-    function registerBindings(newBindings) {
-        classBindingProvider.registerBindings(newBindings);
+    function registerBindings() {
+        toArray(arguments).forEach(classBindingProvider.registerBindings.bind(classBindingProvider));
     }
 
     function toViewModel(data, viewModel, mappings) {
@@ -10842,8 +11728,8 @@ define('scalejs.bindings/change',[
         function subscribeChangeHandler(property, changeHandler) {
             ko.computed({
                 read: function () {
-                    var value = unwrap(viewModel[property]);
-                    changeHandler(value);
+                    var val = unwrap(viewModel[property]);
+                    changeHandler(val);
                 },
                 disposeWhenNodeIsRemoved: element
             });
@@ -10874,7 +11760,7 @@ define('scalejs.bindings/change',[
     };
 });
 
-/*global define,setTimeout*/
+/*global define,setTimeout,window*/
 /// <reference path="../Scripts/_references.js" />
 define('scalejs.bindings/render',[
     'scalejs!core',
@@ -10891,94 +11777,77 @@ define('scalejs.bindings/render',[
         has = core.object.has,
         unwrap = ko.utils.unwrapObservable,
         complete = core.functional.builders.complete,
-        $DO = core.functional.builder.$DO,
-        oldElement,
-        oldBinding,
-        context;
-
+        $DO = core.functional.builder.$DO;
 
     function init() {
-        return { 'controlsDescendantBindings' : true };
+        return { 'controlsDescendantBindings': true };
     }
 
     /*jslint unparam: true*/
     function update(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
         var value = unwrap(valueAccessor()),
-            inTransition,
-            outTransition,
             bindingAccessor,
             binding,
-            result;
+            oldBinding,
+            inTransitions = [],
+            outTransitions = [],
+            context,
+            render;
 
-        if (!value) {
-            return;
-        }
-
-        if (is(value.dataClass, 'string')) {
-            // if dataClass is specified then get the binding from the bindingRouter
-            bindingAccessor = ko.bindingProvider.instance.bindingRouter(value.dataClass);
-            if (!bindingAccessor) {
-                throw new Error('Don\'t know how to render binding "' + value.dataClass +
-                                '" - no such binding registered. ' +
-                                'Either register the bindng or correct its name.');
+        function applyBindings(completed) {
+            if (binding) {
+                ko.applyBindingsToNode(element, binding, viewModel);
+            } else {
+                ko.utils.emptyDomNode(element);
             }
 
-            if (bindingAccessor) {
-                binding = is(bindingAccessor, 'function')
-                        ? bindingAccessor.call(value.viewmodel || viewModel, bindingContext)
-                        : bindingAccessor;
-            }
-
-        } else {
-            // otherwise whole object is the binding
-            binding = is(value, 'function') ? value.call(viewModel, bindingContext) : value;
+            window.requestAnimationFrame(completed);
+            //setTimeout(completed, 10);
         }
 
-        if (has(oldBinding) && has(oldBinding.transitions, 'outTransitions')) {
-            outTransition = complete.apply(null,
-                oldBinding.transitions.outTransitions.map(function (t) { return $DO(t); }));
-            context = {
-                getElement: function () {
-                    return oldElement;
+        oldBinding = ko.utils.domData.get(element, 'binding');
+
+        if (value) {
+            if (is(value.dataClass, 'string')) {
+                // if dataClass is specified then get the binding from the bindingRouter
+                bindingAccessor = ko.bindingProvider.instance.bindingRouter(value.dataClass);
+                if (!bindingAccessor) {
+                    throw new Error('Don\'t know how to render binding "' + value.dataClass +
+                                    '" - no such binding registered. ' +
+                                    'Either register the bindng or correct its name.');
                 }
-            };
 
-            outTransition.call(context, function () {
-                result = ko.applyBindingsToNode(element, binding, viewModel);
-            });
-        } else {
-            result = ko.applyBindingsToNode(element, binding, viewModel);
-        }
+                if (bindingAccessor) {
+                    binding = is(bindingAccessor, 'function')
+                            ? bindingAccessor.call(value.viewmodel || viewModel, bindingContext)
+                            : bindingAccessor;
+                }
 
-        if (has(binding, 'transitions')) {
-            if (has(binding.transitions, 'inTransitions')) {
-                inTransition = complete.apply(null, binding.transitions.inTransitions.map(function (t) { return $DO(t); }));
-                context = {
-                    getElement: function () {
-                        return element;
-                    }
-                };
-
-                setTimeout(function () {
-                    inTransition.call(context);
-                }, 0);
+            } else {
+                // otherwise whole object is the binding
+                binding = is(value, 'function') ? value.call(viewModel, bindingContext) : value;
             }
-            oldBinding = binding;
-            oldElement = element;
-        } else {
-            oldBinding = undefined;
-            oldElement = undefined;
         }
 
-        if (is(binding, 'afterRender', 'function')) {
-            binding.afterRender(element);
+        if (has(oldBinding, 'transitions', 'outTransitions')) {
+            outTransitions = oldBinding.transitions.outTransitions.map(function (t) { return $DO(t); });
         }
 
-        if (is(value, 'afterRender', 'function')) {
-            value.afterRender(element);
+        if (has(binding, 'transitions', 'inTransitions')) {
+            inTransitions = binding.transitions.inTransitions.map(function (t) { return $DO(t); });
         }
 
-        return result;
+        render = complete.apply(null, outTransitions.concat($DO(applyBindings)).concat(inTransitions));
+
+        context = {
+            getElement: function () {
+                return element;
+            }
+        };
+
+        render.call(context);
+
+        ko.utils.domData.set(element, 'binding', binding);
     }
     /*jslint unparam: false*/
 
@@ -11009,7 +11878,6 @@ define('scalejs.mvvm',[
 
     ko.virtualElements.allowedBindings.change = true;
     ko.virtualElements.allowedBindings.render = true;
-    ko.virtualElements.allowedBindings.transitionable = true;
 
     mvvm.init();
 
@@ -11044,7 +11912,7 @@ define('scalejs.mvvm',[
     } else {
         // Browser globals (root is window)
         root.SCION = factory();
-  }
+    }
 }(this, function () {
 
     
@@ -11058,27 +11926,27 @@ define('scalejs.mvvm',[
         FINAL: 5
     };
 
-    function initializeModel(rootState){
+    function initializeModel(rootState) {
         var transitions = [], idToStateMap = {}, documentOrder = 0;
 
         //TODO: need to add fake ids to anyone that doesn't have them
         //FIXME: make this safer - break into multiple passes
         var idCount = {};
 
-        function generateId(type){
-            if(idCount[type] === undefined) idCount[type] = 0;
+        function generateId(type) {
+            if (idCount[type] === undefined) idCount[type] = 0;
 
             var count = idCount[type]++;
-            return '$generated-' + type + '-' + count; 
+            return '$generated-' + type + '-' + count;
         }
 
-        function wrapInFakeRootState(state){
+        function wrapInFakeRootState(state) {
             return {
-                states : [
+                states: [
                     {
-                        type : 'initial',
-                        transitions : [{
-                            target : state
+                        type: 'initial',
+                        transitions: [{
+                            target: state
                         }]
                     },
                     state
@@ -11086,14 +11954,14 @@ define('scalejs.mvvm',[
             };
         }
 
-        function traverse(ancestors,state){
+        function traverse(ancestors, state) {
 
             //add to global transition and state id caches
-            if(state.transitions) transitions.push.apply(transitions,state.transitions);
+            if (state.transitions) transitions.push.apply(transitions, state.transitions);
 
             //populate state id map
-            if(state.id){
-                if(idToStateMap[state.id]) throw new Error('Redefinition of state id ' + state.id);
+            if (state.id) {
+                if (idToStateMap[state.id]) throw new Error('Redefinition of state id ' + state.id);
 
                 idToStateMap[state.id] = state;
             }
@@ -11109,93 +11977,93 @@ define('scalejs.mvvm',[
 
             //add some information to transitions
             state.transitions = state.transitions || [];
-            state.transitions.forEach(function(transition){
-                transition.documentOrder = documentOrder++; 
+            state.transitions.forEach(function (transition) {
+                transition.documentOrder = documentOrder++;
                 transition.source = state;
             });
 
-            var t2 = traverse.bind(null,[state].concat(ancestors));
+            var t2 = traverse.bind(null, [state].concat(ancestors));
 
             //recursive step
-            if(state.states) state.states.forEach(t2);
+            if (state.states) state.states.forEach(t2);
 
             //setup fast state type
-            switch(state.type){
+            switch (state.type) {
                 case 'parallel':
                     state.typeEnum = STATE_TYPES.PARALLEL;
                     break;
-                case 'initial' : 
+                case 'initial':
                     state.typeEnum = STATE_TYPES.INITIAL;
                     break;
-                case 'history' :
+                case 'history':
                     state.typeEnum = STATE_TYPES.HISTORY;
                     break;
-                case 'final' : 
+                case 'final':
                     state.typeEnum = STATE_TYPES.FINAL;
                     break;
-                case 'state' : 
-                case 'scxml' :
-                    if(state.states && state.states.length){
+                case 'state':
+                case 'scxml':
+                    if (state.states && state.states.length) {
                         state.typeEnum = STATE_TYPES.COMPOSITE;
-                    }else{
+                    } else {
                         state.typeEnum = STATE_TYPES.BASIC;
                     }
                     break;
-                default :
+                default:
                     throw new Error('Unknown state type: ' + state.type);
             }
 
             //descendants property on states will now be populated. add descendants to this state
-            if(state.states){
-                state.descendants = state.states.concat(state.states.map(function(s){return s.descendants;}).reduce(function(a,b){return a.concat(b);},[]));
-            }else{
+            if (state.states) {
+                state.descendants = state.states.concat(state.states.map(function (s) { return s.descendants; }).reduce(function (a, b) { return a.concat(b); }, []));
+            } else {
                 state.descendants = [];
             }
 
             var initialChildren;
-            if(state.typeEnum === STATE_TYPES.COMPOSITE){
+            if (state.typeEnum === STATE_TYPES.COMPOSITE) {
                 //set up initial state
-                
-                if(typeof state.initial === 'string'){
+
+                if (typeof state.initial === 'string') {
                     //dereference him from his 
-                    initialChildren = state.states.filter(function(child){
+                    initialChildren = state.states.filter(function (child) {
                         return child.id === state.initial;
                     });
-                    if(initialChildren.length){
+                    if (initialChildren.length) {
                         state.initialRef = initialChildren[0];
-                    } 
-                }else{
+                    }
+                } else {
                     //take the first child that has initial type, or first child
-                    initialChildren = state.states.filter(function(child){
+                    initialChildren = state.states.filter(function (child) {
                         return child.type === 'initial';
                     });
 
                     state.initialRef = initialChildren.length ? initialChildren[0] : state.states[0];
                 }
 
-                if(!state.initialRef) throw new Error('Unable to locate initial state for composite state: ' + state.id);
+                if (!state.initialRef) throw new Error('Unable to locate initial state for composite state: ' + state.id);
             }
 
             //hook up history
-            if(state.typeEnum === STATE_TYPES.COMPOSITE ||
-                    state.typeEnum === STATE_TYPES.PARALLEL){
+            if (state.typeEnum === STATE_TYPES.COMPOSITE ||
+                    state.typeEnum === STATE_TYPES.PARALLEL) {
 
-                var historyChildren = state.states.filter(function(s){
+                var historyChildren = state.states.filter(function (s) {
                     return s.type === 'history';
-                }); 
+                });
 
-               state.historyRef = historyChildren[0];
+                state.historyRef = historyChildren[0];
             }
 
             //now it's safe to fill in fake state ids
-            if(!state.id){
+            if (!state.id) {
                 state.id = generateId(state.type);
                 idToStateMap[state.id] = state;
             }
 
             //normalize onEntry/onExit, which can be single fn or array
-            ['onEntry','onExit'].forEach(function(prop){
-                if(typeof state[prop] === 'function'){
+            ['onEntry', 'onExit'].forEach(function (prop) {
+                if (typeof state[prop] === 'function') {
                     state[prop] = [state[prop]];
                 }
             });
@@ -11203,74 +12071,74 @@ define('scalejs.mvvm',[
 
         //TODO: convert events to regular expressions in advance
 
-        function connectTransitionGraph(){
+        function connectTransitionGraph() {
             //normalize as with onEntry/onExit
-            transitions.forEach(function(t){
-                if(typeof t.onTransition === 'function'){
+            transitions.forEach(function (t) {
+                if (typeof t.onTransition === 'function') {
                     t.onTransition = [t.onTransition];
                 }
             });
 
-            transitions.forEach(function(t){
+            transitions.forEach(function (t) {
                 //normalize "event" attribute into "events" attribute
-                if(t.event){
+                if (t.event) {
                     t.events = t.event.trim().split(/ +/);
                 }
             });
 
             //hook up targets
-            transitions.forEach(function(t){
-                if(t.targets || (typeof t.target === 'undefined')) return;   //targets have already been set up
+            transitions.forEach(function (t) {
+                if (t.targets || (typeof t.target === 'undefined')) return;   //targets have already been set up
 
-                if(typeof t.target === 'string'){
+                if (typeof t.target === 'string') {
                     //console.log('here1');
                     var target = idToStateMap[t.target];
-                    if(!target) throw new Error('Unable to find target state with id ' + t.target);
+                    if (!target) throw new Error('Unable to find target state with id ' + t.target);
                     t.target = target;
                     t.targets = [t.target];
-                }else if(Array.isArray(t.target)){
+                } else if (Array.isArray(t.target)) {
                     //console.log('here2');
-                    t.targets = t.target.map(function(target){
-                        if(typeof target === 'string'){
+                    t.targets = t.target.map(function (target) {
+                        if (typeof target === 'string') {
                             target = idToStateMap[target];
-                            if(!target) throw new Error('Unable to find target state with id ' + t.target);
+                            if (!target) throw new Error('Unable to find target state with id ' + t.target);
                             return target;
-                        }else{
+                        } else {
                             return target;
-                        } 
-                    }); 
-                }else if(typeof t.target === 'object'){
+                        }
+                    });
+                } else if (typeof t.target === 'object') {
                     t.targets = [t.target];
-                }else{
+                } else {
                     throw new Error('Transition target has unknown type: ' + t.target);
                 }
             });
 
             //hook up LCA - optimization
-            transitions.forEach(function(t){
-                if(t.targets) t.lcca = getLCCA(t.source,t.targets[0]);    //FIXME: we technically do not need to hang onto the lcca. only the scope is used by the algorithm
+            transitions.forEach(function (t) {
+                if (t.targets) t.lcca = getLCCA(t.source, t.targets[0]);    //FIXME: we technically do not need to hang onto the lcca. only the scope is used by the algorithm
 
                 t.scope = getScope(t);
                 //console.log('scope',t.source.id,t.scope.id,t.targets);
             });
         }
 
-        function getScope(transition){
+        function getScope(transition) {
             //Transition scope is normally the least common compound ancestor (lcca).
             //Internal transitions have a scope equal to the source state.
 
-            var transitionIsReallyInternal = 
+            var transitionIsReallyInternal =
                     transition.type === 'internal' &&
                         transition.source.parent &&    //root state won't have parent
                             transition.targets && //does it target its descendants
                                 transition.targets.every(
-                                    function(target){ return transition.source.descendants.indexOf(target) > -1;});
+                                    function (target) { return transition.source.descendants.indexOf(target) > -1; });
 
-            if(!transition.targets){
-                return transition.source; 
-            }else if(transitionIsReallyInternal){
-                return transition.source; 
-            }else{
+            if (!transition.targets) {
+                return transition.source;
+            } else if (transitionIsReallyInternal) {
+                return transition.source;
+            } else {
                 return transition.lcca;
             }
         }
@@ -11278,22 +12146,22 @@ define('scalejs.mvvm',[
         function getLCCA(s1, s2) {
             //console.log('getLCCA',s1, s2);
             var commonAncestors = [];
-            s1.ancestors.forEach(function(anc){
+            s1.ancestors.forEach(function (anc) {
                 //console.log('s1.id',s1.id,'anc',anc.id,'anc.typeEnum',anc.typeEnum,'s2.id',s2.id);
-                if(anc.typeEnum === STATE_TYPES.COMPOSITE &&
-                    anc.descendants.indexOf(s2) > -1){
+                if (anc.typeEnum === STATE_TYPES.COMPOSITE &&
+                    anc.descendants.indexOf(s2) > -1) {
                     commonAncestors.push(anc);
                 }
             });
             //console.log('commonAncestors',s1.id,s2.id,commonAncestors.map(function(s){return s.id;}));
-            if(!commonAncestors.length) throw new Error("Could not find LCA for states.");
+            if (!commonAncestors.length) throw new Error("Could not find LCA for states.");
             return commonAncestors[0];
         }
 
         //main execution starts here
         //FIXME: only wrap in root state if it's not a compound state
         var fakeRootState = wrapInFakeRootState(rootState);  //I wish we had pointer semantics and could make this a C-style "out argument". Instead we return him
-        traverse([],fakeRootState);
+        traverse([], fakeRootState);
         connectTransitionGraph();
 
         return fakeRootState;
@@ -11306,74 +12174,74 @@ define('scalejs.mvvm',[
     function ArraySet(l) {
         l = l || [];
         this.o = [];
-            
-        l.forEach(function(x){
+
+        l.forEach(function (x) {
             this.add(x);
-        },this);
+        }, this);
     }
 
     ArraySet.prototype = {
 
-        add : function(x) {
+        add: function (x) {
             if (!this.contains(x)) return this.o.push(x);
         },
 
-        remove : function(x) {
+        remove: function (x) {
             var i = this.o.indexOf(x);
-            if(i === -1){
+            if (i === -1) {
                 return false;
-            }else{
+            } else {
                 this.o.splice(i, 1);
             }
             return true;
         },
 
-        union : function(l) {
+        union: function (l) {
             l = l.iter ? l.iter() : l;
-            l.forEach(function(x){
+            l.forEach(function (x) {
                 this.add(x);
-            },this);
+            }, this);
             return this;
         },
 
-        difference : function(l) {
+        difference: function (l) {
             l = l.iter ? l.iter() : l;
 
-            l.forEach(function(x){
+            l.forEach(function (x) {
                 this.remove(x);
-            },this);
+            }, this);
             return this;
         },
 
-        contains : function(x) {
+        contains: function (x) {
             return this.o.indexOf(x) > -1;
         },
 
-        iter : function() {
+        iter: function () {
             return this.o;
         },
 
-        isEmpty : function() {
+        isEmpty: function () {
             return !this.o.length;
         },
 
-        equals : function(s2) {
+        equals: function (s2) {
             var l2 = s2.iter();
             var l1 = this.o;
 
-            return l1.every(function(x){
+            return l1.every(function (x) {
                 return l2.indexOf(x) > -1;
-            }) && l2.every(function(x){
+            }) && l2.every(function (x) {
                 return l1.indexOf(x) > -1;
             });
         },
 
-        toString : function() {
+        toString: function () {
             return "Set(" + this.o.toString() + ")";
         }
     };
 
-    var scxmlPrefixTransitionSelector = (function(){
+    var scxmlPrefixTransitionSelector = (function () {
 
         var eventNameReCache = {};
 
@@ -11387,24 +12255,24 @@ define('scalejs.mvvm',[
 
         function nameMatch(t, event) {
             return event && event.name &&
-                        (t.events.indexOf("*") > -1 ? 
-                            true : 
-                                t.events.filter(function(tEvent){
+                        (t.events.indexOf("*") > -1 ?
+                            true :
+                                t.events.filter(function (tEvent) {
                                     return retrieveEventRe(tEvent).test(event.name);
                                 }).length);
 
         }
 
-        return function(state, event, evaluator) {
-            return state.transitions.filter(function(t){
-                return (!t.events || nameMatch(t,event)) && (!t.cond || evaluator(t.cond));
+        return function (state, event, evaluator) {
+            return state.transitions.filter(function (t) {
+                return (!t.events || nameMatch(t, event)) && (!t.cond || evaluator(t.cond));
             });
         };
     })();
 
     //model accessor functions
     var query = {
-        getAncestors: function(s, root) {
+        getAncestors: function (s, root) {
             var ancestors, index, state;
             index = s.ancestors.indexOf(root);
             if (index > -1) {
@@ -11414,32 +12282,32 @@ define('scalejs.mvvm',[
             }
         },
         /** @this {model} */
-        getAncestorsOrSelf: function(s, root) {
+        getAncestorsOrSelf: function (s, root) {
             return [s].concat(this.getAncestors(s, root));
         },
-        getDescendantsOrSelf: function(s) {
+        getDescendantsOrSelf: function (s) {
             return [s].concat(s.descendants);
         },
         /** @this {model} */
-        isOrthogonalTo: function(s1, s2) {
+        isOrthogonalTo: function (s1, s2) {
             //Two control states are orthogonal if they are not ancestrally
             //related, and their smallest, mutual parent is a Concurrent-state.
             return !this.isAncestrallyRelatedTo(s1, s2) && this.getLCA(s1, s2).typeEnum === STATE_TYPES.PARALLEL;
         },
         /** @this {model} */
-        isAncestrallyRelatedTo: function(s1, s2) {
+        isAncestrallyRelatedTo: function (s1, s2) {
             //Two control states are ancestrally related if one is child/grandchild of another.
             return this.getAncestorsOrSelf(s2).indexOf(s1) > -1 || this.getAncestorsOrSelf(s1).indexOf(s2) > -1;
         },
         /** @this {model} */
-        getLCA: function(s1, s2) {
-            var commonAncestors = this.getAncestors(s1).filter(function(a){
+        getLCA: function (s1, s2) {
+            var commonAncestors = this.getAncestors(s1).filter(function (a) {
                 return a.descendants.indexOf(s2) > -1;
-            },this);
+            }, this);
             return commonAncestors[0];
         }
     };
-    
+
     //priority comparison functions
     function getTransitionWithHigherSourceChildPriority(_arg) {
         var t1 = _arg[0], t2 = _arg[1];
@@ -11461,14 +12329,14 @@ define('scalejs.mvvm',[
     var printTrace = false;
 
     /** @constructor */
-    function BaseInterpreter(model, opts){
+    function BaseInterpreter(model, opts) {
         this._model = initializeModel(model);
 
         //console.log(require('util').inspect(this._model,false,4));
-       
+
         this.opts = opts || {};
 
-        this.opts.log = opts.log || (typeof console === 'undefined' ? {log : function(){}} : console.log.bind(console));   //rely on global console if this console is undefined
+        this.opts.log = opts.log || (typeof console === 'undefined' ? { log: function () { } } : console.log.bind(console));   //rely on global console if this console is undefined
         this.opts.Set = this.opts.Set || ArraySet;
         this.opts.priorityComparisonFn = this.opts.priorityComparisonFn || getTransitionWithHigherSourceChildPriority;
         this.opts.transitionSelector = this.opts.transitionSelector || scxmlPrefixTransitionSelector;
@@ -11483,9 +12351,9 @@ define('scalejs.mvvm',[
 
         //SCXML system variables:
         this._x = {
-            _sessionId : opts.sessionId || null,
-            _name : model.name || opts.name || null,
-            _ioprocessors : opts.ioprocessors || null
+            _sessionId: opts.sessionId || null,
+            _name: model.name || opts.name || null,
+            _ioprocessors: opts.ioprocessors || null
         };
 
         this._listeners = [];
@@ -11494,21 +12362,21 @@ define('scalejs.mvvm',[
         //It mostly just proxies to public and private methods on the statechart.
         //will also be available via locals?
         this._userScriptingContext = {
-            raise : (function(eventOrName, data){
+            raise: (function (eventOrName, data) {
                 var e;
 
                 if (typeof eventOrName === 'string') {
-                    e = {name: eventOrName, data: data};
+                    e = { name: eventOrName, data: data };
                 } else {
                     e = eventOrName;
                 }
                 this._internalEventQueue.push(e);
             }).bind(this),
-            send : (function(){
-                this.send.apply(this,arguments);
+            send: (function () {
+                this.send.apply(this, arguments);
             }).bind(this),
-            cancel : (function(){
-                this.cancel.apply(this,arguments);
+            cancel: (function () {
+                this.cancel.apply(this, arguments);
             }).bind(this)
             //TODO: other stuff...
         };
@@ -11517,46 +12385,46 @@ define('scalejs.mvvm',[
     BaseInterpreter.prototype = {
 
         /** @expose */
-        start : function() {
+        start: function () {
             //perform big step without events to take all default transitions and reach stable initial state
             if (printTrace) this.opts.log("performing initial big step");
 
             //We effectively need to figure out states to enter here to populate initial config. assuming root is compound state makes this simple.
             //but if we want it to be parallel, then this becomes more complex. so when initializing the model, we add a 'fake' root state, which
             //makes the following operation safe.
-            this._configuration.add(this._model.initialRef);   
+            this._configuration.add(this._model.initialRef);
 
             this._performBigStep();
             return this.getConfiguration();
         },
 
         /** @expose */
-        getConfiguration : function() {
-            return this._configuration.iter().map(function(s){return s.id;});
+        getConfiguration: function () {
+            return this._configuration.iter().map(function (s) { return s.id; });
         },
 
         /** @expose */
-        getFullConfiguration : function() {
+        getFullConfiguration: function () {
             return this._configuration.iter().
-                    map(function(s){ return [s].concat(query.getAncestors(s));},this).
-                    reduce(function(a,b){return a.concat(b);},[]).    //flatten
-                    map(function(s){return s.id;}).
-                    reduce(function(a,b){return a.indexOf(b) > -1 ? a : a.concat(b);},[]); //uniq
+                    map(function (s) { return [s].concat(query.getAncestors(s)); }, this).
+                    reduce(function (a, b) { return a.concat(b); }, []).    //flatten
+                    map(function (s) { return s.id; }).
+                    reduce(function (a, b) { return a.indexOf(b) > -1 ? a : a.concat(b); }, []); //uniq
         },
 
 
         /** @expose */
-        isIn : function(stateName) {
+        isIn: function (stateName) {
             return this.getFullConfiguration().indexOf(stateName) > -1;
         },
 
         /** @expose */
-        isFinal : function(stateName) {
+        isFinal: function (stateName) {
             return this._isInFinalState;
         },
 
         /** @private */
-        _performBigStep : function(e) {
+        _performBigStep: function (e) {
             if (e) this._internalEventQueue.push(e);
             var keepGoing = true;
             while (keepGoing) {
@@ -11565,11 +12433,11 @@ define('scalejs.mvvm',[
                 var selectedTransitions = this._performSmallStep(currentEvent);
                 keepGoing = !selectedTransitions.isEmpty();
             }
-            this._isInFinalState = this._configuration.iter().every(function(s){ return s.typeEnum === STATE_TYPES.FINAL; });
+            this._isInFinalState = this._configuration.iter().every(function (s) { return s.typeEnum === STATE_TYPES.FINAL; });
         },
 
         /** @private */
-        _performSmallStep : function(currentEvent) {
+        _performSmallStep: function (currentEvent) {
 
             if (printTrace) this.opts.log("selecting transitions with currentEvent: ", currentEvent);
 
@@ -11583,14 +12451,14 @@ define('scalejs.mvvm',[
 
                 //we only want to enter and exit states from transitions with targets
                 //filter out targetless transitions here - we will only use these to execute transition actions
-                var selectedTransitionsWithTargets = new this.opts.Set(selectedTransitions.iter().filter(function(t){return t.targets;}));
+                var selectedTransitionsWithTargets = new this.opts.Set(selectedTransitions.iter().filter(function (t) { return t.targets; }));
 
-                var exitedTuple = this._getStatesExited(selectedTransitionsWithTargets), 
-                    basicStatesExited = exitedTuple[0], 
+                var exitedTuple = this._getStatesExited(selectedTransitionsWithTargets),
+                    basicStatesExited = exitedTuple[0],
                     statesExited = exitedTuple[1];
 
-                var enteredTuple = this._getStatesEntered(selectedTransitionsWithTargets), 
-                    basicStatesEntered = enteredTuple[0], 
+                var enteredTuple = this._getStatesEntered(selectedTransitionsWithTargets),
+                    basicStatesEntered = enteredTuple[0],
                     statesEntered = enteredTuple[1];
 
                 if (printTrace) this.opts.log("basicStatesExited ", basicStatesExited);
@@ -11605,66 +12473,71 @@ define('scalejs.mvvm',[
 
                 var evaluateAction = this._evaluateAction.bind(this, currentEvent);        //create helper fn that actions can call later on
 
-                statesExited.forEach(function(state){
+                statesExited.forEach(function (state) {
 
                     if (printTrace || this.opts.logStatesEnteredAndExited) this.opts.log("exiting ", state.id);
 
                     //invoke listeners
-                    this._listeners.forEach(function(l){
-                       if(l.onExit) l.onExit(state.id); 
+                    this._listeners.forEach(function (l) {
+                        if (l.onExit) l.onExit(state.id);
                     });
 
-                    if(state.onExit !== undefined) state.onExit.forEach(evaluateAction);
+                    if (state.onExit !== undefined) state.onExit.forEach(evaluateAction);
 
                     var f;
                     if (state.historyRef) {
                         if (state.historyRef.isDeep) {
-                            f = function(s0) {
+                            f = function (s0) {
                                 return s0.typeEnum === STATE_TYPES.BASIC && state.descendants.indexOf(s0) > -1;
                             };
                         } else {
-                            f = function(s0) {
+                            f = function (s0) {
                                 return s0.parent === state;
                             };
                         }
                         //update history
                         this._historyValue[state.historyRef.id] = statesExited.filter(f);
                     }
-                },this);
+                }, this);
 
 
                 // -> Concurrency: Number of transitions: Multiple
                 // -> Concurrency: Order of transitions: Explicitly defined
-                var sortedTransitions = selectedTransitions.iter().sort(function(t1, t2) {
+                var sortedTransitions = selectedTransitions.iter().sort(function (t1, t2) {
                     return t1.documentOrder - t2.documentOrder;
                 });
 
                 if (printTrace) this.opts.log("executing transitition actions");
 
 
-                sortedTransitions.forEach(function(transition){
+                sortedTransitions.forEach(function (transition) {
 
-                    var targetIds = transition.targets && transition.targets.map(function(target){return target.id;});
+                    var targetIds = transition.targets && transition.targets.map(function (target) { return target.id; });
 
-                    this._listeners.forEach(function(l){
-                       if(l.onTransition) l.onTransition(transition.source.id,targetIds); 
+                    this._listeners.forEach(function (l) {
+                        if (l.onTransition) l.onTransition(transition.source.id, targetIds);
                     });
 
-                    if(transition.onTransition !== undefined) transition.onTransition.forEach(evaluateAction);
-                },this);
-     
+                    if (transition.onTransition !== undefined) transition.onTransition.forEach(evaluateAction);
+                }, this);
+
                 if (printTrace) this.opts.log("executing state enter actions");
 
-                statesEntered.forEach(function(state){
+                statesEntered.forEach(function (state) {
 
                     if (printTrace || this.opts.logStatesEnteredAndExited) this.opts.log("entering", state.id);
 
-                    this._listeners.forEach(function(l){
-                       if(l.onEntry) l.onEntry(state.id); 
+                    if (state.onEntry !== undefined) state.onEntry.forEach(evaluateAction);
+
+                    this._listeners.forEach(function (l) {
+                        if (l.onEntry) {
+                            evaluateAction(function (currentEvent) {
+                                l.onEntry.call(this, state.id, currentEvent);
+                            });
+                        }
                     });
 
-                    if(state.onEntry !== undefined) state.onEntry.forEach(evaluateAction);
-                },this);
+                }, this);
 
                 if (printTrace) this.opts.log("updating configuration ");
                 if (printTrace) this.opts.log("old configuration ", this._configuration);
@@ -11675,7 +12548,7 @@ define('scalejs.mvvm',[
 
 
                 if (printTrace) this.opts.log("new configuration ", this._configuration);
-                
+
                 //add set of generated events to the innerEventQueue -> Event Lifelines: Next small-step
                 if (!eventsToAddToInnerQueue.isEmpty()) {
                     if (printTrace) this.opts.log("adding triggered events to inner queue ", eventsToAddToInnerQueue);
@@ -11689,13 +12562,13 @@ define('scalejs.mvvm',[
         },
 
         /** @private */
-        _evaluateAction : function(currentEvent, actionRef) {
+        _evaluateAction: function (currentEvent, actionRef) {
             return actionRef.call(this._userScriptingContext, currentEvent, this.isIn.bind(this),
                             this._x._sessionId, this._x._name, this._x._ioprocessors, this._x);     //SCXML system variables
         },
 
         /** @private */
-        _getStatesExited : function(transitions) {
+        _getStatesExited: function (transitions) {
             var statesExited = new this.opts.Set();
             var basicStatesExited = new this.opts.Set();
 
@@ -11703,57 +12576,57 @@ define('scalejs.mvvm',[
             //descendants of the scope of each priority-enabled transition.
             //Here, we iterate through the transitions, and collect states
             //that match this condition. 
-            transitions.iter().forEach(function(transition){
+            transitions.iter().forEach(function (transition) {
                 var scope = transition.scope,
                     desc = scope.descendants;
 
                 //For each state in the configuration
                 //is that state a descendant of the transition scope?
                 //Store ancestors of that state up to but not including the scope.
-                this._configuration.iter().forEach(function(state){
-                    if(desc.indexOf(state) > -1){
+                this._configuration.iter().forEach(function (state) {
+                    if (desc.indexOf(state) > -1) {
                         basicStatesExited.add(state);
                         statesExited.add(state);
-                        query.getAncestors(state,scope).forEach(function(anc){
+                        query.getAncestors(state, scope).forEach(function (anc) {
                             statesExited.add(anc);
                         });
                     }
-                },this);
-            },this);
+                }, this);
+            }, this);
 
-            var sortedStatesExited = statesExited.iter().sort(function(s1, s2) {
+            var sortedStatesExited = statesExited.iter().sort(function (s1, s2) {
                 return s2.depth - s1.depth;
             });
             return [basicStatesExited, sortedStatesExited];
         },
 
         /** @private */
-        _getStatesEntered : function(transitions) {
+        _getStatesEntered: function (transitions) {
 
             var o = {
-                statesToEnter : new this.opts.Set(),
-                basicStatesToEnter : new this.opts.Set(),
-                statesProcessed  : new this.opts.Set(),
-                statesToProcess : []
+                statesToEnter: new this.opts.Set(),
+                basicStatesToEnter: new this.opts.Set(),
+                statesProcessed: new this.opts.Set(),
+                statesToProcess: []
             };
 
             //do the initial setup
-            transitions.iter().forEach(function(transition){
-                transition.targets.forEach(function(target){
-                    this._addStateAndAncestors(target,transition.scope,o);
-                },this);
-            },this);
+            transitions.iter().forEach(function (transition) {
+                transition.targets.forEach(function (target) {
+                    this._addStateAndAncestors(target, transition.scope, o);
+                }, this);
+            }, this);
 
             //loop and add states until there are no more to add (we reach a stable state)
             var s;
             /*jsl:ignore*/
-            while(s = o.statesToProcess.pop()){
+            while (s = o.statesToProcess.pop()) {
                 /*jsl:end*/
-                this._addStateAndDescendants(s,o);
+                this._addStateAndDescendants(s, o);
             }
 
             //sort based on depth
-            var sortedStatesEntered = o.statesToEnter.iter().sort(function(s1, s2) {
+            var sortedStatesEntered = o.statesToEnter.iter().sort(function (s1, s2) {
                 return s1.depth - s2.depth;
             });
 
@@ -11761,13 +12634,13 @@ define('scalejs.mvvm',[
         },
 
         /** @private */
-        _addStateAndAncestors : function(target,scope,o){
+        _addStateAndAncestors: function (target, scope, o) {
 
             //process each target
-            this._addStateAndDescendants(target,o);
+            this._addStateAndDescendants(target, o);
 
             //and process ancestors of targets up to the scope, but according to special rules
-            query.getAncestors(target,scope).forEach(function(s){
+            query.getAncestors(target, scope).forEach(function (s) {
 
                 if (s.typeEnum === STATE_TYPES.COMPOSITE) {
                     //just add him to statesToEnter, and declare him processed
@@ -11775,23 +12648,23 @@ define('scalejs.mvvm',[
                     o.statesToEnter.add(s);
 
                     o.statesProcessed.add(s);
-                }else{
+                } else {
                     //everything else can just be passed through as normal
-                    this._addStateAndDescendants(s,o);
-                } 
-            },this);
+                    this._addStateAndDescendants(s, o);
+                }
+            }, this);
         },
 
         /** @private */
-        _addStateAndDescendants : function(s,o){
+        _addStateAndDescendants: function (s, o) {
 
-            if(o.statesProcessed.contains(s)) return;
+            if (o.statesProcessed.contains(s)) return;
 
             if (s.typeEnum === STATE_TYPES.HISTORY) {
                 if (s.id in this._historyValue) {
-                    this._historyValue[s.id].forEach(function(stateFromHistory){
-                        this._addStateAndAncestors(stateFromHistory,s.parent,o);
-                    },this);
+                    this._historyValue[s.id].forEach(function (stateFromHistory) {
+                        this._addStateAndAncestors(stateFromHistory, s.parent, o);
+                    }, this);
                 } else {
                     o.statesToEnter.add(s);
                     o.basicStatesToEnter.add(s);
@@ -11801,19 +12674,19 @@ define('scalejs.mvvm',[
 
                 if (s.typeEnum === STATE_TYPES.PARALLEL) {
                     o.statesToProcess.push.apply(o.statesToProcess,
-                        s.states.filter(function(s){return s.typeEnum !== STATE_TYPES.HISTORY;}));
+                        s.states.filter(function (s) { return s.typeEnum !== STATE_TYPES.HISTORY; }));
                 } else if (s.typeEnum === STATE_TYPES.COMPOSITE) {
-                    o.statesToProcess.push(s.initialRef); 
+                    o.statesToProcess.push(s.initialRef);
                 } else if (s.typeEnum === STATE_TYPES.INITIAL || s.typeEnum === STATE_TYPES.BASIC || s.typeEnum === STATE_TYPES.FINAL) {
                     o.basicStatesToEnter.add(s);
                 }
             }
 
-            o.statesProcessed.add(s); 
+            o.statesProcessed.add(s);
         },
 
         /** @private */
-        _selectTransitions : function(currentEvent) {
+        _selectTransitions: function (currentEvent) {
             if (this.opts.onlySelectFromBasicStates) {
                 var states = this._configuration.iter();
             } else {
@@ -11821,28 +12694,28 @@ define('scalejs.mvvm',[
 
                 //get full configuration, unordered
                 //this means we may select transitions from parents before states
-                
-                this._configuration.iter().forEach(function(basicState){
+
+                this._configuration.iter().forEach(function (basicState) {
                     statesAndParents.add(basicState);
-                    query.getAncestors(basicState).forEach(function(ancestor){
+                    query.getAncestors(basicState).forEach(function (ancestor) {
                         statesAndParents.add(ancestor);
                     });
-                },this);
+                }, this);
 
                 states = statesAndParents.iter();
             }
 
-            
+
 
             var usePrefixMatchingAlgorithm = currentEvent && currentEvent.name && currentEvent.name.search(".");
 
             var transitionSelector = usePrefixMatchingAlgorithm ? scxmlPrefixTransitionSelector : this.opts.transitionSelector;
             var enabledTransitions = new this.opts.Set();
 
-            var e = this._evaluateAction.bind(this,currentEvent);
+            var e = this._evaluateAction.bind(this, currentEvent);
 
-            states.forEach(function(state){
-                transitionSelector(state,currentEvent,e).forEach(function(t){
+            states.forEach(function (state) {
+                transitionSelector(state, currentEvent, e).forEach(function (t) {
                     enabledTransitions.add(t);
                 });
             });
@@ -11850,16 +12723,16 @@ define('scalejs.mvvm',[
             var priorityEnabledTransitions = this._selectPriorityEnabledTransitions(enabledTransitions);
 
             if (printTrace) this.opts.log("priorityEnabledTransitions", priorityEnabledTransitions);
-            
+
             return priorityEnabledTransitions;
         },
 
         /** @private */
-        _selectPriorityEnabledTransitions : function(enabledTransitions) {
+        _selectPriorityEnabledTransitions: function (enabledTransitions) {
             var priorityEnabledTransitions = new this.opts.Set();
 
-            var tuple = this._getInconsistentTransitions(enabledTransitions), 
-                consistentTransitions = tuple[0], 
+            var tuple = this._getInconsistentTransitions(enabledTransitions),
+                consistentTransitions = tuple[0],
                 inconsistentTransitionsPairs = tuple[1];
 
             priorityEnabledTransitions.union(consistentTransitions);
@@ -11868,13 +12741,13 @@ define('scalejs.mvvm',[
             if (printTrace) this.opts.log("consistentTransitions", consistentTransitions);
             if (printTrace) this.opts.log("inconsistentTransitionsPairs", inconsistentTransitionsPairs);
             if (printTrace) this.opts.log("priorityEnabledTransitions", priorityEnabledTransitions);
-            
+
             while (!inconsistentTransitionsPairs.isEmpty()) {
                 enabledTransitions = new this.opts.Set(
-                        inconsistentTransitionsPairs.iter().map(function(t){return this.opts.priorityComparisonFn(t);},this));
+                        inconsistentTransitionsPairs.iter().map(function (t) { return this.opts.priorityComparisonFn(t); }, this));
 
                 tuple = this._getInconsistentTransitions(enabledTransitions);
-                consistentTransitions = tuple[0]; 
+                consistentTransitions = tuple[0];
                 inconsistentTransitionsPairs = tuple[1];
 
                 priorityEnabledTransitions.union(consistentTransitions);
@@ -11883,21 +12756,21 @@ define('scalejs.mvvm',[
                 if (printTrace) this.opts.log("consistentTransitions", consistentTransitions);
                 if (printTrace) this.opts.log("inconsistentTransitionsPairs", inconsistentTransitionsPairs);
                 if (printTrace) this.opts.log("priorityEnabledTransitions", priorityEnabledTransitions);
-                
+
             }
             return priorityEnabledTransitions;
         },
 
         /** @private */
-        _getInconsistentTransitions : function(transitions) {
+        _getInconsistentTransitions: function (transitions) {
             var allInconsistentTransitions = new this.opts.Set();
             var inconsistentTransitionsPairs = new this.opts.Set();
             var transitionList = transitions.iter();
 
             if (printTrace) this.opts.log("transitions", transitionList);
 
-            for(var i = 0; i < transitionList.length; i++){
-                for(var j = i+1; j < transitionList.length; j++){
+            for (var i = 0; i < transitionList.length; i++) {
+                for (var j = i + 1; j < transitionList.length; j++) {
                     var t1 = transitionList[i];
                     var t2 = transitionList[j];
                     if (this._conflicts(t1, t2)) {
@@ -11913,12 +12786,12 @@ define('scalejs.mvvm',[
         },
 
         /** @private */
-        _conflicts : function(t1, t2) {
+        _conflicts: function (t1, t2) {
             return !this._isArenaOrthogonal(t1, t2);
         },
 
         /** @private */
-        _isArenaOrthogonal : function(t1, t2) {
+        _isArenaOrthogonal: function (t1, t2) {
 
             if (printTrace) this.opts.log("transition scopes", t1.scope, t2.scope);
 
@@ -11944,13 +12817,13 @@ define('scalejs.mvvm',[
         */
 
         /** @expose */
-        registerListener : function(listener){
+        registerListener: function (listener) {
             return this._listeners.push(listener);
         },
 
         /** @expose */
-        unregisterListener : function(listener){
-            return this._listeners.splice(this._listeners.indexOf(listener),1);
+        unregisterListener: function (listener) {
+            return this._listeners.splice(this._listeners.indexOf(listener), 1);
         }
 
     };
@@ -11970,22 +12843,22 @@ define('scalejs.mvvm',[
 
         this.cancel = opts.cancel || this.cancel;
 
-        BaseInterpreter.call(this,model,opts);     //call super constructor
+        BaseInterpreter.call(this, model, opts);     //call super constructor
     }
     Statechart.prototype = Object.create(BaseInterpreter.prototype);
 
     /** @expose */
-    Statechart.prototype.gen = function(evtObjOrName,optionalData) {
+    Statechart.prototype.gen = function (evtObjOrName, optionalData) {
 
         var e;
-        switch(typeof evtObjOrName){
+        switch (typeof evtObjOrName) {
             case 'string':
-                e = {name : evtObjOrName, data : optionalData};
+                e = { name: evtObjOrName, data: optionalData };
                 break;
             case 'object':
-                if(typeof evtObjOrName.name === 'string'){
+                if (typeof evtObjOrName.name === 'string') {
                     e = evtObjOrName;
-                }else{
+                } else {
                     throw new Error('Event object must have "name" property of type string.');
                 }
                 break;
@@ -11995,15 +12868,15 @@ define('scalejs.mvvm',[
 
         this._externalEventQueue.push(e);
 
-        if(this._isStepping) return null;       //we're already looping, we can exit and we'll process this event when the next big-step completes
+        if (this._isStepping) return null;       //we're already looping, we can exit and we'll process this event when the next big-step completes
 
         //otherwise, kick him off
         this._isStepping = true;
 
         var currentEvent;
         /*jsl:ignore*/
-        while(currentEvent = this._externalEventQueue.shift()){
-        /*jsl:end*/
+        while (currentEvent = this._externalEventQueue.shift()) {
+            /*jsl:end*/
             this._performBigStep(currentEvent);
         }
 
@@ -12013,17 +12886,17 @@ define('scalejs.mvvm',[
 
     /** @expose */
     //include default implementations of send and cancel, which should work in most supported environments
-    Statechart.prototype.send = function(evtObjOrName, dataOrOptions, options) {
+    Statechart.prototype.send = function (evtObjOrName, dataOrOptions, options) {
         var e;
-        switch(typeof evtObjOrName){
+        switch (typeof evtObjOrName) {
             case 'string':
-                e = {name : evtObjOrName, data : dataOrOptions};
+                e = { name: evtObjOrName, data: dataOrOptions };
                 options = options || {};
                 break;
             case 'object':
-                if(typeof evtObjOrName.name === 'string'){
+                if (typeof evtObjOrName.name === 'string') {
                     e = evtObjOrName;
-                }else{
+                } else {
                     throw new Error('Event object must have "name" property of type string.');
                 }
                 options = dataOrOptions || {};
@@ -12032,23 +12905,23 @@ define('scalejs.mvvm',[
                 throw new Error('First argument to send must be a string or object.');
         }
 
-        if(options.delay === undefined){
+        if (options.delay === undefined) {
             this.gen(e);
-        }else{
-            if( typeof setTimeout === 'undefined' ) throw new Error('Default implementation of Statechart.prototype.send will not work unless setTimeout is defined globally.');
+        } else {
+            if (typeof setTimeout === 'undefined') throw new Error('Default implementation of Statechart.prototype.send will not work unless setTimeout is defined globally.');
 
             if (printTrace) this.opts.log("sending event", e.name, "with content", e.data, "after delay", options.delay);
 
-            var timeoutId = setTimeout(this.gen.bind(this,e), options.delay || 0);
+            var timeoutId = setTimeout(this.gen.bind(this, e), options.delay || 0);
 
             if (options.sendid) this._timeoutMap[options.sendid] = timeoutId;
         }
     };
 
     /** @expose */
-    Statechart.prototype.cancel = function(sendid){
+    Statechart.prototype.cancel = function (sendid) {
 
-        if( typeof clearTimeout === 'undefined' ) throw new Error('Default implementation of Statechart.prototype.cancel will not work unless setTimeout is defined globally.');
+        if (typeof clearTimeout === 'undefined') throw new Error('Default implementation of Statechart.prototype.cancel will not work unless setTimeout is defined globally.');
 
         if (sendid in this._timeoutMap) {
             if (printTrace) this.opts.log("cancelling ", sendid, " with timeout id ", this._timeoutMap[sendid]);
@@ -12062,11 +12935,11 @@ define('scalejs.mvvm',[
         /** @expose */
         Statechart: Statechart,
         /** @expose */
-        ArraySet : ArraySet,
+        ArraySet: ArraySet,
         /** @expose */
-        STATE_TYPES : STATE_TYPES,
+        STATE_TYPES: STATE_TYPES,
         /** @expose */
-        initializeModel : initializeModel
+        initializeModel: initializeModel
     };
 }));
 
@@ -12085,7 +12958,7 @@ define('scalejs.statechart-scion/state.builder',[
         var array = core.array,
             has = core.object.has,
             is = core.type.is,
-            typeOf = core.type.typeOf,
+            //typeOf = core.type.typeOf,
             merge = core.object.merge,
             builder = core.functional.builder,
             $yield = builder.$yield,
@@ -12098,10 +12971,12 @@ define('scalejs.statechart-scion/state.builder',[
 
         stateBuilder = builder({
             run: function (f, opts) {
-                var s = new function state() {}; //ignore jslint
+                var s = new function state() { }; //ignore jslint
 
                 if (has(opts, 'parallel')) {
                     s.type = 'parallel';
+                } else {
+                    s.type = 'state';
                 }
 
                 f(s);
@@ -12143,7 +13018,7 @@ define('scalejs.statechart-scion/state.builder',[
                     return expr;
                 }
 
-                if (typeOf(expr) === 'state') {
+                if (expr.type === 'state' || expr.type === 'parallel') {
                     return function (state) {
                         if (!state.states) {
                             state.states = [];
@@ -12250,7 +13125,7 @@ define('scalejs.statechart-scion/state.builder',[
 
         function gotoGeneric(isInternal, targetOrAction, action) {
             return $yield(function goto(stateOrTransition) {
-                if (typeOf(stateOrTransition) === 'state') {
+                if (stateOrTransition.type === 'state' || stateOrTransition.type === 'parallel') {
                     return transition(gotoGeneric(isInternal, targetOrAction, action))(stateOrTransition);
                 }
 
@@ -12511,6 +13386,17 @@ define('scalejs.statechart-scion/state',[
             toArray(arguments, 1).forEach(registerState(parentStateId));
         }
 
+        function registerTransition(parentStateId, transition) {
+            var parent;
+
+            parent = findState(applicationStatechartSpec, parentStateId);
+            if (!parent) {
+                throw new Error('Parent state "' + parentStateId + '" doesn\'t exist');
+            }
+
+            transition.expr(parent);
+        }
+
         function unregisterStates() {
             if (core.isApplicationRunning()) {
                 throw new Error('Can\'t unregister a state while application is running.');
@@ -12526,7 +13412,7 @@ define('scalejs.statechart-scion/state',[
         function raise(eventOrName, eventDataOrDelay, delay) {
             var e;
             if (is(eventOrName, 'string')) {
-                e = {name: eventOrName};
+                e = { name: eventOrName };
             } else {
                 if (!is(eventOrName, 'name')) {
                     throw new Error('event object should have `name` property.');
@@ -12540,20 +13426,20 @@ define('scalejs.statechart-scion/state',[
                 e.data = eventDataOrDelay;
             }
 
-            applicationStatechart.send(e, {delay: delay});
+            applicationStatechart.send(e, { delay: delay });
         }
 
         function observe() {
             return core.reactive.Observable.create(function (o) {
                 var l = {
                     onEntry: function (state) {
-                        o.onNext({event: 'entry', state: state});
+                        o.onNext({ event: 'entry', state: state, context: this });
                     },
                     onExit: function (state) {
-                        o.onNext({event: 'exit', state: state});
+                        o.onNext({ event: 'exit', state: state });
                     },
                     onTransition: function (source, targets) {
-                        o.onNext({event: 'transition', source: source, targets: targets});
+                        o.onNext({ event: 'transition', source: source, targets: targets });
                     }
                 };
                 applicationStatechart.registerListener(l);
@@ -12575,7 +13461,6 @@ define('scalejs.statechart-scion/state',[
                     });
             };
         }
-
         applicationStatechartSpec = state('scalejs-app', parallel('root'));
 
         core.onApplicationEvent(function (event) {
@@ -12595,6 +13480,7 @@ define('scalejs.statechart-scion/state',[
 
         return {
             registerStates: registerStates,
+            registerTransition: registerTransition,
             unregisterStates: unregisterStates,
             raise: raise,
             observe: observe,
@@ -12603,8 +13489,6 @@ define('scalejs.statechart-scion/state',[
         };
     };
 });
-
-
 
 /*global define*/
 define('scalejs.statechart-scion',[
@@ -12623,10 +13507,27 @@ define('scalejs.statechart-scion',[
 
 
 
-define("scalejs/extensions", ["scalejs.functional","scalejs.layout-cssgrid","scalejs.layout-cssgrid-splitter","scalejs.linq-linqjs","scalejs.mvvm","scalejs.statechart-scion"], function () { return Array.prototype.slice(arguments); });
-/*global define, setTimeout */
+/*global define*/
+/*jslint unparam:true*/
+define('sandbox',[],function () {
+    
+
+    return {
+        load: function (name, req, onLoad, config) {
+            req(['scalejs!core', 'scalejs!extensions'], function (core) {
+                if (config.isBuild) {
+                    onLoad();
+                } else {
+                    var sandbox = core.buildSandbox(name);
+                    onLoad(sandbox);
+                }
+            });
+        }
+    };
+});
+/*global define */
 define('app/main/viewmodels/mainViewModel',[
-    'scalejs!sandbox/main'
+    'sandbox!main'
 ], function (
     sandbox
 ) {
@@ -12637,6 +13538,7 @@ define('app/main/viewmodels/mainViewModel',[
             //messageBus = sandbox.reactive.messageBus,
             text = observable('Hello World'),
             width = observable(300);
+
         /*
         function dec() {
             if (width() > 100) {
@@ -12654,301 +13556,474 @@ define('app/main/viewmodels/mainViewModel',[
     };
 });
 
-/**
- * @license RequireJS text 1.0.7 Copyright (c) 2010-2011, The Dojo Foundation All Rights Reserved.
- * Available via the MIT or new BSD license.
- * see: http://github.com/jrburke/requirejs for details
- */
-/*jslint regexp: false, nomen: false, plusplus: false, strict: false */
-/*global require: false, XMLHttpRequest: false, ActiveXObject: false,
-  define: false, window: false, process: false, Packages: false,
-  java: false, location: false */
+/*global define*/
+/*jslint unparam:true*/
+define('views',[],function () {
+    
 
-(function () {
-    var progIds = ['Msxml2.XMLHTTP', 'Microsoft.XMLHTTP', 'Msxml2.XMLHTTP.4.0'],
+    return {
+        load: function (name, req, onLoad, config) {
+            var names = name.match(/([\w\-]+)/g) || [];
+
+            names = names.map(function (n) {
+                if (n.indexOf('.html', n.length - 5) === -1) {
+                    n = n + '.html';
+                }
+
+                if (n.indexOf('/') === -1) {
+                    n = './views/' + n;
+                }
+
+                return 'text!' + n;
+            });
+
+            names.push('scalejs.mvvm', 'scalejs!core');
+
+            req(names, function () {
+                var core = arguments[arguments.length - 1],
+                    views = Array.prototype.slice.call(arguments, 0, arguments.length - 2);
+
+                if (!config.isBuild) {
+                    core.mvvm.registerTemplates.apply(null, views);
+                }
+
+                onLoad(views);
+            });
+        }
+    };
+});
+/**
+ * @license RequireJS text 2.0.10 Copyright (c) 2010-2012, The Dojo Foundation All Rights Reserved.
+ * Available via the MIT or new BSD license.
+ * see: http://github.com/requirejs/text for details
+ */
+/*jslint regexp: true */
+/*global require, XMLHttpRequest, ActiveXObject,
+  define, window, process, Packages,
+  java, location, Components, FileUtils */
+
+define('text',['module'], function (module) {
+    
+
+    var text, fs, Cc, Ci, xpcIsWindows,
+        progIds = ['Msxml2.XMLHTTP', 'Microsoft.XMLHTTP', 'Msxml2.XMLHTTP.4.0'],
         xmlRegExp = /^\s*<\?xml(\s)+version=[\'\"](\d)*.(\d)*[\'\"](\s)*\?>/im,
         bodyRegExp = /<body[^>]*>\s*([\s\S]+)\s*<\/body>/im,
         hasLocation = typeof location !== 'undefined' && location.href,
         defaultProtocol = hasLocation && location.protocol && location.protocol.replace(/\:/, ''),
         defaultHostName = hasLocation && location.hostname,
         defaultPort = hasLocation && (location.port || undefined),
-        buildMap = [];
+        buildMap = {},
+        masterConfig = (module.config && module.config()) || {};
 
-    define('text',[],function () {
-        var text, get, fs;
+    text = {
+        version: '2.0.10',
 
-        if (typeof window !== "undefined" && window.navigator && window.document) {
-            get = function (url, callback) {
-                var xhr = text.createXhr();
-                xhr.open('GET', url, true);
-                xhr.onreadystatechange = function (evt) {
-                    //Do not explicitly handle errors, those should be
-                    //visible via console output in the browser.
-                    if (xhr.readyState === 4) {
-                        callback(xhr.responseText);
+        strip: function (content) {
+            //Strips <?xml ...?> declarations so that external SVG and XML
+            //documents can be added to a document without worry. Also, if the string
+            //is an HTML document, only the part inside the body tag is returned.
+            if (content) {
+                content = content.replace(xmlRegExp, "");
+                var matches = content.match(bodyRegExp);
+                if (matches) {
+                    content = matches[1];
+                }
+            } else {
+                content = "";
+            }
+            return content;
+        },
+
+        jsEscape: function (content) {
+            return content.replace(/(['\\])/g, '\\$1')
+                .replace(/[\f]/g, "\\f")
+                .replace(/[\b]/g, "\\b")
+                .replace(/[\n]/g, "\\n")
+                .replace(/[\t]/g, "\\t")
+                .replace(/[\r]/g, "\\r")
+                .replace(/[\u2028]/g, "\\u2028")
+                .replace(/[\u2029]/g, "\\u2029");
+        },
+
+        createXhr: masterConfig.createXhr || function () {
+            //Would love to dump the ActiveX crap in here. Need IE 6 to die first.
+            var xhr, i, progId;
+            if (typeof XMLHttpRequest !== "undefined") {
+                return new XMLHttpRequest();
+            } else if (typeof ActiveXObject !== "undefined") {
+                for (i = 0; i < 3; i += 1) {
+                    progId = progIds[i];
+                    try {
+                        xhr = new ActiveXObject(progId);
+                    } catch (e) { }
+
+                    if (xhr) {
+                        progIds = [progId];  // so faster next time
+                        break;
                     }
-                };
-                xhr.send(null);
-            };
-        } else if (typeof process !== "undefined" &&
-                 process.versions &&
-                 !!process.versions.node) {
-            //Using special require.nodeRequire, something added by r.js.
-            fs = require.nodeRequire('fs');
+                }
+            }
 
-            get = function (url, callback) {
+            return xhr;
+        },
+
+        /**
+         * Parses a resource name into its component parts. Resource names
+         * look like: module/name.ext!strip, where the !strip part is
+         * optional.
+         * @param {String} name the resource name
+         * @returns {Object} with properties "moduleName", "ext" and "strip"
+         * where strip is a boolean.
+         */
+        parseName: function (name) {
+            var modName, ext, temp,
+                strip = false,
+                index = name.indexOf("."),
+                isRelative = name.indexOf('./') === 0 ||
+                             name.indexOf('../') === 0;
+
+            if (index !== -1 && (!isRelative || index > 1)) {
+                modName = name.substring(0, index);
+                ext = name.substring(index + 1, name.length);
+            } else {
+                modName = name;
+            }
+
+            temp = ext || modName;
+            index = temp.indexOf("!");
+            if (index !== -1) {
+                //Pull off the strip arg.
+                strip = temp.substring(index + 1) === "strip";
+                temp = temp.substring(0, index);
+                if (ext) {
+                    ext = temp;
+                } else {
+                    modName = temp;
+                }
+            }
+
+            return {
+                moduleName: modName,
+                ext: ext,
+                strip: strip
+            };
+        },
+
+        xdRegExp: /^((\w+)\:)?\/\/([^\/\\]+)/,
+
+        /**
+         * Is an URL on another domain. Only works for browser use, returns
+         * false in non-browser environments. Only used to know if an
+         * optimized .js version of a text resource should be loaded
+         * instead.
+         * @param {String} url
+         * @returns Boolean
+         */
+        useXhr: function (url, protocol, hostname, port) {
+            var uProtocol, uHostName, uPort,
+                match = text.xdRegExp.exec(url);
+            if (!match) {
+                return true;
+            }
+            uProtocol = match[2];
+            uHostName = match[3];
+
+            uHostName = uHostName.split(':');
+            uPort = uHostName[1];
+            uHostName = uHostName[0];
+
+            return (!uProtocol || uProtocol === protocol) &&
+                   (!uHostName || uHostName.toLowerCase() === hostname.toLowerCase()) &&
+                   ((!uPort && !uHostName) || uPort === port);
+        },
+
+        finishLoad: function (name, strip, content, onLoad) {
+            content = strip ? text.strip(content) : content;
+            if (masterConfig.isBuild) {
+                buildMap[name] = content;
+            }
+            onLoad(content);
+        },
+
+        load: function (name, req, onLoad, config) {
+            //Name has format: some.module.filext!strip
+            //The strip part is optional.
+            //if strip is present, then that means only get the string contents
+            //inside a body tag in an HTML string. For XML/SVG content it means
+            //removing the <?xml ...?> declarations so the content can be inserted
+            //into the current doc without problems.
+
+            // Do not bother with the work if a build and text will
+            // not be inlined.
+            if (config.isBuild && !config.inlineText) {
+                onLoad();
+                return;
+            }
+
+            masterConfig.isBuild = config.isBuild;
+
+            var parsed = text.parseName(name),
+                nonStripName = parsed.moduleName +
+                    (parsed.ext ? '.' + parsed.ext : ''),
+                url = req.toUrl(nonStripName),
+                useXhr = (masterConfig.useXhr) ||
+                         text.useXhr;
+
+            // Do not load if it is an empty: url
+            if (url.indexOf('empty:') === 0) {
+                onLoad();
+                return;
+            }
+
+            //Load the text. Use XHR if possible and in a browser.
+            if (!hasLocation || useXhr(url, defaultProtocol, defaultHostName, defaultPort)) {
+                text.get(url, function (content) {
+                    text.finishLoad(name, parsed.strip, content, onLoad);
+                }, function (err) {
+                    if (onLoad.error) {
+                        onLoad.error(err);
+                    }
+                });
+            } else {
+                //Need to fetch the resource across domains. Assume
+                //the resource has been optimized into a JS module. Fetch
+                //by the module name + extension, but do not include the
+                //!strip part to avoid file system issues.
+                req([nonStripName], function (content) {
+                    text.finishLoad(parsed.moduleName + '.' + parsed.ext,
+                                    parsed.strip, content, onLoad);
+                });
+            }
+        },
+
+        write: function (pluginName, moduleName, write, config) {
+            if (buildMap.hasOwnProperty(moduleName)) {
+                var content = text.jsEscape(buildMap[moduleName]);
+                write.asModule(pluginName + "!" + moduleName,
+                               "define(function () { return '" +
+                                   content +
+                               "';});\n");
+            }
+        },
+
+        writeFile: function (pluginName, moduleName, req, write, config) {
+            var parsed = text.parseName(moduleName),
+                extPart = parsed.ext ? '.' + parsed.ext : '',
+                nonStripName = parsed.moduleName + extPart,
+                //Use a '.js' file name so that it indicates it is a
+                //script that can be loaded across domains.
+                fileName = req.toUrl(parsed.moduleName + extPart) + '.js';
+
+            //Leverage own load() method to load plugin value, but only
+            //write out values that do not have the strip argument,
+            //to avoid any potential issues with ! in file names.
+            text.load(nonStripName, req, function (value) {
+                //Use own write() method to construct full module value.
+                //But need to create shell that translates writeFile's
+                //write() to the right interface.
+                var textWrite = function (contents) {
+                    return write(fileName, contents);
+                };
+                textWrite.asModule = function (moduleName, contents) {
+                    return write.asModule(moduleName, fileName, contents);
+                };
+
+                text.write(pluginName, nonStripName, textWrite, config);
+            }, config);
+        }
+    };
+
+    if (masterConfig.env === 'node' || (!masterConfig.env &&
+            typeof process !== "undefined" &&
+            process.versions &&
+            !!process.versions.node &&
+            !process.versions['node-webkit'])) {
+        //Using special require.nodeRequire, something added by r.js.
+        fs = require.nodeRequire('fs');
+
+        text.get = function (url, callback, errback) {
+            try {
                 var file = fs.readFileSync(url, 'utf8');
                 //Remove BOM (Byte Mark Order) from utf8 files if it is there.
                 if (file.indexOf('\uFEFF') === 0) {
                     file = file.substring(1);
                 }
                 callback(file);
-            };
-        } else if (typeof Packages !== 'undefined') {
-            //Why Java, why is this so awkward?
-            get = function (url, callback) {
-                var encoding = "utf-8",
-                    file = new java.io.File(url),
-                    lineSeparator = java.lang.System.getProperty("line.separator"),
-                    input = new java.io.BufferedReader(new java.io.InputStreamReader(new java.io.FileInputStream(file), encoding)),
-                    stringBuffer, line,
-                    content = '';
-                try {
-                    stringBuffer = new java.lang.StringBuffer();
-                    line = input.readLine();
-
-                    // Byte Order Mark (BOM) - The Unicode Standard, version 3.0, page 324
-                    // http://www.unicode.org/faq/utf_bom.html
-
-                    // Note that when we use utf-8, the BOM should appear as "EF BB BF", but it doesn't due to this bug in the JDK:
-                    // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4508058
-                    if (line && line.length() && line.charAt(0) === 0xfeff) {
-                        // Eat the BOM, since we've already found the encoding on this file,
-                        // and we plan to concatenating this buffer with others; the BOM should
-                        // only appear at the top of a file.
-                        line = line.substring(1);
-                    }
-
-                    stringBuffer.append(line);
-
-                    while ((line = input.readLine()) !== null) {
-                        stringBuffer.append(lineSeparator);
-                        stringBuffer.append(line);
-                    }
-                    //Make sure we return a JavaScript string and not a Java string.
-                    content = String(stringBuffer.toString()); //String
-                } finally {
-                    input.close();
-                }
-                callback(content);
-            };
-        }
-
-        text = {
-            version: '1.0.7',
-
-            strip: function (content) {
-                //Strips <?xml ...?> declarations so that external SVG and XML
-                //documents can be added to a document without worry. Also, if the string
-                //is an HTML document, only the part inside the body tag is returned.
-                if (content) {
-                    content = content.replace(xmlRegExp, "");
-                    var matches = content.match(bodyRegExp);
-                    if (matches) {
-                        content = matches[1];
-                    }
-                } else {
-                    content = "";
-                }
-                return content;
-            },
-
-            jsEscape: function (content) {
-                return content.replace(/(['\\])/g, '\\$1')
-                    .replace(/[\f]/g, "\\f")
-                    .replace(/[\b]/g, "\\b")
-                    .replace(/[\n]/g, "\\n")
-                    .replace(/[\t]/g, "\\t")
-                    .replace(/[\r]/g, "\\r");
-            },
-
-            createXhr: function () {
-                //Would love to dump the ActiveX crap in here. Need IE 6 to die first.
-                var xhr, i, progId;
-                if (typeof XMLHttpRequest !== "undefined") {
-                    return new XMLHttpRequest();
-                } else {
-                    for (i = 0; i < 3; i++) {
-                        progId = progIds[i];
-                        try {
-                            xhr = new ActiveXObject(progId);
-                        } catch (e) {}
-
-                        if (xhr) {
-                            progIds = [progId];  // so faster next time
-                            break;
-                        }
-                    }
-                }
-
-                if (!xhr) {
-                    throw new Error("createXhr(): XMLHttpRequest not available");
-                }
-
-                return xhr;
-            },
-
-            get: get,
-
-            /**
-             * Parses a resource name into its component parts. Resource names
-             * look like: module/name.ext!strip, where the !strip part is
-             * optional.
-             * @param {String} name the resource name
-             * @returns {Object} with properties "moduleName", "ext" and "strip"
-             * where strip is a boolean.
-             */
-            parseName: function (name) {
-                var strip = false, index = name.indexOf("."),
-                    modName = name.substring(0, index),
-                    ext = name.substring(index + 1, name.length);
-
-                index = ext.indexOf("!");
-                if (index !== -1) {
-                    //Pull off the strip arg.
-                    strip = ext.substring(index + 1, ext.length);
-                    strip = strip === "strip";
-                    ext = ext.substring(0, index);
-                }
-
-                return {
-                    moduleName: modName,
-                    ext: ext,
-                    strip: strip
-                };
-            },
-
-            xdRegExp: /^((\w+)\:)?\/\/([^\/\\]+)/,
-
-            /**
-             * Is an URL on another domain. Only works for browser use, returns
-             * false in non-browser environments. Only used to know if an
-             * optimized .js version of a text resource should be loaded
-             * instead.
-             * @param {String} url
-             * @returns Boolean
-             */
-            useXhr: function (url, protocol, hostname, port) {
-                var match = text.xdRegExp.exec(url),
-                    uProtocol, uHostName, uPort;
-                if (!match) {
-                    return true;
-                }
-                uProtocol = match[2];
-                uHostName = match[3];
-
-                uHostName = uHostName.split(':');
-                uPort = uHostName[1];
-                uHostName = uHostName[0];
-
-                return (!uProtocol || uProtocol === protocol) &&
-                       (!uHostName || uHostName === hostname) &&
-                       ((!uPort && !uHostName) || uPort === port);
-            },
-
-            finishLoad: function (name, strip, content, onLoad, config) {
-                content = strip ? text.strip(content) : content;
-                if (config.isBuild) {
-                    buildMap[name] = content;
-                }
-                onLoad(content);
-            },
-
-            load: function (name, req, onLoad, config) {
-                //Name has format: some.module.filext!strip
-                //The strip part is optional.
-                //if strip is present, then that means only get the string contents
-                //inside a body tag in an HTML string. For XML/SVG content it means
-                //removing the <?xml ...?> declarations so the content can be inserted
-                //into the current doc without problems.
-
-                // Do not bother with the work if a build and text will
-                // not be inlined.
-                if (config.isBuild && !config.inlineText) {
-                    onLoad();
-                    return;
-                }
-
-                var parsed = text.parseName(name),
-                    nonStripName = parsed.moduleName + '.' + parsed.ext,
-                    url = req.toUrl(nonStripName),
-                    useXhr = (config && config.text && config.text.useXhr) ||
-                             text.useXhr;
-
-                //Load the text. Use XHR if possible and in a browser.
-                if (!hasLocation || useXhr(url, defaultProtocol, defaultHostName, defaultPort)) {
-                    text.get(url, function (content) {
-                        text.finishLoad(name, parsed.strip, content, onLoad, config);
-                    });
-                } else {
-                    //Need to fetch the resource across domains. Assume
-                    //the resource has been optimized into a JS module. Fetch
-                    //by the module name + extension, but do not include the
-                    //!strip part to avoid file system issues.
-                    req([nonStripName], function (content) {
-                        text.finishLoad(parsed.moduleName + '.' + parsed.ext,
-                                        parsed.strip, content, onLoad, config);
-                    });
-                }
-            },
-
-            write: function (pluginName, moduleName, write, config) {
-                if (moduleName in buildMap) {
-                    var content = text.jsEscape(buildMap[moduleName]);
-                    write.asModule(pluginName + "!" + moduleName,
-                                   "define(function () { return '" +
-                                       content +
-                                   "';});\n");
-                }
-            },
-
-            writeFile: function (pluginName, moduleName, req, write, config) {
-                var parsed = text.parseName(moduleName),
-                    nonStripName = parsed.moduleName + '.' + parsed.ext,
-                    //Use a '.js' file name so that it indicates it is a
-                    //script that can be loaded across domains.
-                    fileName = req.toUrl(parsed.moduleName + '.' +
-                                         parsed.ext) + '.js';
-
-                //Leverage own load() method to load plugin value, but only
-                //write out values that do not have the strip argument,
-                //to avoid any potential issues with ! in file names.
-                text.load(nonStripName, req, function (value) {
-                    //Use own write() method to construct full module value.
-                    //But need to create shell that translates writeFile's
-                    //write() to the right interface.
-                    var textWrite = function (contents) {
-                        return write(fileName, contents);
-                    };
-                    textWrite.asModule = function (moduleName, contents) {
-                        return write.asModule(moduleName, fileName, contents);
-                    };
-
-                    text.write(pluginName, nonStripName, textWrite, config);
-                }, config);
+            } catch (e) {
+                errback(e);
             }
         };
+    } else if (masterConfig.env === 'xhr' || (!masterConfig.env &&
+            text.createXhr())) {
+        text.get = function (url, callback, errback, headers) {
+            var xhr = text.createXhr(), header;
+            xhr.open('GET', url, true);
 
-        return text;
-    });
-}());
+            //Allow plugins direct access to xhr headers
+            if (headers) {
+                for (header in headers) {
+                    if (headers.hasOwnProperty(header)) {
+                        xhr.setRequestHeader(header.toLowerCase(), headers[header]);
+                    }
+                }
+            }
 
+            //Allow overrides specified in config
+            if (masterConfig.onXhr) {
+                masterConfig.onXhr(xhr, url);
+            }
+
+            xhr.onreadystatechange = function (evt) {
+                var status, err;
+                //Do not explicitly handle errors, those should be
+                //visible via console output in the browser.
+                if (xhr.readyState === 4) {
+                    status = xhr.status;
+                    if (status > 399 && status < 600) {
+                        //An http 4xx or 5xx error. Signal an error.
+                        err = new Error(url + ' HTTP status: ' + status);
+                        err.xhr = xhr;
+                        errback(err);
+                    } else {
+                        callback(xhr.responseText);
+                    }
+
+                    if (masterConfig.onXhrComplete) {
+                        masterConfig.onXhrComplete(xhr, url);
+                    }
+                }
+            };
+            xhr.send(null);
+        };
+    } else if (masterConfig.env === 'rhino' || (!masterConfig.env &&
+            typeof Packages !== 'undefined' && typeof java !== 'undefined')) {
+        //Why Java, why is this so awkward?
+        text.get = function (url, callback) {
+            var stringBuffer, line,
+                encoding = "utf-8",
+                file = new java.io.File(url),
+                lineSeparator = java.lang.System.getProperty("line.separator"),
+                input = new java.io.BufferedReader(new java.io.InputStreamReader(new java.io.FileInputStream(file), encoding)),
+                content = '';
+            try {
+                stringBuffer = new java.lang.StringBuffer();
+                line = input.readLine();
+
+                // Byte Order Mark (BOM) - The Unicode Standard, version 3.0, page 324
+                // http://www.unicode.org/faq/utf_bom.html
+
+                // Note that when we use utf-8, the BOM should appear as "EF BB BF", but it doesn't due to this bug in the JDK:
+                // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4508058
+                if (line && line.length() && line.charAt(0) === 0xfeff) {
+                    // Eat the BOM, since we've already found the encoding on this file,
+                    // and we plan to concatenating this buffer with others; the BOM should
+                    // only appear at the top of a file.
+                    line = line.substring(1);
+                }
+
+                if (line !== null) {
+                    stringBuffer.append(line);
+                }
+
+                while ((line = input.readLine()) !== null) {
+                    stringBuffer.append(lineSeparator);
+                    stringBuffer.append(line);
+                }
+                //Make sure we return a JavaScript string and not a Java string.
+                content = String(stringBuffer.toString()); //String
+            } finally {
+                input.close();
+            }
+            callback(content);
+        };
+    } else if (masterConfig.env === 'xpconnect' || (!masterConfig.env &&
+            typeof Components !== 'undefined' && Components.classes &&
+            Components.interfaces)) {
+        //Avert your gaze!
+        Cc = Components.classes,
+        Ci = Components.interfaces;
+        Components.utils['import']('resource://gre/modules/FileUtils.jsm');
+        xpcIsWindows = ('@mozilla.org/windows-registry-key;1' in Cc);
+
+        text.get = function (url, callback) {
+            var inStream, convertStream, fileObj,
+                readData = {};
+
+            if (xpcIsWindows) {
+                url = url.replace(/\//g, '\\');
+            }
+
+            fileObj = new FileUtils.File(url);
+
+            //XPCOM, you so crazy
+            try {
+                inStream = Cc['@mozilla.org/network/file-input-stream;1']
+                           .createInstance(Ci.nsIFileInputStream);
+                inStream.init(fileObj, 1, 0, false);
+
+                convertStream = Cc['@mozilla.org/intl/converter-input-stream;1']
+                                .createInstance(Ci.nsIConverterInputStream);
+                convertStream.init(inStream, "utf-8", inStream.available(),
+                Ci.nsIConverterInputStream.DEFAULT_REPLACEMENT_CHARACTER);
+
+                convertStream.readString(inStream.available(), readData);
+                convertStream.close();
+                inStream.close();
+                callback(readData.value);
+            } catch (e) {
+                throw new Error((fileObj && fileObj.path || '') + ': ' + e);
+            }
+        };
+    }
+    return text;
+});
 define('text!app/main/views/main.html',[],function () { return '<div id="main_template">\r\n    <div id="main">\r\n        <div id="left" data-class="_left-width">Navigation</div>\r\n        <div id="leftSplitter" data-bind="splitter: \'vertical\'"></div>\r\n        <div id="header">Header</div>\r\n        <div id="headerSplitter" data-bind="splitter: \'horizontal\'"></div>\r\n        <div id="content1">Content 1</div>\r\n        <!--\r\n        <div id="content1">\r\n            <div class="title">THIS IS CONTENT 1</div>\r\n            <div class="minimize">_</div>\r\n            <div class="restore">[]</div>\r\n            <div class="close">X</div>\r\n            <div class="content">Content 1</div>\r\n        </div>\r\n        <div id="content2">\r\n            <div class="title">THIS IS CONTENT 2</div>\r\n            <div class="minimize">_</div>\r\n            <div class="restore">[]</div>\r\n            <div class="close">X</div>\r\n            <div class="content">Content 2</div>\r\n        </div>\r\n        -->\r\n        <div id="footer">Footer</div>\r\n    </div>\r\n</div>\r\n';});
 
+/*global define*/
+/*jslint unparam:true*/
+define('bindings',[],function () {
+    
+
+    return {
+        load: function (name, req, onLoad, config) {
+            var names = name.match(/([\w\-]+)/g) || [];
+
+            names = names.map(function (n) {
+                if (n.indexOf('.js', n.length - 3) > -1) {
+                    return n;
+                }
+
+                if (n.indexOf('Bindings', n.length - 'Bindings'.length) === -1) {
+                    n = n + 'Bindings';
+                }
+
+                if (n.indexOf('/') === -1) {
+                    return './bindings/' + n;
+                }
+
+                return n;
+            });
+
+            names.push('scalejs.mvvm', 'scalejs!core');
+
+            req(names, function () {
+                var core = arguments[arguments.length - 1],
+                    bindings = Array.prototype.slice.call(arguments, 0, arguments.length - 2);
+
+                if (!config.isBuild) {
+                    core.mvvm.registerBindings.apply(null, bindings);
+                }
+
+                onLoad(bindings);
+            });
+        }
+    };
+});
 /*global define, console, setTimeout */
 /*jslint sloppy: true*/
-define('app/main/bindings/mainBindings.js',[
-    'scalejs!sandbox',
+define('app/main/bindings/mainBindings',[
+    'sandbox!main',
     'knockout'
 ], function (
     sandbox,
@@ -12971,10 +14046,6 @@ define('app/main/bindings/mainBindings.js',[
             };
         },
         'main-columns': function () {
-            setTimeout(function () {
-                messageBus.notify('css-grid-layout');
-            });
-
             return {
                 attr: {
                     style: '-ms-grid-columns: ' + unwrap(this.columns)
@@ -12998,37 +14069,325 @@ define('app/main/bindings/mainBindings.js',[
     };
 });
 
+/*global define*/
+/*jslint unparam:true*/
+define('styles',[],function () {
+    
+
+    return {
+        load: function (name, req, onLoad, config) {
+            var names = name.match(/([^,]+)/g) || [];
+
+            names = names.map(function (n) {
+                if (n.indexOf('/') === -1) {
+                    n = './styles/' + n;
+                }
+
+                return 'css!' + n;
+            });
+
+            req(names, function () {
+                onLoad(Array.prototype.slice.call(arguments, 0, arguments.length));
+            });
+        }
+    };
+});
+/*
+ * css.normalize.js
+ *
+ * CSS Normalization
+ *
+ * CSS paths are normalized based on an optional basePath and the RequireJS config
+ *
+ * Usage:
+ *   normalize(css, fromBasePath, toBasePath);
+ *
+ * css: the stylesheet content to normalize
+ * fromBasePath: the absolute base path of the css relative to any root (but without ../ backtracking)
+ * toBasePath: the absolute new base path of the css relative to the same root
+ * 
+ * Absolute dependencies are left untouched.
+ *
+ * Urls in the CSS are picked up by regular expressions.
+ * These will catch all statements of the form:
+ *
+ * url(*)
+ * url('*')
+ * url("*")
+ * 
+ * @import '*'
+ * @import "*"
+ *
+ * (and so also @import url(*) variations)
+ *
+ * For urls needing normalization
+ *
+ */
+
+define('normalize',[],function() {
+  
+  // regular expression for removing double slashes
+  // eg http://www.example.com//my///url/here -> http://www.example.com/my/url/here
+  var slashes = /([^:])\/+/g
+  var removeDoubleSlashes = function(uri) {
+    return uri.replace(slashes, '$1/');
+  }
+
+  // given a relative URI, and two absolute base URIs, convert it from one base to another
+  var protocolRegEx = /[^\:\/]*:\/\/([^\/])*/;
+  var absUrlRegEx = /^(\/|data:)/;
+  function convertURIBase(uri, fromBase, toBase) {
+    if (uri.match(absUrlRegEx) || uri.match(protocolRegEx))
+      return uri;
+    uri = removeDoubleSlashes(uri);
+    // if toBase specifies a protocol path, ensure this is the same protocol as fromBase, if not
+    // use absolute path at fromBase
+    var toBaseProtocol = toBase.match(protocolRegEx);
+    var fromBaseProtocol = fromBase.match(protocolRegEx);
+    if (fromBaseProtocol && (!toBaseProtocol || toBaseProtocol[1] != fromBaseProtocol[1] || toBaseProtocol[2] != fromBaseProtocol[2]))
+      return absoluteURI(uri, fromBase);
+    
+    else {
+      return relativeURI(absoluteURI(uri, fromBase), toBase);
+    }
+  };
+  
+  // given a relative URI, calculate the absolute URI
+  function absoluteURI(uri, base) {
+    if (uri.substr(0, 2) == './')
+      uri = uri.substr(2);
+
+    // absolute urls are left in tact
+    if (uri.match(absUrlRegEx) || uri.match(protocolRegEx))
+      return uri;
+    
+    var baseParts = base.split('/');
+    var uriParts = uri.split('/');
+    
+    baseParts.pop();
+    
+    while (curPart = uriParts.shift())
+      if (curPart == '..')
+        baseParts.pop();
+      else
+        baseParts.push(curPart);
+    
+    return baseParts.join('/');
+  };
+
+
+  // given an absolute URI, calculate the relative URI
+  function relativeURI(uri, base) {
+    
+    // reduce base and uri strings to just their difference string
+    var baseParts = base.split('/');
+    baseParts.pop();
+    base = baseParts.join('/') + '/';
+    i = 0;
+    while (base.substr(i, 1) == uri.substr(i, 1))
+      i++;
+    while (base.substr(i, 1) != '/')
+      i--;
+    base = base.substr(i + 1);
+    uri = uri.substr(i + 1);
+
+    // each base folder difference is thus a backtrack
+    baseParts = base.split('/');
+    var uriParts = uri.split('/');
+    out = '';
+    while (baseParts.shift())
+      out += '../';
+    
+    // finally add uri parts
+    while (curPart = uriParts.shift())
+      out += curPart + '/';
+    
+    return out.substr(0, out.length - 1);
+  };
+  
+  var normalizeCSS = function(source, fromBase, toBase) {
+
+    fromBase = removeDoubleSlashes(fromBase);
+    toBase = removeDoubleSlashes(toBase);
+
+    var urlRegEx = /@import\s*("([^"]*)"|'([^']*)')|url\s*\(\s*(\s*"([^"]*)"|'([^']*)'|[^\)]*\s*)\s*\)/ig;
+    var result, url, source;
+
+    while (result = urlRegEx.exec(source)) {
+      url = result[3] || result[2] || result[5] || result[6] || result[4];
+      var newUrl;
+      newUrl = convertURIBase(url, fromBase, toBase);
+      var quoteLen = result[5] || result[6] ? 1 : 0;
+      source = source.substr(0, urlRegEx.lastIndex - url.length - quoteLen - 1) + newUrl + source.substr(urlRegEx.lastIndex - quoteLen - 1);
+      urlRegEx.lastIndex = urlRegEx.lastIndex + (newUrl.length - url.length);
+    }
+    
+    return source;
+  };
+  
+  normalizeCSS.convertURIBase = convertURIBase;
+  normalizeCSS.absoluteURI = absoluteURI;
+  normalizeCSS.relativeURI = relativeURI;
+  
+  return normalizeCSS;
+});
+
+/*
+ * Require-CSS RequireJS css! loader plugin
+ * 0.0.8
+ * Guy Bedford 2013
+ * MIT
+ */
+
+/*
+ *
+ * Usage:
+ *  require(['css!./mycssFile']);
+ *
+ * Tested and working in (up to latest versions as of March 2013):
+ * Android
+ * iOS 6
+ * IE 6 - 10
+ * Chome 3 - 26
+ * Firefox 3.5 - 19
+ * Opera 10 - 12
+ * 
+ * browserling.com used for virtual testing environment
+ *
+ * Credit to B Cavalier & J Hann for the IE 6 - 9 method,
+ * refined with help from Martin Cermak
+ * 
+ * Sources that helped along the way:
+ * - https://developer.mozilla.org/en-US/docs/Browser_detection_using_the_user_agent
+ * - http://www.phpied.com/when-is-a-stylesheet-really-loaded/
+ * - https://github.com/cujojs/curl/blob/master/src/curl/plugin/css.js
+ *
+ */
+
+define('css',[],function() {
+  if (typeof window == 'undefined')
+    return { load: function(n, r, load){ load() } };
+
+  var head = document.getElementsByTagName('head')[0];
+
+  var engine = window.navigator.userAgent.match(/Trident\/([^ ;]*)|AppleWebKit\/([^ ;]*)|Opera\/([^ ;]*)|rv\:([^ ;]*)(.*?)Gecko\/([^ ;]*)|MSIE\s([^ ;]*)/) || 0;
+
+  // use <style> @import load method (IE < 9, Firefox < 18)
+  var useImportLoad = false;
+  
+  // set to false for explicit <link> load checking when onload doesn't work perfectly (webkit)
+  var useOnload = true;
+
+  // trident / msie
+  if (engine[1] || engine[7])
+    useImportLoad = parseInt(engine[1]) < 6 || parseInt(engine[7]) <= 9;
+  // webkit
+  else if (engine[2])
+    useOnload = false;
+  // gecko
+  else if (engine[4])
+    useImportLoad = parseInt(engine[4]) < 18;
+  
+  //main api object
+  var cssAPI = {};
+  
+  cssAPI.pluginBuilder = './css-builder';
+
+  // <style> @import load method
+  var curStyle;
+  var createStyle = function () {
+    curStyle = document.createElement('style');
+    head.appendChild(curStyle);
+  }
+  var importLoad = function(url, callback) {
+    createStyle();
+
+    var curSheet = curStyle.styleSheet || curStyle.sheet;
+
+    if (curSheet && curSheet.addImport) {
+      // old IE
+      curSheet.addImport(url);
+      curStyle.onload = callback;
+    }
+    else {
+      // old Firefox
+      curStyle.textContent = '@import "' + url + '";';
+
+      var loadInterval = setInterval(function() {
+        try {
+          curStyle.sheet.cssRules;
+          clearInterval(loadInterval);
+          callback();
+        } catch(e) {}
+      }, 10);
+    }
+  }
+
+  // <link> load method
+  var linkLoad = function(url, callback) {
+    var link = document.createElement('link');
+    link.type = 'text/css';
+    link.rel = 'stylesheet';
+    if (useOnload)
+      link.onload = function() {
+        link.onload = function() {};
+        // for style dimensions queries, a short delay can still be necessary
+        setTimeout(callback, 7);
+      }
+    else
+      var loadInterval = setInterval(function() {
+        for (var i = 0; i < document.styleSheets.length; i++) {
+          var sheet = document.styleSheets[i];
+          if (sheet.href == link.href) {
+            clearInterval(loadInterval);
+            return callback();
+          }
+        }
+      }, 10);
+    link.href = url;
+    head.appendChild(link);
+  }
+
+  cssAPI.normalize = function(name, normalize) {
+    if (name.substr(name.length - 4, 4) == '.css')
+      name = name.substr(0, name.length - 4);
+    
+    return normalize(name);
+  }
+  
+  cssAPI.load = function(cssId, req, load, config) {
+
+    (useImportLoad ? importLoad : linkLoad)(req.toUrl(cssId + '.css'), load);
+
+  }
+
+  return cssAPI;
+});
+
+define('css!app/main/styles/main',[],function(){});
 /*global define */
 define('app/main/mainModule',[
-    'scalejs!sandbox/main',
+    'sandbox!main',
     'app/main/viewmodels/mainViewModel',
-    'text!app/main/views/main.html',
-    'app/main/bindings/mainBindings.js'
+    'views!main',
+    'bindings!main',
+    'styles!main'
 ], function (
     sandbox,
-    mainViewModel,
-    mainTemplate,
-    mainBindings
+    mainViewModel
 ) {
     
+
     return function main() {
         var // imports
             invalidateLayout = sandbox.layout.invalidate,
             root = sandbox.mvvm.root,
-            dataClass = sandbox.mvvm.dataClass,
-            registerBindings = sandbox.mvvm.registerBindings,
-            registerTemplates = sandbox.mvvm.registerTemplates,
+            template = sandbox.mvvm.template,
             registerStates = sandbox.state.registerStates,
             state = sandbox.state.builder.state,
             onEntry = sandbox.state.builder.onEntry,
             // vars
-            viewModel = mainViewModel(sandbox);
-
-        // Register module bindings
-        registerBindings(mainBindings);
-
-        // Register module templates
-        registerTemplates(mainTemplate);
+            viewModel = mainViewModel();
 
         // Register application state for the module.
         registerStates('root',
@@ -13037,26 +14396,27 @@ define('app/main/mainModule',[
                     onEntry(function () {
                         // Render viewModel using 'main-text' binding 
                         // and show it set root view
-                        root(dataClass('main', viewModel));
-                        invalidateLayout();
+                        //root(template('main_template', viewModel));
+                        //invalidateLayout(true);
+
                     }))));
     };
 });
 
+define("scalejs/extensions", ["scalejs.functional","scalejs.layout-cssgrid","scalejs.layout-cssgrid-splitter","scalejs.linq-linqjs","scalejs.mvvm","scalejs.statechart-scion"], function () { return Array.prototype.slice(arguments); });
 /*global require*/
 require([
-    'scalejs!application',
-    'app/main/mainModule'
+    'scalejs!application/main'
 ], function (
-    application,
-    main
+    application
 ) {
     
-
-    application.registerModules(main);
 
     application.run();
 });
 
 
 define("app/app", function(){});
+
+(function(c){var d=document,a='appendChild',i='styleSheet',s=d.createElement('style');s.type='text/css';d.getElementsByTagName('head')[0][a](s);s[i]?s[i].cssText=c:s[a](d.createTextNode(c));})
+('#main > * {\r\n    border: dashed 1px red;\r\n    padding-top: 10px;\r\n    -webkit-touch-callout: none;\r\n    -webkit-user-select: none;\r\n    -khtml-user-select: none;\r\n    -moz-user-select: none;\r\n    -ms-user-select: none;\r\n    user-select: none;\r\n}\r\n\r\n#main {\r\n\twidth: 100%;\r\n    height: 100%;\r\n    margin: 0px;\r\n\tdisplay: -ms-grid;\r\n\t-ms-grid-columns: 300px auto 1fr 1fr; \r\n\t-ms-grid-rows: 100px auto 1fr 100px; \r\n}\r\n\r\n#left {\r\n    /*width: 300px;*/\r\n\t-ms-grid-row: 1; \r\n\t-ms-grid-column: 1; \r\n    -ms-grid-row-span: 4;\r\n}\r\n\r\n#leftSplitter {\r\n    width: 10px;\r\n    -ms-grid-row: 1;\r\n\t-ms-grid-column: 2; \r\n    -ms-grid-row-span: 4;\r\n}\r\n\r\n#header {\r\n    /*transition: left 1s; */\r\n\t-ms-grid-row: 1; \r\n\t-ms-grid-column: 3; \r\n    -ms-grid-column-span: 2;\r\n    text-align: right;\r\n}\r\n\r\n#headerSplitter {\r\n    /*transition: left 1s; */\r\n    height: 10px;\r\n\t-ms-grid-row: 2; \r\n\t-ms-grid-column: 3; \r\n    -ms-grid-column-span: 2;\r\n    text-align: right;\r\n    margin-top: 0px;\r\n    margin-bottom: 0px;\r\n}\r\n\r\n#content1 {\r\n    /*transition: left 1s; */\r\n\t-ms-grid-row: 3; \r\n\t-ms-grid-column: 3; \r\n    /*display: ms-grid;*/\r\n\t-ms-grid-rows: 20px 1fr; \r\n    -ms-grid-columns: 1fr auto auto auto;\r\n}\r\n\r\n.title {\r\n    -ms-grid-row: 1;\r\n    -ms-grid-column: 1;\r\n}\r\n\r\n.minimize {\r\n    width: 20px;\r\n    -ms-grid-row: 1;\r\n    -ms-grid-column: 2;\r\n}\r\n\r\n.restore {\r\n    width: 20px;\r\n    -ms-grid-row: 1;\r\n    -ms-grid-column: 3;\r\n}\r\n\r\n.close {\r\n    width: 20px;\r\n    -ms-grid-row: 1;\r\n    -ms-grid-column: 4;\r\n}\r\n\r\n.content {\r\n    height: 20px;\r\n    -ms-grid-row: 2;\r\n    -ms-grid-column-span: 4;\r\n}\r\n\r\n#content2 {\r\n\t-ms-grid-row: 2; \r\n\t-ms-grid-column: 4; \r\n    display: -ms-grid;\r\n\t-ms-grid-rows: 20px 1fr; \r\n    -ms-grid-columns: 1fr auto auto auto;\r\n}\r\n\r\n#footer {\r\n    /*transition: left 1s; */\r\n\t-ms-grid-row: 4; \r\n\t-ms-grid-column: 3; \r\n    -ms-grid-column-span: 2;\r\n}\r\n');
