@@ -3383,7 +3383,7 @@ define('scalejs.layout-cssgrid/utils.sheetLoader',[
         headerStyles.forEach(function (styleText, i) {
             var parsed;
 
-            if (stylesheet.length === 0) {
+            if (styleText.length === 0) {
                 parsed = {
                     rulelist: []
                 };
@@ -14396,8 +14396,8 @@ define('app/main/mainModule',[
                     onEntry(function () {
                         // Render viewModel using 'main-text' binding 
                         // and show it set root view
-                        //root(template('main_template', viewModel));
-                        //invalidateLayout(true);
+                        root(template('main_template', viewModel));
+                        invalidateLayout(true);
 
                     }))));
     };

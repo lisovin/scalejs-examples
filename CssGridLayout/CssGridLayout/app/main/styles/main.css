@@ -40,6 +40,11 @@
     text-align: right;
 }
 
+html, body {
+height: 100%;
+margin: 0px
+}
+
 #headerSplitter {
     /*transition: left 1s; */
     height: 10px;
