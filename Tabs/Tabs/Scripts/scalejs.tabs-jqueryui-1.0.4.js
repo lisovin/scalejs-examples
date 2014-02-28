@@ -54,10 +54,8 @@ define('text!scalejs.tabs-jqueryui/tabs.html', [], function () { return ''
 /*jslint sloppy: true*/
 define('scalejs.tabs-jqueryui/tabsBindings', {
     'tabs-header': function (ctx) {
+        //console.log(this.header(), ctx.$index());
         return {
-            attr: {
-                href: '#tabs-' + ctx.$index()
-            },
             click: function (data, e) {
                 e.preventDefault(); //stops hash
             }
@@ -68,18 +66,9 @@ define('scalejs.tabs-jqueryui/tabsBindings', {
             text: this.header
         };
     },
-    'tabs-content-container': function (ctx) {
-        return {
-            attr: {
-                id: 'tabs-' + ctx.$index()
-            }
-        };
-    },
     'tabs-items-source': function () {
         return {
-            foreach: {
-                data: this.itemsSource
-            }
+            foreach: this.itemsSource
         };
     },
     'tabs-header-edit': function () {
@@ -200,6 +189,8 @@ define('scalejs.tabs-jqueryui', [
     function wrapValueAccessor(valueAccessor, element) {
         return function () {
             var data = valueAccessor(),
+                el,
+                active,
                 $tabs,
                 $menu = {};
 
@@ -207,7 +198,7 @@ define('scalejs.tabs-jqueryui', [
              * setupTabs: creates tabs control with edittable headers
              */
             function setupTabs() {
-                var el = $(ko.virtualElements.firstChild(element)).parent();
+                el = $(ko.virtualElements.firstChild(element)).parent();
 
                 /* finds and hides add and more menu */
                 $menu.add = $($(el).find('.tabs-add')).hide();
@@ -258,7 +249,24 @@ define('scalejs.tabs-jqueryui', [
              */
             function refreshTabs(active) {
                 /* refreshes jqueryui tabs */
-                $tabs.tabs('refresh');
+
+                //knockout binding to index just does not work.
+                //luckily this does.
+                $tabs.find('a[data-class="tabs-header"]').each(function (i, el) {
+                    $(el).attr('href', '#tabs-' + i);
+                });
+                $tabs.find('div[data-class="tabs-content-container"]').each(function (i, el) {
+                    $(el).attr('id', 'tabs-' + i);
+                });
+
+                // need to destroy tabs and re-initalize
+                $tabs.tabs('destroy');
+                $tabs = $($(el).find('.tabs')).tabs();
+
+                //may or may not be neccessary
+                setTimeout(function() {
+                    $tabs.find('.tab-headers').sortable('refresh');
+                });
 
                 /* activates the appropriate tab */
                 $tabs.tabs("option", "active", active || $tabs.tabs("option", "active"));
@@ -274,9 +282,9 @@ define('scalejs.tabs-jqueryui', [
                 /* binds click handler to more menu item */
                 $menu.more.find('.tabs-menu-item').each(function (i, el) {
                     $(el).unbind().click(function () {
-                        $tabs.tabs("option", "active", i);
+                        //$tabs.tabs("option", "active", i);
                         $menu.more.bPopup({ opacity: 0 }).close();
-                        refreshTabs();
+                        refreshTabs(i);
                     });
                 });
                 
@@ -316,7 +324,7 @@ define('scalejs.tabs-jqueryui', [
                 $tab = $tabs.find('[href="#tabs-add"]');
                 $tab.unbind().click(function (e) {
                     e.preventDefault();
-                    $menu[type].bPopup({
+                    $menu.add.bPopup({
                         follow: [false, false],
                         position: [$tab.offset().left + $tabs.find('li.add').width(), $tab.offset().top],
                         opacity: 0,
@@ -331,10 +339,10 @@ define('scalejs.tabs-jqueryui', [
                 axis: "x",
                 start: function () {
                     //remove add tab
-                    $tabs.find('li.unsortable').remove();
+                    //$tabs.find('li.unsortable').remove();
                 },
                 stop: function (args) {
-                    refreshTabs(args.targetIndex);
+                    active = args.targetIndex;
                 }
             };
 
@@ -349,6 +357,10 @@ define('scalejs.tabs-jqueryui', [
 	            return menuItem;
 	        }).toArray());
 
+	        data.afterMove = function () {
+	            console.log('sort complete');
+	            refreshTabs();
+	        }
 	        data.refreshTabs = refreshTabs;
 
 	        data.more = ko.observable(false);

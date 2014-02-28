@@ -25383,7 +25383,12 @@ define('text!scalejs.tabs-jqueryui/tabs.html', [], function () { return ''
  + '        </div>'
  + '        <!-- /ko -->'
  + '    </div>'
- + '    <div class="tabs-menu">'
+ + '    <div class="tabs-more tabs-menu">'
+ + '        <!-- ko foreach: itemsSource -->'
+ + '            <div class="tabs-menu-item"><span data-class="tabs-more-item"></span><div class="iconClose" data-class="tab-close"></div></div>'
+ + '        <!-- /ko -->'
+ + '    </div> '
+ + '    <div class="tabs-add tabs-menu">'
  + '        <!-- ko foreach: menuItems -->'
  + '            <div class="tabs-menu-item" data-bind="text: header, click: addTab"></div>'
  + '        <!-- /ko -->'
@@ -25394,13 +25399,14 @@ define('text!scalejs.tabs-jqueryui/tabs.html', [], function () { return ''
  + '     <p data-bind="text: $data"></p>'
  + '</div>'
  + ''
- + ''
+ + '<div id="tabs_more_item_template"><li class="tabs-menu-item"><div class="tabs-header-text" data-class="tabs-header-text"></div><div class="iconClose" data-class="tab-close"></div></li></div>'
  + '<div id="tabs_header_item_template">'
  + '    <li>'
  + '        <a data-class="tabs-header">'
  + '            <div class="tabs-header-text" data-class="tabs-header-text"></div>'
  + '        </a>'
- + '        <div class="iconClose" data-class="tab-close"></div>'
+ + '        <div class="iconClose" data-class="tab-more-close"></div>'
+ + '        <div  class="iconMore" data-class="tab-more"></div>'
  + '        <!--<div class="iconMax" data-class="tab-max"></div>-->'
  + '    </li>'
  + '</div>'
@@ -25472,6 +25478,18 @@ define('scalejs.tabs-jqueryui/tabsBindings', {
         }
         return {};
     },
+    'tab-more-close': function (ctx) {
+        var itemsSource = ctx.$parent.itemsSource,
+            refreshTabs = ctx.$parent.refreshTabs;
+
+        return {
+            click: function () {
+                itemsSource.remove(ctx.$data);
+                refreshTabs();
+            },
+            visible: !ctx.$parent.more()
+        };
+    },
     'tab-close': function (ctx) {
         var itemsSource = ctx.$parent.itemsSource,
             refreshTabs = ctx.$parent.refreshTabs;
@@ -25498,6 +25516,20 @@ define('scalejs.tabs-jqueryui/tabsBindings', {
                 options: this.sortOptions,
                 afterMove: this.afterMove
             }
+        };
+    },
+    'tab-more': function (ctx) {
+        return {
+            visible: ctx.$parent.more,
+            click: ctx.$parent.openMore
+        }
+    },
+    'tabs-more-item': function (ctx) {
+        return {
+            style: {
+                color: ctx.$parent.active() === ctx.$index() ? 'red' : 'white'
+            },
+            text: this.header
         };
     }
 });
@@ -25538,33 +25570,28 @@ define('scalejs.tabs-jqueryui', [
         return function () {
             var data = valueAccessor(),
                 $tabs,
-			    $menu,
-			    $addTab,
-                $headers;            
+                $menu = {};
 
             /*
              * setupTabs: creates tabs control with edittable headers
              */
             function setupTabs() {
-                var el = $(ko.virtualElements.firstChild(element)).parent();        
-                $menu = $($(el).find('.tabs-menu'));
-                $tabs = $($(el).find('.tabs')).tabs();
-                //tabs.tabs('paging', { cycle: true, follow: true, followOnActive: true });
-                $menu.hide();
+                var el = $(ko.virtualElements.firstChild(element)).parent();
 
-                /*
-                 * Remove keyboard navigation from tabs so that editable can work.
-                 */
+                /* finds and hides add and more menu */
+                $menu.add = $($(el).find('.tabs-add')).hide();
+                $menu.more = $($(el).find('.tabs-more')).hide();
+
+                /* initializes jquery tabs */
+                $tabs = $($(el).find('.tabs')).tabs();
+
+                /* enables editable headers */
                 $.widget("ui.tabs", $.ui.tabs, { options: { keyboard: true  },
                     _tabKeydown: function (e) {
                         if (this.options.keyboard) { this._super('_tabKeydown'); }
                         else { return false; }
                     }
                 });
-
-                /*
-                 * Make tabs edittable.
-                 */
                 $tabs.delegate("a.ui-tabs-anchor", "dblclick", function () {
                     var header = ko.dataFor(this).header,
 					    $input,
@@ -25590,50 +25617,83 @@ define('scalejs.tabs-jqueryui', [
                         });
                     }
                 });
+
+                /* binds width calculation on resize */
+                $(window).resize(calculateWidth);
             }
 
             /*
-             * refreshTabs: updates tabs and creates add tab open menu
+             * refreshTabs: updates tabs whenever a significant change is made
              */
             function refreshTabs(active) {
+                /* refreshes jqueryui tabs */
                 $tabs.tabs('refresh');
 
+                /* activates the appropriate tab */
                 $tabs.tabs("option", "active", active || $tabs.tabs("option", "active"));
+                data.active($tabs.tabs("option", "active"));
 
-
-                /*
-                 * Fix height of tab content.
-                 */
+                /* fixes the height of the tabs content */
                 $tabs.find('.ui-tabs-panel').each(function () {
                     var tabsHeight = $tabs.height(),
                         headersHeight = $tabs.find('.tab-headers').height();
                     $(this).height(tabsHeight - headersHeight);
                 });
 
-                /*
-                 * create add tab.
-                 */
-                $tabs.find('li.addtab').remove();
-                $headers = $tabs.find('ul.tab-headers');
-                $headers.append('<li class="unsortable addtab"><a href="#tabs-add">+</a></li>');
-                bindAddTabHandler(openPopup);
-
-            }
-
-            function bindAddTabHandler(handler) {
-                 $addTab = $tabs.find("[href='#tabs-add']");
-                 $addTab.unbind().click(handler);
-            }
-
-            function openPopup(e) {
-                e.preventDefault();
-                $menu.bPopup({
-                    follow: [false, false],
-                    position: [$addTab.offset().left + $tabs.find('li.unsortable').width(), $addTab.offset().top],
-                    opacity: 0,
-                    speed: 0
+                /* binds click handler to more menu item */
+                $menu.more.find('.tabs-menu-item').each(function (i, el) {
+                    $(el).unbind().click(function () {
+                        $tabs.tabs("option", "active", i);
+                        $menu.more.bPopup({ opacity: 0 }).close();
+                        refreshTabs();
+                    });
                 });
-            };
+                
+                createAddTab();
+                calculateWidth();
+            }
+
+            /*
+             * calculateWidth: determines if tabs fit within window
+             */
+            function calculateWidth() {
+                var tabsContainerWidth = $tabs.outerWidth(),
+                    $headers = $tabs.find('ul.tab-headers'),
+                    $tabItems = $headers.find('li').show(),
+                    tabsWidth = $tabItems.get().reduce(function (acc, el) {
+                        acc += $(el).outerWidth();
+                        return acc;
+                    }, 0) + 20;
+                
+                data.more(false);
+                if (tabsWidth > tabsContainerWidth) {
+                    $tabItems.hide();
+                    data.more(true);
+                    $headers.find('.ui-state-active').show();
+                }
+                createAddTab();
+            }
+
+            /*
+             * createAddTab: creates the tab which opens the add tab menu
+             */
+            function createAddTab() {
+                var $tab;
+                $tabs.find('li.add').remove();
+                $headers = $tabs.find('ul.tab-headers');
+                $headers.append('<li class="unsortable add"><a href="#tabs-add">+</a></li>');
+                $tab = $tabs.find('[href="#tabs-add"]');
+                $tab.unbind().click(function (e) {
+                    e.preventDefault();
+                    $menu[type].bPopup({
+                        follow: [false, false],
+                        position: [$tab.offset().left + $tabs.find('li.add').width(), $tab.offset().top],
+                        opacity: 0,
+                        speed: 0
+                    });
+                });
+            }
+
 
             data.sortOptions = {
                 items: "li:not(.unsortable)",
@@ -25650,8 +25710,8 @@ define('scalejs.tabs-jqueryui', [
 	        data.menuItems = observableArray(toEnumerable(unwrap(data.defaultItems)).select(function (item) {
 	            var menuItem = merge(item, {
 	                addTab: function () {
-	                    $menu.bPopup({ opacity: 0 }).close();                           // close menu
-	                    data.itemsSource.push(item.create());                           // add item
+	                    $menu.add.bPopup({ opacity: 0 }).close();                           
+	                    data.itemsSource.push(item.create());                           
 	                    refreshTabs(data.itemsSource().length-1);
 	                }
 	            });
@@ -25659,6 +25719,20 @@ define('scalejs.tabs-jqueryui', [
 	        }).toArray());
 
 	        data.refreshTabs = refreshTabs;
+
+	        data.more = ko.observable(false);
+
+	        data.active = ko.observable(1);
+
+	        data.openMore = function () {
+	            var $tab = $($tabs.find('li').get(1));
+	            $menu.more.bPopup({
+	                follow: [false, false],
+	                position: [$tab.offset().left + 10, $tab.offset().top + $tab.outerHeight() + 10],
+	                opacity: 0,
+	                speed: 0
+	            });
+	        }
 
             return {
                 data: data,
@@ -26188,4 +26262,4 @@ require([
 define("app/app", function(){});
 
 (function(c){var d=document,a='appendChild',i='styleSheet',s=d.createElement('style');s.type='text/css';d.getElementsByTagName('head')[0][a](s);s[i]?s[i].cssText=c:s[a](d.createTextNode(c));})
-('/* jquery UI styles*/\r\n\r\n\r\n.ui-tabs {\r\n\tposition: relative;/* position: relative prevents IE scroll bug (element with position: relative inside container with overflow: auto appear as \"fixed\") */\r\n\tpadding: .2em;\r\n}\r\n.ui-tabs .ui-tabs-nav {\r\n\tmargin: 0;\r\n\tpadding: .2em .2em 0;\r\n}\r\n.ui-tabs .ui-tabs-nav li {\r\n\tlist-style: none;\r\n\tfloat: left;\r\n\tposition: relative;\r\n\ttop: 0;\r\n\tmargin: 1px .2em 0 0;\r\n\tborder-bottom-width: 0;\r\n\tpadding: 0;\r\n\twhite-space: nowrap;\r\n}\r\n.ui-tabs .ui-tabs-nav li a {\r\n\tfloat: left;\r\n\tpadding: .5em 1em;\r\n\ttext-decoration: none;\r\n}\r\n.ui-tabs .ui-tabs-nav li.ui-tabs-active {\r\n\tmargin-bottom: -1px;\r\n\tpadding-bottom: 1px;\r\n}\r\n.ui-tabs .ui-tabs-nav li.ui-tabs-active a,\r\n.ui-tabs .ui-tabs-nav li.ui-state-disabled a,\r\n.ui-tabs .ui-tabs-nav li.ui-tabs-loading a {\r\n\tcursor: text;\r\n}\r\n.ui-tabs .ui-tabs-nav li a, /* first selector in group seems obsolete, but required to overcome bug in Opera applying cursor: text overall if defined elsewhere... */\r\n.ui-tabs-collapsible .ui-tabs-nav li.ui-tabs-active a {\r\n\tcursor: pointer;\r\n}\r\n.ui-tabs .ui-tabs-panel {\r\n\tdisplay: block;\r\n\tborder-width: 0;\r\n\tpadding: 1em 1.4em;\r\n\tbackground: none;\r\n}\r\n\r\n\r\n.ui-menu {\r\n\tlist-style: none;\r\n\tpadding: 2px;\r\n\tmargin: 0;\r\n\tdisplay: block;\r\n\toutline: none;\r\n}\r\n.ui-menu .ui-menu {\r\n\tmargin-top: -3px;\r\n\tposition: absolute;\r\n}\r\n.ui-menu .ui-menu-item {\r\n\tmargin: 0;\r\n\tpadding: 0;\r\n\twidth: 100%;\r\n\t/* support: IE10, see #8844 */\r\n\tlist-style-image: url(data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7);\r\n}\r\n.ui-menu .ui-menu-divider {\r\n\tmargin: 5px -2px 5px -2px;\r\n\theight: 0;\r\n\tfont-size: 0;\r\n\tline-height: 0;\r\n\tborder-width: 1px 0 0 0;\r\n}\r\n.ui-menu .ui-menu-item a {\r\n\ttext-decoration: none;\r\n\tdisplay: block;\r\n\tpadding: 2px .4em;\r\n\tline-height: 1.5;\r\n\tmin-height: 0; /* support: IE7 */\r\n\tfont-weight: normal;\r\n}\r\n.ui-menu .ui-menu-item a.ui-state-focus,\r\n.ui-menu .ui-menu-item a.ui-state-active {\r\n\tfont-weight: normal;\r\n\tmargin: -1px;\r\n}\r\n\r\n/* Erica\'s Changes for Tabs */\r\n\r\n.ui-tabs .ui-tabs-nav li {\r\n    height: 19px;\r\n    padding-top: 2px;\r\n}\r\n\r\n.ui-helper-reset {\r\n    line-height: 0px;\r\n}\r\n\r\n.tabs-header-text {\r\n    font-family: Arial, sans-serif;\r\n    font-weight: normal;\r\n}\r\n\r\n.ui-tabs .ui-tabs-nav .iconMax {\r\n    margin-top: 2px;\r\n}\r\n\r\n.ui-widget-header {\r\n    border: none;\r\n}\r\n\r\n.ui-tabs {\r\n\tpadding: 0px;\r\n}\r\n\r\n.ui-corner-all,\r\n.ui-corner-top,\r\n.ui-corner-left,\r\n.ui-corner-tl {\r\n\tborder-top-left-radius: 0px;\r\n}\r\n.ui-corner-all,\r\n.ui-corner-top,\r\n.ui-corner-right,\r\n.ui-corner-tr {\r\n\tborder-top-right-radius: 0px;\r\n}\r\n.ui-corner-all,\r\n.ui-corner-bottom,\r\n.ui-corner-left,\r\n.ui-corner-bl {\r\n\tborder-bottom-left-radius: 0px;\r\n}\r\n.ui-corner-all,\r\n.ui-corner-bottom,\r\n.ui-corner-right,\r\n.ui-corner-br {\r\n\tborder-bottom-right-radius: 0px;\r\n}\r\n\r\n.ui-corner-all li,\r\n.ui-corner-top li,\r\n.ui-corner-left li,\r\n.ui-corner-tl li {\r\n\tborder-top-left-radius: 4px;\r\n}\r\n.ui-corner-all li,\r\n.ui-corner-top li,\r\n.ui-corner-right li,\r\n.ui-corner-tr li {\r\n\tborder-top-right-radius: 4px;\r\n}\r\n.ui-corner-all li,\r\n.ui-corner-bottom li,\r\n.ui-corner-left li,\r\n.ui-corner-bl li {\r\n\tborder-bottom-left-radius: 4px;\r\n}\r\n.ui-corner-all li,\r\n.ui-corner-bottom li,\r\n.ui-corner-right li,\r\n.ui-corner-br li {\r\n\tborder-bottom-right-radius: 4px;\r\n}\r\n\r\n.ui-widget input,\r\n.ui-widget select,\r\n.ui-widget textarea,\r\n.ui-widget button {\r\n\tfont-family: Arial, sans-serif;\r\n\tfont-size: 1em;\r\n}\r\n\r\n.ui-tabs input {\r\n    width: 100px;\r\n    margin-right:10px;\r\n    font-size:10px;\r\n    margin: -.7em -1em;\r\n}\r\n\r\n.ui-tabs .ui-tabs-panel {\r\n    padding: 0px 0px;\r\n}\r\n\r\n.ui-tabs-anchor:focus {\r\n    outline: -webkit-focus-ring-color auto 0px;\r\n}\r\n\r\n\r\nbody {\r\n    background: #090909;\r\n\r\n    scrollbar-face-color: #3e3e3e;\r\n    scrollbar-shadow-color: #3e3e3e;\r\n    scrollbar-highlight-color:#3e3e3e;\r\n    scrollbar-3dlight-color: #3e3e3e;\r\n    scrollbar-darkshadow-color: #3e3e3e;\r\n    scrollbar-track-color: #090909;\r\n    scrollbar-arrow-color: #090909;\r\n\r\n}\r\n\r\n\r\n::-webkit-scrollbar{width:10px;height:10px;}\r\n::-webkit-scrollbar-button:start:decrement,#doc ::-webkit-scrollbar-button:end:increment{display:block;height:0;width:0;background-color:transparent;}\r\n::-webkit-scrollbar-track-piece{background-color:#090909;-webkit-border-radius:0;-webkit-border-bottom-right-radius:8px;-webkit-border-bottom-left-radius:8px;}\r\n::-webkit-scrollbar-thumb:vertical{height:50px;background-color:#3e3e3e;-webkit-border-radius:8px;border:2px solid #090909}\r\n::-webkit-scrollbar-thumb:horizontal{width:50px;background-color:#3e3e3e;-webkit-border-radius:8px;border:2px solid #090909}\r\n::-webkit-scrollbar-corner {background-color:#090909;}\r\n\r\n\r\n/*\r\n::-webkit-scrollbar{width:20px;height:20px;}\r\n::-webkit-scrollbar-button:start:decrement,#doc ::-webkit-scrollbar-button:end:increment{display:block;height:0;width:0;background-color:transparent;}\r\n::-webkit-scrollbar-track-piece{background-color:#000000;-webkit-border-radius:0;-webkit-border-bottom-right-radius:0;-webkit-border-bottom-left-radius:0;}\r\n::-webkit-scrollbar-thumb:vertical{height:50px;background-color:#505050;-webkit-border-radius:0;border:2px solid #000000}\r\n::-webkit-scrollbar-thumb:horizontal{width:50px;background-color:#505050;-webkit-border-radius:0;border:2px solid #000000}\r\n*/\r\n\r\n.mainHeader {\r\n    height: 39px;\r\n    background: #090909 url(\'../app/main/styles/images/mainHeader.png\') repeat-x;\r\n}\r\n\r\n.EMSLogo {\r\n    width: 209px;\r\n    height: 30px;\r\n    background: url(\'../app/main/styles/images/EMSLogo.png\') no-repeat;\r\n    position: absolute;\r\n    top: 4px;\r\n    left: 7px;\r\n}\r\n\r\n.EPLogo {\r\n    width: 221px;\r\n    height: 30px;\r\n    background: url(\'../app/main/styles/images/EPLogo.png\') no-repeat;\r\n    position: relative;\r\n    top: 8px;\r\n    left: 7px;\r\n}\r\n\r\n.gridHeader {\r\n    /*\r\n    border-left: 1px solid #2e2e2e;\r\n    border-right: 1px solid #2e2e2e;\r\n    */\r\n    height: 22px;\r\n    background: #090909 url(\'../app/main/styles/images/gridHeader.png\') repeat-x;\r\n}\r\n\r\n.gridTitle {\r\n    float:left;\r\n    color: #c0c0c0;\r\n}\r\n\r\n.messageRate {\r\n    margin-left: 500px; \r\n    color: #c0c0c0;\r\n}\r\n\r\n.messageCount {\r\n    float:left;\r\n    margin-left: 100px; \r\n    color: #c0c0c0;\r\n}\r\n\r\n.messageSelect {\r\n    float:left;\r\n    margin-left: 100px; \r\n    color: #c0c0c0;    \r\n    cursor: pointer;    \r\n}\r\n\r\n.messageSelectedRows {\r\n    float:left;\r\n    margin-left: 100px; \r\n    color: #c0c0c0;\r\n}\r\n\r\n.messageCancel {\r\n    float:left;\r\n    margin-left: 100px; \r\n    color: #c0c0c0;    \r\n    cursor: pointer;    \r\n}\r\n\r\n.messageCancel {\r\n    float:left;\r\n    margin-left: 100px; \r\n    color: #c0c0c0;    \r\n    cursor: pointer;    \r\n}\r\n\r\n.messageCancelDisabled {\r\n    float:left;\r\n    margin-left: 100px; \r\n    color: #747474;    \r\n}\r\n\r\n\r\n.slick-header-column.ui-state-default {\r\n   border-right: 1px solid #2e2e2e;\r\n }\r\n\r\n.slick-headerrow-column.ui-state-default {\r\n    padding: 0;\r\n}\r\n\r\n.slick-headerrow-column\r\n{\r\n    background: #090909;\r\n    text-overflow: clip;\r\n    -moz-box-sizing: border-box;\r\n    box-sizing: border-box;\r\n}\r\n\r\n.slick-headerrow-column input\r\n{\r\n    color:#00ffae;\r\n    margin: 0;\r\n    padding: 0;\r\n    width: 100%;\r\n    height: 100%;\r\n    -moz-box-sizing: border-box;\r\n    box-sizing: border-box;\r\n    background: #090909;\r\n    border: 1px solid #2e2e2e;\r\n    border-right: 0;\r\n    border-bottom: 0;\r\n\r\n}\r\n\r\ninput:focus{\r\n    outline: none;\r\n    border: 1px solid lightgreen;\r\n}\r\n\r\n.slick-cell, .slick-headerrow-column {\r\nposition: absolute;\r\nborder: 1px solid transparent;\r\nborder-right: 1px solid #2e2e2e;\r\nborder-bottom-color: #2e2e2e;\r\noverflow: hidden;\r\ntext-overflow: ellipsis;\r\nwhite-space: nowrap;\r\nvertical-align: middle;\r\nz-index: 1;\r\npadding: 1px 2px 2px 1px;\r\nmargin: 0;\r\nwhite-space: nowrap;\r\ncursor: default;\r\n}\r\n\r\n.slick-resizable-handle {\r\nposition: absolute;\r\nfont-size: 0.1px;\r\ndisplay: block;\r\ncursor: col-resize;\r\nwidth: 4px;\r\nright: 0px;\r\ntop: 0;\r\nheight: 100%;\r\n}\r\n\r\n/*\r\n.slick-cell.selected {\r\nbackground: #0e4265 no-repeat center center;\r\n}\r\n*/\r\n\r\n.slick-cell.selected:after {\r\n  border-top: 40px solid transparent;\r\n}\r\n.slick-cell.selected:before {\r\n  content: \"\";\r\n}\r\n\r\n.slick-header-column.ui-state-default {\r\ncolor: #ffa800;\r\n}\r\n\r\n.slick-row.initial .slick-cell\r\n{\r\n    color: #ffc000\r\n}\r\n\r\n.slick-row.filled .slick-cell\r\n{\r\n    color: #ffffff\r\n}\r\n\r\n.slick-row.cancelled .slick-cell\r\n{\r\n    color: #828282\r\n}\r\n\r\n.slick-row.rejected .slick-cell\r\n{\r\n    color: #ff0000\r\n}\r\n\r\n.slick-row.partial .slick-cell\r\n{\r\n    color:#00a2ff\r\n}\r\n\r\n.ui-widget-header {\r\n    overflow-x:hidden; \r\n    overflow-y:hidden;\r\n    margin: 0;\r\n    padding: 0;\r\n    color: #c0c0c0;\r\n    font-size: 14px;\r\n    height: 19px;\r\n    background: #090909 url(\'../app/main/styles/images/gridHeader.png\') repeat-x;\r\n    padding-top: 3px;\r\n    padding-left: 4px;\r\n    white-space: nowrap;\r\n}\r\n\r\n.iconMax {\r\n    width: 11px;\r\n    height: 10px;\r\n    background: url(\'../app/main/styles/images/iconMax.png\') no-repeat;\r\n    float:right;\r\n    margin-right: 5px;\r\n    margin-top: 3px;\r\n    cursor: pointer;\r\n}\r\n\r\n.iconMin {\r\n    width: 11px;\r\n    height: 10px;\r\n    background: url(\'../app/main/styles/images/iconMin.png\') no-repeat;\r\n    float:right;\r\n    margin-right: 5px;\r\n    margin-top: 2px;\r\n    cursor: pointer;\r\n}\r\n\r\n.iconClose {\r\n    width: 11px;\r\n    height: 10px;\r\n    background: url(\'../app/main/styles/images/iconClose.png\') no-repeat;\r\n    float:right;\r\n    margin-right: 5px;\r\n    margin-top: 2px;\r\n    cursor: pointer;\r\n}\r\n\r\n.iconSelect {\r\n    width: 11px;\r\n    height: 10px;\r\n    background: url(\'../app/main/styles/images/iconSelect.png\') no-repeat;\r\n    float:left;\r\n    margin-right: 5px;\r\n    margin-top: 2px;\r\n    cursor: pointer;    \r\n    background-position-y: 45%\r\n}\r\n\r\n.iconCancel {\r\n    width: 11px;\r\n    height: 10px;\r\n    background: url(\'../app/main/styles/images/iconCancel.png\') no-repeat;\r\n    float:left;\r\n    margin-right: 5px;\r\n    margin-top: 2px;\r\n    cursor: pointer;    \r\n    background-position-y: 45%\r\n}\r\n\r\n.iconCancelDisabled {\r\n    width: 11px;\r\n    height: 10px;\r\n    background: url(\'../app/main/styles/images/iconCancel.png\') no-repeat;\r\n    float:left;\r\n    margin-right: 5px;\r\n    margin-top: 2px;\r\n    background-position-y: 45%;\r\n    opacity: .5;\r\n}\r\n\r\n.iconFilterOn {\r\n    width: 11px;\r\n    height: 10px;\r\n    background: url(\'../app/main/styles/images/iconFilterOn.png\') no-repeat;\r\n    position: absolute;\r\n    top: 4px;\r\n    right: 4px;\r\n    margin-top: 3px;\r\n    cursor: pointer;\r\n}\r\n\r\n.iconFilterOff {\r\n    width: 11px;\r\n    height: 10px;\r\n    background: url(\'../app/main/styles/images/iconFilterOff.png\') no-repeat;\r\n    position: absolute;\r\n    top: 4px;\r\n    right: 4px;\r\n    margin-top: 2px;\r\n    cursor: pointer;\r\n}\r\n\r\n.iconArrowLeft {\r\n    width: 11px;\r\n    height: 13px;\r\n    background: url(\'../app/main/styles/images/iconArrow.png\') no-repeat;\r\n    position: absolute;\r\n    top: 5px;\r\n    left: -6px;\r\n}\r\n\r\n.iconArrowRight {\r\n    width: 11px;\r\n    height: 13px;\r\n    background: url(\'../app/main/styles/images/iconArrow.png\') no-repeat;\r\n    position: absolute;\r\n    top: 5px;\r\n    right:-7px;\r\n    transform:rotate(180deg);\r\n    -ms-transform:rotate(180deg);\r\n    -webkit-transform:rotate(180deg);\r\n}\r\n\r\n.ui-layout-resizer {\r\n    background-color:#131313;\r\n    border-left: 1px solid #2e2e2e;\r\n    border-right: 1px solid #2e2e2e;\r\n    border-top: 1px solid #2e2e2e;\r\n}\r\n\r\n.ui-layout-resizer:hover {\r\n    background-color: #c0c0c0;\r\n}\r\n\r\n.slick-sort-indicator {\r\ndisplay: inline-block;\r\nwidth: 7px;\r\nheight: 7px;\r\nmargin-left: 4px;\r\n}\r\n.slick-sort-indicator-desc {\r\n  background: url(../app/main/styles/images/sort-desc.png);\r\n}\r\n\r\n.slick-sort-indicator-asc {\r\n  background: url(../app/main/styles/images/sort-asc.png);\r\n}\r\n\r\n.slick-header-sortable {\r\n    cursor: pointer;\r\n}\r\n\r\n.iconBuy {\r\n    background: url(\'../app/main/styles/images/iconBuy.png\') no-repeat;\r\n    text-indent: 9px;\r\n    background-position-y: 45%\r\n}\r\n\r\n.iconSell {\r\n    background: url(\'../app/main/styles/images/iconSell.png\') no-repeat;\r\n    text-indent: 9px;\r\n    background-position-y: 45%\r\n}\r\n\r\n.styled-select select {\r\n    color: #fff;\r\n   margin-right: 10px;\r\n   background: url(../app/main/styles/images/iconDrop.png) no-repeat right #090909;\r\n   width: 120px;\r\n   padding: 2px;\r\n   padding-top: 3px;\r\n   font-size: 12px;\r\n   line-height: 1;\r\n   border: 0;\r\n   border-radius: 0;\r\n   height: 20px;\r\n   -webkit-appearance: none;\r\n}\r\n\r\n.styled-select {\r\n   margin-right: 10px;\r\n   margin-top: 8px;\r\n   float: right;\r\n   width: 120px;\r\n   height: 20px;\r\n   overflow: hidden;\r\n   background: url(../app/main/styles/images/iconDrop.png) no-repeat right #090909;\r\n   border: 1px solid #2e2e2e;\r\n}\r\n\r\n/* Erica\'s Changes for Tabs - Blue Theme*/\r\n.ui-tabs-active.ui-state-default {\r\n\tborder: 1px solid #2e2e2e;\r\n\tbackground: #1A2B57;\r\n\tfont-weight: bold;\r\n\tcolor: #c0c0c0;\r\n}\r\n\r\n.tabs-menu {\r\n    background: #1e1e1e;\r\n    width: 100px;\r\n    padding: 10px;\r\n    border: 1px solid #2f2f2f;\r\n    color: #c0c0c0;\r\n}\r\n\r\n.tabs-menu-item:hover {\r\n    color: #fff;\r\n    cursor: pointer;\r\n}\r\n\r\n.ui-state-active a,\r\n.ui-state-active a:link,\r\n.ui-state-active a:visited {\r\n\tcolor: #c0c0c0;\r\n}\r\n\r\n.ui-state-default a,\r\n.ui-state-default a:link,\r\n.ui-state-default a:visited {\r\n\tcolor: #c0c0c0;\r\n}\r\n\r\n.ui-state-active,\r\n.ui-widget-content .ui-state-active,\r\n.ui-widget-header .ui-state-active {\r\n\tborder: 1px solid #2e2e2e;\r\n\topacity: 1 !important;\r\n\tcolor: #c0c0c0;\r\n}\r\n\r\n.ui-tabs.ui-widget-content\r\n {\r\n    border-color: #2e2e2e;\r\n    color: #c0c0c0;\r\n    background: #1e1e1e;\r\n}\r\n\r\n.ui-tabs-panel.ui-widget-content {\r\n    border-color: #2e2e2e;\r\n    color: #c0c0c0;\r\n    background: #090909;\r\n}\r\n\r\n.ui-widget-content a {\r\n    color: #c0c0c0;\r\n}\r\n\r\n.ui-tabs-anchor input {\r\n    background-color: #1e1e1e;\r\n    border: 0px;\r\n    color: #FFF;\r\n}\r\n\r\n.ui-tabs input:focus {\r\n    border: 0px;\r\n}\r\n\r\n.ui-tabs .ui-tabs-nav li {\r\n    border: 1px solid #2e2e2e;\r\n    background: #1e1e1e;\r\n    opacity: .6;\r\n}\r\n\r\n/*Erica\'s changes for layout splitter*/\r\n.splitter {\r\n    border: 1px solid #1c1c1c;\r\n    background: #090909;\r\n    z-index: 9999;\r\n}\r\n\r\n.splitter:hover {\r\n    background: #c0c0c0;\r\n}\r\n\r\n/* filters */\r\n.numberFilter {\r\n   background: #090909;\r\n   border: 1px solid #00ffae;\r\n   color:  #c0c0c0;\r\n}\r\n\r\n.numberFilterBox {\r\n   border: 1px solid #c0c0c0;\r\n}\r\n\r\n.listFilter {\r\n   background: #090909;\r\n   border: 1px solid #00ffae;\r\n   color:  #c0c0c0;\r\n}\r\n\r\n.listFilterBox {\r\n   border: 1px solid #c0c0c0;\r\n}\r\n\r\n\r\n/* ScrollView */\r\n\r\n\t.scroller-background{\r\n\t\toverflow:hidden;\r\n\t\tposition:absolute;\r\n\t\twidth:100%;\r\n\t    border-radius:3px;\r\n\t\ttop:0px;\r\n\t\tz-index:988;\r\n\t    left:0px;\r\n\t    margin:0px;\r\n\t\tpadding:0px;\r\n\t}\r\n\t.scroll-view ul{\r\n\t\t/*Only set this when the initial size of the is larger than scroll-view*/\r\n\t\tposition:relative;\r\n\t\twidth:3000%;\r\n\t\ttop:0px\r\n\t}\r\n\t.scroll-view li{\r\n\t\tposition:relative;\r\n\t}\r\n\t.scroll-view{\r\n\t\tposition:relative;\r\n\t\tz-index:999;\r\n\t\toverflow:hidden;\r\n\t\t/*scroller must have an initial size*/\r\n\t\twidth:93%;\r\n\t\tmargin:0px;\r\n\t\tpadding:0px;\r\n\t}\r\n\t.wrapper{\r\n\t\tposition:relative;\r\n\t\twidth:100%;\r\n\t\tmargin:0px;\r\n\t\tpadding:0px;\r\n\t\ttext-align:left;\r\n\t}');
+('/* jquery UI styles*/\r\n\r\n\r\n.ui-tabs {\r\n\tposition: relative;/* position: relative prevents IE scroll bug (element with position: relative inside container with overflow: auto appear as \"fixed\") */\r\n\tpadding: .2em;\r\n}\r\n.ui-tabs .ui-tabs-nav {\r\n\tmargin: 0;\r\n\tpadding: .2em .2em 0;\r\n}\r\n.ui-tabs .ui-tabs-nav li {\r\n\tlist-style: none;\r\n\tfloat: left;\r\n\tposition: relative;\r\n\ttop: 0;\r\n\tmargin: 1px .2em 0 0;\r\n\tborder-bottom-width: 0;\r\n\tpadding: 0;\r\n\twhite-space: nowrap;\r\n}\r\n.ui-tabs .ui-tabs-nav li a {\r\n\tfloat: left;\r\n\tpadding: .5em 1em;\r\n\ttext-decoration: none;\r\n}\r\n.ui-tabs .ui-tabs-nav li.ui-tabs-active {\r\n\tmargin-bottom: -1px;\r\n\tpadding-bottom: 1px;\r\n}\r\n.ui-tabs .ui-tabs-nav li.ui-tabs-active a,\r\n.ui-tabs .ui-tabs-nav li.ui-state-disabled a,\r\n.ui-tabs .ui-tabs-nav li.ui-tabs-loading a {\r\n\tcursor: text;\r\n}\r\n.ui-tabs .ui-tabs-nav li a, /* first selector in group seems obsolete, but required to overcome bug in Opera applying cursor: text overall if defined elsewhere... */\r\n.ui-tabs-collapsible .ui-tabs-nav li.ui-tabs-active a {\r\n\tcursor: pointer;\r\n}\r\n.ui-tabs .ui-tabs-panel {\r\n\tdisplay: block;\r\n\tborder-width: 0;\r\n\tpadding: 1em 1.4em;\r\n\tbackground: none;\r\n}\r\n\r\n\r\n.ui-menu {\r\n\tlist-style: none;\r\n\tpadding: 2px;\r\n\tmargin: 0;\r\n\tdisplay: block;\r\n\toutline: none;\r\n}\r\n.ui-menu .ui-menu {\r\n\tmargin-top: -3px;\r\n\tposition: absolute;\r\n}\r\n.ui-menu .ui-menu-item {\r\n\tmargin: 0;\r\n\tpadding: 0;\r\n\twidth: 100%;\r\n\t/* support: IE10, see #8844 */\r\n\tlist-style-image: url(data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7);\r\n}\r\n.ui-menu .ui-menu-divider {\r\n\tmargin: 5px -2px 5px -2px;\r\n\theight: 0;\r\n\tfont-size: 0;\r\n\tline-height: 0;\r\n\tborder-width: 1px 0 0 0;\r\n}\r\n.ui-menu .ui-menu-item a {\r\n\ttext-decoration: none;\r\n\tdisplay: block;\r\n\tpadding: 2px .4em;\r\n\tline-height: 1.5;\r\n\tmin-height: 0; /* support: IE7 */\r\n\tfont-weight: normal;\r\n}\r\n.ui-menu .ui-menu-item a.ui-state-focus,\r\n.ui-menu .ui-menu-item a.ui-state-active {\r\n\tfont-weight: normal;\r\n\tmargin: -1px;\r\n}\r\n\r\n/* Erica\'s Changes for Tabs */\r\n\r\n.ui-tabs .ui-tabs-nav li {\r\n    height: 19px;\r\n    padding-top: 2px;\r\n}\r\n\r\n.ui-helper-reset {\r\n    line-height: 0px;\r\n}\r\n\r\n.tabs-header-text {\r\n    font-family: Arial, sans-serif;\r\n    font-weight: normal;\r\n}\r\n\r\n.ui-tabs .ui-tabs-nav .iconMax {\r\n    margin-top: 2px;\r\n}\r\n\r\n.ui-widget-header {\r\n    border: none;\r\n}\r\n\r\n.ui-tabs {\r\n\tpadding: 0px;\r\n}\r\n\r\n.ui-corner-all,\r\n.ui-corner-top,\r\n.ui-corner-left,\r\n.ui-corner-tl {\r\n\tborder-top-left-radius: 0px;\r\n}\r\n.ui-corner-all,\r\n.ui-corner-top,\r\n.ui-corner-right,\r\n.ui-corner-tr {\r\n\tborder-top-right-radius: 0px;\r\n}\r\n.ui-corner-all,\r\n.ui-corner-bottom,\r\n.ui-corner-left,\r\n.ui-corner-bl {\r\n\tborder-bottom-left-radius: 0px;\r\n}\r\n.ui-corner-all,\r\n.ui-corner-bottom,\r\n.ui-corner-right,\r\n.ui-corner-br {\r\n\tborder-bottom-right-radius: 0px;\r\n}\r\n\r\n.ui-corner-all li,\r\n.ui-corner-top li,\r\n.ui-corner-left li,\r\n.ui-corner-tl li {\r\n\tborder-top-left-radius: 4px;\r\n}\r\n.ui-corner-all li,\r\n.ui-corner-top li,\r\n.ui-corner-right li,\r\n.ui-corner-tr li {\r\n\tborder-top-right-radius: 4px;\r\n}\r\n.ui-corner-all li,\r\n.ui-corner-bottom li,\r\n.ui-corner-left li,\r\n.ui-corner-bl li {\r\n\tborder-bottom-left-radius: 4px;\r\n}\r\n.ui-corner-all li,\r\n.ui-corner-bottom li,\r\n.ui-corner-right li,\r\n.ui-corner-br li {\r\n\tborder-bottom-right-radius: 4px;\r\n}\r\n\r\n.ui-widget input,\r\n.ui-widget select,\r\n.ui-widget textarea,\r\n.ui-widget button {\r\n\tfont-family: Arial, sans-serif;\r\n\tfont-size: 1em;\r\n}\r\n\r\n.ui-tabs input {\r\n    width: 100px;\r\n    margin-right:10px;\r\n    font-size:10px;\r\n    margin: -.7em -1em;\r\n}\r\n\r\n.ui-tabs .ui-tabs-panel {\r\n    padding: 0px 0px;\r\n}\r\n\r\n.ui-tabs-anchor:focus {\r\n    outline: -webkit-focus-ring-color auto 0px;\r\n}\r\n\r\n\r\nbody {\r\n    background: #090909;\r\n\r\n    scrollbar-face-color: #3e3e3e;\r\n    scrollbar-shadow-color: #3e3e3e;\r\n    scrollbar-highlight-color:#3e3e3e;\r\n    scrollbar-3dlight-color: #3e3e3e;\r\n    scrollbar-darkshadow-color: #3e3e3e;\r\n    scrollbar-track-color: #090909;\r\n    scrollbar-arrow-color: #090909;\r\n\r\n}\r\n\r\n\r\n::-webkit-scrollbar{width:10px;height:10px;}\r\n::-webkit-scrollbar-button:start:decrement,#doc ::-webkit-scrollbar-button:end:increment{display:block;height:0;width:0;background-color:transparent;}\r\n::-webkit-scrollbar-track-piece{background-color:#090909;-webkit-border-radius:0;-webkit-border-bottom-right-radius:8px;-webkit-border-bottom-left-radius:8px;}\r\n::-webkit-scrollbar-thumb:vertical{height:50px;background-color:#3e3e3e;-webkit-border-radius:8px;border:2px solid #090909}\r\n::-webkit-scrollbar-thumb:horizontal{width:50px;background-color:#3e3e3e;-webkit-border-radius:8px;border:2px solid #090909}\r\n::-webkit-scrollbar-corner {background-color:#090909;}\r\n\r\n\r\n/*\r\n::-webkit-scrollbar{width:20px;height:20px;}\r\n::-webkit-scrollbar-button:start:decrement,#doc ::-webkit-scrollbar-button:end:increment{display:block;height:0;width:0;background-color:transparent;}\r\n::-webkit-scrollbar-track-piece{background-color:#000000;-webkit-border-radius:0;-webkit-border-bottom-right-radius:0;-webkit-border-bottom-left-radius:0;}\r\n::-webkit-scrollbar-thumb:vertical{height:50px;background-color:#505050;-webkit-border-radius:0;border:2px solid #000000}\r\n::-webkit-scrollbar-thumb:horizontal{width:50px;background-color:#505050;-webkit-border-radius:0;border:2px solid #000000}\r\n*/\r\n\r\n.mainHeader {\r\n    height: 39px;\r\n    background: #090909 url(\'../app/main/styles/images/mainHeader.png\') repeat-x;\r\n}\r\n\r\n.EMSLogo {\r\n    width: 209px;\r\n    height: 30px;\r\n    background: url(\'../app/main/styles/images/EMSLogo.png\') no-repeat;\r\n    position: absolute;\r\n    top: 4px;\r\n    left: 7px;\r\n}\r\n\r\n.EPLogo {\r\n    width: 221px;\r\n    height: 30px;\r\n    background: url(\'../app/main/styles/images/EPLogo.png\') no-repeat;\r\n    position: relative;\r\n    top: 8px;\r\n    left: 7px;\r\n}\r\n\r\n.gridHeader {\r\n    /*\r\n    border-left: 1px solid #2e2e2e;\r\n    border-right: 1px solid #2e2e2e;\r\n    */\r\n    height: 22px;\r\n    background: #090909 url(\'../app/main/styles/images/gridHeader.png\') repeat-x;\r\n}\r\n\r\n.gridTitle {\r\n    float:left;\r\n    color: #c0c0c0;\r\n}\r\n\r\n.messageRate {\r\n    margin-left: 500px; \r\n    color: #c0c0c0;\r\n}\r\n\r\n.messageCount {\r\n    float:left;\r\n    margin-left: 100px; \r\n    color: #c0c0c0;\r\n}\r\n\r\n.messageSelect {\r\n    float:left;\r\n    margin-left: 100px; \r\n    color: #c0c0c0;    \r\n    cursor: pointer;    \r\n}\r\n\r\n.messageSelectedRows {\r\n    float:left;\r\n    margin-left: 100px; \r\n    color: #c0c0c0;\r\n}\r\n\r\n.messageCancel {\r\n    float:left;\r\n    margin-left: 100px; \r\n    color: #c0c0c0;    \r\n    cursor: pointer;    \r\n}\r\n\r\n.messageCancel {\r\n    float:left;\r\n    margin-left: 100px; \r\n    color: #c0c0c0;    \r\n    cursor: pointer;    \r\n}\r\n\r\n.messageCancelDisabled {\r\n    float:left;\r\n    margin-left: 100px; \r\n    color: #747474;    \r\n}\r\n\r\n\r\n.slick-header-column.ui-state-default {\r\n   border-right: 1px solid #2e2e2e;\r\n }\r\n\r\n.slick-headerrow-column.ui-state-default {\r\n    padding: 0;\r\n}\r\n\r\n.slick-headerrow-column\r\n{\r\n    background: #090909;\r\n    text-overflow: clip;\r\n    -moz-box-sizing: border-box;\r\n    box-sizing: border-box;\r\n}\r\n\r\n.slick-headerrow-column input\r\n{\r\n    color:#00ffae;\r\n    margin: 0;\r\n    padding: 0;\r\n    width: 100%;\r\n    height: 100%;\r\n    -moz-box-sizing: border-box;\r\n    box-sizing: border-box;\r\n    background: #090909;\r\n    border: 1px solid #2e2e2e;\r\n    border-right: 0;\r\n    border-bottom: 0;\r\n\r\n}\r\n\r\ninput:focus{\r\n    outline: none;\r\n    border: 1px solid lightgreen;\r\n}\r\n\r\n.slick-cell, .slick-headerrow-column {\r\nposition: absolute;\r\nborder: 1px solid transparent;\r\nborder-right: 1px solid #2e2e2e;\r\nborder-bottom-color: #2e2e2e;\r\noverflow: hidden;\r\ntext-overflow: ellipsis;\r\nwhite-space: nowrap;\r\nvertical-align: middle;\r\nz-index: 1;\r\npadding: 1px 2px 2px 1px;\r\nmargin: 0;\r\nwhite-space: nowrap;\r\ncursor: default;\r\n}\r\n\r\n.slick-resizable-handle {\r\nposition: absolute;\r\nfont-size: 0.1px;\r\ndisplay: block;\r\ncursor: col-resize;\r\nwidth: 4px;\r\nright: 0px;\r\ntop: 0;\r\nheight: 100%;\r\n}\r\n\r\n/*\r\n.slick-cell.selected {\r\nbackground: #0e4265 no-repeat center center;\r\n}\r\n*/\r\n\r\n.slick-cell.selected:after {\r\n  border-top: 40px solid transparent;\r\n}\r\n.slick-cell.selected:before {\r\n  content: \"\";\r\n}\r\n\r\n.slick-header-column.ui-state-default {\r\ncolor: #ffa800;\r\n}\r\n\r\n.slick-row.initial .slick-cell\r\n{\r\n    color: #ffc000\r\n}\r\n\r\n.slick-row.filled .slick-cell\r\n{\r\n    color: #ffffff\r\n}\r\n\r\n.slick-row.cancelled .slick-cell\r\n{\r\n    color: #828282\r\n}\r\n\r\n.slick-row.rejected .slick-cell\r\n{\r\n    color: #ff0000\r\n}\r\n\r\n.slick-row.partial .slick-cell\r\n{\r\n    color:#00a2ff\r\n}\r\n\r\n.ui-widget-header {\r\n    overflow-x:hidden; \r\n    overflow-y:hidden;\r\n    margin: 0;\r\n    padding: 0;\r\n    color: #c0c0c0;\r\n    font-size: 14px;\r\n    height: 19px;\r\n    background: #090909 url(\'../app/main/styles/images/gridHeader.png\') repeat-x;\r\n    padding-top: 3px;\r\n    padding-left: 4px;\r\n    white-space: nowrap;\r\n}\r\n\r\n.iconMax {\r\n    width: 11px;\r\n    height: 10px;\r\n    background: url(\'../app/main/styles/images/iconMax.png\') no-repeat;\r\n    float:right;\r\n    margin-right: 5px;\r\n    margin-top: 3px;\r\n    cursor: pointer;\r\n}\r\n\r\n.iconMin {\r\n    width: 11px;\r\n    height: 10px;\r\n    background: url(\'../app/main/styles/images/iconMin.png\') no-repeat;\r\n    float:right;\r\n    margin-right: 5px;\r\n    margin-top: 2px;\r\n    cursor: pointer;\r\n}\r\n\r\n.iconClose {\r\n    width: 11px;\r\n    height: 10px;\r\n    background: url(\'../app/main/styles/images/iconClose.png\') no-repeat;\r\n    float:right;\r\n    margin-right: 5px;\r\n    margin-top: 2px;\r\n    cursor: pointer;\r\n}\r\n\r\n.iconMore {\r\n    width: 11px;\r\n    height: 10px;\r\n    background: url(\'../app/main/styles/images/iconSelect.png\') no-repeat;\r\n    float:right;\r\n    margin-right: 5px;\r\n    margin-top: 2px;\r\n    cursor: pointer;\r\n}\r\n\r\n.iconCancel {\r\n    width: 11px;\r\n    height: 10px;\r\n    background: url(\'../app/main/styles/images/iconCancel.png\') no-repeat;\r\n    float:left;\r\n    margin-right: 5px;\r\n    margin-top: 2px;\r\n    cursor: pointer;    \r\n    background-position-y: 45%\r\n}\r\n\r\n.iconCancelDisabled {\r\n    width: 11px;\r\n    height: 10px;\r\n    background: url(\'../app/main/styles/images/iconCancel.png\') no-repeat;\r\n    float:left;\r\n    margin-right: 5px;\r\n    margin-top: 2px;\r\n    background-position-y: 45%;\r\n    opacity: .5;\r\n}\r\n\r\n.iconFilterOn {\r\n    width: 11px;\r\n    height: 10px;\r\n    background: url(\'../app/main/styles/images/iconFilterOn.png\') no-repeat;\r\n    position: absolute;\r\n    top: 4px;\r\n    right: 4px;\r\n    margin-top: 3px;\r\n    cursor: pointer;\r\n}\r\n\r\n.iconFilterOff {\r\n    width: 11px;\r\n    height: 10px;\r\n    background: url(\'../app/main/styles/images/iconFilterOff.png\') no-repeat;\r\n    position: absolute;\r\n    top: 4px;\r\n    right: 4px;\r\n    margin-top: 2px;\r\n    cursor: pointer;\r\n}\r\n\r\n.iconArrowLeft {\r\n    width: 11px;\r\n    height: 13px;\r\n    background: url(\'../app/main/styles/images/iconArrow.png\') no-repeat;\r\n    position: absolute;\r\n    top: 5px;\r\n    left: -6px;\r\n}\r\n\r\n.iconArrowRight {\r\n    width: 11px;\r\n    height: 13px;\r\n    background: url(\'../app/main/styles/images/iconArrow.png\') no-repeat;\r\n    position: absolute;\r\n    top: 5px;\r\n    right:-7px;\r\n    transform:rotate(180deg);\r\n    -ms-transform:rotate(180deg);\r\n    -webkit-transform:rotate(180deg);\r\n}\r\n\r\n.ui-layout-resizer {\r\n    background-color:#131313;\r\n    border-left: 1px solid #2e2e2e;\r\n    border-right: 1px solid #2e2e2e;\r\n    border-top: 1px solid #2e2e2e;\r\n}\r\n\r\n.ui-layout-resizer:hover {\r\n    background-color: #c0c0c0;\r\n}\r\n\r\n.slick-sort-indicator {\r\ndisplay: inline-block;\r\nwidth: 7px;\r\nheight: 7px;\r\nmargin-left: 4px;\r\n}\r\n.slick-sort-indicator-desc {\r\n  background: url(../app/main/styles/images/sort-desc.png);\r\n}\r\n\r\n.slick-sort-indicator-asc {\r\n  background: url(../app/main/styles/images/sort-asc.png);\r\n}\r\n\r\n.slick-header-sortable {\r\n    cursor: pointer;\r\n}\r\n\r\n.iconBuy {\r\n    background: url(\'../app/main/styles/images/iconBuy.png\') no-repeat;\r\n    text-indent: 9px;\r\n    background-position-y: 45%\r\n}\r\n\r\n.iconSell {\r\n    background: url(\'../app/main/styles/images/iconSell.png\') no-repeat;\r\n    text-indent: 9px;\r\n    background-position-y: 45%\r\n}\r\n\r\n.styled-select select {\r\n    color: #fff;\r\n   margin-right: 10px;\r\n   background: url(../app/main/styles/images/iconDrop.png) no-repeat right #090909;\r\n   width: 120px;\r\n   padding: 2px;\r\n   padding-top: 3px;\r\n   font-size: 12px;\r\n   line-height: 1;\r\n   border: 0;\r\n   border-radius: 0;\r\n   height: 20px;\r\n   -webkit-appearance: none;\r\n}\r\n\r\n.styled-select {\r\n   margin-right: 10px;\r\n   margin-top: 8px;\r\n   float: right;\r\n   width: 120px;\r\n   height: 20px;\r\n   overflow: hidden;\r\n   background: url(../app/main/styles/images/iconDrop.png) no-repeat right #090909;\r\n   border: 1px solid #2e2e2e;\r\n}\r\n\r\n/* Erica\'s Changes for Tabs - Blue Theme*/\r\n.ui-tabs-active.ui-state-default {\r\n\tborder: 1px solid #2e2e2e;\r\n\tbackground: #1A2B57;\r\n\tfont-weight: bold;\r\n\tcolor: #c0c0c0;\r\n}\r\n\r\n.tabs-menu {\r\n    background: #1e1e1e;\r\n    width: 100px;\r\n    padding: 10px;\r\n    border: 1px solid #2f2f2f;\r\n    color: #c0c0c0;\r\n}\r\n\r\n.tabs-menu-item:hover {\r\n    color: #fff;\r\n    cursor: pointer;\r\n}\r\n\r\n.ui-state-active a,\r\n.ui-state-active a:link,\r\n.ui-state-active a:visited {\r\n\tcolor: #c0c0c0;\r\n}\r\n\r\n.ui-state-default a,\r\n.ui-state-default a:link,\r\n.ui-state-default a:visited {\r\n\tcolor: #c0c0c0;\r\n}\r\n\r\n.ui-state-active,\r\n.ui-widget-content .ui-state-active,\r\n.ui-widget-header .ui-state-active {\r\n\tborder: 1px solid #2e2e2e;\r\n\topacity: 1 !important;\r\n\tcolor: #c0c0c0;\r\n}\r\n\r\n.ui-tabs.ui-widget-content\r\n {\r\n    border-color: #2e2e2e;\r\n    color: #c0c0c0;\r\n    background: #1e1e1e;\r\n}\r\n\r\n.ui-tabs-panel.ui-widget-content {\r\n    border-color: #2e2e2e;\r\n    color: #c0c0c0;\r\n    background: #090909;\r\n}\r\n\r\n.ui-widget-content a {\r\n    color: #c0c0c0;\r\n}\r\n\r\n.ui-tabs-anchor input {\r\n    background-color: #1e1e1e;\r\n    border: 0px;\r\n    color: #FFF;\r\n}\r\n\r\n.ui-tabs input:focus {\r\n    border: 0px;\r\n}\r\n\r\n.ui-tabs .ui-tabs-nav li {\r\n    border: 1px solid #2e2e2e;\r\n    background: #1e1e1e;\r\n    opacity: .6;\r\n}\r\n\r\n/*Erica\'s changes for layout splitter*/\r\n.splitter {\r\n    border: 1px solid #1c1c1c;\r\n    background: #090909;\r\n    z-index: 9999;\r\n}\r\n\r\n.splitter:hover {\r\n    background: #c0c0c0;\r\n}\r\n\r\n/* filters */\r\n.numberFilter {\r\n   background: #090909;\r\n   border: 1px solid #00ffae;\r\n   color:  #c0c0c0;\r\n}\r\n\r\n.numberFilterBox {\r\n   border: 1px solid #c0c0c0;\r\n}\r\n\r\n.listFilter {\r\n   background: #090909;\r\n   border: 1px solid #00ffae;\r\n   color:  #c0c0c0;\r\n}\r\n\r\n.listFilterBox {\r\n   border: 1px solid #c0c0c0;\r\n}\r\n\r\n\r\n/* ScrollView */\r\n\r\n\t.scroller-background{\r\n\t\toverflow:hidden;\r\n\t\tposition:absolute;\r\n\t\twidth:100%;\r\n\t    border-radius:3px;\r\n\t\ttop:0px;\r\n\t\tz-index:988;\r\n\t    left:0px;\r\n\t    margin:0px;\r\n\t\tpadding:0px;\r\n\t}\r\n\t.scroll-view ul{\r\n\t\t/*Only set this when the initial size of the is larger than scroll-view*/\r\n\t\tposition:relative;\r\n\t\twidth:3000%;\r\n\t\ttop:0px\r\n\t}\r\n\t.scroll-view li{\r\n\t\tposition:relative;\r\n\t}\r\n\t.scroll-view{\r\n\t\tposition:relative;\r\n\t\tz-index:999;\r\n\t\toverflow:hidden;\r\n\t\t/*scroller must have an initial size*/\r\n\t\twidth:93%;\r\n\t\tmargin:0px;\r\n\t\tpadding:0px;\r\n\t}\r\n\t.wrapper{\r\n\t\tposition:relative;\r\n\t\twidth:100%;\r\n\t\tmargin:0px;\r\n\t\tpadding:0px;\r\n\t\ttext-align:left;\r\n\t}');
