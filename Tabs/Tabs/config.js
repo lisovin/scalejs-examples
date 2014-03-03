@@ -26,7 +26,7 @@ var require = {
         "scalejs.linq-linqjs":  "Scripts/scalejs.linq-linqjs-3.0.3.1",
         "scalejs.mvvm":  "Scripts/scalejs.mvvm-0.3.4.4",
         "scalejs.statechart-scion":  "Scripts/scalejs.statechart-scion-0.3.0.0",
-        "scalejs.tabs-jqueryui":  "Scripts/scalejs.tabs-jqueryui-1.0.4",
+        "scalejs.tabs-jqueryui":  "Scripts/scalejs.tabs-jqueryui-1.1.0",
         "scion":  "Scripts/scion",
         "styles":  "Scripts/scalejs.styles",
         "text":  "Scripts/text",
