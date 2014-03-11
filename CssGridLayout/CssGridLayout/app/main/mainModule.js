@@ -30,7 +30,7 @@ define([
                         // Render viewModel using 'main-text' binding 
                         // and show it set root view
                         root(template('main_template', viewModel));
-                        invalidateLayout(true);
+                        invalidateLayout({ reparse: true });
 
                     }))));
     };
