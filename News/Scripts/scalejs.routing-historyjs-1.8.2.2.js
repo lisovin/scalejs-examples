@@ -99,7 +99,8 @@ define('scalejs.routing-historyjs/routing',[
     }
 
     function deserialize(url) {
-        var data = isBlank(url) ? [['']] : url.split("?")
+        var url = url.replace("/?", ""),
+            data = isBlank(url) ? [['']] : url.split("?")
             .filter(function (p) { return p !== "" })
             .map(function (d, i) {
                 if (i === 0) {

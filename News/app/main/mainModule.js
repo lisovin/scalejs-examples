@@ -44,7 +44,7 @@ define([
                     route('/'),
                     onEntry(function () {
                         main.pages([main.red, main.orange, main.yellow, main.green]);
-                        main.headerHeight('25px');
+                        main.headerHeight('30px');
                         invalidate({ reparse: true });
                     }),
                     onExit(function () {

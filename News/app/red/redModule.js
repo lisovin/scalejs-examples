@@ -35,7 +35,7 @@ define([
         
         registerStates('main',
             state('red.detail',
-               // route('red'),
+                route('red'),
                 onEntry(function () {
                     red.detail1();
                     red.detail2(template('red_detail2_template'));

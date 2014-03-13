@@ -41,11 +41,6 @@ define('scalejs.panorama',[
             var value = valueAccessor(),
                 pages = value.pages();
 
-            safeSetStyle(element, '-ms-grid-columns', pages.map(function (page) {
-                ko.unwrap(page);
-                return 'auto'
-            }).join(" "));
-
             ko.bindingHandlers.template.update(
                 element,
                 wrapValueAccessor(valueAccessor(), element),
@@ -54,11 +49,18 @@ define('scalejs.panorama',[
                 bindingContext
             );
 
-            window.requestAnimationFrame(function () {
-                copy(element.children).forEach(function (el, i) {
-                    safeSetStyle(el, '-ms-grid-column', i + 1);
-                });
+            safeSetStyle(element, '-ms-grid-columns', pages.filter(function(page) {
+                return ko.unwrap(page);
+            }).map(function (page) {
+                ko.unwrap(page);
+                return 'auto';
+            }).join(" "));
 
+            copy(element.children).forEach(function (el, i) {
+                safeSetStyle(el, '-ms-grid-column', i + 1);
+            });
+
+            window.requestAnimationFrame(function () {    
                 core.layout.invalidate({ reparse: true });
             });
         });
