@@ -1,0 +1,111 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <ProjectGuid>{4F47708D-EB7E-4D94-BB14-5527EE35DC0A}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <OutputPath>js</OutputPath>
+    <JSLintSkip>\Scripts\|\js\</JSLintSkip>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <StartAction>Program</StartAction>
+    <StartProgram>C:\Program Files (x86)\IIS Express\iisexpress.exe</StartProgram>
+    <StartArguments>/site:News</StartArguments>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <StartProgram>C:\Program Files (x86)\IIS Express\iisexpress.exe</StartProgram>
+    <StartArguments>/site:News</StartArguments>
+  </PropertyGroup>
+  <ItemGroup>
+    <Content Include="app\green\bindings\greenBindings.js" />
+    <Content Include="app\green\greenModule.js" />
+    <Content Include="app\green\styles\green.css" />
+    <Content Include="app\green\viewmodels\greenViewModel.js" />
+    <Content Include="app\green\views\green.html" />
+    <Content Include="app\orange\bindings\orangeBindings.js" />
+    <Content Include="app\orange\orangeModule.js" />
+    <Content Include="app\orange\styles\orange.css" />
+    <Content Include="app\orange\viewmodels\orangeViewModel.js" />
+    <Content Include="app\orange\views\orange.html" />
+    <Content Include="app\yellow\bindings\yellowBindings.js" />
+    <Content Include="app\yellow\styles\yellow.css" />
+    <Content Include="app\yellow\viewmodels\yellowViewModel.js" />
+    <Content Include="app\yellow\views\yellow.html" />
+    <Content Include="app\yellow\yellowModule.js" />
+    <Content Include="css\jasmine.css" />
+    <Content Include="css\metro-bootstrap-responsive.min.css" />
+    <Content Include="css\metro-bootstrap.min.css" />
+    <Content Include="extensions\panorama.html" />
+    <Content Include="extensions\panoramaBindings.js" />
+    <Content Include="README.txt" />
+    <Content Include="index.debug.html" />
+    <Content Include="index.html" />
+    <Content Include="index.release.html" />
+    <Content Include="index.test.html" />
+    <Content Include="app\red\bindings\redBindings.js" />
+    <Content Include="app\red\redModule.js" />
+    <Content Include="app\red\styles\red.css" />
+    <Content Include="app\red\viewmodels\redViewModel.js" />
+    <Content Include="app\red\views\red.html" />
+    <Content Include="Scripts\almond.js" />
+    <Content Include="Scripts\css-builder.js" />
+    <Content Include="Scripts\css.js" />
+    <Content Include="Scripts\CSS.supports.js" />
+    <Content Include="Scripts\cssparser.js" />
+    <Content Include="Scripts\jasmine-html.js" />
+    <Content Include="Scripts\jasmine.js" />
+    <Content Include="Scripts\knockout-3.0.0.debug.js" />
+    <Content Include="Scripts\knockout-3.0.0.js" />
+    <Content Include="Scripts\knockout.mapping-latest.debug.js" />
+    <Content Include="Scripts\knockout.mapping-latest.js" />
+    <Content Include="Scripts\linq-vsdoc.js" />
+    <Content Include="Scripts\linq.js" />
+    <Content Include="Scripts\linq.js.d.ts" />
+    <Content Include="Scripts\linq.min.js" />
+    <Content Include="Scripts\normalize.js" />
+    <Content Include="Scripts\r.js" />
+    <Content Include="Scripts\require.js" />
+    <Content Include="Scripts\scalejs-0.3.3.js" />
+    <Content Include="Scripts\scalejs-0.3.3.min.js" />
+    <Content Include="Scripts\scalejs.functional-0.2.10.js" />
+    <Content Include="Scripts\scalejs.functional-0.2.10.min.js" />
+    <Content Include="extensions\scalejs.panorama.js" />
+    <Content Include="Scripts\scalejs.layout-cssgrid-0.2.7.64.js" />
+    <Content Include="Scripts\scalejs.layout-cssgrid-0.2.7.64.min.js" />
+    <Content Include="Scripts\scalejs.linq-linqjs-3.0.3.1.js" />
+    <Content Include="Scripts\scalejs.linq-linqjs-3.0.3.1.min.js" />
+    <Content Include="Scripts\scalejs.mvvm-0.3.4.6.js" />
+    <Content Include="Scripts\scalejs.mvvm-0.3.4.6.min.js" />
+    <Content Include="Scripts\scalejs.mvvm.bindings.js" />
+    <Content Include="Scripts\scalejs.mvvm.views.js" />
+    <Content Include="Scripts\scalejs.sandbox.js" />
+    <Content Include="Scripts\scalejs.statechart-scion-0.3.0.1.js" />
+    <Content Include="Scripts\scalejs.statechart-scion-0.3.0.1.min.js" />
+    <Content Include="Scripts\scalejs.styles.js" />
+    <Content Include="Scripts\scion.js" />
+    <Content Include="Scripts\text.js" />
+    <Content Include="Scripts\_references.js" />
+    <Content Include="app\app.js" />
+    <Content Include="app\main\bindings\mainBindings.js" />
+    <Content Include="app\main\styles\main.css" />
+    <Content Include="app\main\viewmodels\mainViewModel.js" />
+    <Content Include="app\main\views\main.html" />
+    <Content Include="app\main\mainModule.js" />
+    <Content Include="Scripts\_scalejs.intellisense.js" />
+    <Content Include="test\all.tests.js" />
+    <Content Include="test\mainViewModel.test.js" />
+    <Content Include="config.js" />
+    <Content Include="Properties\build.rjs" />
+    <Content Include="Properties\News.nuspec" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <PropertyGroup>
+    <ScalejsProjectType>Application</ScalejsProjectType>
+  </PropertyGroup>
+  <PropertyGroup>
+    <RootNamespace>News</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" />
+  <Import Project="$(SolutionDir)\.scalejs\Scalejs.targets" />
+</Project>
