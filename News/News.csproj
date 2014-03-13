@@ -5,6 +5,8 @@
     <OutputType>Library</OutputType>
     <OutputPath>js</OutputPath>
     <JSLintSkip>\Scripts\|\js\</JSLintSkip>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">.\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <StartAction>Program</StartAction>
@@ -61,9 +63,20 @@
     <Content Include="Scripts\linq.js" />
     <Content Include="Scripts\linq.js.d.ts" />
     <Content Include="Scripts\linq.min.js" />
+    <Content Include="Scripts\native.history.js" />
     <Content Include="Scripts\normalize.js" />
     <Content Include="Scripts\r.js" />
     <Content Include="Scripts\require.js" />
+    <Content Include="Scripts\rx.binding.js" />
+    <Content Include="Scripts\rx.binding.min.js" />
+    <Content Include="Scripts\rx.compat.js" />
+    <Content Include="Scripts\rx.compat.min.js" />
+    <Content Include="Scripts\rx.experimental.js" />
+    <Content Include="Scripts\rx.experimental.min.js" />
+    <Content Include="Scripts\rx.js" />
+    <Content Include="Scripts\rx.min.js" />
+    <Content Include="Scripts\rx.time.js" />
+    <Content Include="Scripts\rx.time.min.js" />
     <Content Include="Scripts\scalejs-0.3.3.js" />
     <Content Include="Scripts\scalejs-0.3.3.min.js" />
     <Content Include="Scripts\scalejs.functional-0.2.10.js" />
@@ -77,6 +90,10 @@
     <Content Include="Scripts\scalejs.mvvm-0.3.4.6.min.js" />
     <Content Include="Scripts\scalejs.mvvm.bindings.js" />
     <Content Include="Scripts\scalejs.mvvm.views.js" />
+    <Content Include="Scripts\scalejs.reactive-2.1.20.1.js" />
+    <Content Include="Scripts\scalejs.reactive-2.1.20.1.min.js" />
+    <Content Include="Scripts\scalejs.routing-historyjs-1.8.2.2.js" />
+    <Content Include="Scripts\scalejs.routing-historyjs-1.8.2.2.min.js" />
     <Content Include="Scripts\scalejs.sandbox.js" />
     <Content Include="Scripts\scalejs.statechart-scion-0.3.0.1.js" />
     <Content Include="Scripts\scalejs.statechart-scion-0.3.0.1.min.js" />

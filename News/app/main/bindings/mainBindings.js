@@ -7,5 +7,12 @@ define({
                 pages: this.pages
             }
         };
+    },
+    'main-header': function () {
+        return {
+            style: {
+                height: this.headerHeight
+            }
+        }
     }
 });

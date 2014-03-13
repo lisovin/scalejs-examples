@@ -19,7 +19,7 @@ define([
             state = sandbox.state.builder.state,
             onEntry = sandbox.state.builder.onEntry,
             // vars
-            orange = orangeViewModel(sandbox);
+            orange = orangeViewModel();
 
         // Register application state for the module.
         registerStates('summary',

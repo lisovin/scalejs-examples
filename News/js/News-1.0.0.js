@@ -12520,7 +12520,7 @@ define('text',['module'], function (module) {
     }
     return text;
 });
-define('text!extensions/panorama.html',[],function () { return '<div id="panorama_render_template">\n    <!-- ko render: $data -->\n    <!-- /ko -->\n</div>\n';});
+define('text!extensions/panorama.html',[],function () { return '<div id="panorama_render_template">\r\n    <!-- ko render: $data -->\r\n    <!-- /ko -->\r\n</div>\r\n';});
 
 /*global define */
 /*jslint sloppy: true*/
@@ -12557,9 +12557,6 @@ define('scalejs.panorama',[
     function wrapValueAccessor(value, element) {
         return function () {
             var pages = value.pages;
-
-            safeSetStyle(element, '-ms-grid-columns', pages().map(function () { return 'auto' }).join(" "));
-
             return {
                 foreach: pages,
                 name: 'panorama_render_template'
@@ -12578,6 +12575,11 @@ define('scalejs.panorama',[
             var value = valueAccessor(),
                 pages = value.pages();
 
+            safeSetStyle(element, '-ms-grid-columns', pages.map(function (page) {
+                ko.unwrap(page);
+                return 'auto'
+            }).join(" "));
+
             ko.bindingHandlers.template.update(
                 element,
                 wrapValueAccessor(valueAccessor(), element),
@@ -12586,12 +12588,13 @@ define('scalejs.panorama',[
                 bindingContext
             );
 
-            copy(element.children).forEach(function (el, i) {
-                safeSetStyle(el, '-ms-grid-column', i + 1);
-            })
+            window.requestAnimationFrame(function () {
+                copy(element.children).forEach(function (el, i) {
+                    safeSetStyle(el, '-ms-grid-column', i + 1);
+                });
 
-            core.layout.invalidate({ reparse: true });
-
+                core.layout.invalidate({ reparse: true });
+            });
         });
 
         return { controlsDescendantBindings: true };
@@ -12637,12 +12640,13 @@ define('app/main/viewmodels/mainViewModel',[
             observable = sandbox.mvvm.observable,
             // properties
             pages = observableArray(),
-            red = observable,
-            orange = observable,
-            yellow = observable,
-            green = observable;
+            red = observable(),
+            orange = observable(),
+            yellow = observable(),
+            green = observable();
 
         return {
+            pages: pages,
             red: red,
             orange: orange,
             yellow: yellow,
@@ -12690,7 +12694,7 @@ define('views',[],function () {
     };
 });
 
-define('text!app/main/views/main.html',[],function () { return '<div id="main_template">\n    <div class="main layout">\n        <div class="main header">NEWS</div>\n        <div class="main panorama" data-class="main-panorama"></div>\n    </div>\n</div>';});
+define('text!app/main/views/main.html',[],function () { return '<div id="main_template">\r\n    <div class="main layout">\r\n        <div class="main header">NEWS</div>\r\n        <div class="main panorama" data-class="main-panorama"></div>\r\n    </div>\r\n</div>';});
 
 /*global define*/
 /*jslint unparam:true*/
@@ -13066,25 +13070,31 @@ define('app/main/mainModule',[
             onEntry = sandbox.state.builder.onEntry,
             invalidate = sandbox.layout.invalidate,
             observable = sandbox.mvvm.observable,
+            on = sandbox.state.builder.on,
+            goto = sandbox.state.builder.goto,
             // vars
             main = mainViewModel();
 
         // Register application state for the module.
         registerStates('root',
             state('app',
+                onEntry(function () {
+                    root(template('main_template', main));
+                    this.pages = main.pages;
+                    this.red = main.red;
+                    this.orange = main.orange;
+                    this.yellow = main.yellow;
+                    this.green = main.green;
+                }),
                 parallel('summary',
                     onEntry(function () {
-                        root(template('main_template', main));
-
-                        this.pages = main.pages;
-                        this.red = main.red;
-                        this.orange = main.orange;
-                        this.yellow = main.yellow;
-
-                        viewModel.pages([main.red, main.orange, main.yellow, main.green]);
-
+                        main.pages([main.red, main.orange, main.yellow, main.green]);
                         invalidate({ reparse: true });
-                    }))));
+                    })
+                ),
+                state('main',
+                    on('goto.summary', goto('summary')))
+                ));
     };
 });
 
@@ -13098,10 +13108,23 @@ define('app/red/viewmodels/redViewModel',[
 
     return function () {
         var observable = sandbox.mvvm.observable,
-            text = observable();
+            raise = sandbox.state.raise,
+            detail1 = observable(),
+            detail2 = observable(),
+            detail3 = observable(),
+            detail4 = observable();
+
+        function clicked() {
+            console.log('red summary clicked');
+            raise('goto.red.detail');
+        };
 
         return {
-            text: text
+            clicked: clicked,
+            detail1: detail1,
+            detail2: detail2,
+            detail3: detail3,
+            detail4: detail4
         };
     };
 });
@@ -13109,14 +13132,16 @@ define('app/red/viewmodels/redViewModel',[
 /*global define */
 /*jslint sloppy: true*/
 define('app/red/bindings/redBindings',{
-    'red-text': function () {
+    'red-summary': function () {
         return {
-            text: this.text
+            event: {
+                click: this.clicked
+            }
         };
     }
 });
 
-define('text!app/red/views/red.html',[],function () { return '<div id="red_template">\n    <div class="red summary"></div>\n</div>';});
+define('text!app/red/views/red.html',[],function () { return '<div id="red_template">\r\n    <div class="red summary" data-class="red-summary"></div>\r\n</div>\r\n\r\n<div id="red_detail1_template">\r\n    <div class="red detail1"></div>\r\n</div>\r\n<div id="red_detail2_template">\r\n    <div class="red detail2"></div>\r\n</div>\r\n<div id="red_detail3_template">\r\n    <div class="red detail2"></div>\r\n</div>\r\n<div id="red_detail4_template">\r\n    <div class="red detail3"></div>\r\n</div>';});
 
 define('css!app/red/styles/red',[],function(){});
 /*global define */
@@ -13139,15 +13164,33 @@ define('app/red/redModule',[
             registerStates = sandbox.state.registerStates,
             state = sandbox.state.builder.state,
             onEntry = sandbox.state.builder.onEntry,
+            on = sandbox.state.builder.on,
+            goto = sandbox.state.builder.goto,
             // vars
-            red = redViewModel(sandbox);
+            red = redViewModel();
 
         // Register application state for the module.
         registerStates('summary',
-            state('red',
+            state('red.summary',
                 onEntry(function () {
                     this.red(template('red_template', red));
+                }),
+                on('goto.red.detail', goto('red.detail'))));
+
+        
+        registerStates('main',
+            state('red.detail',
+                onEntry(function () {
+                    red.detail1(template('red_detail1_template'));
+                    red.detail2(template('red_detail2_template'));
+                    red.detail3(template('red_detail3_template'));
+                    red.detail4(template('red_detail4_template'));
+
+
+                    this.pages([red.detail1, red.detail2, red.detail3, red.detail4]);
                 })));
+        
+
     };
 });
 
@@ -13179,7 +13222,7 @@ define('app/orange/bindings/orangeBindings',{
     }
 });
 
-define('text!app/orange/views/orange.html',[],function () { return '<div id="orange_template">\n    <div class="orange summary"></div>\r\n</div>';});
+define('text!app/orange/views/orange.html',[],function () { return '<div id="orange_template">\r\n    <div class="orange summary"></div>\r\n</div>';});
 
 define('css!app/orange/styles/orange',[],function(){});
 /*global define */
@@ -13203,7 +13246,7 @@ define('app/orange/orangeModule',[
             state = sandbox.state.builder.state,
             onEntry = sandbox.state.builder.onEntry,
             // vars
-            orange = orangeViewModel(sandbox);
+            orange = orangeViewModel();
 
         // Register application state for the module.
         registerStates('summary',
@@ -13242,7 +13285,7 @@ define('app/yellow/bindings/yellowBindings',{
     }
 });
 
-define('text!app/yellow/views/yellow.html',[],function () { return '<div id="yellow_template">\n    <div class="yellow summary"></div>\r\n</div>';});
+define('text!app/yellow/views/yellow.html',[],function () { return '<div id="yellow_template">\r\n    <div class="yellow summary"></div>\r\n</div>';});
 
 define('css!app/yellow/styles/yellow',[],function(){});
 /*global define */
@@ -13266,7 +13309,7 @@ define('app/yellow/yellowModule',[
             state = sandbox.state.builder.state,
             onEntry = sandbox.state.builder.onEntry,
             // vars
-            yellow = yellowViewModel(sandbox);
+            yellow = yellowViewModel();
 
         // Register application state for the module.
         registerStates('summary',
@@ -13305,7 +13348,7 @@ define('app/green/bindings/greenBindings',{
     }
 });
 
-define('text!app/green/views/green.html',[],function () { return '<div id="green_template">\n    <div class="geen summary"></div>\r\n</div>';});
+define('text!app/green/views/green.html',[],function () { return '<div id="green_template">\r\n    <div class="green summary"></div>\r\n</div>';});
 
 define('css!app/green/styles/green',[],function(){});
 /*global define */
@@ -13329,7 +13372,7 @@ define('app/green/greenModule',[
             state = sandbox.state.builder.state,
             onEntry = sandbox.state.builder.onEntry,
             // vars
-            green = greenViewModel(sandbox);
+            green = greenViewModel();
 
         // Register application state for the module.
         registerStates('summary',
@@ -13356,4 +13399,4 @@ require([
 define("app/app", function(){});
 
 (function(c){var d=document,a='appendChild',i='styleSheet',s=d.createElement('style');s.type='text/css';d.getElementsByTagName('head')[0][a](s);s[i]?s[i].cssText=c:s[a](d.createTextNode(c));})
-('html, body {\r\n    height: 100%;\r\n    margin: 0px;\r\n    font-family: \'Segoe UI Light_\', \'Open Sans Light\', Verdana, Arial, Helvetica, sans-serif;\r\n    overflow-x: hidden;\r\n}\n.main.layout {\n    display: -ms-grid;\n    -ms-grid-columns: 1fr;\n    -ms-grid-rows: auto 1fr;\n    height: 100%;\n    width: 100%;\n}\n.main.header {\r\n    -ms-grid-row: 1;\r\n    -ms-grid-column: 1;\r\n    background-color: slategray;\r\n    color: white;\r\n}\r\n.main.panorama {\r\n    -ms-grid-row: 2;\r\n    -ms-grid-column:1;\r\n    background-color: lightslategray;\r\n    display: -ms-grid;\r\n    -ms-grid-rows: 1fr;\r\n    overflow-x: scroll;\r\n    overflow-y: hidden;\r\n}.red.summary {\n    width: 500px;\r\n    background-color: red;\n}.orange.summary {\n    width: 800px;\r\n    background-color: orange;\n}.yellow.summary {\n    width: 1000px;\r\n    background-color: yellow;\n}.green.summary {\n    width: 1500px;\r\n    background-color: red;\n}');
+('html, body {\r\n    height: 100%;\r\n    margin: 0px;\r\n    font-family: \'Segoe UI Light_\', \'Open Sans Light\', Verdana, Arial, Helvetica, sans-serif;\r\n    overflow-x: hidden;\r\n}\r\n.main.layout {\r\n    display: -ms-grid;\r\n    -ms-grid-columns: 1fr;\r\n    -ms-grid-rows: auto 1fr;\r\n    height: 100%;\r\n    width: 100%;\r\n}\r\n.main.header {\r\n    -ms-grid-row: 1;\r\n    -ms-grid-column: 1;\r\n    background-color: slategray;\r\n    color: white;\r\n}\r\n.main.panorama {\r\n    -ms-grid-row: 2;\r\n    -ms-grid-column:1;\r\n    background-color: lightslategray;\r\n    display: -ms-grid;\r\n    -ms-grid-rows: 1fr;\r\n    overflow-x: scroll;\r\n    overflow-y: hidden;\r\n}.red.summary {\r\n    width: 500px;\r\n    background-color: red;\r\n}\r\n\r\n.red.detail1 {\r\n    width: 400px;\r\n    background-color: #FF0000;\r\n}\r\n\r\n.red.detail2 {\r\n    width: 500px;\r\n    background-color: #FF0202;\r\n}\r\n\r\n.red.detail3 {\r\n    width: 700px;\r\n    background-color: #FF0404;\r\n}\r\n\r\n.red.detail4 {\r\n    width: 400px;\r\n    background-color: #FF0606;\r\n}.orange.summary {\r\n    width: 800px;\r\n    background-color: orange;\r\n}.yellow.summary {\r\n    width: 1000px;\r\n    background-color: yellow;\r\n}.green.summary {\r\n    width: 1500px;\r\n    background-color: green;\r\n}');

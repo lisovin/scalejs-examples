@@ -2,3 +2,23 @@
     width: 500px;
     background-color: red;
 }
+
+.red.detail1 {
+    width: 400px;
+    background-color: #FF0000;
+}
+
+.red.detail2 {
+    width: 500px;
+    background-color: #FF2020;
+}
+
+.red.detail3 {
+    width: 700px;
+    background-color: #FF4040;
+}
+
+.red.detail4 {
+    width: 400px;
+    background-color: #FF6060;
+}

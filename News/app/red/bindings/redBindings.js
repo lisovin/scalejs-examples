@@ -1,9 +1,11 @@
 ﻿/*global define */
 /*jslint sloppy: true*/
 define({
-    'red-text': function () {
+    'red-summary': function () {
         return {
-            text: this.text
+            event: {
+                click: this.clicked
+            }
         };
     }
 });

@@ -11,6 +11,7 @@ define([
             observableArray = sandbox.mvvm.observableArray,
             observable = sandbox.mvvm.observable,
             // properties
+            headerHeight = observable('25px'),
             pages = observableArray(),
             red = observable(),
             orange = observable(),
@@ -18,6 +19,7 @@ define([
             green = observable();
 
         return {
+            headerHeight: headerHeight,
             pages: pages,
             red: red,
             orange: orange,
