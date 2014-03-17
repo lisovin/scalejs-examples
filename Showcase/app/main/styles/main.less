@@ -1,0 +1,36 @@
+﻿html, body {
+    height: 100%;
+    margin: 0px;
+    overflow-x: hidden;
+}
+
+.tiles-container {
+    padding: 3px 100px 3px 3px;
+    position: relative;
+}
+
+.main {
+    &.layout {
+        display: -ms-grid;
+        -ms-grid-columns: 20px 1fr;
+        -ms-grid-rows: auto 1fr;
+        height: 100%;
+        width: 100%;
+    }
+    &.header {
+        -ms-grid-row: 1;
+        -ms-grid-column: 2;
+        height: 70px;
+    }
+    &.panorama {
+        -ms-grid-row: 2;
+        -ms-grid-column: 2;
+        display: -ms-grid;
+        -ms-grid-rows: 1fr;
+        overflow-x: scroll;
+        overflow-y: hidden;
+    }
+    &.home {
+        padding-right: 100px
+    }
+}

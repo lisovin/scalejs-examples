@@ -1,0 +1,201 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <ProjectGuid>{33928823-CF7D-4067-AC4C-5E0113CFEDFC}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <OutputPath>js</OutputPath>
+    <JSLintSkip>\Scripts\|\js\</JSLintSkip>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">.\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <StartAction>Program</StartAction>
+    <StartProgram>C:\Program Files (x86)\IIS Express\iisexpress.exe</StartProgram>
+    <StartArguments>/site:Showcase</StartArguments>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <StartProgram>C:\Program Files (x86)\IIS Express\iisexpress.exe</StartProgram>
+    <StartArguments>/site:Showcase</StartArguments>
+  </PropertyGroup>
+  <ItemGroup>
+    <Content Include="app\main\bindings\mainBindings.js" />
+    <Content Include="css\iconFont.min.css" />
+    <Content Include="css\jasmine.css" />
+    <Content Include="css\metro-bootstrap-responsive.css" />
+    <Content Include="css\metro-bootstrap-responsive.min.css" />
+    <Content Include="css\metro-bootstrap.css" />
+    <Content Include="extensions\front.js" />
+    <Content Include="extensions\panorama.html" />
+    <Content Include="extensions\scalejs.panorama.js" />
+    <Content Include="extensions\scalejs.tiles.js" />
+    <Content Include="extensions\tile.html" />
+    <Content Include="extensions\tileBindings.js" />
+    <Content Include="extensions\tileLayout.js" />
+    <Content Include="fonts\iconFont.dev.svg" />
+    <Content Include="fonts\iconFont.svg" />
+    <Content Include="fonts\metroSysIcons.svg" />
+    <Content Include="js\metro.min.js" />
+    <Content Include="js\metro\metro-accordion.js" />
+    <Content Include="js\metro\metro-button-set.js" />
+    <Content Include="js\metro\metro-calendar.js" />
+    <Content Include="js\metro\metro-carousel.js" />
+    <Content Include="js\metro\metro-core.js" />
+    <Content Include="js\metro\metro-countdown.js" />
+    <Content Include="js\metro\metro-date-format.js" />
+    <Content Include="js\metro\metro-datepicker.js" />
+    <Content Include="js\metro\metro-dialog.js" />
+    <Content Include="js\metro\metro-drag-tile.js" />
+    <Content Include="js\metro\metro-dropdown.js" />
+    <Content Include="js\metro\metro-fluentmenu.js" />
+    <Content Include="js\metro\metro-global.js" />
+    <Content Include="js\metro\metro-hint.js" />
+    <Content Include="js\metro\metro-initiator.js" />
+    <Content Include="js\metro\metro-input-control.js" />
+    <Content Include="js\metro\metro-listview.js" />
+    <Content Include="js\metro\metro-live-tile.js" />
+    <Content Include="js\metro\metro-loader.js" />
+    <Content Include="js\metro\metro-locale.js" />
+    <Content Include="js\metro\metro-notify.js" />
+    <Content Include="js\metro\metro-panel.js" />
+    <Content Include="js\metro\metro-plugin-template.js" />
+    <Content Include="js\metro\metro-progressbar.js" />
+    <Content Include="js\metro\metro-pull.js" />
+    <Content Include="js\metro\metro-rating.js" />
+    <Content Include="js\metro\metro-scroll.js" />
+    <Content Include="js\metro\metro-slider.js" />
+    <Content Include="js\metro\metro-stepper.js" />
+    <Content Include="js\metro\metro-streamer.js" />
+    <Content Include="js\metro\metro-tab-control.js" />
+    <Content Include="js\metro\metro-table.js" />
+    <Content Include="js\metro\metro-tile-transform.js" />
+    <Content Include="js\metro\metro-times.js" />
+    <Content Include="js\metro\metro-touch-handler.js" />
+    <Content Include="js\metro\metro-treeview.js" />
+    <Content Include="js\metro\metro-wizard.js" />
+    <Content Include="README.txt" />
+    <Content Include="index.debug.html" />
+    <Content Include="index.html" />
+    <Content Include="index.release.html" />
+    <Content Include="index.test.html" />
+    <Content Include="Scripts\almond.js" />
+    <Content Include="Scripts\CSS.supports.js" />
+    <Content Include="Scripts\cssparser.js" />
+    <Content Include="Scripts\jasmine-html.js" />
+    <Content Include="Scripts\jasmine.js" />
+    <Content Include="Scripts\jquery-1.9.1.intellisense.js" />
+    <Content Include="Scripts\jquery-1.9.1.js" />
+    <Content Include="Scripts\jquery-1.9.1.min.js" />
+    <Content Include="Scripts\jquery-migrate-1.1.1.js" />
+    <Content Include="Scripts\jquery-migrate-1.1.1.min.js" />
+    <Content Include="Scripts\knockout-3.0.0.debug.js" />
+    <Content Include="Scripts\knockout-3.0.0.js" />
+    <Content Include="Scripts\knockout.mapping-latest.debug.js" />
+    <Content Include="Scripts\knockout.mapping-latest.js" />
+    <Content Include="Scripts\less-builder.js" />
+    <Content Include="Scripts\less.js" />
+    <Content Include="Scripts\lessc.js" />
+    <Content Include="Scripts\linq-vsdoc.js" />
+    <Content Include="Scripts\linq.js" />
+    <Content Include="Scripts\linq.js.d.ts" />
+    <Content Include="Scripts\linq.min.js" />
+    <Content Include="Scripts\normalize.js" />
+    <Content Include="Scripts\r.js" />
+    <Content Include="Scripts\require.js" />
+    <Content Include="Scripts\scalejs-0.3.3.js" />
+    <Content Include="Scripts\scalejs-0.3.3.min.js" />
+    <Content Include="Scripts\scalejs.functional-0.2.9.8.js" />
+    <Content Include="Scripts\scalejs.functional-0.2.9.8.min.js" />
+    <Content Include="Scripts\scalejs.layout-cssgrid-0.2.7.66.js" />
+    <Content Include="Scripts\scalejs.layout-cssgrid-0.2.7.66.min.js" />
+    <Content Include="Scripts\scalejs.linq-linqjs-3.0.3.1.js" />
+    <Content Include="Scripts\scalejs.linq-linqjs-3.0.3.1.min.js" />
+    <Content Include="Scripts\scalejs.mvvm-0.3.4.4.js" />
+    <Content Include="Scripts\scalejs.mvvm-0.3.4.4.min.js" />
+    <Content Include="Scripts\scalejs.mvvm.bindings.js" />
+    <Content Include="Scripts\scalejs.mvvm.views.js" />
+    <Content Include="Scripts\scalejs.sandbox.js" />
+    <Content Include="Scripts\scalejs.statechart-scion-0.3.0.0.js" />
+    <Content Include="Scripts\scalejs.statechart-scion-0.3.0.0.min.js" />
+    <Content Include="Scripts\scalejs.styles.js" />
+    <Content Include="Scripts\scion.js" />
+    <Content Include="Scripts\text.js" />
+    <Content Include="Scripts\_references.js" />
+    <Content Include="app\app.js" />
+    <Content Include="app\main\styles\main.less" />
+    <Content Include="app\main\viewmodels\mainViewModel.js" />
+    <Content Include="app\main\views\main.html" />
+    <Content Include="app\main\mainModule.js" />
+    <Content Include="Scripts\_scalejs.intellisense.js" />
+    <Content Include="test\all.tests.js" />
+    <Content Include="test\mainViewModel.test.js" />
+    <Content Include="config.js" />
+    <Content Include="Properties\build.rjs" />
+    <Content Include="Properties\Showcase.nuspec" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="fonts\iconFont.eot" />
+    <None Include="fonts\iconFont.json" />
+    <None Include="fonts\iconFont.ttf" />
+    <None Include="fonts\iconFont.woff" />
+    <None Include="fonts\metroSysIcons.ttf" />
+    <None Include="fonts\metroSysIcons.woff" />
+    <None Include="JSLintNet.json" />
+    <None Include="less\accordion.less" />
+    <None Include="less\balloon.less" />
+    <None Include="less\breadcrumbs.less" />
+    <None Include="less\buttons.less" />
+    <None Include="less\calendar.less" />
+    <None Include="less\carousel.less" />
+    <None Include="less\colors.less" />
+    <None Include="less\countdown.less" />
+    <None Include="less\dataTables.less" />
+    <None Include="less\fluent-menu.less" />
+    <None Include="less\forms.less" />
+    <None Include="less\funcs.less" />
+    <None Include="less\grid.less" />
+    <None Include="less\hint.less" />
+    <None Include="less\iconFont-content.less" />
+    <None Include="less\iconFont.less" />
+    <None Include="less\icons.less" />
+    <None Include="less\images.less" />
+    <None Include="less\layout.less" />
+    <None Include="less\lists.less" />
+    <None Include="less\menus.less" />
+    <None Include="less\metro-bootstrap-responsive.less" />
+    <None Include="less\metro-bootstrap.less" />
+    <None Include="less\misc.less" />
+    <None Include="less\navigation-bar.less" />
+    <None Include="less\notice.less" />
+    <None Include="less\notify.less" />
+    <None Include="less\pagination.less" />
+    <None Include="less\panels.less" />
+    <None Include="less\progress-bar.less" />
+    <None Include="less\rating.less" />
+    <None Include="less\reset.less" />
+    <None Include="less\scroll.less" />
+    <None Include="less\sidebar.less" />
+    <None Include="less\slider.less" />
+    <None Include="less\stepper.less" />
+    <None Include="less\streamer.less" />
+    <None Include="less\tab-control.less" />
+    <None Include="less\tables.less" />
+    <None Include="less\tiles.less" />
+    <None Include="less\transform.less" />
+    <None Include="less\treeview.less" />
+    <None Include="less\typography.less" />
+    <None Include="less\utils.less" />
+    <None Include="less\variables.less" />
+    <None Include="less\window.less" />
+    <None Include="less\wizard.less" />
+    <None Include="packages.config" />
+    <None Include="Scripts\jquery-1.9.1.min.map" />
+  </ItemGroup>
+  <PropertyGroup>
+    <ScalejsProjectType>Application</ScalejsProjectType>
+  </PropertyGroup>
+  <PropertyGroup>
+    <RootNamespace>Showcase</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" />
+  <Import Project="$(SolutionDir)\.scalejs\Scalejs.targets" />
+</Project>
