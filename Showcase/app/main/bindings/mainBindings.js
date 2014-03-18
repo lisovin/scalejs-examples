@@ -20,7 +20,7 @@ define({
             attr: {
                 'class': this.size
             },
-            text: this.percentage + '%'
+            html: this.percentage + '<span style="font-size:.7em">%</span>'
         }
     }
 });

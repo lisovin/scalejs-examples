@@ -99,19 +99,7 @@ define([
                 mediumTile('green'), squareTile('violet'), squareTile('lightRed'), mediumTile('lightGreen'), squareTile('magenta'), squareTile('yellow')
             ])
         }
-
         
-        function createNumberedTiles() {
-            tiles([
-                mediumTile('amber'), miniTile('magenta'), miniTile('orange'), squareTile('darkOrange'), mediumTile('indigo'), largeTile('lime'), mediumTile('cyan'),
-                miniTile('green'), miniTile('violet'),
-                mediumTile('lightBlue'), mediumTile('teal'), squareTile('lightPink'), squareTile('violet'), squareTile('lightBlue'),
-                squareTile('lightTeal'), squareTile('cobolt'), largeTile('steel'), mediumTile('red'), squareTile('steel'), mediumTile('gray'),
-                mediumTile('green'), squareTile('violet'), squareTile('lightRed'), mediumTile('lightGreen'), squareTile('magenta'), squareTile('yellow')
-            ])
-        }
-
-
         function createNumberedTiles() {
             tiles([
                 numTile('medium'), numTile('mini'), numTile('mini'), numTile('square'), numTile('medium'), numTile('large'), numTile('medium'),
