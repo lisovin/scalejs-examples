@@ -89,6 +89,8 @@ define('scalejs.tiles', [
 
                         $(window).resize(function () {
                             $(element).width(layout(tiles, element, b.unitWidth, b.pageHeight));
+                            var widthc = layout(tiles, element, b.unitWidth, b.pageHeight);
+                            core.layout.utils.safeSetStyle(element.parentElement, 'width', widthc + 'px');
                             core.layout.invalidate({ reparse: true });
                         });
                     }

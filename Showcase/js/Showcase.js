@@ -13374,6 +13374,8 @@ define('scalejs.tiles', [
 
                         $(window).resize(function () {
                             $(element).width(layout(tiles, element, b.unitWidth, b.pageHeight));
+                            var widthc = layout(tiles, element, b.unitWidth, b.pageHeight);
+                            core.layout.utils.safeSetStyle(element.parentElement, 'width', widthc + 'px');
                             core.layout.invalidate({ reparse: true });
                         });
                     }
@@ -13549,7 +13551,7 @@ define('views',[],function () {
         }
     };
 });
-define('text!app/main/views/main.html',[],function () { return '<div id="main_template">\r\n    <div class="main layout bg-dark">\r\n        <div class="main header">\r\n            <h1 class="fg-white">Showcase</h1>\r\n        </div>\r\n        <div class="main panorama" data-class="main-panorama"></div>\r\n    </div>\r\n</div>\r\n\r\n<div id="tile_holding_page_template">\r\n    <div class="main home" data-class="main-home" style="position: relative"></div>\r\n</div>\r\n<div id="tile_holding_page_template">\r\n    <div class="main home" data-class="main-home" style="position: relative"></div>\r\n</div>';});
+define('text!app/main/views/main.html',[],function () { return '<div id="main_template">\r\n    <div class="main layout bg-dark">\r\n        <div class="main header">\r\n            <h1 class="fg-white">Showcase</h1>\r\n        </div>\r\n        <div class="main panorama" data-class="main-panorama"></div>\r\n    </div>\r\n</div>\r\n\r\n<div id="tile_holding_page_template">\r\n    <div class="main home" data-class="main-home" style="position: relative"></div>\r\n</div>';});
 
 /*global define*/
 /*jslint unparam:true*/

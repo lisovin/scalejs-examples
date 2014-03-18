@@ -32,7 +32,8 @@ define([
                             // Render viewModel using 'main_template' template 
                             // (defined in main.html) and show it in the `root` region.
                             root(template('main_template', viewModel));
-                            viewModel.pages([template('tile_holding_page_template', viewModel), template('tile_holding_page_template', viewModel)]);
+                            viewModel.pages([template('tile_holding_page_template', viewModel),
+                                template('tile_holding_page_template', viewModel), template('tile_holding_page_template', viewModel)]);
                             invalidate({ reparse: true });
                         });
                     }))));
