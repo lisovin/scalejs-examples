@@ -10,7 +10,10 @@
         <!-- ko if: $data.showBrand -->
         <div class="brand" data-class="panorama-tile-brand-css">
             <!-- ko if: brandDarken -->
-            <div style="background:black;height:35px;opacity:.3"></div>
+            <div class="brandDarken"></div>
+            <!-- /ko -->
+            <!-- ko if: $data.brandBar-->
+            <div class="bar" data-class="panorama-tile-bar"></div>
             <!-- /ko -->
             <!-- ko if: $data.brandIcon -->
             <img class="icon" src="#" data-class="panorama-tile-brand-icon" />

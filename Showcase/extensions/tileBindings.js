@@ -60,7 +60,7 @@ define(['scalejs!core', 'knockout'], function (core, ko) {
         },
 
         'panorama-tile-brand-css': function () {
-            var css = this.bgColor ? 'bg-color-' + this.brandBgColor : undefined;
+            var css = this.brandBgColor ? 'bg-color-' + this.brandBgColor : undefined;
 
             return {
                 css: css
@@ -106,6 +106,13 @@ define(['scalejs!core', 'knockout'], function (core, ko) {
 
             return {
                 css: (up - down >= 0 ? "icon-thumbs-up" : "icon-thumbs-down") + " fg-color-white",
+            };
+        },
+        'panorama-tile-bar': function () {
+            return {
+                style: {
+                    width: this.content.percentage + '%'
+                }
             };
         }
     };

@@ -79,6 +79,7 @@ define([
                 contentTemplate: 'showcase_tile_template',
                 showBrand: true,
                 brandDarken: true,
+                brandBar: true,
                 content: {
                     size: size,
                     percentage: percentage
