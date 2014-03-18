@@ -13303,8 +13303,10 @@ define('scalejs.tiles', [
                 afterRender: function () {
                     if (tiles)
                         core.layout.invalidate({ reparse: true });
-                        core.layout.onLayoutDone(function () {
-                            layout(tiles, element, b.unitWidth, b.pageHeight)
+                        $(element).width(layout(tiles, element, b.unitWidth, b.pageHeight));
+                        $(window).resize(function () {
+                            $(element).width(layout(tiles, element, b.unitWidth, b.pageHeight));
+                            core.layout.invalidate({ reparse: true });
                         });
                    
                 }
@@ -13380,16 +13382,59 @@ define('app/main/viewmodels/mainViewModel',[
         function createRandomTiles(n) {
 
             for (var i = 0; i < n; i++) {
+                var width = 1 + Math.random() * 4 | 0;
+
                 tiles.push({
-                    width: 1 + Math.random() * 4 | 0,
-                    height: 1 + Math.random() * 4 | 0,
+                    width: width,
+                    height: 1 + Math.random() * width | 0,
                     bgColor: colors[Math.random() * colors.length | 0]
                 });
             }
         }
 
-        createRandomTiles(100);
+        function mediumTile(color) {
+            return {
+                height: 1,
+                width: 2,
+                bgColor: color
+            };
+        }
 
+        function squareTile(color) {
+            return {
+                height: 1,
+                width: 1,
+                bgColor: color
+            };
+        }
+
+        function miniTile(color) {
+            return {
+                height: .5,
+                width: .5,
+                bgColor: color
+            };
+        }
+        function largeTile(color) {
+            return {
+                height: 2,
+                width: 2,
+                bgColor: color
+            };
+        }
+
+
+        function createOrderedTiles() {
+            tiles([
+                mediumTile('amber'), miniTile('magenta'), miniTile('orange'), squareTile('darkOrange'), mediumTile('indigo'), largeTile('lime'), mediumTile('cyan'),
+                miniTile('green'), miniTile('violet'),
+                mediumTile('lightBlue'), mediumTile('teal'), squareTile('lightPink'), squareTile('violet'), squareTile('lightBlue'),
+                squareTile('lightTeal'), squareTile('cobolt'), largeTile('steel'), mediumTile('red'), squareTile('steel'), mediumTile('gray'),
+                mediumTile('green'), squareTile('violet'), squareTile('lightRed'), mediumTile('lightGreen'), squareTile('magenta'), squareTile('yellow')
+            ])
+        }
+        //createRandomTiles(10);
+        createOrderedTiles();
         console.log(tiles());
 
         return {
@@ -13490,8 +13535,7 @@ define('app/main/bindings/mainBindings',{
     'main-home': function () {
         return {
             tiles: {
-                tiles: this.tiles,
-                unitWidth: 20
+                tiles: this.tiles
             }
         }
     }
@@ -13786,4 +13830,4 @@ require([
 define("app/app", function(){});
 
 (function(c){var d=document,a='appendChild',i='styleSheet',s=d.createElement('style');s.type='text/css';d.getElementsByTagName('head')[0][a](s);s[i]?s[i].cssText=c:s[a](d.createTextNode(c));})
-('html,\nbody {\n  height: 100%;\n  margin: 0px;\n  overflow-x: hidden;\n}\n.tiles-container {\n  padding: 3px 0px 0px 3px;\n}\n.main.layout {\n  display: -ms-grid;\n  -ms-grid-columns: 20px 1fr;\n  -ms-grid-rows: auto 1fr;\n  height: 100%;\n  width: 100%;\n}\n.main.header {\n  -ms-grid-row: 1;\n  -ms-grid-column: 2;\n  height: 70px;\n}\n.main.panorama {\n  -ms-grid-row: 2;\n  -ms-grid-column: 2;\n  display: -ms-grid;\n  -ms-grid-rows: 1fr;\n  overflow-x: scroll;\n  overflow-y: hidden;\n}\n');
+('html,\nbody {\n  height: 100%;\n  margin: 0px;\n  overflow-x: hidden;\n}\n.tiles-container {\n  padding: 3px 100px 3px 3px;\n  position: relative;\n}\n.main.layout {\n  display: -ms-grid;\n  -ms-grid-columns: 20px 1fr;\n  -ms-grid-rows: auto 1fr;\n  height: 100%;\n  width: 100%;\n}\n.main.header {\n  -ms-grid-row: 1;\n  -ms-grid-column: 2;\n  height: 70px;\n}\n.main.panorama {\n  -ms-grid-row: 2;\n  -ms-grid-column: 2;\n  display: -ms-grid;\n  -ms-grid-rows: 1fr;\n  overflow-x: scroll;\n  overflow-y: hidden;\n}\n.main.home {\n  padding-right: 100px;\n}\n');

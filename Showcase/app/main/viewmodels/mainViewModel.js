@@ -9,9 +9,16 @@ define([
     return function () {
         var // imports
             observableArray = sandbox.mvvm.observableArray,
+            merge = sandbox.object.merge,
             // properties
             pages = observableArray(),
             tiles = observableArray(),
+            tileGen = {
+                large: largeTile,
+                medium: mediumTile,
+                mini: miniTile,
+                square: squareTile
+            },
             colors = ['lime','green','emerald','teal','cyan','colbalt','indigo','violet','pink','magenta','crimson','red','orange','amber','yellow','lightBlue','lightTeal','lightOlive','lightPink','lightRed','lightGreen']
 
 
@@ -48,16 +55,38 @@ define([
             return {
                 height: .5,
                 width: .5,
-                bgColor: color
+                bgColor: color,
+                brandDarken: false
             };
         }
         function largeTile(color) {
             return {
                 height: 2,
                 width: 2,
-                bgColor: color
+                bgColor: color,
             };
         }
+
+
+
+        function numTile(size) {
+            var randNum = Math.random(),
+                percentage =  Math.round(randNum * 100),
+                ryg = ['darkRed', 'crimson', 'red', 'lightRed', 'orange', 'amber', 'lime', 'lightGreen', 'green', 'emerald', 'darkGreen'],
+                color = ryg[randNum * ryg.length | 0];
+
+            return merge({
+                contentTemplate: 'showcase_tile_template',
+                showBrand: true,
+                brandDarken: true,
+                content: {
+                    size: size,
+                    percentage: percentage
+                }
+            }, tileGen[size](color));
+        }
+
+        console.log(numTile('medium'));
 
 
         function createOrderedTiles() {
@@ -69,8 +98,33 @@ define([
                 mediumTile('green'), squareTile('violet'), squareTile('lightRed'), mediumTile('lightGreen'), squareTile('magenta'), squareTile('yellow')
             ])
         }
+
+        
+        function createNumberedTiles() {
+            tiles([
+                mediumTile('amber'), miniTile('magenta'), miniTile('orange'), squareTile('darkOrange'), mediumTile('indigo'), largeTile('lime'), mediumTile('cyan'),
+                miniTile('green'), miniTile('violet'),
+                mediumTile('lightBlue'), mediumTile('teal'), squareTile('lightPink'), squareTile('violet'), squareTile('lightBlue'),
+                squareTile('lightTeal'), squareTile('cobolt'), largeTile('steel'), mediumTile('red'), squareTile('steel'), mediumTile('gray'),
+                mediumTile('green'), squareTile('violet'), squareTile('lightRed'), mediumTile('lightGreen'), squareTile('magenta'), squareTile('yellow')
+            ])
+        }
+
+
+        function createNumberedTiles() {
+            tiles([
+                numTile('medium'), numTile('mini'), numTile('mini'), numTile('square'), numTile('medium'), numTile('large'), numTile('medium'),
+                numTile('mini'), numTile('mini'),
+                numTile('medium'), numTile('medium'), numTile('square'), numTile('square'), numTile('square'),
+                numTile('square'), numTile('square'), numTile('large'), numTile('medium'), numTile('square'), numTile('medium'),
+                numTile('medium'), numTile('square'), numTile('square'), numTile('medium'), numTile('square'), numTile('square')
+            ])
+
+        }
+
+        createNumberedTiles();
         //createRandomTiles(10);
-        createOrderedTiles();
+        //createOrderedTiles();
         console.log(tiles());
 
         return {

@@ -14,5 +14,13 @@ define({
                 tiles: this.tiles
             }
         }
+    },
+    'showcase-tile': function () {
+        return {
+            attr: {
+                'class': this.size
+            },
+            text: this.percentage + '%'
+        }
     }
 });
