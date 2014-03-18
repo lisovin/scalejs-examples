@@ -151,11 +151,15 @@ define([
     }
 
     function getPageHeight(element) {
+        /*
         var pageHeight = $(element).outerHeight();
         yOffset = $(element).offset().top;
         if (window.innerHeight < yOffset + pageHeight) {
             pageHeight = window.innerHeight - yOffset - 44; //accounts for *page* header (this obviously should be done better)
-        }
+        }*/
+
+        var pageHeight = parseInt(element.parentNode.style.height, 10);
+
         return pageHeight;
     }
 

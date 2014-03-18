@@ -18,12 +18,31 @@ define('scalejs.panorama', [
 
     function wrapValueAccessor(value, element) {
         return function () {
-            var pages = value.pages;
             return {
-                foreach: pages,
-                name: 'panorama_render_template'
+                name: 'panorama_content_template',
+                data: value
             };
         };
+    }
+
+    function setPagesGridColumns(element, pages) {
+        var pages,
+            columnStyle;
+        
+        pages = ko.unwrap(pages)
+            .filter(function (p) { 
+                return ko.unwrap(p); 
+            }),
+
+        columnStyle = pages
+            .map(function (p) {
+                return 'auto';
+            }).join(' ');
+
+        if (columnStyle.length !== 0)
+        {
+            safeSetStyle(element, '-ms-grid-columns', columnStyle);
+        }
     }
 
     function init(
@@ -33,34 +52,6 @@ define('scalejs.panorama', [
         viewModel, 
         bindingContext
     ) {
-        ko.computed(function () {
-            var value = valueAccessor(),
-                pages = value.pages();
-
-            ko.bindingHandlers.template.update(
-                element,
-                wrapValueAccessor(valueAccessor(), element),
-                allBindingsAccessor,
-                viewModel,
-                bindingContext
-            );
-
-            safeSetStyle(element, '-ms-grid-columns', pages.filter(function(page) {
-                return ko.unwrap(page);
-            }).map(function (page) {
-                ko.unwrap(page);
-                return 'auto';
-            }).join(" "));
-
-            copy(element.children).forEach(function (el, i) {
-                safeSetStyle(el, '-ms-grid-column', i + 1);
-            });
-
-            window.requestAnimationFrame(function () {    
-                core.layout.invalidate({ reparse: true });
-            });
-        });
-
         element.addEventListener('mousewheel', function (e) {
 
             var e = window.event || e; // old IE support
@@ -72,8 +63,36 @@ define('scalejs.panorama', [
         return { controlsDescendantBindings: true };
     }
 
+
+
+    function update(
+        element,
+        valueAccessor,
+        allBindingsAccessor,
+        viewModel,
+        bindingContext
+    ) {
+        var binding = valueAccessor(),
+            contentHeight;
+
+        setPagesGridColumns(element, binding.pages);
+
+        core.layout.invalidate({ reparse: true });
+
+        ko.bindingHandlers.template.update(
+            element,
+            wrapValueAccessor(valueAccessor(), element),
+            allBindingsAccessor,
+            viewModel,
+            bindingContext
+        );
+
+        return { controlsDescendantBindings: true };
+    }
+
     ko.bindingHandlers.panorama = {
-        init: init
+        init: init,
+        update: update
     }
 
     ko.virtualElements.allowedBindings.panorama = true;

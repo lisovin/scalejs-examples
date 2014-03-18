@@ -107,6 +107,9 @@
     <Content Include="Scripts\scalejs.functional-0.2.9.8.min.js" />
     <Content Include="Scripts\scalejs.layout-cssgrid-0.2.7.66.js" />
     <Content Include="Scripts\scalejs.layout-cssgrid-0.2.7.66.min.js" />
+    <Content Include="Scripts\scalejs.layout-cssgrid-0.2.7.79.js" />
+    <Content Include="Scripts\scalejs.layout-cssgrid-0.2.7.80.js" />
+    <Content Include="Scripts\scalejs.layout-cssgrid-0.2.7.80.min.js" />
     <Content Include="Scripts\scalejs.linq-linqjs-3.0.3.1.js" />
     <Content Include="Scripts\scalejs.linq-linqjs-3.0.3.1.min.js" />
     <Content Include="Scripts\scalejs.mvvm-0.3.4.4.js" />

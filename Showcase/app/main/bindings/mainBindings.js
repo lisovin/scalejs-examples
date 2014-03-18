@@ -12,7 +12,9 @@ define({
         return {
             tiles: {
                 tiles: this.tiles
+
             }
-        }
+
+        };
     }
 });

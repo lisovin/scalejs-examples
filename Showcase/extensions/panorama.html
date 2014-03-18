@@ -1,4 +1,12 @@
-﻿<div id="panorama_render_template">
-    <!-- ko render: $data -->
+﻿<div id="panorama_content_template">
+    <!-- ko template: { name: 'panorama_page_template', foreach: pages }  -->
     <!-- /ko -->
 </div>
+
+<div id="panorama_page_template">
+    <div data-bind="attr: { style: '-ms-grid-column: ' + ($index() + 1) }, render: $data">
+    </div>
+</div>
+
+
+

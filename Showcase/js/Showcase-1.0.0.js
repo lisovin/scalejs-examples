@@ -3303,7 +3303,14 @@ define('scalejs.layout-cssgrid/utils',[],function () {
     function getTrackSize(element, rowOrColumn, gridIndex) {
         //gridIndex is 1-based counting
         var trackRule = safeGetStyle(element, '-ms-grid-' + rowOrColumn + 's'),
-            trackSizes = trackRule.split(' ');
+            trackSizes;
+
+        if (trackRule === undefined) {
+            console.log('Error: getTrackSize(', element, ', ', rowOrColumn, ', ', gridIndex, ') failed because element\'s style doesn\'t contain track definitions');
+            return;
+        }
+
+        trackSizes = trackRule.split(' ');
 
         if (trackSizes.length <= gridIndex - 1) {
             return ('grid does not have that many ' + rowOrColumn + 's');
@@ -3311,20 +3318,35 @@ define('scalejs.layout-cssgrid/utils',[],function () {
             return trackSizes[gridIndex - 1];
         }
     }
-    function getCalculatedTrackSize(element, rowOrColumn, gridIndex) {
+    function getComputedTrackSize(element, rowOrColumn, gridIndex) {
         //gridIndex is 1-based counting
-        var calculatedTracks = element.attributes['data-grid-calculated-' + rowOrColumn + 's'].textContent,
-            calculatedSizes = calculatedTracks.split(' ');
+        var trackRule = element.attributes['data-grid-computed-' + rowOrColumn + 's'].textContent,
+            trackSizes;
 
-        if (calculatedSizes.length <= gridIndex - 1) {
+        if (trackRule === undefined) {
+            console.log('Error: getTrackSize(', element, ', ', rowOrColumn, ', ', gridIndex, ') failed because element\'s style doesn\'t contain track definitions');
+            return;
+        }
+
+        trackSizes = trackRule.split(' ');
+
+
+        if (trackSizes.length <= gridIndex - 1) {
             return ('grid does not have that many ' + rowOrColumn + 's');
         } else {
-            return calculatedSizes[gridIndex - 1];
+            return trackSizes[gridIndex - 1];
         }
     }
     function setTrackSize(element, rowOrColumn, gridIndex, size) {
         var trackRule = safeGetStyle(element, '-ms-grid-' + rowOrColumn + 's'),
-            trackSizes = trackRule.split(' ');
+            trackSizes;
+
+        if (trackRule === undefined) {
+            console.log('Error: getTrackSize(', element, ', ', rowOrColumn, ', ', gridIndex, ') failed because element\'s style doesn\'t contain track definitions');
+            return;
+        }
+
+        trackSizes = trackRule.split(' ');
         
         if (trackSizes.length <= gridIndex - 1) {
             return ('grid does not have a ' + rowOrColumn + ' with that index');
@@ -3410,7 +3432,7 @@ define('scalejs.layout-cssgrid/utils',[],function () {
         safeSetStyle: safeSetStyle,
         safeGetStyle: safeGetStyle,
         getTrackSize: getTrackSize,
-        getCalculatedTrackSize: getCalculatedTrackSize, 
+        getComputedTrackSize: getComputedTrackSize, 
         setTrackSize: setTrackSize
     };
 });
@@ -3426,25 +3448,37 @@ define('scalejs.layout-cssgrid/utils.sheetLoader',[
     
 
     var toArray = utils.toArray,
-        getUrl = utils.getUrl,
-        ignore = ['http://localhost:8888/css/metro-bootstrap.css'];
+        getUrl  = utils.getUrl;
 
     function loadStyleSheet(url, loadedStyleSheets, onLoaded) {
-        if (loadedStyleSheets.hasOwnProperty(url) || ignore.indexOf(url) !== -1) {
+        if (loadedStyleSheets.hasOwnProperty(url)) {
             return;
         }
 
         loadedStyleSheets[url] = null;
 
         getUrl(url, function (stylesheet) {
-            var parsed;
-            console.log(url);
-            if (stylesheet.length === 0) {
-                parsed = {
+            var parsed = {
                     rulelist: []
-                };
+                },
+                matches,
+                getGridStyles = /\/\*GridLayoutStart\*\/((.|\n|\r)*?)\/\*GridLayoutEnd\*\//gm,
+                parsedMatch;
+
+            if (stylesheet.trim().length !== 0) {
+                matches = stylesheet.match(getGridStyles);
+                if (matches !== undefined && matches !== null) {
+                    matches.forEach(function (cssChunk, j) {
+                        cssChunk = cssChunk.replace('/*GridLayoutStart*/', '');
+                        cssChunk = cssChunk.replace('/*GridLayoutEnd*/', '');
+                        if (cssChunk.trim().length !== 0) {
+
+                            parsedMatch = cssParser.parse(cssChunk);
+                            parsed.rulelist.concat(parsedMatch);
+                        }
+                    });
+                }
             } else {
-                parsed = cssParser.parse(stylesheet);
             }
 
             loadedStyleSheets[url] = parsed;
@@ -3464,6 +3498,7 @@ define('scalejs.layout-cssgrid/utils.sheetLoader',[
             allHtml = document.documentElement.innerHTML,
             removeComments = /<!--(.|\n|\r)*-->/gm,
             getStyles = /<style.*?>((.|\n|\r)*?)<\/style>/gm,
+            getGridStyles = /\/\*GridLayoutStart\*\/((.|\n|\r)*?)\/\*GridLayoutEnd\*\//gm,
             headerStyles = [],
             match;
 
@@ -3483,17 +3518,24 @@ define('scalejs.layout-cssgrid/utils.sheetLoader',[
         }
 
         headerStyles.forEach(function (styleText, i) {
-            var parsed;
+            var parsed,
+                matches;
 
-            if (styleText.length === 0) {
-                parsed = {
-                    rulelist: []
-                };
-            } else {
-                parsed = cssParser.parse(styleText);
+            if (styleText.trim().length !== 0) {
+                matches = styleText.match(getGridStyles);
+                if (matches !== undefined && matches !== null) {
+                    matches.forEach(function (cssChunk, j) {
+                        cssChunk = cssChunk.replace('/*GridLayoutStart*/', '');
+                        cssChunk = cssChunk.replace('/*GridLayoutEnd*/', '');
+                        if (cssChunk.trim().length !== 0) {
+
+                            parsed = cssParser.parse(cssChunk);
+                            loadedStyleSheets['head' + i + '_' + j] = parsed;
+                        }
+                    });
+                }
             }
 
-            loadedStyleSheets['head' + i] = parsed;
         });
 
         // if no styleSheets have href, call onLoaded
@@ -3501,9 +3543,9 @@ define('scalejs.layout-cssgrid/utils.sheetLoader',[
             return s.href;
         });
 
-        //if (!hrefExists) {
+        if (!hrefExists) {
             onLoaded(loadedStyleSheets);
-        //}
+        }
 
         toArray(document.styleSheets)
             .forEach(function (sheet) {
@@ -4251,8 +4293,8 @@ define('scalejs.layout-cssgrid/gridLayout',[
             rowTracks,
             mappedItems,
             prevParentPos,
-            calculatedColumns,
-            calculatedRows;
+            computedColumns,
+            computedRows;
 
         columnTracks = gridTracksParser.parse(properties[GRIDCOLUMNS]);
         rowTracks = gridTracksParser.parse(properties[GRIDROWS]);
@@ -4263,15 +4305,15 @@ define('scalejs.layout-cssgrid/gridLayout',[
         sizeTracks(rowTracks, gridElement.offsetHeight, HEIGHT);
         //console.log(width, height);
 
-        //give calculated track sizes to grid parent
-        calculatedColumns = columnTracks.select(function (columnTrack) {
+        //give computed track sizes to grid parent
+        computedColumns = columnTracks.select(function (columnTrack) {
             return columnTrack.pixels + 'px';
         }).toArray().join(' ');
-        gridElement.setAttribute('data-grid-calculated-columns', calculatedColumns);
-        calculatedRows = rowTracks.select(function (rowTrack) {
+        gridElement.setAttribute('data-grid-computed-columns', computedColumns);
+        computedRows = rowTracks.select(function (rowTrack) {
             return rowTrack.pixels + 'px';
         }).toArray().join(' ');
-        gridElement.setAttribute('data-grid-calculated-rows', calculatedRows);
+        gridElement.setAttribute('data-grid-computed-rows', computedRows);
 
         gridElement.setAttribute('data-grid-parent', 'true');
         if (gridElement.hasAttribute('data-grid-child')) {
@@ -4653,28 +4695,21 @@ define('scalejs.layout-cssgrid/cssGridLayout',[
     }
 
     function invalidate(options) {
-        var thing,
-            On;
+        var container;
 
         if (options && options.container) {
-            On = options.container;
+            container = options.container;
         } else {
-            On = undefined;
+            container = undefined;
         }
 
         if (options && options.reparse && (options.reparse === true)) {
-            thing = function (on) {
-                parseAllStyles(function () {
-                    doLayout(on);
-                });
-            };
+            parseAllStyles(function () {
+                doLayout(container);
+            });
         } else {
-            thing = function (on) {
-                doLayout(on);
-            };
+            doLayout(container);
         }
-
-        thing(On);
     }
 
     return {
@@ -10892,7 +10927,7 @@ define('text',['module'], function (module) {
     }
     return text;
 });
-define('text!extensions/panorama.html',[],function () { return '<div id="panorama_render_template">\n    <!-- ko render: $data -->\n    <!-- /ko -->\n</div>\n';});
+define('text!extensions/panorama.html',[],function () { return '<div id="panorama_content_template">\r\n    <!-- ko template: { name: \'panorama_page_template\', foreach: pages }  -->\r\n    <!-- /ko -->\r\n</div>\r\n\r\n<div id="panorama_page_template">\r\n    <div data-bind="attr: { style: \'-ms-grid-column: \' + ($index() + 1) }, render: $data">\r\n    </div>\r\n</div>\r\n\r\n\r\n\r\n';});
 
 /*global define */
 define('scalejs.panorama', [
@@ -10914,12 +10949,31 @@ define('scalejs.panorama', [
 
     function wrapValueAccessor(value, element) {
         return function () {
-            var pages = value.pages;
             return {
-                foreach: pages,
-                name: 'panorama_render_template'
+                name: 'panorama_content_template',
+                data: value
             };
         };
+    }
+
+    function setPagesGridColumns(element, pages) {
+        var pages,
+            columnStyle;
+        
+        pages = ko.unwrap(pages)
+            .filter(function (p) { 
+                return ko.unwrap(p); 
+            }),
+
+        columnStyle = pages
+            .map(function (p) {
+                return 'auto';
+            }).join(' ');
+
+        if (columnStyle.length !== 0)
+        {
+            safeSetStyle(element, '-ms-grid-columns', columnStyle);
+        }
     }
 
     function init(
@@ -10929,34 +10983,6 @@ define('scalejs.panorama', [
         viewModel, 
         bindingContext
     ) {
-        ko.computed(function () {
-            var value = valueAccessor(),
-                pages = value.pages();
-
-            ko.bindingHandlers.template.update(
-                element,
-                wrapValueAccessor(valueAccessor(), element),
-                allBindingsAccessor,
-                viewModel,
-                bindingContext
-            );
-
-            safeSetStyle(element, '-ms-grid-columns', pages.filter(function(page) {
-                return ko.unwrap(page);
-            }).map(function (page) {
-                ko.unwrap(page);
-                return 'auto';
-            }).join(" "));
-
-            copy(element.children).forEach(function (el, i) {
-                safeSetStyle(el, '-ms-grid-column', i + 1);
-            });
-
-            window.requestAnimationFrame(function () {    
-                core.layout.invalidate({ reparse: true });
-            });
-        });
-
         element.addEventListener('mousewheel', function (e) {
 
             var e = window.event || e; // old IE support
@@ -10968,8 +10994,36 @@ define('scalejs.panorama', [
         return { controlsDescendantBindings: true };
     }
 
+
+
+    function update(
+        element,
+        valueAccessor,
+        allBindingsAccessor,
+        viewModel,
+        bindingContext
+    ) {
+        var binding = valueAccessor(),
+            contentHeight;
+
+        setPagesGridColumns(element, binding.pages);
+
+        core.layout.invalidate({ reparse: true });
+
+        ko.bindingHandlers.template.update(
+            element,
+            wrapValueAccessor(valueAccessor(), element),
+            allBindingsAccessor,
+            viewModel,
+            bindingContext
+        );
+
+        return { controlsDescendantBindings: true };
+    }
+
     ko.bindingHandlers.panorama = {
-        init: init
+        init: init,
+        update: update
     }
 
     ko.virtualElements.allowedBindings.panorama = true;
@@ -12712,7 +12766,7 @@ define('extensions/tileBindings',['scalejs!core', 'knockout'], function (core, k
 });
 
 
-define('text!extensions/tile.html',[],function () { return '<div id="sj_tiles_container">\r\n<div class="tiles-container" data-bind="template: {name: \'sj_panorama_tile_template\', foreach: tiles}"></div>\r\n</div>\r\n\r\n<div id="sj_panorama_tile_template">\r\n    <div class="tile" data-class="panorama-tile"> \r\n        <!-- ko if: $data.content -->\r\n        <div class="tile-content" data-class="panorama-tile-content"></div>\r\n        <!-- /ko -->\r\n        <!-- ko if: $data.showBrand -->\r\n        <div class="brand" data-class="panorama-tile-brand-css">\r\n            <!-- ko if: brandDarken -->\r\n            <div style="background:black;height:35px;opacity:.3"></div>\r\n            <!-- /ko -->\r\n            <!-- ko if: $data.brandIcon -->\r\n            <img class="icon" src="#" data-class="panorama-tile-brand-icon" />\r\n            <!-- /ko -->\r\n            <!-- ko if: $data.brandName -->\r\n            <span class="name" style="margin-bottom:12px;font-size:16px" data-class="panorama-tile-brand-name"></span>\r\n            <!-- /ko -->\r\n            <!-- ko if: $data.brandHtml -->\r\n            <p class="text" data-class="panorama-tile-brand-html"></p>\r\n            <!-- /ko -->\r\n            <!-- ko if: $data.brandBadge -->\r\n            <div class="badge" data-class="panorama-tile-brand-badge"></div>\r\n            <!-- /ko -->\r\n            <!-- ko if: $data.showRating -->\r\n            <div style="position:absolute;right:0px;margin-right:50px;bottom:10px" data-class="panorama-tile-rating-icon"></div>\r\n            <div style="position:absolute;right:0px;margin-right:15px;bottom:10px" data-class="panorama-tile-rating"></div>\r\n            <!-- /ko -->\r\n        </div>\r\n        \r\n        <!-- /ko -->\r\n    </div>\r\n</div>\r\n\r\n<div id="sj_panorama_tile_content_default_html_template">\r\n    <div data-class="panorama-tile-content-default-html"></div>\r\n</div>\r\n\r\n\r\n<div id="panorama_tile_template">\r\n    <div class="tile" data-class="panorama-tile"> \r\n        <!-- ko class: panorama-tile-content -->\r\n        <!-- /ko -->\r\n        <!-- ko class: panorama-tile-brand -->\r\n        <!-- /ko -->\r\n    </div>\r\n</div>\r\n\r\n<div id="panorama_tile_content_template">\r\n    <div class="tile-content" data-class="panorama-tile-content-css panorama-tile-content-html"></div>\r\n</div>\r\n\r\n<div id="panorama_tile_brand_template">\r\n    <div class="tile-content""></div>\r\n</div>\r\n\r\n';});
+define('text!extensions/tile.html',[],function () { return '<div id="sj_tiles_container">\r\n    <div class="tiles-container" data-bind="template: {name: \'sj_panorama_tile_template\', foreach: tiles}"></div>\r\n</div>\r\n\r\n<div id="sj_panorama_tile_template">\r\n    <div class="tile" data-class="panorama-tile"> \r\n        <!-- ko if: $data.content -->\r\n        <div class="tile-content" data-class="panorama-tile-content"></div>\r\n        <!-- /ko -->\r\n        <!-- ko if: $data.showBrand -->\r\n        <div class="brand" data-class="panorama-tile-brand-css">\r\n            <!-- ko if: brandDarken -->\r\n            <div style="background:black;height:35px;opacity:.3"></div>\r\n            <!-- /ko -->\r\n            <!-- ko if: $data.brandIcon -->\r\n            <img class="icon" src="#" data-class="panorama-tile-brand-icon" />\r\n            <!-- /ko -->\r\n            <!-- ko if: $data.brandName -->\r\n            <span class="name" style="margin-bottom:12px;font-size:16px" data-class="panorama-tile-brand-name"></span>\r\n            <!-- /ko -->\r\n            <!-- ko if: $data.brandHtml -->\r\n            <p class="text" data-class="panorama-tile-brand-html"></p>\r\n            <!-- /ko -->\r\n            <!-- ko if: $data.brandBadge -->\r\n            <div class="badge" data-class="panorama-tile-brand-badge"></div>\r\n            <!-- /ko -->\r\n            <!-- ko if: $data.showRating -->\r\n            <div style="position:absolute;right:0px;margin-right:50px;bottom:10px" data-class="panorama-tile-rating-icon"></div>\r\n            <div style="position:absolute;right:0px;margin-right:15px;bottom:10px" data-class="panorama-tile-rating"></div>\r\n            <!-- /ko -->\r\n        </div>\r\n        \r\n        <!-- /ko -->\r\n    </div>\r\n</div>\r\n\r\n<div id="sj_panorama_tile_content_default_html_template">\r\n    <div data-class="panorama-tile-content-default-html"></div>\r\n</div>\r\n\r\n\r\n<div id="panorama_tile_template">\r\n    <div class="tile" data-class="panorama-tile"> \r\n        <!-- ko class: panorama-tile-content -->\r\n        <!-- /ko -->\r\n        <!-- ko class: panorama-tile-brand -->\r\n        <!-- /ko -->\r\n    </div>\r\n</div>\r\n\r\n<div id="panorama_tile_content_template">\r\n    <div class="tile-content" data-class="panorama-tile-content-css panorama-tile-content-html"></div>\r\n</div>\r\n\r\n<div id="panorama_tile_brand_template">\r\n    <div class="tile-content"></div>\r\n</div>\r\n\r\n';});
 
 /*! jQuery v1.9.1 | (c) 2005, 2012 jQuery Foundation, Inc. | jquery.org/license
 //@ sourceMappingURL=jquery.min.map
@@ -13301,12 +13355,18 @@ define('scalejs.tiles', [
                     layout: function (unitWidth) { return layout(tiles, element, unitWidth, b.pageHeight); }
                 },
                 afterRender: function () {
-                    if (tiles)
+                    if (tiles) {
                         core.layout.invalidate({ reparse: true });
-                        core.layout.onLayoutDone(function () {
-                            layout(tiles, element, b.unitWidth, b.pageHeight)
+                        var widthc = layout(tiles, element, b.unitWidth, b.pageHeight);
+                        $(element).width(widthc);
+                        //asdf. hacky, ask erica
+                        core.layout.utils.safeSetStyle(element.parentElement, 'width', widthc + 'px');
+
+                        $(window).resize(function () {
+                            $(element).width(layout(tiles, element, b.unitWidth, b.pageHeight));
+                            core.layout.invalidate({ reparse: true });
                         });
-                   
+                    }
                 }
             };
         };
@@ -13374,22 +13434,66 @@ define('app/main/viewmodels/mainViewModel',[
             // properties
             pages = observableArray(),
             tiles = observableArray(),
-            colors = ['lime','green','emerald','teal','cyan','colbalt','indigo','violet','pink','magenta','crimson','red','orange','amber','yellow','lightBlue','lightTeal','lightOlive','lightPink','lightRed','lightGreen']
+            colors = ['lime', 'green', 'emerald', 'teal', 'cyan', 'colbalt', 'indigo', 'violet', 'pink', 'magenta', 'crimson', 'red', 'orange', 'amber', 'yellow', 'lightBlue', 'lightTeal', 'lightOlive', 'lightPink', 'lightRed', 'lightGreen'];
 
 
         function createRandomTiles(n) {
 
             for (var i = 0; i < n; i++) {
+                var width = 1 + Math.random() * 4 | 0;
+
                 tiles.push({
-                    width: 1 + Math.random() * 4 | 0,
-                    height: 1 + Math.random() * 4 | 0,
+                    width: width,
+                    height: 1 + Math.random() * width | 0,
                     bgColor: colors[Math.random() * colors.length | 0]
                 });
             }
         }
 
-        createRandomTiles(100);
+        function mediumTile(color) {
+            return {
+                height: 1,
+                width: 2,
+                bgColor: color
+            };
+        }
 
+        function squareTile(color) {
+            return {
+                height: 1,
+                width: 1,
+                bgColor: color
+            };
+        }
+
+        function miniTile(color) {
+            return {
+                height: .5,
+                width: .5,
+                bgColor: color
+            };
+        }
+        function largeTile(color) {
+            return {
+                height: 2,
+                width: 2,
+                bgColor: color
+            };
+        }
+
+
+        function createOrderedTiles() {
+            tiles([
+                mediumTile('amber'), miniTile('magenta'), miniTile('orange'), squareTile('darkOrange'), mediumTile('indigo'),
+                /*largeTile('lime'), mediumTile('cyan'), miniTile('green'), miniTile('violet'),
+                mediumTile('lightBlue'), mediumTile('teal'), squareTile('lightPink'), squareTile('violet'), squareTile('lightBlue'),
+                squareTile('lightTeal'), squareTile('cobolt'), largeTile('steel'), mediumTile('red'), squareTile('steel'), mediumTile('gray'),
+                mediumTile('green'), squareTile('violet'), squareTile('lightRed'), mediumTile('lightGreen'), squareTile('magenta'), squareTile('yellow')
+                */
+            ])
+        }
+        //createRandomTiles(10);
+        createOrderedTiles();
         console.log(tiles());
 
         return {
@@ -13435,7 +13539,7 @@ define('views',[],function () {
         }
     };
 });
-define('text!app/main/views/main.html',[],function () { return '<div id="main_template">\n    <div class="main layout bg-dark">\n        <div class="main header">\n            <h1 class="fg-white">Showcase</h1>\n        </div>\n        <div class="main panorama" data-class="main-panorama"></div>\n    </div>\n</div>\n\n<div id="red_template">\r\n    <div class="main home" data-class="main-home"></div>\r\n</div>';});
+define('text!app/main/views/main.html',[],function () { return '<div id="main_template">\r\n    <div class="main layout bg-dark">\r\n        <div class="main header">\r\n            <h1 class="fg-white">Showcase</h1>\r\n        </div>\r\n        <div class="main panorama" data-class="main-panorama"></div>\r\n    </div>\r\n</div>\r\n\r\n<div id="tile_holding_page_template">\r\n    <div class="main home" data-class="main-home" style="position: relative"></div>\r\n</div>';});
 
 /*global define*/
 /*jslint unparam:true*/
@@ -13490,10 +13594,11 @@ define('app/main/bindings/mainBindings',{
     'main-home': function () {
         return {
             tiles: {
-                tiles: this.tiles,
-                unitWidth: 20
+                tiles: this.tiles
+
             }
-        }
+
+        };
     }
 });
 
@@ -13764,7 +13869,7 @@ define('app/main/mainModule',[
                         // Render viewModel using 'main_template' template 
                         // (defined in main.html) and show it in the `root` region.
                         root(template('main_template', viewModel));
-                        viewModel.pages([template('red_template', viewModel)]);
+                        viewModel.pages([template('tile_holding_page_template', viewModel), template('tile_holding_page_template', viewModel)]);
                         invalidate({ reparse: true });
                     }))));
     };
@@ -13786,4 +13891,4 @@ require([
 define("app/app", function(){});
 
 (function(c){var d=document,a='appendChild',i='styleSheet',s=d.createElement('style');s.type='text/css';d.getElementsByTagName('head')[0][a](s);s[i]?s[i].cssText=c:s[a](d.createTextNode(c));})
-('html,\nbody {\n  height: 100%;\n  margin: 0px;\n  overflow-x: hidden;\n}\n.tiles-container {\n  padding: 3px 0px 0px 3px;\n}\n.main.layout {\n  display: -ms-grid;\n  -ms-grid-columns: 20px 1fr;\n  -ms-grid-rows: auto 1fr;\n  height: 100%;\n  width: 100%;\n}\n.main.header {\n  -ms-grid-row: 1;\n  -ms-grid-column: 2;\n  height: 70px;\n}\n.main.panorama {\n  -ms-grid-row: 2;\n  -ms-grid-column: 2;\n  display: -ms-grid;\n  -ms-grid-rows: 1fr;\n  overflow-x: scroll;\n  overflow-y: hidden;\n}\n');
+('html,\nbody {\n  height: 100%;\n  margin: 0px;\n  overflow-x: hidden;\n}\n.tiles-container {\n  padding: 3px 100px 3px 3px;\n  position: relative;\n}\n/*GridLayoutStart*/\n.main.layout {\n  display: -ms-grid;\n  -ms-grid-columns: 20px 1fr;\n  -ms-grid-rows: auto 1fr;\n  height: 100%;\n  width: 100%;\n}\n.main.header {\n  -ms-grid-row: 1;\n  -ms-grid-column: 2;\n  height: 70px;\n}\n.main.panorama {\n  -ms-grid-row: 2;\n  -ms-grid-column: 2;\n  display: -ms-grid;\n  -ms-grid-rows: 1fr;\n  overflow-x: scroll;\n  overflow-y: hidden;\n}\n.main.home {\n  padding-right: 100px;\n}\n/*GridLayoutEnd*/\n');

@@ -12,7 +12,7 @@ define([
             // properties
             pages = observableArray(),
             tiles = observableArray(),
-            colors = ['lime','green','emerald','teal','cyan','colbalt','indigo','violet','pink','magenta','crimson','red','orange','amber','yellow','lightBlue','lightTeal','lightOlive','lightPink','lightRed','lightGreen']
+            colors = ['lime', 'green', 'emerald', 'teal', 'cyan', 'colbalt', 'indigo', 'violet', 'pink', 'magenta', 'crimson', 'red', 'orange', 'amber', 'yellow', 'lightBlue', 'lightTeal', 'lightOlive', 'lightPink', 'lightRed', 'lightGreen'];
 
 
         function createRandomTiles(n) {
@@ -62,11 +62,12 @@ define([
 
         function createOrderedTiles() {
             tiles([
-                mediumTile('amber'), miniTile('magenta'), miniTile('orange'), squareTile('darkOrange'), mediumTile('indigo'), largeTile('lime'), mediumTile('cyan'),
-                miniTile('green'), miniTile('violet'),
+                mediumTile('amber'), miniTile('magenta'), miniTile('orange'), squareTile('darkOrange'), mediumTile('indigo'),
+                largeTile('lime'), mediumTile('cyan'), miniTile('green')/*, miniTile('violet'),
                 mediumTile('lightBlue'), mediumTile('teal'), squareTile('lightPink'), squareTile('violet'), squareTile('lightBlue'),
                 squareTile('lightTeal'), squareTile('cobolt'), largeTile('steel'), mediumTile('red'), squareTile('steel'), mediumTile('gray'),
                 mediumTile('green'), squareTile('violet'), squareTile('lightRed'), mediumTile('lightGreen'), squareTile('magenta'), squareTile('yellow')
+                */
             ])
         }
         //createRandomTiles(10);

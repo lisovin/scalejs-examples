@@ -80,14 +80,18 @@ define('scalejs.tiles', [
                     layout: function (unitWidth) { return layout(tiles, element, unitWidth, b.pageHeight); }
                 },
                 afterRender: function () {
-                    if (tiles)
+                    if (tiles) {
                         core.layout.invalidate({ reparse: true });
-                        $(element).width(layout(tiles, element, b.unitWidth, b.pageHeight));
+                        var widthc = layout(tiles, element, b.unitWidth, b.pageHeight);
+                        $(element).width(widthc);
+                        //asdf. hacky, ask erica
+                        core.layout.utils.safeSetStyle(element.parentElement, 'width', widthc + 'px');
+
                         $(window).resize(function () {
                             $(element).width(layout(tiles, element, b.unitWidth, b.pageHeight));
                             core.layout.invalidate({ reparse: true });
                         });
-                   
+                    }
                 }
             };
         };
