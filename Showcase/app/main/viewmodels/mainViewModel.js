@@ -73,6 +73,7 @@ define([
             var randNum = Math.random(),
                 percentage =  Math.round(randNum * 100),
                 ryg = ['darkRed', 'crimson', 'red', 'lightRed', 'orange', 'amber', 'lime', 'lightGreen', 'green', 'emerald', 'darkGreen'],
+                ryg = ['darkGreen', 'darkRed'],
                 color = ryg[randNum * ryg.length | 0];
 
             return merge({
@@ -111,11 +112,16 @@ define([
 
         }
 
-        createNumberedTiles();
-        //createRandomTiles(10);
-        //createOrderedTiles();
-        console.log(tiles());
+        function createRandomNumberTiles(n) {
+            for (var i = 0; i < n; i++) {
+                tiles.push(numTile('medium'));//['medium', 'large', 'square', 'mini'][Math.random() * 4 | 0]));
+            }
+        }
 
+        //createNumberedTiles();
+        //createRandomTiles(10);
+        createRandomNumberTiles(10);
+        //createOrderedTiles();
         return {
             pages: pages,
             tiles: tiles

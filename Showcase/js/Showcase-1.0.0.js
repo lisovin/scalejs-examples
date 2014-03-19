@@ -12660,7 +12660,7 @@ define('extensions/tileBindings',['scalejs!core', 'knockout'], function (core, k
         },
 
         'panorama-tile-brand-css': function () {
-            var css = this.bgColor ? 'bg-color-' + this.brandBgColor : undefined;
+            var css = this.brandBgColor ? 'bg-color-' + this.brandBgColor : undefined;
 
             return {
                 css: css
@@ -12707,12 +12707,19 @@ define('extensions/tileBindings',['scalejs!core', 'knockout'], function (core, k
             return {
                 css: (up - down >= 0 ? "icon-thumbs-up" : "icon-thumbs-down") + " fg-color-white",
             };
+        },
+        'panorama-tile-bar': function () {
+            return {
+                style: {
+                    width: this.content.percentage + '%'
+                }
+            };
         }
     };
 });
 
 
-define('text!extensions/tile.html',[],function () { return '<div id="sj_tiles_container">\r\n<div class="tiles-container" data-bind="template: {name: \'sj_panorama_tile_template\', foreach: tiles}"></div>\r\n</div>\r\n\r\n<div id="sj_panorama_tile_template">\r\n    <div class="tile" data-class="panorama-tile"> \r\n        <!-- ko if: $data.content -->\r\n        <div class="tile-content" data-class="panorama-tile-content"></div>\r\n        <!-- /ko -->\r\n        <!-- ko if: $data.showBrand -->\r\n        <div class="brand" data-class="panorama-tile-brand-css">\r\n            <!-- ko if: brandDarken -->\r\n            <div style="background:black;height:35px;opacity:.3"></div>\r\n            <!-- /ko -->\r\n            <!-- ko if: $data.brandIcon -->\r\n            <img class="icon" src="#" data-class="panorama-tile-brand-icon" />\r\n            <!-- /ko -->\r\n            <!-- ko if: $data.brandName -->\r\n            <span class="name" style="margin-bottom:12px;font-size:16px" data-class="panorama-tile-brand-name"></span>\r\n            <!-- /ko -->\r\n            <!-- ko if: $data.brandHtml -->\r\n            <p class="text" data-class="panorama-tile-brand-html"></p>\r\n            <!-- /ko -->\r\n            <!-- ko if: $data.brandBadge -->\r\n            <div class="badge" data-class="panorama-tile-brand-badge"></div>\r\n            <!-- /ko -->\r\n            <!-- ko if: $data.showRating -->\r\n            <div style="position:absolute;right:0px;margin-right:50px;bottom:10px" data-class="panorama-tile-rating-icon"></div>\r\n            <div style="position:absolute;right:0px;margin-right:15px;bottom:10px" data-class="panorama-tile-rating"></div>\r\n            <!-- /ko -->\r\n        </div>\r\n        \r\n        <!-- /ko -->\r\n    </div>\r\n</div>\r\n\r\n<div id="sj_panorama_tile_content_default_html_template">\r\n    <div data-class="panorama-tile-content-default-html"></div>\r\n</div>\r\n\r\n\r\n<div id="panorama_tile_template">\r\n    <div class="tile" data-class="panorama-tile"> \r\n        <!-- ko class: panorama-tile-content -->\r\n        <!-- /ko -->\r\n        <!-- ko class: panorama-tile-brand -->\r\n        <!-- /ko -->\r\n    </div>\r\n</div>\r\n\r\n<div id="panorama_tile_content_template">\r\n    <div class="tile-content" data-class="panorama-tile-content-css panorama-tile-content-html"></div>\r\n</div>\r\n\r\n<div id="panorama_tile_brand_template">\r\n    <div class="tile-content""></div>\r\n</div>\r\n\r\n';});
+define('text!extensions/tile.html',[],function () { return '<div id="sj_tiles_container">\r\n<div class="tiles-container" data-bind="template: {name: \'sj_panorama_tile_template\', foreach: tiles}"></div>\r\n</div>\r\n\r\n<div id="sj_panorama_tile_template">\r\n    <div class="tile" data-class="panorama-tile"> \r\n        <!-- ko if: $data.content -->\r\n        <div class="tile-content" data-class="panorama-tile-content"></div>\r\n        <!-- /ko -->\r\n        <!-- ko if: $data.showBrand -->\r\n        <div class="brand" data-class="panorama-tile-brand-css">\r\n            <!-- ko if: brandDarken -->\r\n            <div class="brandDarken"></div>\r\n            <!-- /ko -->\r\n            <!-- ko if: $data.brandBar-->\r\n            <div class="bar" data-class="panorama-tile-bar"></div>\r\n            <!-- /ko -->\r\n            <!-- ko if: $data.brandIcon -->\r\n            <img class="icon" src="#" data-class="panorama-tile-brand-icon" />\r\n            <!-- /ko -->\r\n            <!-- ko if: $data.brandName -->\r\n            <span class="name" style="margin-bottom:12px;font-size:16px" data-class="panorama-tile-brand-name"></span>\r\n            <!-- /ko -->\r\n            <!-- ko if: $data.brandHtml -->\r\n            <p class="text" data-class="panorama-tile-brand-html"></p>\r\n            <!-- /ko -->\r\n            <!-- ko if: $data.brandBadge -->\r\n            <div class="badge" data-class="panorama-tile-brand-badge"></div>\r\n            <!-- /ko -->\r\n            <!-- ko if: $data.showRating -->\r\n            <div style="position:absolute;right:0px;margin-right:50px;bottom:10px" data-class="panorama-tile-rating-icon"></div>\r\n            <div style="position:absolute;right:0px;margin-right:15px;bottom:10px" data-class="panorama-tile-rating"></div>\r\n            <!-- /ko -->\r\n        </div>\r\n        \r\n        <!-- /ko -->\r\n    </div>\r\n</div>\r\n\r\n<div id="sj_panorama_tile_content_default_html_template">\r\n    <div data-class="panorama-tile-content-default-html"></div>\r\n</div>\r\n\r\n\r\n<div id="panorama_tile_template">\r\n    <div class="tile" data-class="panorama-tile"> \r\n        <!-- ko class: panorama-tile-content -->\r\n        <!-- /ko -->\r\n        <!-- ko class: panorama-tile-brand -->\r\n        <!-- /ko -->\r\n    </div>\r\n</div>\r\n\r\n<div id="panorama_tile_content_template">\r\n    <div class="tile-content" data-class="panorama-tile-content-css panorama-tile-content-html"></div>\r\n</div>\r\n\r\n<div id="panorama_tile_brand_template">\r\n    <div class="tile-content""></div>\r\n</div>\r\n\r\n';});
 
 /*! jQuery v1.9.1 | (c) 2005, 2012 jQuery Foundation, Inc. | jquery.org/license
 //@ sourceMappingURL=jquery.min.map
@@ -13373,9 +13380,16 @@ define('app/main/viewmodels/mainViewModel',[
     return function () {
         var // imports
             observableArray = sandbox.mvvm.observableArray,
+            merge = sandbox.object.merge,
             // properties
             pages = observableArray(),
             tiles = observableArray(),
+            tileGen = {
+                large: largeTile,
+                medium: mediumTile,
+                mini: miniTile,
+                square: squareTile
+            },
             colors = ['lime','green','emerald','teal','cyan','colbalt','indigo','violet','pink','magenta','crimson','red','orange','amber','yellow','lightBlue','lightTeal','lightOlive','lightPink','lightRed','lightGreen']
 
 
@@ -13412,16 +13426,39 @@ define('app/main/viewmodels/mainViewModel',[
             return {
                 height: .5,
                 width: .5,
-                bgColor: color
+                bgColor: color,
+                brandDarken: false
             };
         }
         function largeTile(color) {
             return {
                 height: 2,
                 width: 2,
-                bgColor: color
+                bgColor: color,
             };
         }
+
+
+
+        function numTile(size) {
+            var randNum = Math.random(),
+                percentage =  Math.round(randNum * 100),
+                ryg = ['darkRed', 'crimson', 'red', 'lightRed', 'orange', 'amber', 'lime', 'lightGreen', 'green', 'emerald', 'darkGreen'],
+                color = ryg[randNum * ryg.length | 0];
+
+            return merge({
+                contentTemplate: 'showcase_tile_template',
+                showBrand: true,
+                brandDarken: true,
+                brandBar: true,
+                content: {
+                    size: size,
+                    percentage: percentage
+                }
+            }, tileGen[size](color));
+        }
+
+        console.log(numTile('medium'));
 
 
         function createOrderedTiles() {
@@ -13433,10 +13470,28 @@ define('app/main/viewmodels/mainViewModel',[
                 mediumTile('green'), squareTile('violet'), squareTile('lightRed'), mediumTile('lightGreen'), squareTile('magenta'), squareTile('yellow')
             ])
         }
-        //createRandomTiles(10);
-        createOrderedTiles();
-        console.log(tiles());
+        
+        function createNumberedTiles() {
+            tiles([
+                numTile('medium'), numTile('mini'), numTile('mini'), numTile('square'), numTile('medium'), numTile('large'), numTile('medium'),
+                numTile('mini'), numTile('mini'),
+                numTile('medium'), numTile('medium'), numTile('square'), numTile('square'), numTile('square'),
+                numTile('square'), numTile('square'), numTile('large'), numTile('medium'), numTile('square'), numTile('medium'),
+                numTile('medium'), numTile('square'), numTile('square'), numTile('medium'), numTile('square'), numTile('square')
+            ])
 
+        }
+
+        function createRandomNumberTiles(n) {
+            for (var i = 0; i < n; i++) {
+                tiles.push(numTile(['medium', 'large', 'square', 'mini'][Math.random() * 4 | 0]));
+            }
+        }
+
+        //createNumberedTiles();
+        //createRandomTiles(10);
+        createRandomNumberTiles(1000);
+        //createOrderedTiles();
         return {
             pages: pages,
             tiles: tiles
@@ -13480,7 +13535,7 @@ define('views',[],function () {
         }
     };
 });
-define('text!app/main/views/main.html',[],function () { return '<div id="main_template">\n    <div class="main layout bg-dark">\n        <div class="main header">\n            <h1 class="fg-white">Showcase</h1>\n        </div>\n        <div class="main panorama" data-class="main-panorama"></div>\n    </div>\n</div>\n\n<div id="red_template">\r\n    <div class="main home" data-class="main-home"></div>\r\n</div>';});
+define('text!app/main/views/main.html',[],function () { return '<div id="main_template">\n    <div class="main layout bg-dark">\n        <div class="main header">\n            <h1 class="fg-white">Showcase</h1>\n        </div>\n        <div class="main panorama" data-class="main-panorama"></div>\n    </div>\n</div>\n\n<div id="red_template">\r\n    <div class="main home" data-class="main-home"></div>\r\n</div>\r\n\r\n<div id="showcase_tile_template">\r\n    <div data-class="showcase-tile"></div>\r\n</div>';});
 
 /*global define*/
 /*jslint unparam:true*/
@@ -13537,6 +13592,14 @@ define('app/main/bindings/mainBindings',{
             tiles: {
                 tiles: this.tiles
             }
+        }
+    },
+    'showcase-tile': function () {
+        return {
+            attr: {
+                'class': this.size
+            },
+            html: this.percentage + '<span style="font-size:.7em">%</span>'
         }
     }
 });
@@ -13830,4 +13893,4 @@ require([
 define("app/app", function(){});
 
 (function(c){var d=document,a='appendChild',i='styleSheet',s=d.createElement('style');s.type='text/css';d.getElementsByTagName('head')[0][a](s);s[i]?s[i].cssText=c:s[a](d.createTextNode(c));})
-('html,\nbody {\n  height: 100%;\n  margin: 0px;\n  overflow-x: hidden;\n}\n.tiles-container {\n  padding: 3px 100px 3px 3px;\n  position: relative;\n}\n.main.layout {\n  display: -ms-grid;\n  -ms-grid-columns: 20px 1fr;\n  -ms-grid-rows: auto 1fr;\n  height: 100%;\n  width: 100%;\n}\n.main.header {\n  -ms-grid-row: 1;\n  -ms-grid-column: 2;\n  height: 70px;\n}\n.main.panorama {\n  -ms-grid-row: 2;\n  -ms-grid-column: 2;\n  display: -ms-grid;\n  -ms-grid-rows: 1fr;\n  overflow-x: scroll;\n  overflow-y: hidden;\n}\n.main.home {\n  padding-right: 100px;\n}\n');
+('html,\nbody {\n  height: 100%;\n  margin: 0px;\n  overflow-x: hidden;\n}\n.tiles-container {\n  padding: 3px 100px 3px 3px;\n  position: relative;\n}\n.main.layout {\n  display: -ms-grid;\n  -ms-grid-columns: 20px 1fr;\n  -ms-grid-rows: auto 1fr;\n  height: 100%;\n  width: 100%;\n}\n.main.header {\n  -ms-grid-row: 1;\n  -ms-grid-column: 2;\n  height: 70px;\n}\n.main.panorama {\n  -ms-grid-row: 2;\n  -ms-grid-column: 2;\n  display: -ms-grid;\n  -ms-grid-rows: 1fr;\n  overflow-x: scroll;\n  overflow-y: hidden;\n}\n.main.home {\n  padding-right: 100px;\n}\n.metro .tile div {\n  color: white;\n  font-family: \'Segoe UI Light_\', \'Open Sans Light\', Verdana, Arial, Helvetica, sans-serif !important;\n}\n.metro .tile .medium {\n  font-size: 90px;\n  margin: -20px 5px;\n}\n.metro .tile .large {\n  font-size: 130px;\n  margin: -30px 5px;\n}\n.metro .tile .square {\n  font-size: 65px;\n  margin: -15px 3px;\n}\n.metro .tile .mini {\n  font-size: 30px;\n  margin: -5px 3px;\n}\n.metro .tile .bar {\n  background-color: white;\n  opacity: .7;\n  height: 10px;\n  position: absolute;\n  bottom: 0px;\n}\n.metro .tile .brandDarken {\n  background: black;\n  height: 10px;\n  opacity: .3;\n  position: absolute;\n  bottom: 0;\n  width: 100%;\n}\n');
