@@ -8,7 +8,8 @@ define('scalejs.tiles', [
     'jQuery',
     'knockout',
     './extensions/tileLayout',
-    'scalejs.mvvm'
+    'scalejs.mvvm',
+    'jQuery-ui-effects'
 ], function (
     core,
     tileBindings,
@@ -39,6 +40,8 @@ define('scalejs.tiles', [
             var tileContext, tileData;
             tileContext = ko.contextFor(tileElement);
             tileData = tileContext.$data;
+
+            $(tileElement).hide();
 
             $(tileElement).css({
                 '-webkit-transform': 'translate(' + (tileData.left) + 'px, ' + (tileData.top) + 'px)',
@@ -80,14 +83,22 @@ define('scalejs.tiles', [
                     layout: function (unitWidth) { return layout(tiles, element, unitWidth, b.pageHeight); }
                 },
                 afterRender: function () {
-                    if (tiles)
+                    if (tiles) {
                         core.layout.invalidate({ reparse: true });
                         $(element).width(layout(tiles, element, b.unitWidth, b.pageHeight));
                         $(window).resize(function () {
                             $(element).width(layout(tiles, element, b.unitWidth, b.pageHeight));
                             core.layout.invalidate({ reparse: true });
                         });
-                   
+
+                        setTimeout(function () {
+                            $(element).parent().find('.tile').each(function (index, tileElement) {
+                                setTimeout(function () {
+                                    $(tileElement).show('puff');
+                                },index*100);
+                            });
+                        },100);
+                    }
                 }
             };
         };

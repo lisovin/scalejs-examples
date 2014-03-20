@@ -46,7 +46,7 @@ define([
             y: 0,
             width: 2 * unitWidth,
             height: pageHeight
-        }, otherPoint;
+        };
 
         return tiles.reduce(function (width, tile, i) {
             var tileWidth = getDimension(tile, 'width'),
@@ -67,7 +67,6 @@ define([
             tile.top = point.y;
             tile.left = point.x;
 
-            console.log(point);
             if (point.width > tileWidth) {
                 point.x += tileWidth;
                 point.width -= tileWidth;

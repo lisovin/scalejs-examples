@@ -91,8 +91,6 @@ define([
             }, tileGen[size](color));
         }
 
-        //console.log(numTile('medium'));
-
 
         function createOrderedTiles() {
             tiles([
@@ -115,7 +113,7 @@ define([
 
         }
 
-        function createRandomNumberTiles(n) {
+        function _createRandomNumberTiles(n) {
             var t = [],
                 randNum;
 
@@ -134,9 +132,19 @@ define([
             tiles(t);
         }
 
+
+        function createRandomNumberTiles(n) {
+            var t = [];
+            for (var i = 0; i < n; i++) {
+                t.push(numTile('medium'));
+            }
+            tiles(t);
+        }
+
+
         //createNumberedTiles();
         //createRandomTiles(10);
-        createRandomNumberTiles(100);
+        createRandomNumberTiles(10);
         //createOrderedTiles();
 
         date.subscribe(function (d) {
