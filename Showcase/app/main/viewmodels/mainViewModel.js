@@ -116,14 +116,27 @@ define([
         }
 
         function createRandomNumberTiles(n) {
+            var t = [],
+                randNum;
+
             for (var i = 0; i < n; i++) {
-                tiles.push(numTile(['medium'][Math.random() * 3 | 0]));
+                randNum = Math.random();
+
+                if (randNum < 0.8) {
+                    t.push(numTile('medium'));
+                } else if (randNum < 0.9) {
+                    t.push(numTile('square'));
+                    t.push(numTile('square'));
+                } else {
+                    t.push(numTile('large'));
+                }
             }
+            tiles(t);
         }
 
-        createNumberedTiles();
-       //createRandomTiles(10);
-        //reateRandomNumberTiles(100);
+        //createNumberedTiles();
+        //createRandomTiles(10);
+        createRandomNumberTiles(100);
         //createOrderedTiles();
 
         date.subscribe(function (d) {
