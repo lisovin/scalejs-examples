@@ -59,7 +59,7 @@ define([
                 point.height = pageHeight - (point.y + unitWidth);
             } else if (tileHeight > point.height) {
                 point.y = 0;
-                point.x += point.width - 2 * unitWidth;
+                point.x = point.x + point.width;
                 point.width = 2 * unitWidth;
                 point.height = pageHeight;
             }
