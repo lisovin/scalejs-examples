@@ -190,7 +190,7 @@ define('scalejs.layout-cssgrid/utils.sheetLoader',[
 
     var toArray = utils.toArray,
         getUrl = utils.getUrl,
-        ignore = ['http://localhost:8888/css/metro-bootstrap.css'];
+        ignore = ['http://127.0.0.1:8889/css/metro-bootstrap.css'];
 
     function loadStyleSheet(url, loadedStyleSheets, onLoaded) {
         if (loadedStyleSheets.hasOwnProperty(url) || ignore.indexOf(url) !== -1) {

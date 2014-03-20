@@ -161,41 +161,41 @@ define([
 
     //  Finds the optimal Tile Placement which will fit in the screen
     function calculate(tiles, u, pageHeight, element) {
-        var masonryWidth;
-
         unitWidth = u || unitWidth;
+        pageHeight = pageHeight || getPageHeight(element);
+        var point = {
+            x: 0,
+            y: 0,
+            width: 2 * unitWidth,
+            height: pageHeight
+        }, otherPoint;
 
-        function findMasonryWidth(l, r) {
-            var m = Math.floor((l + r) / 2),
-                masonryHeight = doMasonry(m, tiles);
+        return tiles.reduce(function (width, tile) {
+            var tileWidth = getDimension(tile, 'width'),
+                tileHeight = getDimension(tile, 'height');
 
-            if (r - l < unitWidth) {
-                //findMasonryWidth could doMasonry and return height which is greater than pageHeight
-                //if it does, doMasonry needs to be done again with a width + one unit width
-                if (masonryHeight > pageHeight) {
-                    doMasonry(m + unitWidth, tiles);
-                    return m + unitWidth;
-                }
-                return m;
+            tile.top = point.y;
+            tile.left = point.x;
+
+            if (point.width > tileWidth) {
+                point.x += tileWidth;
+                point.width -= tileWidth;
+            } else if (point.width === tileWidth && point.height - 2 * unitWidth > 0) {
+                point.x = point.x + point.width - 2 * unitWidth;
+                point.y += tileHeight;
+                point.width = 2 * unitWidth;
+                point.height -= tileHeight;
+            } else {
+                point.x += point.width;
+                point.width = unitWidth * 2;
+                point.y = 0;
+                point.height = pageHeight;
             }
 
-            return masonryHeight > pageHeight
-                ? findMasonryWidth(m, r)
-                : findMasonryWidth(l, m);
-        }
-
-        // calculate initial masonry width which is the sum of all tiles widths
-        masonryWidth = tiles.reduce(function (acc, tile) {
-            return acc + getDimension(tile, "width");
+            return Math.max(width, tile.left + tileWidth);
         }, 0);
-
-        pageHeight = pageHeight || getPageHeight(element);
-
-        // find the most optimal width (e.g. so that all tiles fit to pageHeight)
-        masonryWidth = findMasonryWidth(0, masonryWidth);
-
-        return masonryWidth;
     }
+
 
     return {
         calculate: calculate,

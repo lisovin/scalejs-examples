@@ -95,11 +95,12 @@ define([
 
         function createOrderedTiles() {
             tiles([
-                mediumTile('amber'), miniTile('magenta'), miniTile('orange'), squareTile('darkOrange'), mediumTile('indigo'), largeTile('lime'), mediumTile('cyan'),
-                miniTile('green'), miniTile('violet'),
-                mediumTile('lightBlue'), mediumTile('teal'), squareTile('lightPink'), squareTile('violet'), squareTile('lightBlue'),
-                squareTile('lightTeal'), squareTile('cobolt'), largeTile('steel'), mediumTile('red'), squareTile('steel'), mediumTile('gray'),
-                mediumTile('green'), squareTile('violet'), squareTile('lightRed'), mediumTile('lightGreen'), squareTile('magenta'), squareTile('yellow')
+                mediumTile('amber'), mediumTile('lightBlue'), squareTile('lightPink'), squareTile('violet'), mediumTile('green'),
+                squareTile('darkOrange'), squareTile('darkOrange'), largeTile('lime'), mediumTile('teal'),
+                 squareTile('lightTeal'), squareTile('cobolt'), mediumTile('indigo'), mediumTile('cyan'), squareTile('violet'), squareTile('lightRed'),
+                 largeTile('steel'), squareTile('magenta'), squareTile('yellow'), mediumTile('red'),
+                mediumTile('lightGreen'), squareTile('lightBlue')
+                
             ])
         }
         
@@ -122,8 +123,8 @@ define([
 
         //createNumberedTiles();
         //createRandomTiles(10);
-        createRandomNumberTiles(10);
-        //createOrderedTiles();
+        //createRandomNumberTiles(10);
+        createOrderedTiles();
 
         date.subscribe(function (d) {
             console.log(d);
