@@ -13,7 +13,12 @@ define({
             tiles: {
                 tiles: this.tiles
             }
-        }
+        };
+    },
+    'main-calendar': function () {
+        return {
+            calendar: this.date
+        };
     },
     'showcase-tile': function () {
         return {

@@ -9,6 +9,7 @@ define([
     return function () {
         var // imports
             observableArray = sandbox.mvvm.observableArray,
+            observable = sandbox.mvvm.observable,
             merge = sandbox.object.merge,
             // properties
             pages = observableArray(),
@@ -19,6 +20,7 @@ define([
                 mini: miniTile,
                 square: squareTile
             },
+            date = observable(),
             colors = ['lime','green','emerald','teal','cyan','colbalt','indigo','violet','pink','magenta','crimson','red','orange','amber','yellow','lightBlue','lightTeal','lightOlive','lightPink','lightRed','lightGreen']
 
 
@@ -88,7 +90,7 @@ define([
             }, tileGen[size](color));
         }
 
-        console.log(numTile('medium'));
+        //console.log(numTile('medium'));
 
 
         function createOrderedTiles() {
@@ -122,9 +124,15 @@ define([
         //createRandomTiles(10);
         createRandomNumberTiles(10);
         //createOrderedTiles();
+
+        date.subscribe(function (d) {
+            console.log(d);
+        });
+
         return {
             pages: pages,
-            tiles: tiles
+            tiles: tiles,
+            date: date
         };
     };
 });

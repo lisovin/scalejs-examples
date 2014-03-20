@@ -13,13 +13,15 @@ var require = {
         "jasmine":  "Scripts/jasmine",
         "jasmine-html":  "Scripts/jasmine-html",
         "jQuery":  "Scripts/jquery-1.9.1.min",
-        "jQuery-Migrate":  "Scripts/jquery-migrate-1.1.1.min",
+        "jQuery-Migrate": "Scripts/jquery-migrate-1.1.1.min",
+        "jquery-ui": "Scripts/jquery-ui-1.10.3",
         "knockout":  "Scripts/knockout-3.0.0.debug",
         "knockout.mapping":  "Scripts/knockout.mapping-latest.debug",
         "less":  "Scripts/less",
         "less-builder":  "Scripts/less-builder",
         "lessc":  "Scripts/lessc",
-        "linqjs":  "Scripts/linq.min",
+        "linqjs": "Scripts/linq.min",
+        "metro": "Scripts/metro.min",
         "normalize":  "Scripts/normalize",
         "sandbox":  "Scripts/scalejs.sandbox",
         "scalejs":  "Scripts/scalejs-0.3.3",
@@ -29,6 +31,7 @@ var require = {
         "scalejs.mvvm":  "Scripts/scalejs.mvvm-0.3.4.4",
         "scalejs.panorama":  "extensions/scalejs.panorama",
         "scalejs.statechart-scion": "Scripts/scalejs.statechart-scion-0.3.0.0",
+        "scalejs.calendar-metro": "extensions/scalejs.calendar-metro",
         "scalejs.tiles": "extensions/scalejs.tiles",
         "scion":  "Scripts/scion",
         "styles":  "Scripts/scalejs.styles",
@@ -43,7 +46,8 @@ var require = {
             "scalejs.mvvm",
             "scalejs.panorama",
             "scalejs.statechart-scion",
-            "scalejs.tiles"
+            "scalejs.tiles",
+            "scalejs.calendar-metro"
         ]
     },
     "shim":  {
@@ -70,6 +74,16 @@ var require = {
             "deps":  [
                 "scalejs.linq-linqjs",
                 "scalejs.functional"
+            ]
+        },
+        "jquery-widget": {
+            "deps": [
+                "jQuery"
+            ]
+        },
+        "metro": {
+            "deps": [
+                "jquery-ui"
             ]
         }
     }

@@ -27,6 +27,7 @@
     <Content Include="extensions\front.js" />
     <Content Include="extensions\panorama.html" />
     <Content Include="extensions\scalejs.panorama.js" />
+    <Content Include="extensions\scalejs.calendar-metro.js" />
     <Content Include="extensions\scalejs.tiles.js" />
     <Content Include="extensions\tile.html" />
     <Content Include="extensions\tileBindings.js" />
