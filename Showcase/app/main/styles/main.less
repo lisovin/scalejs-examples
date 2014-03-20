@@ -48,61 +48,144 @@
             position: absolute;
             background-color: black;
             line-height: 1px;
+
             label {
                 font-size: 10px;
                 right: 5px;
             }
         }
+
         .actual {
             position: absolute;
             top: 10px;
             left: 5px;
+
             >label {
                 font-size: 10px;
             }
+
             >div {
                 font-size: 35px;
                 margin-top: -10px;
             }
         }
-        .limit {
+
+        .percentage {
             position: absolute;
             top: 10px;
             right: 5px;
+
             >label {
                 font-size: 10px;
             }
+
             >div {
-                font-size: 25px;
+                font-size: 35px;
+                margin-top: -10px;
             }
         }
+
         .capacity {
             position: absolute;
-            bottom: 15px;
+            bottom: 20px;
             left: 5px;
+
             >label {
                 font-size: 10px;
             }
+
             >div {
                 font-size: 25px;
+                margin-top: -10px;
             }
         }
-        .percentage {
+
+        .limit {
             position: absolute;
-            bottom: 15px;
-            right: 30px;
+            bottom: 20px;
+            right: 5px;
+
             >label {
                 font-size: 10px;
             }
+
             >div {
                 font-size: 25px;
+                margin-top: -10px;
             }
         }
     }
 
     .large {
-        font-size: 130px;
-        margin: -30px 5px;
+        .header {
+            width: 100%;
+            height: 15px;
+            position: absolute;
+            background-color: black;
+            line-height: 1px;
+
+            label {
+                font-size: 10px;
+                right: 5px;
+            }
+        }
+
+        .actual {
+            position: absolute;
+            top: 10px;
+            left: 5px;
+
+            >label {
+                font-size: 10px;
+            }
+
+            >div {
+                font-size: 35px;
+                margin-top: -10px;
+            }
+        }
+
+        .limit {
+            position: absolute;
+            top: 40px;
+            left: 5px;
+
+            >label {
+                font-size: 10px;
+            }
+
+            >div {
+                font-size: 25px;
+            }
+        }
+
+        .capacity {
+            position: absolute;
+            top: 70px;
+            left: 5px;
+
+            >label {
+                font-size: 10px;
+            }
+
+            >div {
+                font-size: 25px;
+            }
+        }
+
+        .percentage {
+            position: absolute;
+            top: 100px;
+            left: 5px;
+
+            >label {
+                font-size: 10px;
+            }
+
+            >div {
+                font-size: 25px;
+            }
+        }
     }
 
     .square {
@@ -115,20 +198,42 @@
         margin: -5px 3px;
     }
 
-    .bar {
-        background-color: white;
-        opacity: .3;
-        height: 10px;
-        position: absolute;
-        bottom: 0px;
+    &.medium {
+        .bar {
+            background-color: white;
+            opacity: .75;
+            height: 10px;
+            position: absolute;
+            bottom: 6px;
+        }
+
+        .brandDarken {
+            height: 10px;
+            position: absolute;
+            bottom: 6px;
+            width: 100%;
+        }
     }
-    .brandDarken {
-        background:black;
-        height:10px;
-        opacity:.1;
-        position: absolute;
-        bottom: 0;
-        width: 100%
+    &.large {
+        .brand {
+            height:90%;
+        }
+        .bar {
+            background-color: white;
+            opacity: .75;
+            width: 50px;
+            position: absolute;
+            bottom: 0px;
+            right: 20px;
+        }
+
+        .brandDarken {
+            position: absolute;
+            bottom: 0px;
+            width: 50px;
+            height: 100%;
+            right: 20px;
+        }
     }
 }
 

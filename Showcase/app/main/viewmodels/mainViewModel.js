@@ -73,8 +73,7 @@ define([
 
         function numTile(size) {
             var randNum = Math.random(),
-                percentage =  Math.round(randNum * 100),
-                ryg = ['darkRed', 'crimson', 'red', 'lightRed', 'orange', 'amber', 'lime', 'lightGreen', 'green', 'emerald', 'darkGreen'],
+                percentage =  Math.round(randNum * 200),
                 ryg = ['darkGreen', 'darkRed'],
                 color = ryg[randNum * ryg.length | 0];
 
@@ -82,7 +81,9 @@ define([
                 contentTemplate: 'showcase_tile_template',
                 showBrand: true,
                 brandDarken: true,
+                darkenColor: ['green','red'][randNum * ryg.length | 0],
                 brandBar: true,
+                size: size,
                 content: {
                     size: size,
                     percentage: percentage
@@ -106,25 +107,24 @@ define([
         
         function createNumberedTiles() {
             tiles([
-                numTile('medium'), numTile('mini'), numTile('mini'), numTile('square'), numTile('medium'), numTile('large'), numTile('medium'),
-                numTile('mini'), numTile('mini'),
+                numTile('medium'), numTile('large'),numTile('square') , numTile('square'), numTile('medium'), numTile('large'), numTile('medium') /*,
                 numTile('medium'), numTile('medium'), numTile('square'), numTile('square'), numTile('square'),
                 numTile('square'), numTile('square'), numTile('large'), numTile('medium'), numTile('square'), numTile('medium'),
-                numTile('medium'), numTile('square'), numTile('square'), numTile('medium'), numTile('square'), numTile('square')
+                numTile('medium'), numTile('square'), numTile('square'), numTile('medium'), numTile('square'), numTile('square') */
             ])
 
         }
 
         function createRandomNumberTiles(n) {
             for (var i = 0; i < n; i++) {
-                tiles.push(numTile('medium'));//['medium', 'large', 'square', 'mini'][Math.random() * 4 | 0]));
+                tiles.push(numTile(['medium'][Math.random() * 3 | 0]));
             }
         }
 
-        //createNumberedTiles();
-        //createRandomTiles(10);
-        //createRandomNumberTiles(10);
-        createOrderedTiles();
+        createNumberedTiles();
+       //createRandomTiles(10);
+        //reateRandomNumberTiles(100);
+        //createOrderedTiles();
 
         date.subscribe(function (d) {
             console.log(d);
