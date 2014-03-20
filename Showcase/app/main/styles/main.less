@@ -192,13 +192,47 @@
     }
 
     .square {
-        font-size: 65px;
-        margin: -15px 3px;
-    }
+        .header {
+            display: none;
+        }
 
-    .mini {
-        font-size: 30px;
-        margin: -5px 3px;
+        .actual {
+            position: absolute;
+            top: 0px;
+            left: 5px;
+
+            >label {
+                font-size: 10px;
+            }
+
+            >div {
+                font-size: 30px;
+                margin-top: -10px;
+            }
+        }
+
+        .limit {
+            display: none;
+        }
+
+        .capacity {
+            display: none;
+        }
+
+        .percentage {
+            position: absolute;
+            bottom: 0px;
+            left: 5px;
+
+            >label {
+                font-size: 10px;
+            }
+
+            >div {
+                font-size: 55px;
+                margin-top: -20px;
+            }
+        }
     }
 
     &.medium {
