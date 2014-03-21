@@ -144,7 +144,7 @@ define([
 
         //createNumberedTiles();
         //createRandomTiles(10);
-        createRandomNumberTiles(10);
+        createRandomNumberTiles(100);
         //createOrderedTiles();
 
         date.subscribe(function (d) {

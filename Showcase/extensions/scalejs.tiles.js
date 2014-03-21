@@ -41,8 +41,6 @@ define('scalejs.tiles', [
             tileContext = ko.contextFor(tileElement);
             tileData = tileContext.$data;
 
-            $(tileElement).hide();
-
             $(tileElement).css({
                 '-webkit-transform': 'translate(' + (tileData.left) + 'px, ' + (tileData.top) + 'px)',
                 '-ms-transform': 'translate(' + (tileData.left) + 'px, ' + (tileData.top) + 'px)',
@@ -91,13 +89,12 @@ define('scalejs.tiles', [
                             core.layout.invalidate({ reparse: true });
                         });
 
-                        setTimeout(function () {
-                            $(element).parent().find('.tile').each(function (index, tileElement) {
-                                setTimeout(function () {
-                                    $(tileElement).show('puff');
-                                },index*100);
-                            });
-                        },100);
+                        $(element).parent().find('.tile').each(function (index, tileElement) {
+                            $(tileElement).hide();
+                            setTimeout(function () {
+                                $(tileElement).show('puff');
+                            },index * 100);
+                        });
                     }
                 }
             };
