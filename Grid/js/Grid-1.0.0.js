@@ -19294,7 +19294,7 @@ define('scalejs.layout-cssgrid/cssGridLayout',[
 
         doLayout(container);
     }
-    function initGrid(callback) {
+    function parseGridStyles(callback) {
         parseAllStyles(function () {
             callback();
         });
@@ -19302,7 +19302,7 @@ define('scalejs.layout-cssgrid/cssGridLayout',[
 
     return {
         doLayout: doLayout,
-        initGrid: initGrid,
+        parseGridStyles: parseGridStyles,
         invalidate: invalidate,
         onLayoutDone: onLayoutDone,
         notifyLayoutDone: notifyLayoutDone
@@ -19325,7 +19325,7 @@ define('scalejs.layout-cssgrid',[
     
 
     var exposed_invalidate,
-        exposed_initGrid;
+        exposed_parseGridStyles;
 
 
     //console.log('is -ms-grid supported? ' + (css.supports('display', '-ms-grid') || false));
@@ -19339,7 +19339,7 @@ define('scalejs.layout-cssgrid',[
         });
 
         exposed_invalidate = cssGridLayout.invalidate;
-        exposed_initGrid = cssGridLayout.initGrid;
+        exposed_parseGridStyles = cssGridLayout.parseGridStyles;
 
     } else {
         window.addEventListener('resize', function () {
@@ -19349,7 +19349,7 @@ define('scalejs.layout-cssgrid',[
         exposed_invalidate = function () {
             cssGridLayout.notifyLayoutDone();
         };
-        exposed_initGrid = function (callback) {
+        exposed_parseGridStyles = function (callback) {
             callback();
         }
     }
@@ -19357,7 +19357,7 @@ define('scalejs.layout-cssgrid',[
     core.registerExtension({
         layout: {
             invalidate: exposed_invalidate,
-            initGrid: exposed_initGrid,
+            parseGridStyles: exposed_parseGridStyles,
             onLayoutDone: cssGridLayout.onLayoutDone,
             utils: {
                 safeSetStyle: utils.safeSetStyle,
@@ -19412,11 +19412,14 @@ define('app/main/viewmodels/mainViewModel',[
             itemsSource = observableArray(['Erica', 'Peter', 'Conor', 'Dillon']
                 .select(function (x, index) {
                     return {
+                        index: index,
                         Id: index,
                         Name: x,
                         Age: Math.random() * 70 | 0
                     };
                 }).toArray());
+
+        window.is = itemsSource;
 
         return {
             columns: columns,
@@ -19772,6 +19775,7 @@ define('app/main/mainModule',[
             registerStates = sandbox.state.registerStates,
             state = sandbox.state.builder.state,
             onEntry = sandbox.state.builder.onEntry,
+            invalidate = sandbox.layout.invalidate,
             // vars
             viewModel = mainViewModel();
 
@@ -19783,7 +19787,7 @@ define('app/main/mainModule',[
                         // Render viewModel using 'main_template' template 
                         // (defined in main.html) and show it in the `root` region.
                         root(template('main_template', viewModel));
-                        sandbox.layout.invalidate({ reparse: true });
+                        sandbox.layout.parseGridStyles(invalidate);
                     }))));
     };
 });
@@ -19804,4 +19808,4 @@ require([
 define("app/app", function(){});
 
 (function(c){var d=document,a='appendChild',i='styleSheet',s=d.createElement('style');s.type='text/css';d.getElementsByTagName('head')[0][a](s);s[i]?s[i].cssText=c:s[a](d.createTextNode(c));})
-('/*GridLayoutStart*/\n.main.layout {\n  display: -ms-grid;\n  -ms-grid-columns: 1fr;\n  -ms-grid-rows: auto;\n}\n.main.grid {\n  height: 600px;\n  -ms-grid-column: 1;\n  -ms-grid-row: 1;\n}\n/*GridLayoutEnd*/\n');
+('.main.layout {\n  display: -ms-grid;\n  -ms-grid-columns: 1fr;\n  -ms-grid-rows: auto;\n}\n.main.grid {\n  height: 600px;\n  -ms-grid-column: 1;\n  -ms-grid-row: 1;\n}\n');

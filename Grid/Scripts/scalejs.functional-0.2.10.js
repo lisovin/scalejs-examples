@@ -574,43 +574,43 @@ define('scalejs.functional/builder',[],function () {
 
 /*global define,console,document*/
 /*jslint nomen: true*/
-define('scalejs.functional/completeBuilder',[
+define('scalejs.functional/continuationBuilder',[
     './builder'
 ], function (
     builder
 ) {
     
 
-    var completeBuilder,
-        complete;
+    var continuationBuilder,
+        continuation;
 
-    completeBuilder = builder({
+    continuationBuilder = builder({
         bind: function (f, g) {
-            // `f` is a function that would invoke a callback once they are completed.
+            // `f` is a function that would invoke a callback once they are continuationd.
             // E.g.:
-            // f: function (completed) { 
+            // f: function (continuationd) { 
             //        ...
-            //        completed(result); 
+            //        continuationd(result); 
             //    }
             // 
             // `g` is a function that needs to be bound to result of `f` and its result should have the same signature as `f`
             // 
             // To bind them we should return a function `h` with same signature such as `f`
-            return function (completed) {
+            return function (onSuccess, onError) {
                 f(function (fResult) {
                     var rest = g(fResult);
-                    return rest(completed);
-                });
+                    return rest(onSuccess, onError);
+                }, onError);
             };
         },
 
         $return: function (x) {
-            return function (completed) {
-                if (completed) {
+            return function (onSuccess, onError) {
+                if (onSuccess) {
                     if (typeof x === 'function') {
                         x = x();
                     }
-                    completed(x);
+                    onSuccess(x);
                 }
             };
         },
@@ -620,14 +620,14 @@ define('scalejs.functional/completeBuilder',[
         },
 
         run: function (f) {
-            return function (completed) {
+            return function (onSuccess, onError) {
                 var delayed = f.call(this);
-                delayed.call(this, completed);
+                delayed.call(this, onSuccess, onError);
             };
         }
     });
 
-    complete = completeBuilder().mixin({
+    continuation = continuationBuilder().mixin({
         beforeBuild: function (ops) {
             //console.log('--->INTERCEPTED!', ops);
             ops.forEach(function (op, i) {
@@ -638,7 +638,7 @@ define('scalejs.functional/completeBuilder',[
         }
     });
 
-    return complete;
+    return continuation;
 });
 
 /*global define*/
@@ -646,12 +646,12 @@ define('scalejs.functional',[
     'scalejs!core',
     './scalejs.functional/functional',
     './scalejs.functional/builder',
-    './scalejs.functional/completeBuilder'
+    './scalejs.functional/continuationBuilder'
 ], function (
     core,
     functional,
     builder,
-    complete
+    continuation
 ) {
     
 
@@ -661,7 +661,7 @@ define('scalejs.functional',[
         functional: merge(functional, {
             builder: builder,
             builders: {
-                complete: complete
+                continuation: continuation
             }
         })
     });

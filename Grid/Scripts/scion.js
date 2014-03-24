@@ -644,8 +644,8 @@
 
                     this._listeners.forEach(function (l) {
                         if (l.onEntry) {
-                            evaluateAction(function () {
-                                l.onEntry.call(this, state.id);
+                            evaluateAction(function (currentEvent) {
+                                l.onEntry.call(this, state.id, currentEvent);
                             });
                         }
                     });

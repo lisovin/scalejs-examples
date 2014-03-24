@@ -5,7 +5,9 @@ define(function () {
 
     return {
         load: function (name, req, onLoad, config) {
-            var names = name.match(/([\w\-]+)/g) || [];
+            /*jslint regexp: true*/
+            var names = name.match(/([^,]+)/g) || [];
+            /*jslint regexp: false*/
 
             names = names.map(function (n) {
                 if (n.indexOf('.js', n.length - 3) > -1) {
