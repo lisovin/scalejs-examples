@@ -5,6 +5,8 @@
     <OutputType>Library</OutputType>
     <OutputPath>js</OutputPath>
     <JSLintSkip>\Scripts\|\js\</JSLintSkip>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">.\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <StartAction>Program</StartAction>
@@ -17,6 +19,13 @@
   </PropertyGroup>
   <ItemGroup>
     <Content Include="css\jasmine.css" />
+    <Content Include="css\slick\images\header-bg.gif" />
+    <Content Include="css\slick\images\header-columns-bg.gif" />
+    <Content Include="css\slick\images\header-columns-over-bg.gif" />
+    <Content Include="css\slick\images\sort-asc.gif" />
+    <Content Include="css\slick\images\sort-desc.gif" />
+    <Content Include="css\slick\slick-default-theme.css" />
+    <Content Include="css\slick\slick.grid.css" />
     <Content Include="README.txt" />
     <Content Include="index.debug.html" />
     <Content Include="index.html" />
@@ -25,6 +34,16 @@
     <Content Include="Scripts\almond.js" />
     <Content Include="Scripts\jasmine-html.js" />
     <Content Include="Scripts\jasmine.js" />
+    <Content Include="Scripts\jquery-1.9.1.intellisense.js" />
+    <Content Include="Scripts\jquery-1.9.1.js" />
+    <Content Include="Scripts\jquery-1.9.1.min.js" />
+    <Content Include="Scripts\jquery-migrate-1.1.1.js" />
+    <Content Include="Scripts\jquery-migrate-1.1.1.min.js" />
+    <Content Include="Scripts\jquery.bpopup.min.js" />
+    <Content Include="Scripts\jquery.event.drag.js" />
+    <Content Include="Scripts\jquery.event.drag.live.js" />
+    <Content Include="Scripts\jquery.event.drag.live.min.js" />
+    <Content Include="Scripts\jquery.event.drag.min.js" />
     <Content Include="Scripts\knockout-3.0.0.debug.js" />
     <Content Include="Scripts\knockout-3.0.0.js" />
     <Content Include="Scripts\knockout.mapping-latest.debug.js" />
@@ -43,6 +62,8 @@
     <Content Include="Scripts\scalejs-0.3.3.min.js" />
     <Content Include="Scripts\scalejs.functional-0.2.9.8.js" />
     <Content Include="Scripts\scalejs.functional-0.2.9.8.min.js" />
+    <Content Include="Scripts\scalejs.grid-slick-0.2.2.7.js" />
+    <Content Include="Scripts\scalejs.grid-slick-0.2.2.7.min.js" />
     <Content Include="Scripts\scalejs.linq-linqjs-3.0.3.1.js" />
     <Content Include="Scripts\scalejs.linq-linqjs-3.0.3.1.min.js" />
     <Content Include="Scripts\scalejs.mvvm-0.3.4.4.js" />
@@ -54,6 +75,12 @@
     <Content Include="Scripts\scalejs.statechart-scion-0.3.0.0.min.js" />
     <Content Include="Scripts\scalejs.styles.js" />
     <Content Include="Scripts\scion.js" />
+    <Content Include="Scripts\slick.core.js" />
+    <Content Include="Scripts\slick.dataview.js" />
+    <Content Include="Scripts\slick.editors.js" />
+    <Content Include="Scripts\slick.formatters.js" />
+    <Content Include="Scripts\slick.grid.js" />
+    <Content Include="Scripts\slick.rowselectionmodel.js" />
     <Content Include="Scripts\text.js" />
     <Content Include="Scripts\_references.js" />
     <Content Include="app\app.js" />
@@ -71,6 +98,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="Scripts\jquery-1.9.1.min.map" />
   </ItemGroup>
   <PropertyGroup>
     <ScalejsProjectType>Application</ScalejsProjectType>

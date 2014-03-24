@@ -1,9 +1,13 @@
 ﻿/*global define */
 /*jslint sloppy: true*/
 define({
-    'main-text': function () {
+    'main-grid': function () {
         return {
-            text: this.text
+            slickGrid: {
+                columns: this.columns,
+                itemsSource: this.itemsSource,
+                enableColumnReorder: false
+            }
         };
     }
 });

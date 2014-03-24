@@ -7,8 +7,16 @@ var require = {
     },
     "paths":  {
         "bindings":  "Scripts/scalejs.mvvm.bindings",
+        "bPopup":  "Scripts/jquery.bpopup.min",
+        "CSS.supports":  "Scripts/CSS.supports",
+        "cssparser":  "Scripts/cssparser",
+        "domReady":  "Scripts/domReady",
         "jasmine":  "Scripts/jasmine",
         "jasmine-html":  "Scripts/jasmine-html",
+        "jQuery":  "Scripts/jquery-1.9.1.min",
+        "jQuery-Migrate":  "Scripts/jquery-migrate-1.1.1.min",
+        "jquery.event.drag":  "Scripts/jquery.event.drag",
+        "jquery.event.drag.live":  "Scripts/jquery.event.drag",
         "knockout":  "Scripts/knockout-3.0.0.debug",
         "knockout.mapping":  "Scripts/knockout.mapping-latest.debug",
         "less":  "Scripts/less",
@@ -19,10 +27,16 @@ var require = {
         "sandbox":  "Scripts/scalejs.sandbox",
         "scalejs":  "Scripts/scalejs-0.3.3",
         "scalejs.functional":  "Scripts/scalejs.functional-0.2.9.8",
+        "scalejs.grid-slick":  "Scripts/scalejs.grid-slick-0.2.2.7",
+        "scalejs.layout-cssgrid":  "Scripts/scalejs.layout-cssgrid-0.2.7.83",
         "scalejs.linq-linqjs":  "Scripts/scalejs.linq-linqjs-3.0.3.1",
         "scalejs.mvvm":  "Scripts/scalejs.mvvm-0.3.4.4",
         "scalejs.statechart-scion":  "Scripts/scalejs.statechart-scion-0.3.0.0",
         "scion":  "Scripts/scion",
+        "slick.core":  "Scripts/slick.core",
+        "slick.dataview":  "Scripts/slick.dataview",
+        "slick.grid":  "Scripts/slick.grid",
+        "slick.rowselectionmodel":  "Scripts/slick.rowselectionmodel",
         "styles":  "Scripts/scalejs.styles",
         "text":  "Scripts/text",
         "views":  "Scripts/scalejs.mvvm.views"
@@ -30,12 +44,22 @@ var require = {
     "scalejs":  {
         "extensions":  [
             "scalejs.functional",
+            "scalejs.grid-slick",
+            "scalejs.layout-cssgrid",
             "scalejs.linq-linqjs",
             "scalejs.mvvm",
             "scalejs.statechart-scion"
         ]
     },
     "shim":  {
+        "bPopup":  {
+            "deps":  [
+                "jQuery"
+            ]
+        },
+        "CSS.supports":  {
+            "exports":  "CSS"
+        },
         "jasmine":  {
             "exports":  "jasmine"
         },
@@ -44,10 +68,53 @@ var require = {
                 "jasmine"
             ]
         },
+        "jQuery":  {
+            "exports":  "jQuery"
+        },
+        "jQuery-Migrate":  {
+            "deps":  [
+                "jQuery"
+            ]
+        },
+        "jquery.event.drag":  {
+            "deps":  [
+                "jQuery"
+            ]
+        },
+        "jquery.event.drag.live":  {
+            "deps":  [
+                "jquery.event.drag"
+            ]
+        },
         "scalejs.statechart-scion":  {
             "deps":  [
                 "scalejs.linq-linqjs",
                 "scalejs.functional"
+            ]
+        },
+        "slick.core":  {
+            "deps":  [
+                "jQuery"
+            ],
+            "exports":  "Slick"
+        },
+        "slick.dataview":  {
+            "deps":  [
+                "slick.core"
+            ]
+        },
+        "slick.grid":  {
+            "deps":  [
+                "slick.core",
+                "slick.dataview",
+                "slick.rowselectionmodel",
+                "jquery.event.drag"
+            ],
+            "exports":  "Slick"
+        },
+        "slick.rowselectionmodel":  {
+            "deps":  [
+                "slick.core"
             ]
         }
     }
