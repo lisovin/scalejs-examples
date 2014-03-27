@@ -1192,6 +1192,192 @@ define('scalejs/application',[
     };
 });
 
+/*! jQuery v1.9.1 | (c) 2005, 2012 jQuery Foundation, Inc. | jquery.org/license
+//@ sourceMappingURL=jquery.min.map
+*/(function(e,t){var n,r,i=typeof t,o=e.document,a=e.location,s=e.jQuery,u=e.$,l={},c=[],p="1.9.1",f=c.concat,d=c.push,h=c.slice,g=c.indexOf,m=l.toString,y=l.hasOwnProperty,v=p.trim,b=function(e,t){return new b.fn.init(e,t,r)},x=/[+-]?(?:\d*\.|)\d+(?:[eE][+-]?\d+|)/.source,w=/\S+/g,T=/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g,N=/^(?:(<[\w\W]+>)[^>]*|#([\w-]*))$/,C=/^<(\w+)\s*\/?>(?:<\/\1>|)$/,k=/^[\],:{}\s]*$/,E=/(?:^|:|,)(?:\s*\[)+/g,S=/\\(?:["\\\/bfnrt]|u[\da-fA-F]{4})/g,A=/"[^"\\\r\n]*"|true|false|null|-?(?:\d+\.|)\d+(?:[eE][+-]?\d+|)/g,j=/^-ms-/,D=/-([\da-z])/gi,L=function(e,t){return t.toUpperCase()},H=function(e){(o.addEventListener||"load"===e.type||"complete"===o.readyState)&&(q(),b.ready())},q=function(){o.addEventListener?(o.removeEventListener("DOMContentLoaded",H,!1),e.removeEventListener("load",H,!1)):(o.detachEvent("onreadystatechange",H),e.detachEvent("onload",H))};b.fn=b.prototype={jquery:p,constructor:b,init:function(e,n,r){var i,a;if(!e)return this;if("string"==typeof e){if(i="<"===e.charAt(0)&&">"===e.charAt(e.length-1)&&e.length>=3?[null,e,null]:N.exec(e),!i||!i[1]&&n)return!n||n.jquery?(n||r).find(e):this.constructor(n).find(e);if(i[1]){if(n=n instanceof b?n[0]:n,b.merge(this,b.parseHTML(i[1],n&&n.nodeType?n.ownerDocument||n:o,!0)),C.test(i[1])&&b.isPlainObject(n))for(i in n)b.isFunction(this[i])?this[i](n[i]):this.attr(i,n[i]);return this}if(a=o.getElementById(i[2]),a&&a.parentNode){if(a.id!==i[2])return r.find(e);this.length=1,this[0]=a}return this.context=o,this.selector=e,this}return e.nodeType?(this.context=this[0]=e,this.length=1,this):b.isFunction(e)?r.ready(e):(e.selector!==t&&(this.selector=e.selector,this.context=e.context),b.makeArray(e,this))},selector:"",length:0,size:function(){return this.length},toArray:function(){return h.call(this)},get:function(e){return null==e?this.toArray():0>e?this[this.length+e]:this[e]},pushStack:function(e){var t=b.merge(this.constructor(),e);return t.prevObject=this,t.context=this.context,t},each:function(e,t){return b.each(this,e,t)},ready:function(e){return b.ready.promise().done(e),this},slice:function(){return this.pushStack(h.apply(this,arguments))},first:function(){return this.eq(0)},last:function(){return this.eq(-1)},eq:function(e){var t=this.length,n=+e+(0>e?t:0);return this.pushStack(n>=0&&t>n?[this[n]]:[])},map:function(e){return this.pushStack(b.map(this,function(t,n){return e.call(t,n,t)}))},end:function(){return this.prevObject||this.constructor(null)},push:d,sort:[].sort,splice:[].splice},b.fn.init.prototype=b.fn,b.extend=b.fn.extend=function(){var e,n,r,i,o,a,s=arguments[0]||{},u=1,l=arguments.length,c=!1;for("boolean"==typeof s&&(c=s,s=arguments[1]||{},u=2),"object"==typeof s||b.isFunction(s)||(s={}),l===u&&(s=this,--u);l>u;u++)if(null!=(o=arguments[u]))for(i in o)e=s[i],r=o[i],s!==r&&(c&&r&&(b.isPlainObject(r)||(n=b.isArray(r)))?(n?(n=!1,a=e&&b.isArray(e)?e:[]):a=e&&b.isPlainObject(e)?e:{},s[i]=b.extend(c,a,r)):r!==t&&(s[i]=r));return s},b.extend({noConflict:function(t){return e.$===b&&(e.$=u),t&&e.jQuery===b&&(e.jQuery=s),b},isReady:!1,readyWait:1,holdReady:function(e){e?b.readyWait++:b.ready(!0)},ready:function(e){if(e===!0?!--b.readyWait:!b.isReady){if(!o.body)return setTimeout(b.ready);b.isReady=!0,e!==!0&&--b.readyWait>0||(n.resolveWith(o,[b]),b.fn.trigger&&b(o).trigger("ready").off("ready"))}},isFunction:function(e){return"function"===b.type(e)},isArray:Array.isArray||function(e){return"array"===b.type(e)},isWindow:function(e){return null!=e&&e==e.window},isNumeric:function(e){return!isNaN(parseFloat(e))&&isFinite(e)},type:function(e){return null==e?e+"":"object"==typeof e||"function"==typeof e?l[m.call(e)]||"object":typeof e},isPlainObject:function(e){if(!e||"object"!==b.type(e)||e.nodeType||b.isWindow(e))return!1;try{if(e.constructor&&!y.call(e,"constructor")&&!y.call(e.constructor.prototype,"isPrototypeOf"))return!1}catch(n){return!1}var r;for(r in e);return r===t||y.call(e,r)},isEmptyObject:function(e){var t;for(t in e)return!1;return!0},error:function(e){throw Error(e)},parseHTML:function(e,t,n){if(!e||"string"!=typeof e)return null;"boolean"==typeof t&&(n=t,t=!1),t=t||o;var r=C.exec(e),i=!n&&[];return r?[t.createElement(r[1])]:(r=b.buildFragment([e],t,i),i&&b(i).remove(),b.merge([],r.childNodes))},parseJSON:function(n){return e.JSON&&e.JSON.parse?e.JSON.parse(n):null===n?n:"string"==typeof n&&(n=b.trim(n),n&&k.test(n.replace(S,"@").replace(A,"]").replace(E,"")))?Function("return "+n)():(b.error("Invalid JSON: "+n),t)},parseXML:function(n){var r,i;if(!n||"string"!=typeof n)return null;try{e.DOMParser?(i=new DOMParser,r=i.parseFromString(n,"text/xml")):(r=new ActiveXObject("Microsoft.XMLDOM"),r.async="false",r.loadXML(n))}catch(o){r=t}return r&&r.documentElement&&!r.getElementsByTagName("parsererror").length||b.error("Invalid XML: "+n),r},noop:function(){},globalEval:function(t){t&&b.trim(t)&&(e.execScript||function(t){e.eval.call(e,t)})(t)},camelCase:function(e){return e.replace(j,"ms-").replace(D,L)},nodeName:function(e,t){return e.nodeName&&e.nodeName.toLowerCase()===t.toLowerCase()},each:function(e,t,n){var r,i=0,o=e.length,a=M(e);if(n){if(a){for(;o>i;i++)if(r=t.apply(e[i],n),r===!1)break}else for(i in e)if(r=t.apply(e[i],n),r===!1)break}else if(a){for(;o>i;i++)if(r=t.call(e[i],i,e[i]),r===!1)break}else for(i in e)if(r=t.call(e[i],i,e[i]),r===!1)break;return e},trim:v&&!v.call("\ufeff\u00a0")?function(e){return null==e?"":v.call(e)}:function(e){return null==e?"":(e+"").replace(T,"")},makeArray:function(e,t){var n=t||[];return null!=e&&(M(Object(e))?b.merge(n,"string"==typeof e?[e]:e):d.call(n,e)),n},inArray:function(e,t,n){var r;if(t){if(g)return g.call(t,e,n);for(r=t.length,n=n?0>n?Math.max(0,r+n):n:0;r>n;n++)if(n in t&&t[n]===e)return n}return-1},merge:function(e,n){var r=n.length,i=e.length,o=0;if("number"==typeof r)for(;r>o;o++)e[i++]=n[o];else while(n[o]!==t)e[i++]=n[o++];return e.length=i,e},grep:function(e,t,n){var r,i=[],o=0,a=e.length;for(n=!!n;a>o;o++)r=!!t(e[o],o),n!==r&&i.push(e[o]);return i},map:function(e,t,n){var r,i=0,o=e.length,a=M(e),s=[];if(a)for(;o>i;i++)r=t(e[i],i,n),null!=r&&(s[s.length]=r);else for(i in e)r=t(e[i],i,n),null!=r&&(s[s.length]=r);return f.apply([],s)},guid:1,proxy:function(e,n){var r,i,o;return"string"==typeof n&&(o=e[n],n=e,e=o),b.isFunction(e)?(r=h.call(arguments,2),i=function(){return e.apply(n||this,r.concat(h.call(arguments)))},i.guid=e.guid=e.guid||b.guid++,i):t},access:function(e,n,r,i,o,a,s){var u=0,l=e.length,c=null==r;if("object"===b.type(r)){o=!0;for(u in r)b.access(e,n,u,r[u],!0,a,s)}else if(i!==t&&(o=!0,b.isFunction(i)||(s=!0),c&&(s?(n.call(e,i),n=null):(c=n,n=function(e,t,n){return c.call(b(e),n)})),n))for(;l>u;u++)n(e[u],r,s?i:i.call(e[u],u,n(e[u],r)));return o?e:c?n.call(e):l?n(e[0],r):a},now:function(){return(new Date).getTime()}}),b.ready.promise=function(t){if(!n)if(n=b.Deferred(),"complete"===o.readyState)setTimeout(b.ready);else if(o.addEventListener)o.addEventListener("DOMContentLoaded",H,!1),e.addEventListener("load",H,!1);else{o.attachEvent("onreadystatechange",H),e.attachEvent("onload",H);var r=!1;try{r=null==e.frameElement&&o.documentElement}catch(i){}r&&r.doScroll&&function a(){if(!b.isReady){try{r.doScroll("left")}catch(e){return setTimeout(a,50)}q(),b.ready()}}()}return n.promise(t)},b.each("Boolean Number String Function Array Date RegExp Object Error".split(" "),function(e,t){l["[object "+t+"]"]=t.toLowerCase()});function M(e){var t=e.length,n=b.type(e);return b.isWindow(e)?!1:1===e.nodeType&&t?!0:"array"===n||"function"!==n&&(0===t||"number"==typeof t&&t>0&&t-1 in e)}r=b(o);var _={};function F(e){var t=_[e]={};return b.each(e.match(w)||[],function(e,n){t[n]=!0}),t}b.Callbacks=function(e){e="string"==typeof e?_[e]||F(e):b.extend({},e);var n,r,i,o,a,s,u=[],l=!e.once&&[],c=function(t){for(r=e.memory&&t,i=!0,a=s||0,s=0,o=u.length,n=!0;u&&o>a;a++)if(u[a].apply(t[0],t[1])===!1&&e.stopOnFalse){r=!1;break}n=!1,u&&(l?l.length&&c(l.shift()):r?u=[]:p.disable())},p={add:function(){if(u){var t=u.length;(function i(t){b.each(t,function(t,n){var r=b.type(n);"function"===r?e.unique&&p.has(n)||u.push(n):n&&n.length&&"string"!==r&&i(n)})})(arguments),n?o=u.length:r&&(s=t,c(r))}return this},remove:function(){return u&&b.each(arguments,function(e,t){var r;while((r=b.inArray(t,u,r))>-1)u.splice(r,1),n&&(o>=r&&o--,a>=r&&a--)}),this},has:function(e){return e?b.inArray(e,u)>-1:!(!u||!u.length)},empty:function(){return u=[],this},disable:function(){return u=l=r=t,this},disabled:function(){return!u},lock:function(){return l=t,r||p.disable(),this},locked:function(){return!l},fireWith:function(e,t){return t=t||[],t=[e,t.slice?t.slice():t],!u||i&&!l||(n?l.push(t):c(t)),this},fire:function(){return p.fireWith(this,arguments),this},fired:function(){return!!i}};return p},b.extend({Deferred:function(e){var t=[["resolve","done",b.Callbacks("once memory"),"resolved"],["reject","fail",b.Callbacks("once memory"),"rejected"],["notify","progress",b.Callbacks("memory")]],n="pending",r={state:function(){return n},always:function(){return i.done(arguments).fail(arguments),this},then:function(){var e=arguments;return b.Deferred(function(n){b.each(t,function(t,o){var a=o[0],s=b.isFunction(e[t])&&e[t];i[o[1]](function(){var e=s&&s.apply(this,arguments);e&&b.isFunction(e.promise)?e.promise().done(n.resolve).fail(n.reject).progress(n.notify):n[a+"With"](this===r?n.promise():this,s?[e]:arguments)})}),e=null}).promise()},promise:function(e){return null!=e?b.extend(e,r):r}},i={};return r.pipe=r.then,b.each(t,function(e,o){var a=o[2],s=o[3];r[o[1]]=a.add,s&&a.add(function(){n=s},t[1^e][2].disable,t[2][2].lock),i[o[0]]=function(){return i[o[0]+"With"](this===i?r:this,arguments),this},i[o[0]+"With"]=a.fireWith}),r.promise(i),e&&e.call(i,i),i},when:function(e){var t=0,n=h.call(arguments),r=n.length,i=1!==r||e&&b.isFunction(e.promise)?r:0,o=1===i?e:b.Deferred(),a=function(e,t,n){return function(r){t[e]=this,n[e]=arguments.length>1?h.call(arguments):r,n===s?o.notifyWith(t,n):--i||o.resolveWith(t,n)}},s,u,l;if(r>1)for(s=Array(r),u=Array(r),l=Array(r);r>t;t++)n[t]&&b.isFunction(n[t].promise)?n[t].promise().done(a(t,l,n)).fail(o.reject).progress(a(t,u,s)):--i;return i||o.resolveWith(l,n),o.promise()}}),b.support=function(){var t,n,r,a,s,u,l,c,p,f,d=o.createElement("div");if(d.setAttribute("className","t"),d.innerHTML="  <link/><table></table><a href='/a'>a</a><input type='checkbox'/>",n=d.getElementsByTagName("*"),r=d.getElementsByTagName("a")[0],!n||!r||!n.length)return{};s=o.createElement("select"),l=s.appendChild(o.createElement("option")),a=d.getElementsByTagName("input")[0],r.style.cssText="top:1px;float:left;opacity:.5",t={getSetAttribute:"t"!==d.className,leadingWhitespace:3===d.firstChild.nodeType,tbody:!d.getElementsByTagName("tbody").length,htmlSerialize:!!d.getElementsByTagName("link").length,style:/top/.test(r.getAttribute("style")),hrefNormalized:"/a"===r.getAttribute("href"),opacity:/^0.5/.test(r.style.opacity),cssFloat:!!r.style.cssFloat,checkOn:!!a.value,optSelected:l.selected,enctype:!!o.createElement("form").enctype,html5Clone:"<:nav></:nav>"!==o.createElement("nav").cloneNode(!0).outerHTML,boxModel:"CSS1Compat"===o.compatMode,deleteExpando:!0,noCloneEvent:!0,inlineBlockNeedsLayout:!1,shrinkWrapBlocks:!1,reliableMarginRight:!0,boxSizingReliable:!0,pixelPosition:!1},a.checked=!0,t.noCloneChecked=a.cloneNode(!0).checked,s.disabled=!0,t.optDisabled=!l.disabled;try{delete d.test}catch(h){t.deleteExpando=!1}a=o.createElement("input"),a.setAttribute("value",""),t.input=""===a.getAttribute("value"),a.value="t",a.setAttribute("type","radio"),t.radioValue="t"===a.value,a.setAttribute("checked","t"),a.setAttribute("name","t"),u=o.createDocumentFragment(),u.appendChild(a),t.appendChecked=a.checked,t.checkClone=u.cloneNode(!0).cloneNode(!0).lastChild.checked,d.attachEvent&&(d.attachEvent("onclick",function(){t.noCloneEvent=!1}),d.cloneNode(!0).click());for(f in{submit:!0,change:!0,focusin:!0})d.setAttribute(c="on"+f,"t"),t[f+"Bubbles"]=c in e||d.attributes[c].expando===!1;return d.style.backgroundClip="content-box",d.cloneNode(!0).style.backgroundClip="",t.clearCloneStyle="content-box"===d.style.backgroundClip,b(function(){var n,r,a,s="padding:0;margin:0;border:0;display:block;box-sizing:content-box;-moz-box-sizing:content-box;-webkit-box-sizing:content-box;",u=o.getElementsByTagName("body")[0];u&&(n=o.createElement("div"),n.style.cssText="border:0;width:0;height:0;position:absolute;top:0;left:-9999px;margin-top:1px",u.appendChild(n).appendChild(d),d.innerHTML="<table><tr><td></td><td>t</td></tr></table>",a=d.getElementsByTagName("td"),a[0].style.cssText="padding:0;margin:0;border:0;display:none",p=0===a[0].offsetHeight,a[0].style.display="",a[1].style.display="none",t.reliableHiddenOffsets=p&&0===a[0].offsetHeight,d.innerHTML="",d.style.cssText="box-sizing:border-box;-moz-box-sizing:border-box;-webkit-box-sizing:border-box;padding:1px;border:1px;display:block;width:4px;margin-top:1%;position:absolute;top:1%;",t.boxSizing=4===d.offsetWidth,t.doesNotIncludeMarginInBodyOffset=1!==u.offsetTop,e.getComputedStyle&&(t.pixelPosition="1%"!==(e.getComputedStyle(d,null)||{}).top,t.boxSizingReliable="4px"===(e.getComputedStyle(d,null)||{width:"4px"}).width,r=d.appendChild(o.createElement("div")),r.style.cssText=d.style.cssText=s,r.style.marginRight=r.style.width="0",d.style.width="1px",t.reliableMarginRight=!parseFloat((e.getComputedStyle(r,null)||{}).marginRight)),typeof d.style.zoom!==i&&(d.innerHTML="",d.style.cssText=s+"width:1px;padding:1px;display:inline;zoom:1",t.inlineBlockNeedsLayout=3===d.offsetWidth,d.style.display="block",d.innerHTML="<div></div>",d.firstChild.style.width="5px",t.shrinkWrapBlocks=3!==d.offsetWidth,t.inlineBlockNeedsLayout&&(u.style.zoom=1)),u.removeChild(n),n=d=a=r=null)}),n=s=u=l=r=a=null,t}();var O=/(?:\{[\s\S]*\}|\[[\s\S]*\])$/,B=/([A-Z])/g;function P(e,n,r,i){if(b.acceptData(e)){var o,a,s=b.expando,u="string"==typeof n,l=e.nodeType,p=l?b.cache:e,f=l?e[s]:e[s]&&s;if(f&&p[f]&&(i||p[f].data)||!u||r!==t)return f||(l?e[s]=f=c.pop()||b.guid++:f=s),p[f]||(p[f]={},l||(p[f].toJSON=b.noop)),("object"==typeof n||"function"==typeof n)&&(i?p[f]=b.extend(p[f],n):p[f].data=b.extend(p[f].data,n)),o=p[f],i||(o.data||(o.data={}),o=o.data),r!==t&&(o[b.camelCase(n)]=r),u?(a=o[n],null==a&&(a=o[b.camelCase(n)])):a=o,a}}function R(e,t,n){if(b.acceptData(e)){var r,i,o,a=e.nodeType,s=a?b.cache:e,u=a?e[b.expando]:b.expando;if(s[u]){if(t&&(o=n?s[u]:s[u].data)){b.isArray(t)?t=t.concat(b.map(t,b.camelCase)):t in o?t=[t]:(t=b.camelCase(t),t=t in o?[t]:t.split(" "));for(r=0,i=t.length;i>r;r++)delete o[t[r]];if(!(n?$:b.isEmptyObject)(o))return}(n||(delete s[u].data,$(s[u])))&&(a?b.cleanData([e],!0):b.support.deleteExpando||s!=s.window?delete s[u]:s[u]=null)}}}b.extend({cache:{},expando:"jQuery"+(p+Math.random()).replace(/\D/g,""),noData:{embed:!0,object:"clsid:D27CDB6E-AE6D-11cf-96B8-444553540000",applet:!0},hasData:function(e){return e=e.nodeType?b.cache[e[b.expando]]:e[b.expando],!!e&&!$(e)},data:function(e,t,n){return P(e,t,n)},removeData:function(e,t){return R(e,t)},_data:function(e,t,n){return P(e,t,n,!0)},_removeData:function(e,t){return R(e,t,!0)},acceptData:function(e){if(e.nodeType&&1!==e.nodeType&&9!==e.nodeType)return!1;var t=e.nodeName&&b.noData[e.nodeName.toLowerCase()];return!t||t!==!0&&e.getAttribute("classid")===t}}),b.fn.extend({data:function(e,n){var r,i,o=this[0],a=0,s=null;if(e===t){if(this.length&&(s=b.data(o),1===o.nodeType&&!b._data(o,"parsedAttrs"))){for(r=o.attributes;r.length>a;a++)i=r[a].name,i.indexOf("data-")||(i=b.camelCase(i.slice(5)),W(o,i,s[i]));b._data(o,"parsedAttrs",!0)}return s}return"object"==typeof e?this.each(function(){b.data(this,e)}):b.access(this,function(n){return n===t?o?W(o,e,b.data(o,e)):null:(this.each(function(){b.data(this,e,n)}),t)},null,n,arguments.length>1,null,!0)},removeData:function(e){return this.each(function(){b.removeData(this,e)})}});function W(e,n,r){if(r===t&&1===e.nodeType){var i="data-"+n.replace(B,"-$1").toLowerCase();if(r=e.getAttribute(i),"string"==typeof r){try{r="true"===r?!0:"false"===r?!1:"null"===r?null:+r+""===r?+r:O.test(r)?b.parseJSON(r):r}catch(o){}b.data(e,n,r)}else r=t}return r}function $(e){var t;for(t in e)if(("data"!==t||!b.isEmptyObject(e[t]))&&"toJSON"!==t)return!1;return!0}b.extend({queue:function(e,n,r){var i;return e?(n=(n||"fx")+"queue",i=b._data(e,n),r&&(!i||b.isArray(r)?i=b._data(e,n,b.makeArray(r)):i.push(r)),i||[]):t},dequeue:function(e,t){t=t||"fx";var n=b.queue(e,t),r=n.length,i=n.shift(),o=b._queueHooks(e,t),a=function(){b.dequeue(e,t)};"inprogress"===i&&(i=n.shift(),r--),o.cur=i,i&&("fx"===t&&n.unshift("inprogress"),delete o.stop,i.call(e,a,o)),!r&&o&&o.empty.fire()},_queueHooks:function(e,t){var n=t+"queueHooks";return b._data(e,n)||b._data(e,n,{empty:b.Callbacks("once memory").add(function(){b._removeData(e,t+"queue"),b._removeData(e,n)})})}}),b.fn.extend({queue:function(e,n){var r=2;return"string"!=typeof e&&(n=e,e="fx",r--),r>arguments.length?b.queue(this[0],e):n===t?this:this.each(function(){var t=b.queue(this,e,n);b._queueHooks(this,e),"fx"===e&&"inprogress"!==t[0]&&b.dequeue(this,e)})},dequeue:function(e){return this.each(function(){b.dequeue(this,e)})},delay:function(e,t){return e=b.fx?b.fx.speeds[e]||e:e,t=t||"fx",this.queue(t,function(t,n){var r=setTimeout(t,e);n.stop=function(){clearTimeout(r)}})},clearQueue:function(e){return this.queue(e||"fx",[])},promise:function(e,n){var r,i=1,o=b.Deferred(),a=this,s=this.length,u=function(){--i||o.resolveWith(a,[a])};"string"!=typeof e&&(n=e,e=t),e=e||"fx";while(s--)r=b._data(a[s],e+"queueHooks"),r&&r.empty&&(i++,r.empty.add(u));return u(),o.promise(n)}});var I,z,X=/[\t\r\n]/g,U=/\r/g,V=/^(?:input|select|textarea|button|object)$/i,Y=/^(?:a|area)$/i,J=/^(?:checked|selected|autofocus|autoplay|async|controls|defer|disabled|hidden|loop|multiple|open|readonly|required|scoped)$/i,G=/^(?:checked|selected)$/i,Q=b.support.getSetAttribute,K=b.support.input;b.fn.extend({attr:function(e,t){return b.access(this,b.attr,e,t,arguments.length>1)},removeAttr:function(e){return this.each(function(){b.removeAttr(this,e)})},prop:function(e,t){return b.access(this,b.prop,e,t,arguments.length>1)},removeProp:function(e){return e=b.propFix[e]||e,this.each(function(){try{this[e]=t,delete this[e]}catch(n){}})},addClass:function(e){var t,n,r,i,o,a=0,s=this.length,u="string"==typeof e&&e;if(b.isFunction(e))return this.each(function(t){b(this).addClass(e.call(this,t,this.className))});if(u)for(t=(e||"").match(w)||[];s>a;a++)if(n=this[a],r=1===n.nodeType&&(n.className?(" "+n.className+" ").replace(X," "):" ")){o=0;while(i=t[o++])0>r.indexOf(" "+i+" ")&&(r+=i+" ");n.className=b.trim(r)}return this},removeClass:function(e){var t,n,r,i,o,a=0,s=this.length,u=0===arguments.length||"string"==typeof e&&e;if(b.isFunction(e))return this.each(function(t){b(this).removeClass(e.call(this,t,this.className))});if(u)for(t=(e||"").match(w)||[];s>a;a++)if(n=this[a],r=1===n.nodeType&&(n.className?(" "+n.className+" ").replace(X," "):"")){o=0;while(i=t[o++])while(r.indexOf(" "+i+" ")>=0)r=r.replace(" "+i+" "," ");n.className=e?b.trim(r):""}return this},toggleClass:function(e,t){var n=typeof e,r="boolean"==typeof t;return b.isFunction(e)?this.each(function(n){b(this).toggleClass(e.call(this,n,this.className,t),t)}):this.each(function(){if("string"===n){var o,a=0,s=b(this),u=t,l=e.match(w)||[];while(o=l[a++])u=r?u:!s.hasClass(o),s[u?"addClass":"removeClass"](o)}else(n===i||"boolean"===n)&&(this.className&&b._data(this,"__className__",this.className),this.className=this.className||e===!1?"":b._data(this,"__className__")||"")})},hasClass:function(e){var t=" "+e+" ",n=0,r=this.length;for(;r>n;n++)if(1===this[n].nodeType&&(" "+this[n].className+" ").replace(X," ").indexOf(t)>=0)return!0;return!1},val:function(e){var n,r,i,o=this[0];{if(arguments.length)return i=b.isFunction(e),this.each(function(n){var o,a=b(this);1===this.nodeType&&(o=i?e.call(this,n,a.val()):e,null==o?o="":"number"==typeof o?o+="":b.isArray(o)&&(o=b.map(o,function(e){return null==e?"":e+""})),r=b.valHooks[this.type]||b.valHooks[this.nodeName.toLowerCase()],r&&"set"in r&&r.set(this,o,"value")!==t||(this.value=o))});if(o)return r=b.valHooks[o.type]||b.valHooks[o.nodeName.toLowerCase()],r&&"get"in r&&(n=r.get(o,"value"))!==t?n:(n=o.value,"string"==typeof n?n.replace(U,""):null==n?"":n)}}}),b.extend({valHooks:{option:{get:function(e){var t=e.attributes.value;return!t||t.specified?e.value:e.text}},select:{get:function(e){var t,n,r=e.options,i=e.selectedIndex,o="select-one"===e.type||0>i,a=o?null:[],s=o?i+1:r.length,u=0>i?s:o?i:0;for(;s>u;u++)if(n=r[u],!(!n.selected&&u!==i||(b.support.optDisabled?n.disabled:null!==n.getAttribute("disabled"))||n.parentNode.disabled&&b.nodeName(n.parentNode,"optgroup"))){if(t=b(n).val(),o)return t;a.push(t)}return a},set:function(e,t){var n=b.makeArray(t);return b(e).find("option").each(function(){this.selected=b.inArray(b(this).val(),n)>=0}),n.length||(e.selectedIndex=-1),n}}},attr:function(e,n,r){var o,a,s,u=e.nodeType;if(e&&3!==u&&8!==u&&2!==u)return typeof e.getAttribute===i?b.prop(e,n,r):(a=1!==u||!b.isXMLDoc(e),a&&(n=n.toLowerCase(),o=b.attrHooks[n]||(J.test(n)?z:I)),r===t?o&&a&&"get"in o&&null!==(s=o.get(e,n))?s:(typeof e.getAttribute!==i&&(s=e.getAttribute(n)),null==s?t:s):null!==r?o&&a&&"set"in o&&(s=o.set(e,r,n))!==t?s:(e.setAttribute(n,r+""),r):(b.removeAttr(e,n),t))},removeAttr:function(e,t){var n,r,i=0,o=t&&t.match(w);if(o&&1===e.nodeType)while(n=o[i++])r=b.propFix[n]||n,J.test(n)?!Q&&G.test(n)?e[b.camelCase("default-"+n)]=e[r]=!1:e[r]=!1:b.attr(e,n,""),e.removeAttribute(Q?n:r)},attrHooks:{type:{set:function(e,t){if(!b.support.radioValue&&"radio"===t&&b.nodeName(e,"input")){var n=e.value;return e.setAttribute("type",t),n&&(e.value=n),t}}}},propFix:{tabindex:"tabIndex",readonly:"readOnly","for":"htmlFor","class":"className",maxlength:"maxLength",cellspacing:"cellSpacing",cellpadding:"cellPadding",rowspan:"rowSpan",colspan:"colSpan",usemap:"useMap",frameborder:"frameBorder",contenteditable:"contentEditable"},prop:function(e,n,r){var i,o,a,s=e.nodeType;if(e&&3!==s&&8!==s&&2!==s)return a=1!==s||!b.isXMLDoc(e),a&&(n=b.propFix[n]||n,o=b.propHooks[n]),r!==t?o&&"set"in o&&(i=o.set(e,r,n))!==t?i:e[n]=r:o&&"get"in o&&null!==(i=o.get(e,n))?i:e[n]},propHooks:{tabIndex:{get:function(e){var n=e.getAttributeNode("tabindex");return n&&n.specified?parseInt(n.value,10):V.test(e.nodeName)||Y.test(e.nodeName)&&e.href?0:t}}}}),z={get:function(e,n){var r=b.prop(e,n),i="boolean"==typeof r&&e.getAttribute(n),o="boolean"==typeof r?K&&Q?null!=i:G.test(n)?e[b.camelCase("default-"+n)]:!!i:e.getAttributeNode(n);return o&&o.value!==!1?n.toLowerCase():t},set:function(e,t,n){return t===!1?b.removeAttr(e,n):K&&Q||!G.test(n)?e.setAttribute(!Q&&b.propFix[n]||n,n):e[b.camelCase("default-"+n)]=e[n]=!0,n}},K&&Q||(b.attrHooks.value={get:function(e,n){var r=e.getAttributeNode(n);return b.nodeName(e,"input")?e.defaultValue:r&&r.specified?r.value:t},set:function(e,n,r){return b.nodeName(e,"input")?(e.defaultValue=n,t):I&&I.set(e,n,r)}}),Q||(I=b.valHooks.button={get:function(e,n){var r=e.getAttributeNode(n);return r&&("id"===n||"name"===n||"coords"===n?""!==r.value:r.specified)?r.value:t},set:function(e,n,r){var i=e.getAttributeNode(r);return i||e.setAttributeNode(i=e.ownerDocument.createAttribute(r)),i.value=n+="","value"===r||n===e.getAttribute(r)?n:t}},b.attrHooks.contenteditable={get:I.get,set:function(e,t,n){I.set(e,""===t?!1:t,n)}},b.each(["width","height"],function(e,n){b.attrHooks[n]=b.extend(b.attrHooks[n],{set:function(e,r){return""===r?(e.setAttribute(n,"auto"),r):t}})})),b.support.hrefNormalized||(b.each(["href","src","width","height"],function(e,n){b.attrHooks[n]=b.extend(b.attrHooks[n],{get:function(e){var r=e.getAttribute(n,2);return null==r?t:r}})}),b.each(["href","src"],function(e,t){b.propHooks[t]={get:function(e){return e.getAttribute(t,4)}}})),b.support.style||(b.attrHooks.style={get:function(e){return e.style.cssText||t},set:function(e,t){return e.style.cssText=t+""}}),b.support.optSelected||(b.propHooks.selected=b.extend(b.propHooks.selected,{get:function(e){var t=e.parentNode;return t&&(t.selectedIndex,t.parentNode&&t.parentNode.selectedIndex),null}})),b.support.enctype||(b.propFix.enctype="encoding"),b.support.checkOn||b.each(["radio","checkbox"],function(){b.valHooks[this]={get:function(e){return null===e.getAttribute("value")?"on":e.value}}}),b.each(["radio","checkbox"],function(){b.valHooks[this]=b.extend(b.valHooks[this],{set:function(e,n){return b.isArray(n)?e.checked=b.inArray(b(e).val(),n)>=0:t}})});var Z=/^(?:input|select|textarea)$/i,et=/^key/,tt=/^(?:mouse|contextmenu)|click/,nt=/^(?:focusinfocus|focusoutblur)$/,rt=/^([^.]*)(?:\.(.+)|)$/;function it(){return!0}function ot(){return!1}b.event={global:{},add:function(e,n,r,o,a){var s,u,l,c,p,f,d,h,g,m,y,v=b._data(e);if(v){r.handler&&(c=r,r=c.handler,a=c.selector),r.guid||(r.guid=b.guid++),(u=v.events)||(u=v.events={}),(f=v.handle)||(f=v.handle=function(e){return typeof b===i||e&&b.event.triggered===e.type?t:b.event.dispatch.apply(f.elem,arguments)},f.elem=e),n=(n||"").match(w)||[""],l=n.length;while(l--)s=rt.exec(n[l])||[],g=y=s[1],m=(s[2]||"").split(".").sort(),p=b.event.special[g]||{},g=(a?p.delegateType:p.bindType)||g,p=b.event.special[g]||{},d=b.extend({type:g,origType:y,data:o,handler:r,guid:r.guid,selector:a,needsContext:a&&b.expr.match.needsContext.test(a),namespace:m.join(".")},c),(h=u[g])||(h=u[g]=[],h.delegateCount=0,p.setup&&p.setup.call(e,o,m,f)!==!1||(e.addEventListener?e.addEventListener(g,f,!1):e.attachEvent&&e.attachEvent("on"+g,f))),p.add&&(p.add.call(e,d),d.handler.guid||(d.handler.guid=r.guid)),a?h.splice(h.delegateCount++,0,d):h.push(d),b.event.global[g]=!0;e=null}},remove:function(e,t,n,r,i){var o,a,s,u,l,c,p,f,d,h,g,m=b.hasData(e)&&b._data(e);if(m&&(c=m.events)){t=(t||"").match(w)||[""],l=t.length;while(l--)if(s=rt.exec(t[l])||[],d=g=s[1],h=(s[2]||"").split(".").sort(),d){p=b.event.special[d]||{},d=(r?p.delegateType:p.bindType)||d,f=c[d]||[],s=s[2]&&RegExp("(^|\\.)"+h.join("\\.(?:.*\\.|)")+"(\\.|$)"),u=o=f.length;while(o--)a=f[o],!i&&g!==a.origType||n&&n.guid!==a.guid||s&&!s.test(a.namespace)||r&&r!==a.selector&&("**"!==r||!a.selector)||(f.splice(o,1),a.selector&&f.delegateCount--,p.remove&&p.remove.call(e,a));u&&!f.length&&(p.teardown&&p.teardown.call(e,h,m.handle)!==!1||b.removeEvent(e,d,m.handle),delete c[d])}else for(d in c)b.event.remove(e,d+t[l],n,r,!0);b.isEmptyObject(c)&&(delete m.handle,b._removeData(e,"events"))}},trigger:function(n,r,i,a){var s,u,l,c,p,f,d,h=[i||o],g=y.call(n,"type")?n.type:n,m=y.call(n,"namespace")?n.namespace.split("."):[];if(l=f=i=i||o,3!==i.nodeType&&8!==i.nodeType&&!nt.test(g+b.event.triggered)&&(g.indexOf(".")>=0&&(m=g.split("."),g=m.shift(),m.sort()),u=0>g.indexOf(":")&&"on"+g,n=n[b.expando]?n:new b.Event(g,"object"==typeof n&&n),n.isTrigger=!0,n.namespace=m.join("."),n.namespace_re=n.namespace?RegExp("(^|\\.)"+m.join("\\.(?:.*\\.|)")+"(\\.|$)"):null,n.result=t,n.target||(n.target=i),r=null==r?[n]:b.makeArray(r,[n]),p=b.event.special[g]||{},a||!p.trigger||p.trigger.apply(i,r)!==!1)){if(!a&&!p.noBubble&&!b.isWindow(i)){for(c=p.delegateType||g,nt.test(c+g)||(l=l.parentNode);l;l=l.parentNode)h.push(l),f=l;f===(i.ownerDocument||o)&&h.push(f.defaultView||f.parentWindow||e)}d=0;while((l=h[d++])&&!n.isPropagationStopped())n.type=d>1?c:p.bindType||g,s=(b._data(l,"events")||{})[n.type]&&b._data(l,"handle"),s&&s.apply(l,r),s=u&&l[u],s&&b.acceptData(l)&&s.apply&&s.apply(l,r)===!1&&n.preventDefault();if(n.type=g,!(a||n.isDefaultPrevented()||p._default&&p._default.apply(i.ownerDocument,r)!==!1||"click"===g&&b.nodeName(i,"a")||!b.acceptData(i)||!u||!i[g]||b.isWindow(i))){f=i[u],f&&(i[u]=null),b.event.triggered=g;try{i[g]()}catch(v){}b.event.triggered=t,f&&(i[u]=f)}return n.result}},dispatch:function(e){e=b.event.fix(e);var n,r,i,o,a,s=[],u=h.call(arguments),l=(b._data(this,"events")||{})[e.type]||[],c=b.event.special[e.type]||{};if(u[0]=e,e.delegateTarget=this,!c.preDispatch||c.preDispatch.call(this,e)!==!1){s=b.event.handlers.call(this,e,l),n=0;while((o=s[n++])&&!e.isPropagationStopped()){e.currentTarget=o.elem,a=0;while((i=o.handlers[a++])&&!e.isImmediatePropagationStopped())(!e.namespace_re||e.namespace_re.test(i.namespace))&&(e.handleObj=i,e.data=i.data,r=((b.event.special[i.origType]||{}).handle||i.handler).apply(o.elem,u),r!==t&&(e.result=r)===!1&&(e.preventDefault(),e.stopPropagation()))}return c.postDispatch&&c.postDispatch.call(this,e),e.result}},handlers:function(e,n){var r,i,o,a,s=[],u=n.delegateCount,l=e.target;if(u&&l.nodeType&&(!e.button||"click"!==e.type))for(;l!=this;l=l.parentNode||this)if(1===l.nodeType&&(l.disabled!==!0||"click"!==e.type)){for(o=[],a=0;u>a;a++)i=n[a],r=i.selector+" ",o[r]===t&&(o[r]=i.needsContext?b(r,this).index(l)>=0:b.find(r,this,null,[l]).length),o[r]&&o.push(i);o.length&&s.push({elem:l,handlers:o})}return n.length>u&&s.push({elem:this,handlers:n.slice(u)}),s},fix:function(e){if(e[b.expando])return e;var t,n,r,i=e.type,a=e,s=this.fixHooks[i];s||(this.fixHooks[i]=s=tt.test(i)?this.mouseHooks:et.test(i)?this.keyHooks:{}),r=s.props?this.props.concat(s.props):this.props,e=new b.Event(a),t=r.length;while(t--)n=r[t],e[n]=a[n];return e.target||(e.target=a.srcElement||o),3===e.target.nodeType&&(e.target=e.target.parentNode),e.metaKey=!!e.metaKey,s.filter?s.filter(e,a):e},props:"altKey bubbles cancelable ctrlKey currentTarget eventPhase metaKey relatedTarget shiftKey target timeStamp view which".split(" "),fixHooks:{},keyHooks:{props:"char charCode key keyCode".split(" "),filter:function(e,t){return null==e.which&&(e.which=null!=t.charCode?t.charCode:t.keyCode),e}},mouseHooks:{props:"button buttons clientX clientY fromElement offsetX offsetY pageX pageY screenX screenY toElement".split(" "),filter:function(e,n){var r,i,a,s=n.button,u=n.fromElement;return null==e.pageX&&null!=n.clientX&&(i=e.target.ownerDocument||o,a=i.documentElement,r=i.body,e.pageX=n.clientX+(a&&a.scrollLeft||r&&r.scrollLeft||0)-(a&&a.clientLeft||r&&r.clientLeft||0),e.pageY=n.clientY+(a&&a.scrollTop||r&&r.scrollTop||0)-(a&&a.clientTop||r&&r.clientTop||0)),!e.relatedTarget&&u&&(e.relatedTarget=u===e.target?n.toElement:u),e.which||s===t||(e.which=1&s?1:2&s?3:4&s?2:0),e}},special:{load:{noBubble:!0},click:{trigger:function(){return b.nodeName(this,"input")&&"checkbox"===this.type&&this.click?(this.click(),!1):t}},focus:{trigger:function(){if(this!==o.activeElement&&this.focus)try{return this.focus(),!1}catch(e){}},delegateType:"focusin"},blur:{trigger:function(){return this===o.activeElement&&this.blur?(this.blur(),!1):t},delegateType:"focusout"},beforeunload:{postDispatch:function(e){e.result!==t&&(e.originalEvent.returnValue=e.result)}}},simulate:function(e,t,n,r){var i=b.extend(new b.Event,n,{type:e,isSimulated:!0,originalEvent:{}});r?b.event.trigger(i,null,t):b.event.dispatch.call(t,i),i.isDefaultPrevented()&&n.preventDefault()}},b.removeEvent=o.removeEventListener?function(e,t,n){e.removeEventListener&&e.removeEventListener(t,n,!1)}:function(e,t,n){var r="on"+t;e.detachEvent&&(typeof e[r]===i&&(e[r]=null),e.detachEvent(r,n))},b.Event=function(e,n){return this instanceof b.Event?(e&&e.type?(this.originalEvent=e,this.type=e.type,this.isDefaultPrevented=e.defaultPrevented||e.returnValue===!1||e.getPreventDefault&&e.getPreventDefault()?it:ot):this.type=e,n&&b.extend(this,n),this.timeStamp=e&&e.timeStamp||b.now(),this[b.expando]=!0,t):new b.Event(e,n)},b.Event.prototype={isDefaultPrevented:ot,isPropagationStopped:ot,isImmediatePropagationStopped:ot,preventDefault:function(){var e=this.originalEvent;this.isDefaultPrevented=it,e&&(e.preventDefault?e.preventDefault():e.returnValue=!1)},stopPropagation:function(){var e=this.originalEvent;this.isPropagationStopped=it,e&&(e.stopPropagation&&e.stopPropagation(),e.cancelBubble=!0)},stopImmediatePropagation:function(){this.isImmediatePropagationStopped=it,this.stopPropagation()}},b.each({mouseenter:"mouseover",mouseleave:"mouseout"},function(e,t){b.event.special[e]={delegateType:t,bindType:t,handle:function(e){var n,r=this,i=e.relatedTarget,o=e.handleObj;
+return(!i||i!==r&&!b.contains(r,i))&&(e.type=o.origType,n=o.handler.apply(this,arguments),e.type=t),n}}}),b.support.submitBubbles||(b.event.special.submit={setup:function(){return b.nodeName(this,"form")?!1:(b.event.add(this,"click._submit keypress._submit",function(e){var n=e.target,r=b.nodeName(n,"input")||b.nodeName(n,"button")?n.form:t;r&&!b._data(r,"submitBubbles")&&(b.event.add(r,"submit._submit",function(e){e._submit_bubble=!0}),b._data(r,"submitBubbles",!0))}),t)},postDispatch:function(e){e._submit_bubble&&(delete e._submit_bubble,this.parentNode&&!e.isTrigger&&b.event.simulate("submit",this.parentNode,e,!0))},teardown:function(){return b.nodeName(this,"form")?!1:(b.event.remove(this,"._submit"),t)}}),b.support.changeBubbles||(b.event.special.change={setup:function(){return Z.test(this.nodeName)?(("checkbox"===this.type||"radio"===this.type)&&(b.event.add(this,"propertychange._change",function(e){"checked"===e.originalEvent.propertyName&&(this._just_changed=!0)}),b.event.add(this,"click._change",function(e){this._just_changed&&!e.isTrigger&&(this._just_changed=!1),b.event.simulate("change",this,e,!0)})),!1):(b.event.add(this,"beforeactivate._change",function(e){var t=e.target;Z.test(t.nodeName)&&!b._data(t,"changeBubbles")&&(b.event.add(t,"change._change",function(e){!this.parentNode||e.isSimulated||e.isTrigger||b.event.simulate("change",this.parentNode,e,!0)}),b._data(t,"changeBubbles",!0))}),t)},handle:function(e){var n=e.target;return this!==n||e.isSimulated||e.isTrigger||"radio"!==n.type&&"checkbox"!==n.type?e.handleObj.handler.apply(this,arguments):t},teardown:function(){return b.event.remove(this,"._change"),!Z.test(this.nodeName)}}),b.support.focusinBubbles||b.each({focus:"focusin",blur:"focusout"},function(e,t){var n=0,r=function(e){b.event.simulate(t,e.target,b.event.fix(e),!0)};b.event.special[t]={setup:function(){0===n++&&o.addEventListener(e,r,!0)},teardown:function(){0===--n&&o.removeEventListener(e,r,!0)}}}),b.fn.extend({on:function(e,n,r,i,o){var a,s;if("object"==typeof e){"string"!=typeof n&&(r=r||n,n=t);for(a in e)this.on(a,n,r,e[a],o);return this}if(null==r&&null==i?(i=n,r=n=t):null==i&&("string"==typeof n?(i=r,r=t):(i=r,r=n,n=t)),i===!1)i=ot;else if(!i)return this;return 1===o&&(s=i,i=function(e){return b().off(e),s.apply(this,arguments)},i.guid=s.guid||(s.guid=b.guid++)),this.each(function(){b.event.add(this,e,i,r,n)})},one:function(e,t,n,r){return this.on(e,t,n,r,1)},off:function(e,n,r){var i,o;if(e&&e.preventDefault&&e.handleObj)return i=e.handleObj,b(e.delegateTarget).off(i.namespace?i.origType+"."+i.namespace:i.origType,i.selector,i.handler),this;if("object"==typeof e){for(o in e)this.off(o,n,e[o]);return this}return(n===!1||"function"==typeof n)&&(r=n,n=t),r===!1&&(r=ot),this.each(function(){b.event.remove(this,e,r,n)})},bind:function(e,t,n){return this.on(e,null,t,n)},unbind:function(e,t){return this.off(e,null,t)},delegate:function(e,t,n,r){return this.on(t,e,n,r)},undelegate:function(e,t,n){return 1===arguments.length?this.off(e,"**"):this.off(t,e||"**",n)},trigger:function(e,t){return this.each(function(){b.event.trigger(e,t,this)})},triggerHandler:function(e,n){var r=this[0];return r?b.event.trigger(e,n,r,!0):t}}),function(e,t){var n,r,i,o,a,s,u,l,c,p,f,d,h,g,m,y,v,x="sizzle"+-new Date,w=e.document,T={},N=0,C=0,k=it(),E=it(),S=it(),A=typeof t,j=1<<31,D=[],L=D.pop,H=D.push,q=D.slice,M=D.indexOf||function(e){var t=0,n=this.length;for(;n>t;t++)if(this[t]===e)return t;return-1},_="[\\x20\\t\\r\\n\\f]",F="(?:\\\\.|[\\w-]|[^\\x00-\\xa0])+",O=F.replace("w","w#"),B="([*^$|!~]?=)",P="\\["+_+"*("+F+")"+_+"*(?:"+B+_+"*(?:(['\"])((?:\\\\.|[^\\\\])*?)\\3|("+O+")|)|)"+_+"*\\]",R=":("+F+")(?:\\(((['\"])((?:\\\\.|[^\\\\])*?)\\3|((?:\\\\.|[^\\\\()[\\]]|"+P.replace(3,8)+")*)|.*)\\)|)",W=RegExp("^"+_+"+|((?:^|[^\\\\])(?:\\\\.)*)"+_+"+$","g"),$=RegExp("^"+_+"*,"+_+"*"),I=RegExp("^"+_+"*([\\x20\\t\\r\\n\\f>+~])"+_+"*"),z=RegExp(R),X=RegExp("^"+O+"$"),U={ID:RegExp("^#("+F+")"),CLASS:RegExp("^\\.("+F+")"),NAME:RegExp("^\\[name=['\"]?("+F+")['\"]?\\]"),TAG:RegExp("^("+F.replace("w","w*")+")"),ATTR:RegExp("^"+P),PSEUDO:RegExp("^"+R),CHILD:RegExp("^:(only|first|last|nth|nth-last)-(child|of-type)(?:\\("+_+"*(even|odd|(([+-]|)(\\d*)n|)"+_+"*(?:([+-]|)"+_+"*(\\d+)|))"+_+"*\\)|)","i"),needsContext:RegExp("^"+_+"*[>+~]|:(even|odd|eq|gt|lt|nth|first|last)(?:\\("+_+"*((?:-\\d)?\\d*)"+_+"*\\)|)(?=[^-]|$)","i")},V=/[\x20\t\r\n\f]*[+~]/,Y=/^[^{]+\{\s*\[native code/,J=/^(?:#([\w-]+)|(\w+)|\.([\w-]+))$/,G=/^(?:input|select|textarea|button)$/i,Q=/^h\d$/i,K=/'|\\/g,Z=/\=[\x20\t\r\n\f]*([^'"\]]*)[\x20\t\r\n\f]*\]/g,et=/\\([\da-fA-F]{1,6}[\x20\t\r\n\f]?|.)/g,tt=function(e,t){var n="0x"+t-65536;return n!==n?t:0>n?String.fromCharCode(n+65536):String.fromCharCode(55296|n>>10,56320|1023&n)};try{q.call(w.documentElement.childNodes,0)[0].nodeType}catch(nt){q=function(e){var t,n=[];while(t=this[e++])n.push(t);return n}}function rt(e){return Y.test(e+"")}function it(){var e,t=[];return e=function(n,r){return t.push(n+=" ")>i.cacheLength&&delete e[t.shift()],e[n]=r}}function ot(e){return e[x]=!0,e}function at(e){var t=p.createElement("div");try{return e(t)}catch(n){return!1}finally{t=null}}function st(e,t,n,r){var i,o,a,s,u,l,f,g,m,v;if((t?t.ownerDocument||t:w)!==p&&c(t),t=t||p,n=n||[],!e||"string"!=typeof e)return n;if(1!==(s=t.nodeType)&&9!==s)return[];if(!d&&!r){if(i=J.exec(e))if(a=i[1]){if(9===s){if(o=t.getElementById(a),!o||!o.parentNode)return n;if(o.id===a)return n.push(o),n}else if(t.ownerDocument&&(o=t.ownerDocument.getElementById(a))&&y(t,o)&&o.id===a)return n.push(o),n}else{if(i[2])return H.apply(n,q.call(t.getElementsByTagName(e),0)),n;if((a=i[3])&&T.getByClassName&&t.getElementsByClassName)return H.apply(n,q.call(t.getElementsByClassName(a),0)),n}if(T.qsa&&!h.test(e)){if(f=!0,g=x,m=t,v=9===s&&e,1===s&&"object"!==t.nodeName.toLowerCase()){l=ft(e),(f=t.getAttribute("id"))?g=f.replace(K,"\\$&"):t.setAttribute("id",g),g="[id='"+g+"'] ",u=l.length;while(u--)l[u]=g+dt(l[u]);m=V.test(e)&&t.parentNode||t,v=l.join(",")}if(v)try{return H.apply(n,q.call(m.querySelectorAll(v),0)),n}catch(b){}finally{f||t.removeAttribute("id")}}}return wt(e.replace(W,"$1"),t,n,r)}a=st.isXML=function(e){var t=e&&(e.ownerDocument||e).documentElement;return t?"HTML"!==t.nodeName:!1},c=st.setDocument=function(e){var n=e?e.ownerDocument||e:w;return n!==p&&9===n.nodeType&&n.documentElement?(p=n,f=n.documentElement,d=a(n),T.tagNameNoComments=at(function(e){return e.appendChild(n.createComment("")),!e.getElementsByTagName("*").length}),T.attributes=at(function(e){e.innerHTML="<select></select>";var t=typeof e.lastChild.getAttribute("multiple");return"boolean"!==t&&"string"!==t}),T.getByClassName=at(function(e){return e.innerHTML="<div class='hidden e'></div><div class='hidden'></div>",e.getElementsByClassName&&e.getElementsByClassName("e").length?(e.lastChild.className="e",2===e.getElementsByClassName("e").length):!1}),T.getByName=at(function(e){e.id=x+0,e.innerHTML="<a name='"+x+"'></a><div name='"+x+"'></div>",f.insertBefore(e,f.firstChild);var t=n.getElementsByName&&n.getElementsByName(x).length===2+n.getElementsByName(x+0).length;return T.getIdNotName=!n.getElementById(x),f.removeChild(e),t}),i.attrHandle=at(function(e){return e.innerHTML="<a href='#'></a>",e.firstChild&&typeof e.firstChild.getAttribute!==A&&"#"===e.firstChild.getAttribute("href")})?{}:{href:function(e){return e.getAttribute("href",2)},type:function(e){return e.getAttribute("type")}},T.getIdNotName?(i.find.ID=function(e,t){if(typeof t.getElementById!==A&&!d){var n=t.getElementById(e);return n&&n.parentNode?[n]:[]}},i.filter.ID=function(e){var t=e.replace(et,tt);return function(e){return e.getAttribute("id")===t}}):(i.find.ID=function(e,n){if(typeof n.getElementById!==A&&!d){var r=n.getElementById(e);return r?r.id===e||typeof r.getAttributeNode!==A&&r.getAttributeNode("id").value===e?[r]:t:[]}},i.filter.ID=function(e){var t=e.replace(et,tt);return function(e){var n=typeof e.getAttributeNode!==A&&e.getAttributeNode("id");return n&&n.value===t}}),i.find.TAG=T.tagNameNoComments?function(e,n){return typeof n.getElementsByTagName!==A?n.getElementsByTagName(e):t}:function(e,t){var n,r=[],i=0,o=t.getElementsByTagName(e);if("*"===e){while(n=o[i++])1===n.nodeType&&r.push(n);return r}return o},i.find.NAME=T.getByName&&function(e,n){return typeof n.getElementsByName!==A?n.getElementsByName(name):t},i.find.CLASS=T.getByClassName&&function(e,n){return typeof n.getElementsByClassName===A||d?t:n.getElementsByClassName(e)},g=[],h=[":focus"],(T.qsa=rt(n.querySelectorAll))&&(at(function(e){e.innerHTML="<select><option selected=''></option></select>",e.querySelectorAll("[selected]").length||h.push("\\["+_+"*(?:checked|disabled|ismap|multiple|readonly|selected|value)"),e.querySelectorAll(":checked").length||h.push(":checked")}),at(function(e){e.innerHTML="<input type='hidden' i=''/>",e.querySelectorAll("[i^='']").length&&h.push("[*^$]="+_+"*(?:\"\"|'')"),e.querySelectorAll(":enabled").length||h.push(":enabled",":disabled"),e.querySelectorAll("*,:x"),h.push(",.*:")})),(T.matchesSelector=rt(m=f.matchesSelector||f.mozMatchesSelector||f.webkitMatchesSelector||f.oMatchesSelector||f.msMatchesSelector))&&at(function(e){T.disconnectedMatch=m.call(e,"div"),m.call(e,"[s!='']:x"),g.push("!=",R)}),h=RegExp(h.join("|")),g=RegExp(g.join("|")),y=rt(f.contains)||f.compareDocumentPosition?function(e,t){var n=9===e.nodeType?e.documentElement:e,r=t&&t.parentNode;return e===r||!(!r||1!==r.nodeType||!(n.contains?n.contains(r):e.compareDocumentPosition&&16&e.compareDocumentPosition(r)))}:function(e,t){if(t)while(t=t.parentNode)if(t===e)return!0;return!1},v=f.compareDocumentPosition?function(e,t){var r;return e===t?(u=!0,0):(r=t.compareDocumentPosition&&e.compareDocumentPosition&&e.compareDocumentPosition(t))?1&r||e.parentNode&&11===e.parentNode.nodeType?e===n||y(w,e)?-1:t===n||y(w,t)?1:0:4&r?-1:1:e.compareDocumentPosition?-1:1}:function(e,t){var r,i=0,o=e.parentNode,a=t.parentNode,s=[e],l=[t];if(e===t)return u=!0,0;if(!o||!a)return e===n?-1:t===n?1:o?-1:a?1:0;if(o===a)return ut(e,t);r=e;while(r=r.parentNode)s.unshift(r);r=t;while(r=r.parentNode)l.unshift(r);while(s[i]===l[i])i++;return i?ut(s[i],l[i]):s[i]===w?-1:l[i]===w?1:0},u=!1,[0,0].sort(v),T.detectDuplicates=u,p):p},st.matches=function(e,t){return st(e,null,null,t)},st.matchesSelector=function(e,t){if((e.ownerDocument||e)!==p&&c(e),t=t.replace(Z,"='$1']"),!(!T.matchesSelector||d||g&&g.test(t)||h.test(t)))try{var n=m.call(e,t);if(n||T.disconnectedMatch||e.document&&11!==e.document.nodeType)return n}catch(r){}return st(t,p,null,[e]).length>0},st.contains=function(e,t){return(e.ownerDocument||e)!==p&&c(e),y(e,t)},st.attr=function(e,t){var n;return(e.ownerDocument||e)!==p&&c(e),d||(t=t.toLowerCase()),(n=i.attrHandle[t])?n(e):d||T.attributes?e.getAttribute(t):((n=e.getAttributeNode(t))||e.getAttribute(t))&&e[t]===!0?t:n&&n.specified?n.value:null},st.error=function(e){throw Error("Syntax error, unrecognized expression: "+e)},st.uniqueSort=function(e){var t,n=[],r=1,i=0;if(u=!T.detectDuplicates,e.sort(v),u){for(;t=e[r];r++)t===e[r-1]&&(i=n.push(r));while(i--)e.splice(n[i],1)}return e};function ut(e,t){var n=t&&e,r=n&&(~t.sourceIndex||j)-(~e.sourceIndex||j);if(r)return r;if(n)while(n=n.nextSibling)if(n===t)return-1;return e?1:-1}function lt(e){return function(t){var n=t.nodeName.toLowerCase();return"input"===n&&t.type===e}}function ct(e){return function(t){var n=t.nodeName.toLowerCase();return("input"===n||"button"===n)&&t.type===e}}function pt(e){return ot(function(t){return t=+t,ot(function(n,r){var i,o=e([],n.length,t),a=o.length;while(a--)n[i=o[a]]&&(n[i]=!(r[i]=n[i]))})})}o=st.getText=function(e){var t,n="",r=0,i=e.nodeType;if(i){if(1===i||9===i||11===i){if("string"==typeof e.textContent)return e.textContent;for(e=e.firstChild;e;e=e.nextSibling)n+=o(e)}else if(3===i||4===i)return e.nodeValue}else for(;t=e[r];r++)n+=o(t);return n},i=st.selectors={cacheLength:50,createPseudo:ot,match:U,find:{},relative:{">":{dir:"parentNode",first:!0}," ":{dir:"parentNode"},"+":{dir:"previousSibling",first:!0},"~":{dir:"previousSibling"}},preFilter:{ATTR:function(e){return e[1]=e[1].replace(et,tt),e[3]=(e[4]||e[5]||"").replace(et,tt),"~="===e[2]&&(e[3]=" "+e[3]+" "),e.slice(0,4)},CHILD:function(e){return e[1]=e[1].toLowerCase(),"nth"===e[1].slice(0,3)?(e[3]||st.error(e[0]),e[4]=+(e[4]?e[5]+(e[6]||1):2*("even"===e[3]||"odd"===e[3])),e[5]=+(e[7]+e[8]||"odd"===e[3])):e[3]&&st.error(e[0]),e},PSEUDO:function(e){var t,n=!e[5]&&e[2];return U.CHILD.test(e[0])?null:(e[4]?e[2]=e[4]:n&&z.test(n)&&(t=ft(n,!0))&&(t=n.indexOf(")",n.length-t)-n.length)&&(e[0]=e[0].slice(0,t),e[2]=n.slice(0,t)),e.slice(0,3))}},filter:{TAG:function(e){return"*"===e?function(){return!0}:(e=e.replace(et,tt).toLowerCase(),function(t){return t.nodeName&&t.nodeName.toLowerCase()===e})},CLASS:function(e){var t=k[e+" "];return t||(t=RegExp("(^|"+_+")"+e+"("+_+"|$)"))&&k(e,function(e){return t.test(e.className||typeof e.getAttribute!==A&&e.getAttribute("class")||"")})},ATTR:function(e,t,n){return function(r){var i=st.attr(r,e);return null==i?"!="===t:t?(i+="","="===t?i===n:"!="===t?i!==n:"^="===t?n&&0===i.indexOf(n):"*="===t?n&&i.indexOf(n)>-1:"$="===t?n&&i.slice(-n.length)===n:"~="===t?(" "+i+" ").indexOf(n)>-1:"|="===t?i===n||i.slice(0,n.length+1)===n+"-":!1):!0}},CHILD:function(e,t,n,r,i){var o="nth"!==e.slice(0,3),a="last"!==e.slice(-4),s="of-type"===t;return 1===r&&0===i?function(e){return!!e.parentNode}:function(t,n,u){var l,c,p,f,d,h,g=o!==a?"nextSibling":"previousSibling",m=t.parentNode,y=s&&t.nodeName.toLowerCase(),v=!u&&!s;if(m){if(o){while(g){p=t;while(p=p[g])if(s?p.nodeName.toLowerCase()===y:1===p.nodeType)return!1;h=g="only"===e&&!h&&"nextSibling"}return!0}if(h=[a?m.firstChild:m.lastChild],a&&v){c=m[x]||(m[x]={}),l=c[e]||[],d=l[0]===N&&l[1],f=l[0]===N&&l[2],p=d&&m.childNodes[d];while(p=++d&&p&&p[g]||(f=d=0)||h.pop())if(1===p.nodeType&&++f&&p===t){c[e]=[N,d,f];break}}else if(v&&(l=(t[x]||(t[x]={}))[e])&&l[0]===N)f=l[1];else while(p=++d&&p&&p[g]||(f=d=0)||h.pop())if((s?p.nodeName.toLowerCase()===y:1===p.nodeType)&&++f&&(v&&((p[x]||(p[x]={}))[e]=[N,f]),p===t))break;return f-=i,f===r||0===f%r&&f/r>=0}}},PSEUDO:function(e,t){var n,r=i.pseudos[e]||i.setFilters[e.toLowerCase()]||st.error("unsupported pseudo: "+e);return r[x]?r(t):r.length>1?(n=[e,e,"",t],i.setFilters.hasOwnProperty(e.toLowerCase())?ot(function(e,n){var i,o=r(e,t),a=o.length;while(a--)i=M.call(e,o[a]),e[i]=!(n[i]=o[a])}):function(e){return r(e,0,n)}):r}},pseudos:{not:ot(function(e){var t=[],n=[],r=s(e.replace(W,"$1"));return r[x]?ot(function(e,t,n,i){var o,a=r(e,null,i,[]),s=e.length;while(s--)(o=a[s])&&(e[s]=!(t[s]=o))}):function(e,i,o){return t[0]=e,r(t,null,o,n),!n.pop()}}),has:ot(function(e){return function(t){return st(e,t).length>0}}),contains:ot(function(e){return function(t){return(t.textContent||t.innerText||o(t)).indexOf(e)>-1}}),lang:ot(function(e){return X.test(e||"")||st.error("unsupported lang: "+e),e=e.replace(et,tt).toLowerCase(),function(t){var n;do if(n=d?t.getAttribute("xml:lang")||t.getAttribute("lang"):t.lang)return n=n.toLowerCase(),n===e||0===n.indexOf(e+"-");while((t=t.parentNode)&&1===t.nodeType);return!1}}),target:function(t){var n=e.location&&e.location.hash;return n&&n.slice(1)===t.id},root:function(e){return e===f},focus:function(e){return e===p.activeElement&&(!p.hasFocus||p.hasFocus())&&!!(e.type||e.href||~e.tabIndex)},enabled:function(e){return e.disabled===!1},disabled:function(e){return e.disabled===!0},checked:function(e){var t=e.nodeName.toLowerCase();return"input"===t&&!!e.checked||"option"===t&&!!e.selected},selected:function(e){return e.parentNode&&e.parentNode.selectedIndex,e.selected===!0},empty:function(e){for(e=e.firstChild;e;e=e.nextSibling)if(e.nodeName>"@"||3===e.nodeType||4===e.nodeType)return!1;return!0},parent:function(e){return!i.pseudos.empty(e)},header:function(e){return Q.test(e.nodeName)},input:function(e){return G.test(e.nodeName)},button:function(e){var t=e.nodeName.toLowerCase();return"input"===t&&"button"===e.type||"button"===t},text:function(e){var t;return"input"===e.nodeName.toLowerCase()&&"text"===e.type&&(null==(t=e.getAttribute("type"))||t.toLowerCase()===e.type)},first:pt(function(){return[0]}),last:pt(function(e,t){return[t-1]}),eq:pt(function(e,t,n){return[0>n?n+t:n]}),even:pt(function(e,t){var n=0;for(;t>n;n+=2)e.push(n);return e}),odd:pt(function(e,t){var n=1;for(;t>n;n+=2)e.push(n);return e}),lt:pt(function(e,t,n){var r=0>n?n+t:n;for(;--r>=0;)e.push(r);return e}),gt:pt(function(e,t,n){var r=0>n?n+t:n;for(;t>++r;)e.push(r);return e})}};for(n in{radio:!0,checkbox:!0,file:!0,password:!0,image:!0})i.pseudos[n]=lt(n);for(n in{submit:!0,reset:!0})i.pseudos[n]=ct(n);function ft(e,t){var n,r,o,a,s,u,l,c=E[e+" "];if(c)return t?0:c.slice(0);s=e,u=[],l=i.preFilter;while(s){(!n||(r=$.exec(s)))&&(r&&(s=s.slice(r[0].length)||s),u.push(o=[])),n=!1,(r=I.exec(s))&&(n=r.shift(),o.push({value:n,type:r[0].replace(W," ")}),s=s.slice(n.length));for(a in i.filter)!(r=U[a].exec(s))||l[a]&&!(r=l[a](r))||(n=r.shift(),o.push({value:n,type:a,matches:r}),s=s.slice(n.length));if(!n)break}return t?s.length:s?st.error(e):E(e,u).slice(0)}function dt(e){var t=0,n=e.length,r="";for(;n>t;t++)r+=e[t].value;return r}function ht(e,t,n){var i=t.dir,o=n&&"parentNode"===i,a=C++;return t.first?function(t,n,r){while(t=t[i])if(1===t.nodeType||o)return e(t,n,r)}:function(t,n,s){var u,l,c,p=N+" "+a;if(s){while(t=t[i])if((1===t.nodeType||o)&&e(t,n,s))return!0}else while(t=t[i])if(1===t.nodeType||o)if(c=t[x]||(t[x]={}),(l=c[i])&&l[0]===p){if((u=l[1])===!0||u===r)return u===!0}else if(l=c[i]=[p],l[1]=e(t,n,s)||r,l[1]===!0)return!0}}function gt(e){return e.length>1?function(t,n,r){var i=e.length;while(i--)if(!e[i](t,n,r))return!1;return!0}:e[0]}function mt(e,t,n,r,i){var o,a=[],s=0,u=e.length,l=null!=t;for(;u>s;s++)(o=e[s])&&(!n||n(o,r,i))&&(a.push(o),l&&t.push(s));return a}function yt(e,t,n,r,i,o){return r&&!r[x]&&(r=yt(r)),i&&!i[x]&&(i=yt(i,o)),ot(function(o,a,s,u){var l,c,p,f=[],d=[],h=a.length,g=o||xt(t||"*",s.nodeType?[s]:s,[]),m=!e||!o&&t?g:mt(g,f,e,s,u),y=n?i||(o?e:h||r)?[]:a:m;if(n&&n(m,y,s,u),r){l=mt(y,d),r(l,[],s,u),c=l.length;while(c--)(p=l[c])&&(y[d[c]]=!(m[d[c]]=p))}if(o){if(i||e){if(i){l=[],c=y.length;while(c--)(p=y[c])&&l.push(m[c]=p);i(null,y=[],l,u)}c=y.length;while(c--)(p=y[c])&&(l=i?M.call(o,p):f[c])>-1&&(o[l]=!(a[l]=p))}}else y=mt(y===a?y.splice(h,y.length):y),i?i(null,a,y,u):H.apply(a,y)})}function vt(e){var t,n,r,o=e.length,a=i.relative[e[0].type],s=a||i.relative[" "],u=a?1:0,c=ht(function(e){return e===t},s,!0),p=ht(function(e){return M.call(t,e)>-1},s,!0),f=[function(e,n,r){return!a&&(r||n!==l)||((t=n).nodeType?c(e,n,r):p(e,n,r))}];for(;o>u;u++)if(n=i.relative[e[u].type])f=[ht(gt(f),n)];else{if(n=i.filter[e[u].type].apply(null,e[u].matches),n[x]){for(r=++u;o>r;r++)if(i.relative[e[r].type])break;return yt(u>1&&gt(f),u>1&&dt(e.slice(0,u-1)).replace(W,"$1"),n,r>u&&vt(e.slice(u,r)),o>r&&vt(e=e.slice(r)),o>r&&dt(e))}f.push(n)}return gt(f)}function bt(e,t){var n=0,o=t.length>0,a=e.length>0,s=function(s,u,c,f,d){var h,g,m,y=[],v=0,b="0",x=s&&[],w=null!=d,T=l,C=s||a&&i.find.TAG("*",d&&u.parentNode||u),k=N+=null==T?1:Math.random()||.1;for(w&&(l=u!==p&&u,r=n);null!=(h=C[b]);b++){if(a&&h){g=0;while(m=e[g++])if(m(h,u,c)){f.push(h);break}w&&(N=k,r=++n)}o&&((h=!m&&h)&&v--,s&&x.push(h))}if(v+=b,o&&b!==v){g=0;while(m=t[g++])m(x,y,u,c);if(s){if(v>0)while(b--)x[b]||y[b]||(y[b]=L.call(f));y=mt(y)}H.apply(f,y),w&&!s&&y.length>0&&v+t.length>1&&st.uniqueSort(f)}return w&&(N=k,l=T),x};return o?ot(s):s}s=st.compile=function(e,t){var n,r=[],i=[],o=S[e+" "];if(!o){t||(t=ft(e)),n=t.length;while(n--)o=vt(t[n]),o[x]?r.push(o):i.push(o);o=S(e,bt(i,r))}return o};function xt(e,t,n){var r=0,i=t.length;for(;i>r;r++)st(e,t[r],n);return n}function wt(e,t,n,r){var o,a,u,l,c,p=ft(e);if(!r&&1===p.length){if(a=p[0]=p[0].slice(0),a.length>2&&"ID"===(u=a[0]).type&&9===t.nodeType&&!d&&i.relative[a[1].type]){if(t=i.find.ID(u.matches[0].replace(et,tt),t)[0],!t)return n;e=e.slice(a.shift().value.length)}o=U.needsContext.test(e)?0:a.length;while(o--){if(u=a[o],i.relative[l=u.type])break;if((c=i.find[l])&&(r=c(u.matches[0].replace(et,tt),V.test(a[0].type)&&t.parentNode||t))){if(a.splice(o,1),e=r.length&&dt(a),!e)return H.apply(n,q.call(r,0)),n;break}}}return s(e,p)(r,t,d,n,V.test(e)),n}i.pseudos.nth=i.pseudos.eq;function Tt(){}i.filters=Tt.prototype=i.pseudos,i.setFilters=new Tt,c(),st.attr=b.attr,b.find=st,b.expr=st.selectors,b.expr[":"]=b.expr.pseudos,b.unique=st.uniqueSort,b.text=st.getText,b.isXMLDoc=st.isXML,b.contains=st.contains}(e);var at=/Until$/,st=/^(?:parents|prev(?:Until|All))/,ut=/^.[^:#\[\.,]*$/,lt=b.expr.match.needsContext,ct={children:!0,contents:!0,next:!0,prev:!0};b.fn.extend({find:function(e){var t,n,r,i=this.length;if("string"!=typeof e)return r=this,this.pushStack(b(e).filter(function(){for(t=0;i>t;t++)if(b.contains(r[t],this))return!0}));for(n=[],t=0;i>t;t++)b.find(e,this[t],n);return n=this.pushStack(i>1?b.unique(n):n),n.selector=(this.selector?this.selector+" ":"")+e,n},has:function(e){var t,n=b(e,this),r=n.length;return this.filter(function(){for(t=0;r>t;t++)if(b.contains(this,n[t]))return!0})},not:function(e){return this.pushStack(ft(this,e,!1))},filter:function(e){return this.pushStack(ft(this,e,!0))},is:function(e){return!!e&&("string"==typeof e?lt.test(e)?b(e,this.context).index(this[0])>=0:b.filter(e,this).length>0:this.filter(e).length>0)},closest:function(e,t){var n,r=0,i=this.length,o=[],a=lt.test(e)||"string"!=typeof e?b(e,t||this.context):0;for(;i>r;r++){n=this[r];while(n&&n.ownerDocument&&n!==t&&11!==n.nodeType){if(a?a.index(n)>-1:b.find.matchesSelector(n,e)){o.push(n);break}n=n.parentNode}}return this.pushStack(o.length>1?b.unique(o):o)},index:function(e){return e?"string"==typeof e?b.inArray(this[0],b(e)):b.inArray(e.jquery?e[0]:e,this):this[0]&&this[0].parentNode?this.first().prevAll().length:-1},add:function(e,t){var n="string"==typeof e?b(e,t):b.makeArray(e&&e.nodeType?[e]:e),r=b.merge(this.get(),n);return this.pushStack(b.unique(r))},addBack:function(e){return this.add(null==e?this.prevObject:this.prevObject.filter(e))}}),b.fn.andSelf=b.fn.addBack;function pt(e,t){do e=e[t];while(e&&1!==e.nodeType);return e}b.each({parent:function(e){var t=e.parentNode;return t&&11!==t.nodeType?t:null},parents:function(e){return b.dir(e,"parentNode")},parentsUntil:function(e,t,n){return b.dir(e,"parentNode",n)},next:function(e){return pt(e,"nextSibling")},prev:function(e){return pt(e,"previousSibling")},nextAll:function(e){return b.dir(e,"nextSibling")},prevAll:function(e){return b.dir(e,"previousSibling")},nextUntil:function(e,t,n){return b.dir(e,"nextSibling",n)},prevUntil:function(e,t,n){return b.dir(e,"previousSibling",n)},siblings:function(e){return b.sibling((e.parentNode||{}).firstChild,e)},children:function(e){return b.sibling(e.firstChild)},contents:function(e){return b.nodeName(e,"iframe")?e.contentDocument||e.contentWindow.document:b.merge([],e.childNodes)}},function(e,t){b.fn[e]=function(n,r){var i=b.map(this,t,n);return at.test(e)||(r=n),r&&"string"==typeof r&&(i=b.filter(r,i)),i=this.length>1&&!ct[e]?b.unique(i):i,this.length>1&&st.test(e)&&(i=i.reverse()),this.pushStack(i)}}),b.extend({filter:function(e,t,n){return n&&(e=":not("+e+")"),1===t.length?b.find.matchesSelector(t[0],e)?[t[0]]:[]:b.find.matches(e,t)},dir:function(e,n,r){var i=[],o=e[n];while(o&&9!==o.nodeType&&(r===t||1!==o.nodeType||!b(o).is(r)))1===o.nodeType&&i.push(o),o=o[n];return i},sibling:function(e,t){var n=[];for(;e;e=e.nextSibling)1===e.nodeType&&e!==t&&n.push(e);return n}});function ft(e,t,n){if(t=t||0,b.isFunction(t))return b.grep(e,function(e,r){var i=!!t.call(e,r,e);return i===n});if(t.nodeType)return b.grep(e,function(e){return e===t===n});if("string"==typeof t){var r=b.grep(e,function(e){return 1===e.nodeType});if(ut.test(t))return b.filter(t,r,!n);t=b.filter(t,r)}return b.grep(e,function(e){return b.inArray(e,t)>=0===n})}function dt(e){var t=ht.split("|"),n=e.createDocumentFragment();if(n.createElement)while(t.length)n.createElement(t.pop());return n}var ht="abbr|article|aside|audio|bdi|canvas|data|datalist|details|figcaption|figure|footer|header|hgroup|mark|meter|nav|output|progress|section|summary|time|video",gt=/ jQuery\d+="(?:null|\d+)"/g,mt=RegExp("<(?:"+ht+")[\\s/>]","i"),yt=/^\s+/,vt=/<(?!area|br|col|embed|hr|img|input|link|meta|param)(([\w:]+)[^>]*)\/>/gi,bt=/<([\w:]+)/,xt=/<tbody/i,wt=/<|&#?\w+;/,Tt=/<(?:script|style|link)/i,Nt=/^(?:checkbox|radio)$/i,Ct=/checked\s*(?:[^=]|=\s*.checked.)/i,kt=/^$|\/(?:java|ecma)script/i,Et=/^true\/(.*)/,St=/^\s*<!(?:\[CDATA\[|--)|(?:\]\]|--)>\s*$/g,At={option:[1,"<select multiple='multiple'>","</select>"],legend:[1,"<fieldset>","</fieldset>"],area:[1,"<map>","</map>"],param:[1,"<object>","</object>"],thead:[1,"<table>","</table>"],tr:[2,"<table><tbody>","</tbody></table>"],col:[2,"<table><tbody></tbody><colgroup>","</colgroup></table>"],td:[3,"<table><tbody><tr>","</tr></tbody></table>"],_default:b.support.htmlSerialize?[0,"",""]:[1,"X<div>","</div>"]},jt=dt(o),Dt=jt.appendChild(o.createElement("div"));At.optgroup=At.option,At.tbody=At.tfoot=At.colgroup=At.caption=At.thead,At.th=At.td,b.fn.extend({text:function(e){return b.access(this,function(e){return e===t?b.text(this):this.empty().append((this[0]&&this[0].ownerDocument||o).createTextNode(e))},null,e,arguments.length)},wrapAll:function(e){if(b.isFunction(e))return this.each(function(t){b(this).wrapAll(e.call(this,t))});if(this[0]){var t=b(e,this[0].ownerDocument).eq(0).clone(!0);this[0].parentNode&&t.insertBefore(this[0]),t.map(function(){var e=this;while(e.firstChild&&1===e.firstChild.nodeType)e=e.firstChild;return e}).append(this)}return this},wrapInner:function(e){return b.isFunction(e)?this.each(function(t){b(this).wrapInner(e.call(this,t))}):this.each(function(){var t=b(this),n=t.contents();n.length?n.wrapAll(e):t.append(e)})},wrap:function(e){var t=b.isFunction(e);return this.each(function(n){b(this).wrapAll(t?e.call(this,n):e)})},unwrap:function(){return this.parent().each(function(){b.nodeName(this,"body")||b(this).replaceWith(this.childNodes)}).end()},append:function(){return this.domManip(arguments,!0,function(e){(1===this.nodeType||11===this.nodeType||9===this.nodeType)&&this.appendChild(e)})},prepend:function(){return this.domManip(arguments,!0,function(e){(1===this.nodeType||11===this.nodeType||9===this.nodeType)&&this.insertBefore(e,this.firstChild)})},before:function(){return this.domManip(arguments,!1,function(e){this.parentNode&&this.parentNode.insertBefore(e,this)})},after:function(){return this.domManip(arguments,!1,function(e){this.parentNode&&this.parentNode.insertBefore(e,this.nextSibling)})},remove:function(e,t){var n,r=0;for(;null!=(n=this[r]);r++)(!e||b.filter(e,[n]).length>0)&&(t||1!==n.nodeType||b.cleanData(Ot(n)),n.parentNode&&(t&&b.contains(n.ownerDocument,n)&&Mt(Ot(n,"script")),n.parentNode.removeChild(n)));return this},empty:function(){var e,t=0;for(;null!=(e=this[t]);t++){1===e.nodeType&&b.cleanData(Ot(e,!1));while(e.firstChild)e.removeChild(e.firstChild);e.options&&b.nodeName(e,"select")&&(e.options.length=0)}return this},clone:function(e,t){return e=null==e?!1:e,t=null==t?e:t,this.map(function(){return b.clone(this,e,t)})},html:function(e){return b.access(this,function(e){var n=this[0]||{},r=0,i=this.length;if(e===t)return 1===n.nodeType?n.innerHTML.replace(gt,""):t;if(!("string"!=typeof e||Tt.test(e)||!b.support.htmlSerialize&&mt.test(e)||!b.support.leadingWhitespace&&yt.test(e)||At[(bt.exec(e)||["",""])[1].toLowerCase()])){e=e.replace(vt,"<$1></$2>");try{for(;i>r;r++)n=this[r]||{},1===n.nodeType&&(b.cleanData(Ot(n,!1)),n.innerHTML=e);n=0}catch(o){}}n&&this.empty().append(e)},null,e,arguments.length)},replaceWith:function(e){var t=b.isFunction(e);return t||"string"==typeof e||(e=b(e).not(this).detach()),this.domManip([e],!0,function(e){var t=this.nextSibling,n=this.parentNode;n&&(b(this).remove(),n.insertBefore(e,t))})},detach:function(e){return this.remove(e,!0)},domManip:function(e,n,r){e=f.apply([],e);var i,o,a,s,u,l,c=0,p=this.length,d=this,h=p-1,g=e[0],m=b.isFunction(g);if(m||!(1>=p||"string"!=typeof g||b.support.checkClone)&&Ct.test(g))return this.each(function(i){var o=d.eq(i);m&&(e[0]=g.call(this,i,n?o.html():t)),o.domManip(e,n,r)});if(p&&(l=b.buildFragment(e,this[0].ownerDocument,!1,this),i=l.firstChild,1===l.childNodes.length&&(l=i),i)){for(n=n&&b.nodeName(i,"tr"),s=b.map(Ot(l,"script"),Ht),a=s.length;p>c;c++)o=l,c!==h&&(o=b.clone(o,!0,!0),a&&b.merge(s,Ot(o,"script"))),r.call(n&&b.nodeName(this[c],"table")?Lt(this[c],"tbody"):this[c],o,c);if(a)for(u=s[s.length-1].ownerDocument,b.map(s,qt),c=0;a>c;c++)o=s[c],kt.test(o.type||"")&&!b._data(o,"globalEval")&&b.contains(u,o)&&(o.src?b.ajax({url:o.src,type:"GET",dataType:"script",async:!1,global:!1,"throws":!0}):b.globalEval((o.text||o.textContent||o.innerHTML||"").replace(St,"")));l=i=null}return this}});function Lt(e,t){return e.getElementsByTagName(t)[0]||e.appendChild(e.ownerDocument.createElement(t))}function Ht(e){var t=e.getAttributeNode("type");return e.type=(t&&t.specified)+"/"+e.type,e}function qt(e){var t=Et.exec(e.type);return t?e.type=t[1]:e.removeAttribute("type"),e}function Mt(e,t){var n,r=0;for(;null!=(n=e[r]);r++)b._data(n,"globalEval",!t||b._data(t[r],"globalEval"))}function _t(e,t){if(1===t.nodeType&&b.hasData(e)){var n,r,i,o=b._data(e),a=b._data(t,o),s=o.events;if(s){delete a.handle,a.events={};for(n in s)for(r=0,i=s[n].length;i>r;r++)b.event.add(t,n,s[n][r])}a.data&&(a.data=b.extend({},a.data))}}function Ft(e,t){var n,r,i;if(1===t.nodeType){if(n=t.nodeName.toLowerCase(),!b.support.noCloneEvent&&t[b.expando]){i=b._data(t);for(r in i.events)b.removeEvent(t,r,i.handle);t.removeAttribute(b.expando)}"script"===n&&t.text!==e.text?(Ht(t).text=e.text,qt(t)):"object"===n?(t.parentNode&&(t.outerHTML=e.outerHTML),b.support.html5Clone&&e.innerHTML&&!b.trim(t.innerHTML)&&(t.innerHTML=e.innerHTML)):"input"===n&&Nt.test(e.type)?(t.defaultChecked=t.checked=e.checked,t.value!==e.value&&(t.value=e.value)):"option"===n?t.defaultSelected=t.selected=e.defaultSelected:("input"===n||"textarea"===n)&&(t.defaultValue=e.defaultValue)}}b.each({appendTo:"append",prependTo:"prepend",insertBefore:"before",insertAfter:"after",replaceAll:"replaceWith"},function(e,t){b.fn[e]=function(e){var n,r=0,i=[],o=b(e),a=o.length-1;for(;a>=r;r++)n=r===a?this:this.clone(!0),b(o[r])[t](n),d.apply(i,n.get());return this.pushStack(i)}});function Ot(e,n){var r,o,a=0,s=typeof e.getElementsByTagName!==i?e.getElementsByTagName(n||"*"):typeof e.querySelectorAll!==i?e.querySelectorAll(n||"*"):t;if(!s)for(s=[],r=e.childNodes||e;null!=(o=r[a]);a++)!n||b.nodeName(o,n)?s.push(o):b.merge(s,Ot(o,n));return n===t||n&&b.nodeName(e,n)?b.merge([e],s):s}function Bt(e){Nt.test(e.type)&&(e.defaultChecked=e.checked)}b.extend({clone:function(e,t,n){var r,i,o,a,s,u=b.contains(e.ownerDocument,e);if(b.support.html5Clone||b.isXMLDoc(e)||!mt.test("<"+e.nodeName+">")?o=e.cloneNode(!0):(Dt.innerHTML=e.outerHTML,Dt.removeChild(o=Dt.firstChild)),!(b.support.noCloneEvent&&b.support.noCloneChecked||1!==e.nodeType&&11!==e.nodeType||b.isXMLDoc(e)))for(r=Ot(o),s=Ot(e),a=0;null!=(i=s[a]);++a)r[a]&&Ft(i,r[a]);if(t)if(n)for(s=s||Ot(e),r=r||Ot(o),a=0;null!=(i=s[a]);a++)_t(i,r[a]);else _t(e,o);return r=Ot(o,"script"),r.length>0&&Mt(r,!u&&Ot(e,"script")),r=s=i=null,o},buildFragment:function(e,t,n,r){var i,o,a,s,u,l,c,p=e.length,f=dt(t),d=[],h=0;for(;p>h;h++)if(o=e[h],o||0===o)if("object"===b.type(o))b.merge(d,o.nodeType?[o]:o);else if(wt.test(o)){s=s||f.appendChild(t.createElement("div")),u=(bt.exec(o)||["",""])[1].toLowerCase(),c=At[u]||At._default,s.innerHTML=c[1]+o.replace(vt,"<$1></$2>")+c[2],i=c[0];while(i--)s=s.lastChild;if(!b.support.leadingWhitespace&&yt.test(o)&&d.push(t.createTextNode(yt.exec(o)[0])),!b.support.tbody){o="table"!==u||xt.test(o)?"<table>"!==c[1]||xt.test(o)?0:s:s.firstChild,i=o&&o.childNodes.length;while(i--)b.nodeName(l=o.childNodes[i],"tbody")&&!l.childNodes.length&&o.removeChild(l)
+}b.merge(d,s.childNodes),s.textContent="";while(s.firstChild)s.removeChild(s.firstChild);s=f.lastChild}else d.push(t.createTextNode(o));s&&f.removeChild(s),b.support.appendChecked||b.grep(Ot(d,"input"),Bt),h=0;while(o=d[h++])if((!r||-1===b.inArray(o,r))&&(a=b.contains(o.ownerDocument,o),s=Ot(f.appendChild(o),"script"),a&&Mt(s),n)){i=0;while(o=s[i++])kt.test(o.type||"")&&n.push(o)}return s=null,f},cleanData:function(e,t){var n,r,o,a,s=0,u=b.expando,l=b.cache,p=b.support.deleteExpando,f=b.event.special;for(;null!=(n=e[s]);s++)if((t||b.acceptData(n))&&(o=n[u],a=o&&l[o])){if(a.events)for(r in a.events)f[r]?b.event.remove(n,r):b.removeEvent(n,r,a.handle);l[o]&&(delete l[o],p?delete n[u]:typeof n.removeAttribute!==i?n.removeAttribute(u):n[u]=null,c.push(o))}}});var Pt,Rt,Wt,$t=/alpha\([^)]*\)/i,It=/opacity\s*=\s*([^)]*)/,zt=/^(top|right|bottom|left)$/,Xt=/^(none|table(?!-c[ea]).+)/,Ut=/^margin/,Vt=RegExp("^("+x+")(.*)$","i"),Yt=RegExp("^("+x+")(?!px)[a-z%]+$","i"),Jt=RegExp("^([+-])=("+x+")","i"),Gt={BODY:"block"},Qt={position:"absolute",visibility:"hidden",display:"block"},Kt={letterSpacing:0,fontWeight:400},Zt=["Top","Right","Bottom","Left"],en=["Webkit","O","Moz","ms"];function tn(e,t){if(t in e)return t;var n=t.charAt(0).toUpperCase()+t.slice(1),r=t,i=en.length;while(i--)if(t=en[i]+n,t in e)return t;return r}function nn(e,t){return e=t||e,"none"===b.css(e,"display")||!b.contains(e.ownerDocument,e)}function rn(e,t){var n,r,i,o=[],a=0,s=e.length;for(;s>a;a++)r=e[a],r.style&&(o[a]=b._data(r,"olddisplay"),n=r.style.display,t?(o[a]||"none"!==n||(r.style.display=""),""===r.style.display&&nn(r)&&(o[a]=b._data(r,"olddisplay",un(r.nodeName)))):o[a]||(i=nn(r),(n&&"none"!==n||!i)&&b._data(r,"olddisplay",i?n:b.css(r,"display"))));for(a=0;s>a;a++)r=e[a],r.style&&(t&&"none"!==r.style.display&&""!==r.style.display||(r.style.display=t?o[a]||"":"none"));return e}b.fn.extend({css:function(e,n){return b.access(this,function(e,n,r){var i,o,a={},s=0;if(b.isArray(n)){for(o=Rt(e),i=n.length;i>s;s++)a[n[s]]=b.css(e,n[s],!1,o);return a}return r!==t?b.style(e,n,r):b.css(e,n)},e,n,arguments.length>1)},show:function(){return rn(this,!0)},hide:function(){return rn(this)},toggle:function(e){var t="boolean"==typeof e;return this.each(function(){(t?e:nn(this))?b(this).show():b(this).hide()})}}),b.extend({cssHooks:{opacity:{get:function(e,t){if(t){var n=Wt(e,"opacity");return""===n?"1":n}}}},cssNumber:{columnCount:!0,fillOpacity:!0,fontWeight:!0,lineHeight:!0,opacity:!0,orphans:!0,widows:!0,zIndex:!0,zoom:!0},cssProps:{"float":b.support.cssFloat?"cssFloat":"styleFloat"},style:function(e,n,r,i){if(e&&3!==e.nodeType&&8!==e.nodeType&&e.style){var o,a,s,u=b.camelCase(n),l=e.style;if(n=b.cssProps[u]||(b.cssProps[u]=tn(l,u)),s=b.cssHooks[n]||b.cssHooks[u],r===t)return s&&"get"in s&&(o=s.get(e,!1,i))!==t?o:l[n];if(a=typeof r,"string"===a&&(o=Jt.exec(r))&&(r=(o[1]+1)*o[2]+parseFloat(b.css(e,n)),a="number"),!(null==r||"number"===a&&isNaN(r)||("number"!==a||b.cssNumber[u]||(r+="px"),b.support.clearCloneStyle||""!==r||0!==n.indexOf("background")||(l[n]="inherit"),s&&"set"in s&&(r=s.set(e,r,i))===t)))try{l[n]=r}catch(c){}}},css:function(e,n,r,i){var o,a,s,u=b.camelCase(n);return n=b.cssProps[u]||(b.cssProps[u]=tn(e.style,u)),s=b.cssHooks[n]||b.cssHooks[u],s&&"get"in s&&(a=s.get(e,!0,r)),a===t&&(a=Wt(e,n,i)),"normal"===a&&n in Kt&&(a=Kt[n]),""===r||r?(o=parseFloat(a),r===!0||b.isNumeric(o)?o||0:a):a},swap:function(e,t,n,r){var i,o,a={};for(o in t)a[o]=e.style[o],e.style[o]=t[o];i=n.apply(e,r||[]);for(o in t)e.style[o]=a[o];return i}}),e.getComputedStyle?(Rt=function(t){return e.getComputedStyle(t,null)},Wt=function(e,n,r){var i,o,a,s=r||Rt(e),u=s?s.getPropertyValue(n)||s[n]:t,l=e.style;return s&&(""!==u||b.contains(e.ownerDocument,e)||(u=b.style(e,n)),Yt.test(u)&&Ut.test(n)&&(i=l.width,o=l.minWidth,a=l.maxWidth,l.minWidth=l.maxWidth=l.width=u,u=s.width,l.width=i,l.minWidth=o,l.maxWidth=a)),u}):o.documentElement.currentStyle&&(Rt=function(e){return e.currentStyle},Wt=function(e,n,r){var i,o,a,s=r||Rt(e),u=s?s[n]:t,l=e.style;return null==u&&l&&l[n]&&(u=l[n]),Yt.test(u)&&!zt.test(n)&&(i=l.left,o=e.runtimeStyle,a=o&&o.left,a&&(o.left=e.currentStyle.left),l.left="fontSize"===n?"1em":u,u=l.pixelLeft+"px",l.left=i,a&&(o.left=a)),""===u?"auto":u});function on(e,t,n){var r=Vt.exec(t);return r?Math.max(0,r[1]-(n||0))+(r[2]||"px"):t}function an(e,t,n,r,i){var o=n===(r?"border":"content")?4:"width"===t?1:0,a=0;for(;4>o;o+=2)"margin"===n&&(a+=b.css(e,n+Zt[o],!0,i)),r?("content"===n&&(a-=b.css(e,"padding"+Zt[o],!0,i)),"margin"!==n&&(a-=b.css(e,"border"+Zt[o]+"Width",!0,i))):(a+=b.css(e,"padding"+Zt[o],!0,i),"padding"!==n&&(a+=b.css(e,"border"+Zt[o]+"Width",!0,i)));return a}function sn(e,t,n){var r=!0,i="width"===t?e.offsetWidth:e.offsetHeight,o=Rt(e),a=b.support.boxSizing&&"border-box"===b.css(e,"boxSizing",!1,o);if(0>=i||null==i){if(i=Wt(e,t,o),(0>i||null==i)&&(i=e.style[t]),Yt.test(i))return i;r=a&&(b.support.boxSizingReliable||i===e.style[t]),i=parseFloat(i)||0}return i+an(e,t,n||(a?"border":"content"),r,o)+"px"}function un(e){var t=o,n=Gt[e];return n||(n=ln(e,t),"none"!==n&&n||(Pt=(Pt||b("<iframe frameborder='0' width='0' height='0'/>").css("cssText","display:block !important")).appendTo(t.documentElement),t=(Pt[0].contentWindow||Pt[0].contentDocument).document,t.write("<!doctype html><html><body>"),t.close(),n=ln(e,t),Pt.detach()),Gt[e]=n),n}function ln(e,t){var n=b(t.createElement(e)).appendTo(t.body),r=b.css(n[0],"display");return n.remove(),r}b.each(["height","width"],function(e,n){b.cssHooks[n]={get:function(e,r,i){return r?0===e.offsetWidth&&Xt.test(b.css(e,"display"))?b.swap(e,Qt,function(){return sn(e,n,i)}):sn(e,n,i):t},set:function(e,t,r){var i=r&&Rt(e);return on(e,t,r?an(e,n,r,b.support.boxSizing&&"border-box"===b.css(e,"boxSizing",!1,i),i):0)}}}),b.support.opacity||(b.cssHooks.opacity={get:function(e,t){return It.test((t&&e.currentStyle?e.currentStyle.filter:e.style.filter)||"")?.01*parseFloat(RegExp.$1)+"":t?"1":""},set:function(e,t){var n=e.style,r=e.currentStyle,i=b.isNumeric(t)?"alpha(opacity="+100*t+")":"",o=r&&r.filter||n.filter||"";n.zoom=1,(t>=1||""===t)&&""===b.trim(o.replace($t,""))&&n.removeAttribute&&(n.removeAttribute("filter"),""===t||r&&!r.filter)||(n.filter=$t.test(o)?o.replace($t,i):o+" "+i)}}),b(function(){b.support.reliableMarginRight||(b.cssHooks.marginRight={get:function(e,n){return n?b.swap(e,{display:"inline-block"},Wt,[e,"marginRight"]):t}}),!b.support.pixelPosition&&b.fn.position&&b.each(["top","left"],function(e,n){b.cssHooks[n]={get:function(e,r){return r?(r=Wt(e,n),Yt.test(r)?b(e).position()[n]+"px":r):t}}})}),b.expr&&b.expr.filters&&(b.expr.filters.hidden=function(e){return 0>=e.offsetWidth&&0>=e.offsetHeight||!b.support.reliableHiddenOffsets&&"none"===(e.style&&e.style.display||b.css(e,"display"))},b.expr.filters.visible=function(e){return!b.expr.filters.hidden(e)}),b.each({margin:"",padding:"",border:"Width"},function(e,t){b.cssHooks[e+t]={expand:function(n){var r=0,i={},o="string"==typeof n?n.split(" "):[n];for(;4>r;r++)i[e+Zt[r]+t]=o[r]||o[r-2]||o[0];return i}},Ut.test(e)||(b.cssHooks[e+t].set=on)});var cn=/%20/g,pn=/\[\]$/,fn=/\r?\n/g,dn=/^(?:submit|button|image|reset|file)$/i,hn=/^(?:input|select|textarea|keygen)/i;b.fn.extend({serialize:function(){return b.param(this.serializeArray())},serializeArray:function(){return this.map(function(){var e=b.prop(this,"elements");return e?b.makeArray(e):this}).filter(function(){var e=this.type;return this.name&&!b(this).is(":disabled")&&hn.test(this.nodeName)&&!dn.test(e)&&(this.checked||!Nt.test(e))}).map(function(e,t){var n=b(this).val();return null==n?null:b.isArray(n)?b.map(n,function(e){return{name:t.name,value:e.replace(fn,"\r\n")}}):{name:t.name,value:n.replace(fn,"\r\n")}}).get()}}),b.param=function(e,n){var r,i=[],o=function(e,t){t=b.isFunction(t)?t():null==t?"":t,i[i.length]=encodeURIComponent(e)+"="+encodeURIComponent(t)};if(n===t&&(n=b.ajaxSettings&&b.ajaxSettings.traditional),b.isArray(e)||e.jquery&&!b.isPlainObject(e))b.each(e,function(){o(this.name,this.value)});else for(r in e)gn(r,e[r],n,o);return i.join("&").replace(cn,"+")};function gn(e,t,n,r){var i;if(b.isArray(t))b.each(t,function(t,i){n||pn.test(e)?r(e,i):gn(e+"["+("object"==typeof i?t:"")+"]",i,n,r)});else if(n||"object"!==b.type(t))r(e,t);else for(i in t)gn(e+"["+i+"]",t[i],n,r)}b.each("blur focus focusin focusout load resize scroll unload click dblclick mousedown mouseup mousemove mouseover mouseout mouseenter mouseleave change select submit keydown keypress keyup error contextmenu".split(" "),function(e,t){b.fn[t]=function(e,n){return arguments.length>0?this.on(t,null,e,n):this.trigger(t)}}),b.fn.hover=function(e,t){return this.mouseenter(e).mouseleave(t||e)};var mn,yn,vn=b.now(),bn=/\?/,xn=/#.*$/,wn=/([?&])_=[^&]*/,Tn=/^(.*?):[ \t]*([^\r\n]*)\r?$/gm,Nn=/^(?:about|app|app-storage|.+-extension|file|res|widget):$/,Cn=/^(?:GET|HEAD)$/,kn=/^\/\//,En=/^([\w.+-]+:)(?:\/\/([^\/?#:]*)(?::(\d+)|)|)/,Sn=b.fn.load,An={},jn={},Dn="*/".concat("*");try{yn=a.href}catch(Ln){yn=o.createElement("a"),yn.href="",yn=yn.href}mn=En.exec(yn.toLowerCase())||[];function Hn(e){return function(t,n){"string"!=typeof t&&(n=t,t="*");var r,i=0,o=t.toLowerCase().match(w)||[];if(b.isFunction(n))while(r=o[i++])"+"===r[0]?(r=r.slice(1)||"*",(e[r]=e[r]||[]).unshift(n)):(e[r]=e[r]||[]).push(n)}}function qn(e,n,r,i){var o={},a=e===jn;function s(u){var l;return o[u]=!0,b.each(e[u]||[],function(e,u){var c=u(n,r,i);return"string"!=typeof c||a||o[c]?a?!(l=c):t:(n.dataTypes.unshift(c),s(c),!1)}),l}return s(n.dataTypes[0])||!o["*"]&&s("*")}function Mn(e,n){var r,i,o=b.ajaxSettings.flatOptions||{};for(i in n)n[i]!==t&&((o[i]?e:r||(r={}))[i]=n[i]);return r&&b.extend(!0,e,r),e}b.fn.load=function(e,n,r){if("string"!=typeof e&&Sn)return Sn.apply(this,arguments);var i,o,a,s=this,u=e.indexOf(" ");return u>=0&&(i=e.slice(u,e.length),e=e.slice(0,u)),b.isFunction(n)?(r=n,n=t):n&&"object"==typeof n&&(a="POST"),s.length>0&&b.ajax({url:e,type:a,dataType:"html",data:n}).done(function(e){o=arguments,s.html(i?b("<div>").append(b.parseHTML(e)).find(i):e)}).complete(r&&function(e,t){s.each(r,o||[e.responseText,t,e])}),this},b.each(["ajaxStart","ajaxStop","ajaxComplete","ajaxError","ajaxSuccess","ajaxSend"],function(e,t){b.fn[t]=function(e){return this.on(t,e)}}),b.each(["get","post"],function(e,n){b[n]=function(e,r,i,o){return b.isFunction(r)&&(o=o||i,i=r,r=t),b.ajax({url:e,type:n,dataType:o,data:r,success:i})}}),b.extend({active:0,lastModified:{},etag:{},ajaxSettings:{url:yn,type:"GET",isLocal:Nn.test(mn[1]),global:!0,processData:!0,async:!0,contentType:"application/x-www-form-urlencoded; charset=UTF-8",accepts:{"*":Dn,text:"text/plain",html:"text/html",xml:"application/xml, text/xml",json:"application/json, text/javascript"},contents:{xml:/xml/,html:/html/,json:/json/},responseFields:{xml:"responseXML",text:"responseText"},converters:{"* text":e.String,"text html":!0,"text json":b.parseJSON,"text xml":b.parseXML},flatOptions:{url:!0,context:!0}},ajaxSetup:function(e,t){return t?Mn(Mn(e,b.ajaxSettings),t):Mn(b.ajaxSettings,e)},ajaxPrefilter:Hn(An),ajaxTransport:Hn(jn),ajax:function(e,n){"object"==typeof e&&(n=e,e=t),n=n||{};var r,i,o,a,s,u,l,c,p=b.ajaxSetup({},n),f=p.context||p,d=p.context&&(f.nodeType||f.jquery)?b(f):b.event,h=b.Deferred(),g=b.Callbacks("once memory"),m=p.statusCode||{},y={},v={},x=0,T="canceled",N={readyState:0,getResponseHeader:function(e){var t;if(2===x){if(!c){c={};while(t=Tn.exec(a))c[t[1].toLowerCase()]=t[2]}t=c[e.toLowerCase()]}return null==t?null:t},getAllResponseHeaders:function(){return 2===x?a:null},setRequestHeader:function(e,t){var n=e.toLowerCase();return x||(e=v[n]=v[n]||e,y[e]=t),this},overrideMimeType:function(e){return x||(p.mimeType=e),this},statusCode:function(e){var t;if(e)if(2>x)for(t in e)m[t]=[m[t],e[t]];else N.always(e[N.status]);return this},abort:function(e){var t=e||T;return l&&l.abort(t),k(0,t),this}};if(h.promise(N).complete=g.add,N.success=N.done,N.error=N.fail,p.url=((e||p.url||yn)+"").replace(xn,"").replace(kn,mn[1]+"//"),p.type=n.method||n.type||p.method||p.type,p.dataTypes=b.trim(p.dataType||"*").toLowerCase().match(w)||[""],null==p.crossDomain&&(r=En.exec(p.url.toLowerCase()),p.crossDomain=!(!r||r[1]===mn[1]&&r[2]===mn[2]&&(r[3]||("http:"===r[1]?80:443))==(mn[3]||("http:"===mn[1]?80:443)))),p.data&&p.processData&&"string"!=typeof p.data&&(p.data=b.param(p.data,p.traditional)),qn(An,p,n,N),2===x)return N;u=p.global,u&&0===b.active++&&b.event.trigger("ajaxStart"),p.type=p.type.toUpperCase(),p.hasContent=!Cn.test(p.type),o=p.url,p.hasContent||(p.data&&(o=p.url+=(bn.test(o)?"&":"?")+p.data,delete p.data),p.cache===!1&&(p.url=wn.test(o)?o.replace(wn,"$1_="+vn++):o+(bn.test(o)?"&":"?")+"_="+vn++)),p.ifModified&&(b.lastModified[o]&&N.setRequestHeader("If-Modified-Since",b.lastModified[o]),b.etag[o]&&N.setRequestHeader("If-None-Match",b.etag[o])),(p.data&&p.hasContent&&p.contentType!==!1||n.contentType)&&N.setRequestHeader("Content-Type",p.contentType),N.setRequestHeader("Accept",p.dataTypes[0]&&p.accepts[p.dataTypes[0]]?p.accepts[p.dataTypes[0]]+("*"!==p.dataTypes[0]?", "+Dn+"; q=0.01":""):p.accepts["*"]);for(i in p.headers)N.setRequestHeader(i,p.headers[i]);if(p.beforeSend&&(p.beforeSend.call(f,N,p)===!1||2===x))return N.abort();T="abort";for(i in{success:1,error:1,complete:1})N[i](p[i]);if(l=qn(jn,p,n,N)){N.readyState=1,u&&d.trigger("ajaxSend",[N,p]),p.async&&p.timeout>0&&(s=setTimeout(function(){N.abort("timeout")},p.timeout));try{x=1,l.send(y,k)}catch(C){if(!(2>x))throw C;k(-1,C)}}else k(-1,"No Transport");function k(e,n,r,i){var c,y,v,w,T,C=n;2!==x&&(x=2,s&&clearTimeout(s),l=t,a=i||"",N.readyState=e>0?4:0,r&&(w=_n(p,N,r)),e>=200&&300>e||304===e?(p.ifModified&&(T=N.getResponseHeader("Last-Modified"),T&&(b.lastModified[o]=T),T=N.getResponseHeader("etag"),T&&(b.etag[o]=T)),204===e?(c=!0,C="nocontent"):304===e?(c=!0,C="notmodified"):(c=Fn(p,w),C=c.state,y=c.data,v=c.error,c=!v)):(v=C,(e||!C)&&(C="error",0>e&&(e=0))),N.status=e,N.statusText=(n||C)+"",c?h.resolveWith(f,[y,C,N]):h.rejectWith(f,[N,C,v]),N.statusCode(m),m=t,u&&d.trigger(c?"ajaxSuccess":"ajaxError",[N,p,c?y:v]),g.fireWith(f,[N,C]),u&&(d.trigger("ajaxComplete",[N,p]),--b.active||b.event.trigger("ajaxStop")))}return N},getScript:function(e,n){return b.get(e,t,n,"script")},getJSON:function(e,t,n){return b.get(e,t,n,"json")}});function _n(e,n,r){var i,o,a,s,u=e.contents,l=e.dataTypes,c=e.responseFields;for(s in c)s in r&&(n[c[s]]=r[s]);while("*"===l[0])l.shift(),o===t&&(o=e.mimeType||n.getResponseHeader("Content-Type"));if(o)for(s in u)if(u[s]&&u[s].test(o)){l.unshift(s);break}if(l[0]in r)a=l[0];else{for(s in r){if(!l[0]||e.converters[s+" "+l[0]]){a=s;break}i||(i=s)}a=a||i}return a?(a!==l[0]&&l.unshift(a),r[a]):t}function Fn(e,t){var n,r,i,o,a={},s=0,u=e.dataTypes.slice(),l=u[0];if(e.dataFilter&&(t=e.dataFilter(t,e.dataType)),u[1])for(i in e.converters)a[i.toLowerCase()]=e.converters[i];for(;r=u[++s];)if("*"!==r){if("*"!==l&&l!==r){if(i=a[l+" "+r]||a["* "+r],!i)for(n in a)if(o=n.split(" "),o[1]===r&&(i=a[l+" "+o[0]]||a["* "+o[0]])){i===!0?i=a[n]:a[n]!==!0&&(r=o[0],u.splice(s--,0,r));break}if(i!==!0)if(i&&e["throws"])t=i(t);else try{t=i(t)}catch(c){return{state:"parsererror",error:i?c:"No conversion from "+l+" to "+r}}}l=r}return{state:"success",data:t}}b.ajaxSetup({accepts:{script:"text/javascript, application/javascript, application/ecmascript, application/x-ecmascript"},contents:{script:/(?:java|ecma)script/},converters:{"text script":function(e){return b.globalEval(e),e}}}),b.ajaxPrefilter("script",function(e){e.cache===t&&(e.cache=!1),e.crossDomain&&(e.type="GET",e.global=!1)}),b.ajaxTransport("script",function(e){if(e.crossDomain){var n,r=o.head||b("head")[0]||o.documentElement;return{send:function(t,i){n=o.createElement("script"),n.async=!0,e.scriptCharset&&(n.charset=e.scriptCharset),n.src=e.url,n.onload=n.onreadystatechange=function(e,t){(t||!n.readyState||/loaded|complete/.test(n.readyState))&&(n.onload=n.onreadystatechange=null,n.parentNode&&n.parentNode.removeChild(n),n=null,t||i(200,"success"))},r.insertBefore(n,r.firstChild)},abort:function(){n&&n.onload(t,!0)}}}});var On=[],Bn=/(=)\?(?=&|$)|\?\?/;b.ajaxSetup({jsonp:"callback",jsonpCallback:function(){var e=On.pop()||b.expando+"_"+vn++;return this[e]=!0,e}}),b.ajaxPrefilter("json jsonp",function(n,r,i){var o,a,s,u=n.jsonp!==!1&&(Bn.test(n.url)?"url":"string"==typeof n.data&&!(n.contentType||"").indexOf("application/x-www-form-urlencoded")&&Bn.test(n.data)&&"data");return u||"jsonp"===n.dataTypes[0]?(o=n.jsonpCallback=b.isFunction(n.jsonpCallback)?n.jsonpCallback():n.jsonpCallback,u?n[u]=n[u].replace(Bn,"$1"+o):n.jsonp!==!1&&(n.url+=(bn.test(n.url)?"&":"?")+n.jsonp+"="+o),n.converters["script json"]=function(){return s||b.error(o+" was not called"),s[0]},n.dataTypes[0]="json",a=e[o],e[o]=function(){s=arguments},i.always(function(){e[o]=a,n[o]&&(n.jsonpCallback=r.jsonpCallback,On.push(o)),s&&b.isFunction(a)&&a(s[0]),s=a=t}),"script"):t});var Pn,Rn,Wn=0,$n=e.ActiveXObject&&function(){var e;for(e in Pn)Pn[e](t,!0)};function In(){try{return new e.XMLHttpRequest}catch(t){}}function zn(){try{return new e.ActiveXObject("Microsoft.XMLHTTP")}catch(t){}}b.ajaxSettings.xhr=e.ActiveXObject?function(){return!this.isLocal&&In()||zn()}:In,Rn=b.ajaxSettings.xhr(),b.support.cors=!!Rn&&"withCredentials"in Rn,Rn=b.support.ajax=!!Rn,Rn&&b.ajaxTransport(function(n){if(!n.crossDomain||b.support.cors){var r;return{send:function(i,o){var a,s,u=n.xhr();if(n.username?u.open(n.type,n.url,n.async,n.username,n.password):u.open(n.type,n.url,n.async),n.xhrFields)for(s in n.xhrFields)u[s]=n.xhrFields[s];n.mimeType&&u.overrideMimeType&&u.overrideMimeType(n.mimeType),n.crossDomain||i["X-Requested-With"]||(i["X-Requested-With"]="XMLHttpRequest");try{for(s in i)u.setRequestHeader(s,i[s])}catch(l){}u.send(n.hasContent&&n.data||null),r=function(e,i){var s,l,c,p;try{if(r&&(i||4===u.readyState))if(r=t,a&&(u.onreadystatechange=b.noop,$n&&delete Pn[a]),i)4!==u.readyState&&u.abort();else{p={},s=u.status,l=u.getAllResponseHeaders(),"string"==typeof u.responseText&&(p.text=u.responseText);try{c=u.statusText}catch(f){c=""}s||!n.isLocal||n.crossDomain?1223===s&&(s=204):s=p.text?200:404}}catch(d){i||o(-1,d)}p&&o(s,c,p,l)},n.async?4===u.readyState?setTimeout(r):(a=++Wn,$n&&(Pn||(Pn={},b(e).unload($n)),Pn[a]=r),u.onreadystatechange=r):r()},abort:function(){r&&r(t,!0)}}}});var Xn,Un,Vn=/^(?:toggle|show|hide)$/,Yn=RegExp("^(?:([+-])=|)("+x+")([a-z%]*)$","i"),Jn=/queueHooks$/,Gn=[nr],Qn={"*":[function(e,t){var n,r,i=this.createTween(e,t),o=Yn.exec(t),a=i.cur(),s=+a||0,u=1,l=20;if(o){if(n=+o[2],r=o[3]||(b.cssNumber[e]?"":"px"),"px"!==r&&s){s=b.css(i.elem,e,!0)||n||1;do u=u||".5",s/=u,b.style(i.elem,e,s+r);while(u!==(u=i.cur()/a)&&1!==u&&--l)}i.unit=r,i.start=s,i.end=o[1]?s+(o[1]+1)*n:n}return i}]};function Kn(){return setTimeout(function(){Xn=t}),Xn=b.now()}function Zn(e,t){b.each(t,function(t,n){var r=(Qn[t]||[]).concat(Qn["*"]),i=0,o=r.length;for(;o>i;i++)if(r[i].call(e,t,n))return})}function er(e,t,n){var r,i,o=0,a=Gn.length,s=b.Deferred().always(function(){delete u.elem}),u=function(){if(i)return!1;var t=Xn||Kn(),n=Math.max(0,l.startTime+l.duration-t),r=n/l.duration||0,o=1-r,a=0,u=l.tweens.length;for(;u>a;a++)l.tweens[a].run(o);return s.notifyWith(e,[l,o,n]),1>o&&u?n:(s.resolveWith(e,[l]),!1)},l=s.promise({elem:e,props:b.extend({},t),opts:b.extend(!0,{specialEasing:{}},n),originalProperties:t,originalOptions:n,startTime:Xn||Kn(),duration:n.duration,tweens:[],createTween:function(t,n){var r=b.Tween(e,l.opts,t,n,l.opts.specialEasing[t]||l.opts.easing);return l.tweens.push(r),r},stop:function(t){var n=0,r=t?l.tweens.length:0;if(i)return this;for(i=!0;r>n;n++)l.tweens[n].run(1);return t?s.resolveWith(e,[l,t]):s.rejectWith(e,[l,t]),this}}),c=l.props;for(tr(c,l.opts.specialEasing);a>o;o++)if(r=Gn[o].call(l,e,c,l.opts))return r;return Zn(l,c),b.isFunction(l.opts.start)&&l.opts.start.call(e,l),b.fx.timer(b.extend(u,{elem:e,anim:l,queue:l.opts.queue})),l.progress(l.opts.progress).done(l.opts.done,l.opts.complete).fail(l.opts.fail).always(l.opts.always)}function tr(e,t){var n,r,i,o,a;for(i in e)if(r=b.camelCase(i),o=t[r],n=e[i],b.isArray(n)&&(o=n[1],n=e[i]=n[0]),i!==r&&(e[r]=n,delete e[i]),a=b.cssHooks[r],a&&"expand"in a){n=a.expand(n),delete e[r];for(i in n)i in e||(e[i]=n[i],t[i]=o)}else t[r]=o}b.Animation=b.extend(er,{tweener:function(e,t){b.isFunction(e)?(t=e,e=["*"]):e=e.split(" ");var n,r=0,i=e.length;for(;i>r;r++)n=e[r],Qn[n]=Qn[n]||[],Qn[n].unshift(t)},prefilter:function(e,t){t?Gn.unshift(e):Gn.push(e)}});function nr(e,t,n){var r,i,o,a,s,u,l,c,p,f=this,d=e.style,h={},g=[],m=e.nodeType&&nn(e);n.queue||(c=b._queueHooks(e,"fx"),null==c.unqueued&&(c.unqueued=0,p=c.empty.fire,c.empty.fire=function(){c.unqueued||p()}),c.unqueued++,f.always(function(){f.always(function(){c.unqueued--,b.queue(e,"fx").length||c.empty.fire()})})),1===e.nodeType&&("height"in t||"width"in t)&&(n.overflow=[d.overflow,d.overflowX,d.overflowY],"inline"===b.css(e,"display")&&"none"===b.css(e,"float")&&(b.support.inlineBlockNeedsLayout&&"inline"!==un(e.nodeName)?d.zoom=1:d.display="inline-block")),n.overflow&&(d.overflow="hidden",b.support.shrinkWrapBlocks||f.always(function(){d.overflow=n.overflow[0],d.overflowX=n.overflow[1],d.overflowY=n.overflow[2]}));for(i in t)if(a=t[i],Vn.exec(a)){if(delete t[i],u=u||"toggle"===a,a===(m?"hide":"show"))continue;g.push(i)}if(o=g.length){s=b._data(e,"fxshow")||b._data(e,"fxshow",{}),"hidden"in s&&(m=s.hidden),u&&(s.hidden=!m),m?b(e).show():f.done(function(){b(e).hide()}),f.done(function(){var t;b._removeData(e,"fxshow");for(t in h)b.style(e,t,h[t])});for(i=0;o>i;i++)r=g[i],l=f.createTween(r,m?s[r]:0),h[r]=s[r]||b.style(e,r),r in s||(s[r]=l.start,m&&(l.end=l.start,l.start="width"===r||"height"===r?1:0))}}function rr(e,t,n,r,i){return new rr.prototype.init(e,t,n,r,i)}b.Tween=rr,rr.prototype={constructor:rr,init:function(e,t,n,r,i,o){this.elem=e,this.prop=n,this.easing=i||"swing",this.options=t,this.start=this.now=this.cur(),this.end=r,this.unit=o||(b.cssNumber[n]?"":"px")},cur:function(){var e=rr.propHooks[this.prop];return e&&e.get?e.get(this):rr.propHooks._default.get(this)},run:function(e){var t,n=rr.propHooks[this.prop];return this.pos=t=this.options.duration?b.easing[this.easing](e,this.options.duration*e,0,1,this.options.duration):e,this.now=(this.end-this.start)*t+this.start,this.options.step&&this.options.step.call(this.elem,this.now,this),n&&n.set?n.set(this):rr.propHooks._default.set(this),this}},rr.prototype.init.prototype=rr.prototype,rr.propHooks={_default:{get:function(e){var t;return null==e.elem[e.prop]||e.elem.style&&null!=e.elem.style[e.prop]?(t=b.css(e.elem,e.prop,""),t&&"auto"!==t?t:0):e.elem[e.prop]},set:function(e){b.fx.step[e.prop]?b.fx.step[e.prop](e):e.elem.style&&(null!=e.elem.style[b.cssProps[e.prop]]||b.cssHooks[e.prop])?b.style(e.elem,e.prop,e.now+e.unit):e.elem[e.prop]=e.now}}},rr.propHooks.scrollTop=rr.propHooks.scrollLeft={set:function(e){e.elem.nodeType&&e.elem.parentNode&&(e.elem[e.prop]=e.now)}},b.each(["toggle","show","hide"],function(e,t){var n=b.fn[t];b.fn[t]=function(e,r,i){return null==e||"boolean"==typeof e?n.apply(this,arguments):this.animate(ir(t,!0),e,r,i)}}),b.fn.extend({fadeTo:function(e,t,n,r){return this.filter(nn).css("opacity",0).show().end().animate({opacity:t},e,n,r)},animate:function(e,t,n,r){var i=b.isEmptyObject(e),o=b.speed(t,n,r),a=function(){var t=er(this,b.extend({},e),o);a.finish=function(){t.stop(!0)},(i||b._data(this,"finish"))&&t.stop(!0)};return a.finish=a,i||o.queue===!1?this.each(a):this.queue(o.queue,a)},stop:function(e,n,r){var i=function(e){var t=e.stop;delete e.stop,t(r)};return"string"!=typeof e&&(r=n,n=e,e=t),n&&e!==!1&&this.queue(e||"fx",[]),this.each(function(){var t=!0,n=null!=e&&e+"queueHooks",o=b.timers,a=b._data(this);if(n)a[n]&&a[n].stop&&i(a[n]);else for(n in a)a[n]&&a[n].stop&&Jn.test(n)&&i(a[n]);for(n=o.length;n--;)o[n].elem!==this||null!=e&&o[n].queue!==e||(o[n].anim.stop(r),t=!1,o.splice(n,1));(t||!r)&&b.dequeue(this,e)})},finish:function(e){return e!==!1&&(e=e||"fx"),this.each(function(){var t,n=b._data(this),r=n[e+"queue"],i=n[e+"queueHooks"],o=b.timers,a=r?r.length:0;for(n.finish=!0,b.queue(this,e,[]),i&&i.cur&&i.cur.finish&&i.cur.finish.call(this),t=o.length;t--;)o[t].elem===this&&o[t].queue===e&&(o[t].anim.stop(!0),o.splice(t,1));for(t=0;a>t;t++)r[t]&&r[t].finish&&r[t].finish.call(this);delete n.finish})}});function ir(e,t){var n,r={height:e},i=0;for(t=t?1:0;4>i;i+=2-t)n=Zt[i],r["margin"+n]=r["padding"+n]=e;return t&&(r.opacity=r.width=e),r}b.each({slideDown:ir("show"),slideUp:ir("hide"),slideToggle:ir("toggle"),fadeIn:{opacity:"show"},fadeOut:{opacity:"hide"},fadeToggle:{opacity:"toggle"}},function(e,t){b.fn[e]=function(e,n,r){return this.animate(t,e,n,r)}}),b.speed=function(e,t,n){var r=e&&"object"==typeof e?b.extend({},e):{complete:n||!n&&t||b.isFunction(e)&&e,duration:e,easing:n&&t||t&&!b.isFunction(t)&&t};return r.duration=b.fx.off?0:"number"==typeof r.duration?r.duration:r.duration in b.fx.speeds?b.fx.speeds[r.duration]:b.fx.speeds._default,(null==r.queue||r.queue===!0)&&(r.queue="fx"),r.old=r.complete,r.complete=function(){b.isFunction(r.old)&&r.old.call(this),r.queue&&b.dequeue(this,r.queue)},r},b.easing={linear:function(e){return e},swing:function(e){return.5-Math.cos(e*Math.PI)/2}},b.timers=[],b.fx=rr.prototype.init,b.fx.tick=function(){var e,n=b.timers,r=0;for(Xn=b.now();n.length>r;r++)e=n[r],e()||n[r]!==e||n.splice(r--,1);n.length||b.fx.stop(),Xn=t},b.fx.timer=function(e){e()&&b.timers.push(e)&&b.fx.start()},b.fx.interval=13,b.fx.start=function(){Un||(Un=setInterval(b.fx.tick,b.fx.interval))},b.fx.stop=function(){clearInterval(Un),Un=null},b.fx.speeds={slow:600,fast:200,_default:400},b.fx.step={},b.expr&&b.expr.filters&&(b.expr.filters.animated=function(e){return b.grep(b.timers,function(t){return e===t.elem}).length}),b.fn.offset=function(e){if(arguments.length)return e===t?this:this.each(function(t){b.offset.setOffset(this,e,t)});var n,r,o={top:0,left:0},a=this[0],s=a&&a.ownerDocument;if(s)return n=s.documentElement,b.contains(n,a)?(typeof a.getBoundingClientRect!==i&&(o=a.getBoundingClientRect()),r=or(s),{top:o.top+(r.pageYOffset||n.scrollTop)-(n.clientTop||0),left:o.left+(r.pageXOffset||n.scrollLeft)-(n.clientLeft||0)}):o},b.offset={setOffset:function(e,t,n){var r=b.css(e,"position");"static"===r&&(e.style.position="relative");var i=b(e),o=i.offset(),a=b.css(e,"top"),s=b.css(e,"left"),u=("absolute"===r||"fixed"===r)&&b.inArray("auto",[a,s])>-1,l={},c={},p,f;u?(c=i.position(),p=c.top,f=c.left):(p=parseFloat(a)||0,f=parseFloat(s)||0),b.isFunction(t)&&(t=t.call(e,n,o)),null!=t.top&&(l.top=t.top-o.top+p),null!=t.left&&(l.left=t.left-o.left+f),"using"in t?t.using.call(e,l):i.css(l)}},b.fn.extend({position:function(){if(this[0]){var e,t,n={top:0,left:0},r=this[0];return"fixed"===b.css(r,"position")?t=r.getBoundingClientRect():(e=this.offsetParent(),t=this.offset(),b.nodeName(e[0],"html")||(n=e.offset()),n.top+=b.css(e[0],"borderTopWidth",!0),n.left+=b.css(e[0],"borderLeftWidth",!0)),{top:t.top-n.top-b.css(r,"marginTop",!0),left:t.left-n.left-b.css(r,"marginLeft",!0)}}},offsetParent:function(){return this.map(function(){var e=this.offsetParent||o.documentElement;while(e&&!b.nodeName(e,"html")&&"static"===b.css(e,"position"))e=e.offsetParent;return e||o.documentElement})}}),b.each({scrollLeft:"pageXOffset",scrollTop:"pageYOffset"},function(e,n){var r=/Y/.test(n);b.fn[e]=function(i){return b.access(this,function(e,i,o){var a=or(e);return o===t?a?n in a?a[n]:a.document.documentElement[i]:e[i]:(a?a.scrollTo(r?b(a).scrollLeft():o,r?o:b(a).scrollTop()):e[i]=o,t)},e,i,arguments.length,null)}});function or(e){return b.isWindow(e)?e:9===e.nodeType?e.defaultView||e.parentWindow:!1}b.each({Height:"height",Width:"width"},function(e,n){b.each({padding:"inner"+e,content:n,"":"outer"+e},function(r,i){b.fn[i]=function(i,o){var a=arguments.length&&(r||"boolean"!=typeof i),s=r||(i===!0||o===!0?"margin":"border");return b.access(this,function(n,r,i){var o;return b.isWindow(n)?n.document.documentElement["client"+e]:9===n.nodeType?(o=n.documentElement,Math.max(n.body["scroll"+e],o["scroll"+e],n.body["offset"+e],o["offset"+e],o["client"+e])):i===t?b.css(n,r,s):b.style(n,r,i,s)},n,a?i:t,a,null)}})}),e.jQuery=e.$=b,"function"==typeof define&&define.amd&&define.amd.jQuery&&define("jquery",[],function(){return b})})(window);
+define("jQuery", (function (global) {
+    return function () {
+        var ret, fn;
+        return ret || global.jQuery;
+    };
+}(this)));
+
+/**
+ * Emulate FormData for some browsers
+ * MIT License
+ * (c) 2010 François de Metz
+ */
+(function (w) {
+    if (w.FormData)
+        return;
+    function FormData() {
+        this.fake = true;
+        this.boundary = "--------FormData" + Math.random();
+        this._fields = [];
+    }
+    FormData.prototype.append = function (key, value) {
+        this._fields.push([key, value]);
+    }
+    FormData.prototype.toString = function () {
+        var boundary = this.boundary;
+        var body = "";
+        this._fields.forEach(function (field) {
+            body += "--" + boundary + "\r\n";
+            // file upload
+            if (field[1].name) {
+                var file = field[1];
+                body += "Content-Disposition: form-data; name=\"" + field[0] + "\"; filename=\"" + file.name + "\"\r\n";
+                body += "Content-Type: " + file.type + "\r\n\r\n";
+                body += file.getAsBinary() + "\r\n";
+            } else {
+                body += "Content-Disposition: form-data; name=\"" + field[0] + "\";\r\n\r\n";
+                body += field[1] + "\r\n";
+            }
+        });
+        body += "--" + boundary + "--";
+        return body;
+    }
+    w.FormData = FormData;
+})(window);
+define("formdata", function(){});
+
+
+/*global define,console*/
+define('scalejs.ajax-jquery/ajax',[
+    'jQuery',
+    'scalejs!core',
+    'formdata'
+], function (
+    jQuery,
+    core,
+    formdata
+) {
+    
+
+    function ajax(url, opts) {
+        var observable = core.reactive.Observable,
+            merge = core.object.merge,
+            log = core.log;
+
+        return observable.create(function (observer) {
+            /*jslint unparam: true*/
+            function success(data, textStatus, jqXhr) {
+                observer.onNext(data);
+            }
+            /*jslint unparam: false*/
+
+            /*jslint unparam: true*/
+            function error(jqXhr, textStatus, errorThrown) {
+                log.error('Error: "' + errorThrown + ': ' + textStatus + ' in response to ' + url + '"');
+                observer.onError({
+                    error: errorThrown,
+                    status: textStatus
+                });
+            }
+
+            function complete() {
+                observer.onCompleted();
+            }
+            /*jslint unparam: false*/
+
+            var settings = merge({
+                type: 'GET',
+                success: success,
+                error: error,
+                complete: complete
+            }, opts);
+
+            jQuery.ajax(url, settings);
+
+            return function () { };
+        });
+    }
+
+    function get(url, data, options) {
+        options = core.object.merge(options, {
+            type: 'GET',
+            data: data
+        });
+
+        return ajax(url, options);
+    }
+
+    function postMultipart(url, data, options) {
+        var fdata = new FormData(),
+            fields = Object.keys(data);
+
+        fields.forEach(function (field) {
+            fdata.append(field, data[field]);
+        });
+
+        if (fdata.fake) {
+            options = core.object.merge(options, {
+                type: 'POST',
+                data: fdata,
+                contentType: "multipart/form-data; boundary=" + fdata.boundary,
+                processData: false
+            });
+        } else {
+            options = core.object.merge(options, {
+                type: 'POST',
+                data: fdata,
+                contentType: false,
+                processData: false
+            });
+        }
+
+        return ajax(url, options);
+    }
+
+    function postJson(url, data, options) {
+        var jsonString = JSON.stringify(data);
+        options = core.object.merge(options, {
+            type: 'POST',
+            data: jsonString,
+            contentType: 'application/json',
+            processData: false
+        });
+
+        return ajax(url, options);
+    }
+
+    function jsonpGet(url, data, options) {
+        var params = jQuery.param(data);
+        options = core.object.merge(options, {
+            type: 'GET',
+            dataType: 'jsonp'
+        });
+
+        console.error('url: ' + url + '?' + params);
+        return ajax(url + '?' + params, undefined, options);
+    }
+
+    return {
+        postJson: postJson,
+        postMultipart: postMultipart,
+        jsonpGet: jsonpGet,
+        get: get
+    };
+});
+
+/*global define*/
+define('scalejs.ajax-jquery',[
+    'scalejs!core',
+    './scalejs.ajax-jquery/ajax'
+], function (
+    core,
+    ajax
+) {
+    
+
+    core.registerExtension({
+        ajax: ajax
+    });
+});
+
+
 
 /*global define,console,document*/
 /*jslint nomen: true*/
@@ -1768,43 +1954,43 @@ define('scalejs.functional/builder',[],function () {
 
 /*global define,console,document*/
 /*jslint nomen: true*/
-define('scalejs.functional/completeBuilder',[
+define('scalejs.functional/continuationBuilder',[
     './builder'
 ], function (
     builder
 ) {
     
 
-    var completeBuilder,
-        complete;
+    var continuationBuilder,
+        continuation;
 
-    completeBuilder = builder({
+    continuationBuilder = builder({
         bind: function (f, g) {
-            // `f` is a function that would invoke a callback once they are completed.
+            // `f` is a function that would invoke a callback once they are continuationd.
             // E.g.:
-            // f: function (completed) { 
+            // f: function (continuationd) { 
             //        ...
-            //        completed(result); 
+            //        continuationd(result); 
             //    }
             // 
             // `g` is a function that needs to be bound to result of `f` and its result should have the same signature as `f`
             // 
             // To bind them we should return a function `h` with same signature such as `f`
-            return function (completed) {
+            return function (onSuccess, onError) {
                 f(function (fResult) {
                     var rest = g(fResult);
-                    return rest(completed);
-                });
+                    return rest(onSuccess, onError);
+                }, onError);
             };
         },
 
         $return: function (x) {
-            return function (completed) {
-                if (completed) {
+            return function (onSuccess, onError) {
+                if (onSuccess) {
                     if (typeof x === 'function') {
                         x = x();
                     }
-                    completed(x);
+                    onSuccess(x);
                 }
             };
         },
@@ -1814,14 +2000,14 @@ define('scalejs.functional/completeBuilder',[
         },
 
         run: function (f) {
-            return function (completed) {
+            return function (onSuccess, onError) {
                 var delayed = f.call(this);
-                delayed.call(this, completed);
+                delayed.call(this, onSuccess, onError);
             };
         }
     });
 
-    complete = completeBuilder().mixin({
+    continuation = continuationBuilder().mixin({
         beforeBuild: function (ops) {
             //console.log('--->INTERCEPTED!', ops);
             ops.forEach(function (op, i) {
@@ -1832,7 +2018,7 @@ define('scalejs.functional/completeBuilder',[
         }
     });
 
-    return complete;
+    return continuation;
 });
 
 /*global define*/
@@ -1840,12 +2026,12 @@ define('scalejs.functional',[
     'scalejs!core',
     './scalejs.functional/functional',
     './scalejs.functional/builder',
-    './scalejs.functional/completeBuilder'
+    './scalejs.functional/continuationBuilder'
 ], function (
     core,
     functional,
     builder,
-    complete
+    continuation
 ) {
     
 
@@ -1855,7 +2041,7 @@ define('scalejs.functional',[
         functional: merge(functional, {
             builder: builder,
             builders: {
-                complete: complete
+                continuation: continuation
             }
         })
     });
@@ -6087,18 +6273,6 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
 }));
 }());
 })();
-
-/*! jQuery v1.9.1 | (c) 2005, 2012 jQuery Foundation, Inc. | jquery.org/license
-//@ sourceMappingURL=jquery.min.map
-*/(function(e,t){var n,r,i=typeof t,o=e.document,a=e.location,s=e.jQuery,u=e.$,l={},c=[],p="1.9.1",f=c.concat,d=c.push,h=c.slice,g=c.indexOf,m=l.toString,y=l.hasOwnProperty,v=p.trim,b=function(e,t){return new b.fn.init(e,t,r)},x=/[+-]?(?:\d*\.|)\d+(?:[eE][+-]?\d+|)/.source,w=/\S+/g,T=/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g,N=/^(?:(<[\w\W]+>)[^>]*|#([\w-]*))$/,C=/^<(\w+)\s*\/?>(?:<\/\1>|)$/,k=/^[\],:{}\s]*$/,E=/(?:^|:|,)(?:\s*\[)+/g,S=/\\(?:["\\\/bfnrt]|u[\da-fA-F]{4})/g,A=/"[^"\\\r\n]*"|true|false|null|-?(?:\d+\.|)\d+(?:[eE][+-]?\d+|)/g,j=/^-ms-/,D=/-([\da-z])/gi,L=function(e,t){return t.toUpperCase()},H=function(e){(o.addEventListener||"load"===e.type||"complete"===o.readyState)&&(q(),b.ready())},q=function(){o.addEventListener?(o.removeEventListener("DOMContentLoaded",H,!1),e.removeEventListener("load",H,!1)):(o.detachEvent("onreadystatechange",H),e.detachEvent("onload",H))};b.fn=b.prototype={jquery:p,constructor:b,init:function(e,n,r){var i,a;if(!e)return this;if("string"==typeof e){if(i="<"===e.charAt(0)&&">"===e.charAt(e.length-1)&&e.length>=3?[null,e,null]:N.exec(e),!i||!i[1]&&n)return!n||n.jquery?(n||r).find(e):this.constructor(n).find(e);if(i[1]){if(n=n instanceof b?n[0]:n,b.merge(this,b.parseHTML(i[1],n&&n.nodeType?n.ownerDocument||n:o,!0)),C.test(i[1])&&b.isPlainObject(n))for(i in n)b.isFunction(this[i])?this[i](n[i]):this.attr(i,n[i]);return this}if(a=o.getElementById(i[2]),a&&a.parentNode){if(a.id!==i[2])return r.find(e);this.length=1,this[0]=a}return this.context=o,this.selector=e,this}return e.nodeType?(this.context=this[0]=e,this.length=1,this):b.isFunction(e)?r.ready(e):(e.selector!==t&&(this.selector=e.selector,this.context=e.context),b.makeArray(e,this))},selector:"",length:0,size:function(){return this.length},toArray:function(){return h.call(this)},get:function(e){return null==e?this.toArray():0>e?this[this.length+e]:this[e]},pushStack:function(e){var t=b.merge(this.constructor(),e);return t.prevObject=this,t.context=this.context,t},each:function(e,t){return b.each(this,e,t)},ready:function(e){return b.ready.promise().done(e),this},slice:function(){return this.pushStack(h.apply(this,arguments))},first:function(){return this.eq(0)},last:function(){return this.eq(-1)},eq:function(e){var t=this.length,n=+e+(0>e?t:0);return this.pushStack(n>=0&&t>n?[this[n]]:[])},map:function(e){return this.pushStack(b.map(this,function(t,n){return e.call(t,n,t)}))},end:function(){return this.prevObject||this.constructor(null)},push:d,sort:[].sort,splice:[].splice},b.fn.init.prototype=b.fn,b.extend=b.fn.extend=function(){var e,n,r,i,o,a,s=arguments[0]||{},u=1,l=arguments.length,c=!1;for("boolean"==typeof s&&(c=s,s=arguments[1]||{},u=2),"object"==typeof s||b.isFunction(s)||(s={}),l===u&&(s=this,--u);l>u;u++)if(null!=(o=arguments[u]))for(i in o)e=s[i],r=o[i],s!==r&&(c&&r&&(b.isPlainObject(r)||(n=b.isArray(r)))?(n?(n=!1,a=e&&b.isArray(e)?e:[]):a=e&&b.isPlainObject(e)?e:{},s[i]=b.extend(c,a,r)):r!==t&&(s[i]=r));return s},b.extend({noConflict:function(t){return e.$===b&&(e.$=u),t&&e.jQuery===b&&(e.jQuery=s),b},isReady:!1,readyWait:1,holdReady:function(e){e?b.readyWait++:b.ready(!0)},ready:function(e){if(e===!0?!--b.readyWait:!b.isReady){if(!o.body)return setTimeout(b.ready);b.isReady=!0,e!==!0&&--b.readyWait>0||(n.resolveWith(o,[b]),b.fn.trigger&&b(o).trigger("ready").off("ready"))}},isFunction:function(e){return"function"===b.type(e)},isArray:Array.isArray||function(e){return"array"===b.type(e)},isWindow:function(e){return null!=e&&e==e.window},isNumeric:function(e){return!isNaN(parseFloat(e))&&isFinite(e)},type:function(e){return null==e?e+"":"object"==typeof e||"function"==typeof e?l[m.call(e)]||"object":typeof e},isPlainObject:function(e){if(!e||"object"!==b.type(e)||e.nodeType||b.isWindow(e))return!1;try{if(e.constructor&&!y.call(e,"constructor")&&!y.call(e.constructor.prototype,"isPrototypeOf"))return!1}catch(n){return!1}var r;for(r in e);return r===t||y.call(e,r)},isEmptyObject:function(e){var t;for(t in e)return!1;return!0},error:function(e){throw Error(e)},parseHTML:function(e,t,n){if(!e||"string"!=typeof e)return null;"boolean"==typeof t&&(n=t,t=!1),t=t||o;var r=C.exec(e),i=!n&&[];return r?[t.createElement(r[1])]:(r=b.buildFragment([e],t,i),i&&b(i).remove(),b.merge([],r.childNodes))},parseJSON:function(n){return e.JSON&&e.JSON.parse?e.JSON.parse(n):null===n?n:"string"==typeof n&&(n=b.trim(n),n&&k.test(n.replace(S,"@").replace(A,"]").replace(E,"")))?Function("return "+n)():(b.error("Invalid JSON: "+n),t)},parseXML:function(n){var r,i;if(!n||"string"!=typeof n)return null;try{e.DOMParser?(i=new DOMParser,r=i.parseFromString(n,"text/xml")):(r=new ActiveXObject("Microsoft.XMLDOM"),r.async="false",r.loadXML(n))}catch(o){r=t}return r&&r.documentElement&&!r.getElementsByTagName("parsererror").length||b.error("Invalid XML: "+n),r},noop:function(){},globalEval:function(t){t&&b.trim(t)&&(e.execScript||function(t){e.eval.call(e,t)})(t)},camelCase:function(e){return e.replace(j,"ms-").replace(D,L)},nodeName:function(e,t){return e.nodeName&&e.nodeName.toLowerCase()===t.toLowerCase()},each:function(e,t,n){var r,i=0,o=e.length,a=M(e);if(n){if(a){for(;o>i;i++)if(r=t.apply(e[i],n),r===!1)break}else for(i in e)if(r=t.apply(e[i],n),r===!1)break}else if(a){for(;o>i;i++)if(r=t.call(e[i],i,e[i]),r===!1)break}else for(i in e)if(r=t.call(e[i],i,e[i]),r===!1)break;return e},trim:v&&!v.call("\ufeff\u00a0")?function(e){return null==e?"":v.call(e)}:function(e){return null==e?"":(e+"").replace(T,"")},makeArray:function(e,t){var n=t||[];return null!=e&&(M(Object(e))?b.merge(n,"string"==typeof e?[e]:e):d.call(n,e)),n},inArray:function(e,t,n){var r;if(t){if(g)return g.call(t,e,n);for(r=t.length,n=n?0>n?Math.max(0,r+n):n:0;r>n;n++)if(n in t&&t[n]===e)return n}return-1},merge:function(e,n){var r=n.length,i=e.length,o=0;if("number"==typeof r)for(;r>o;o++)e[i++]=n[o];else while(n[o]!==t)e[i++]=n[o++];return e.length=i,e},grep:function(e,t,n){var r,i=[],o=0,a=e.length;for(n=!!n;a>o;o++)r=!!t(e[o],o),n!==r&&i.push(e[o]);return i},map:function(e,t,n){var r,i=0,o=e.length,a=M(e),s=[];if(a)for(;o>i;i++)r=t(e[i],i,n),null!=r&&(s[s.length]=r);else for(i in e)r=t(e[i],i,n),null!=r&&(s[s.length]=r);return f.apply([],s)},guid:1,proxy:function(e,n){var r,i,o;return"string"==typeof n&&(o=e[n],n=e,e=o),b.isFunction(e)?(r=h.call(arguments,2),i=function(){return e.apply(n||this,r.concat(h.call(arguments)))},i.guid=e.guid=e.guid||b.guid++,i):t},access:function(e,n,r,i,o,a,s){var u=0,l=e.length,c=null==r;if("object"===b.type(r)){o=!0;for(u in r)b.access(e,n,u,r[u],!0,a,s)}else if(i!==t&&(o=!0,b.isFunction(i)||(s=!0),c&&(s?(n.call(e,i),n=null):(c=n,n=function(e,t,n){return c.call(b(e),n)})),n))for(;l>u;u++)n(e[u],r,s?i:i.call(e[u],u,n(e[u],r)));return o?e:c?n.call(e):l?n(e[0],r):a},now:function(){return(new Date).getTime()}}),b.ready.promise=function(t){if(!n)if(n=b.Deferred(),"complete"===o.readyState)setTimeout(b.ready);else if(o.addEventListener)o.addEventListener("DOMContentLoaded",H,!1),e.addEventListener("load",H,!1);else{o.attachEvent("onreadystatechange",H),e.attachEvent("onload",H);var r=!1;try{r=null==e.frameElement&&o.documentElement}catch(i){}r&&r.doScroll&&function a(){if(!b.isReady){try{r.doScroll("left")}catch(e){return setTimeout(a,50)}q(),b.ready()}}()}return n.promise(t)},b.each("Boolean Number String Function Array Date RegExp Object Error".split(" "),function(e,t){l["[object "+t+"]"]=t.toLowerCase()});function M(e){var t=e.length,n=b.type(e);return b.isWindow(e)?!1:1===e.nodeType&&t?!0:"array"===n||"function"!==n&&(0===t||"number"==typeof t&&t>0&&t-1 in e)}r=b(o);var _={};function F(e){var t=_[e]={};return b.each(e.match(w)||[],function(e,n){t[n]=!0}),t}b.Callbacks=function(e){e="string"==typeof e?_[e]||F(e):b.extend({},e);var n,r,i,o,a,s,u=[],l=!e.once&&[],c=function(t){for(r=e.memory&&t,i=!0,a=s||0,s=0,o=u.length,n=!0;u&&o>a;a++)if(u[a].apply(t[0],t[1])===!1&&e.stopOnFalse){r=!1;break}n=!1,u&&(l?l.length&&c(l.shift()):r?u=[]:p.disable())},p={add:function(){if(u){var t=u.length;(function i(t){b.each(t,function(t,n){var r=b.type(n);"function"===r?e.unique&&p.has(n)||u.push(n):n&&n.length&&"string"!==r&&i(n)})})(arguments),n?o=u.length:r&&(s=t,c(r))}return this},remove:function(){return u&&b.each(arguments,function(e,t){var r;while((r=b.inArray(t,u,r))>-1)u.splice(r,1),n&&(o>=r&&o--,a>=r&&a--)}),this},has:function(e){return e?b.inArray(e,u)>-1:!(!u||!u.length)},empty:function(){return u=[],this},disable:function(){return u=l=r=t,this},disabled:function(){return!u},lock:function(){return l=t,r||p.disable(),this},locked:function(){return!l},fireWith:function(e,t){return t=t||[],t=[e,t.slice?t.slice():t],!u||i&&!l||(n?l.push(t):c(t)),this},fire:function(){return p.fireWith(this,arguments),this},fired:function(){return!!i}};return p},b.extend({Deferred:function(e){var t=[["resolve","done",b.Callbacks("once memory"),"resolved"],["reject","fail",b.Callbacks("once memory"),"rejected"],["notify","progress",b.Callbacks("memory")]],n="pending",r={state:function(){return n},always:function(){return i.done(arguments).fail(arguments),this},then:function(){var e=arguments;return b.Deferred(function(n){b.each(t,function(t,o){var a=o[0],s=b.isFunction(e[t])&&e[t];i[o[1]](function(){var e=s&&s.apply(this,arguments);e&&b.isFunction(e.promise)?e.promise().done(n.resolve).fail(n.reject).progress(n.notify):n[a+"With"](this===r?n.promise():this,s?[e]:arguments)})}),e=null}).promise()},promise:function(e){return null!=e?b.extend(e,r):r}},i={};return r.pipe=r.then,b.each(t,function(e,o){var a=o[2],s=o[3];r[o[1]]=a.add,s&&a.add(function(){n=s},t[1^e][2].disable,t[2][2].lock),i[o[0]]=function(){return i[o[0]+"With"](this===i?r:this,arguments),this},i[o[0]+"With"]=a.fireWith}),r.promise(i),e&&e.call(i,i),i},when:function(e){var t=0,n=h.call(arguments),r=n.length,i=1!==r||e&&b.isFunction(e.promise)?r:0,o=1===i?e:b.Deferred(),a=function(e,t,n){return function(r){t[e]=this,n[e]=arguments.length>1?h.call(arguments):r,n===s?o.notifyWith(t,n):--i||o.resolveWith(t,n)}},s,u,l;if(r>1)for(s=Array(r),u=Array(r),l=Array(r);r>t;t++)n[t]&&b.isFunction(n[t].promise)?n[t].promise().done(a(t,l,n)).fail(o.reject).progress(a(t,u,s)):--i;return i||o.resolveWith(l,n),o.promise()}}),b.support=function(){var t,n,r,a,s,u,l,c,p,f,d=o.createElement("div");if(d.setAttribute("className","t"),d.innerHTML="  <link/><table></table><a href='/a'>a</a><input type='checkbox'/>",n=d.getElementsByTagName("*"),r=d.getElementsByTagName("a")[0],!n||!r||!n.length)return{};s=o.createElement("select"),l=s.appendChild(o.createElement("option")),a=d.getElementsByTagName("input")[0],r.style.cssText="top:1px;float:left;opacity:.5",t={getSetAttribute:"t"!==d.className,leadingWhitespace:3===d.firstChild.nodeType,tbody:!d.getElementsByTagName("tbody").length,htmlSerialize:!!d.getElementsByTagName("link").length,style:/top/.test(r.getAttribute("style")),hrefNormalized:"/a"===r.getAttribute("href"),opacity:/^0.5/.test(r.style.opacity),cssFloat:!!r.style.cssFloat,checkOn:!!a.value,optSelected:l.selected,enctype:!!o.createElement("form").enctype,html5Clone:"<:nav></:nav>"!==o.createElement("nav").cloneNode(!0).outerHTML,boxModel:"CSS1Compat"===o.compatMode,deleteExpando:!0,noCloneEvent:!0,inlineBlockNeedsLayout:!1,shrinkWrapBlocks:!1,reliableMarginRight:!0,boxSizingReliable:!0,pixelPosition:!1},a.checked=!0,t.noCloneChecked=a.cloneNode(!0).checked,s.disabled=!0,t.optDisabled=!l.disabled;try{delete d.test}catch(h){t.deleteExpando=!1}a=o.createElement("input"),a.setAttribute("value",""),t.input=""===a.getAttribute("value"),a.value="t",a.setAttribute("type","radio"),t.radioValue="t"===a.value,a.setAttribute("checked","t"),a.setAttribute("name","t"),u=o.createDocumentFragment(),u.appendChild(a),t.appendChecked=a.checked,t.checkClone=u.cloneNode(!0).cloneNode(!0).lastChild.checked,d.attachEvent&&(d.attachEvent("onclick",function(){t.noCloneEvent=!1}),d.cloneNode(!0).click());for(f in{submit:!0,change:!0,focusin:!0})d.setAttribute(c="on"+f,"t"),t[f+"Bubbles"]=c in e||d.attributes[c].expando===!1;return d.style.backgroundClip="content-box",d.cloneNode(!0).style.backgroundClip="",t.clearCloneStyle="content-box"===d.style.backgroundClip,b(function(){var n,r,a,s="padding:0;margin:0;border:0;display:block;box-sizing:content-box;-moz-box-sizing:content-box;-webkit-box-sizing:content-box;",u=o.getElementsByTagName("body")[0];u&&(n=o.createElement("div"),n.style.cssText="border:0;width:0;height:0;position:absolute;top:0;left:-9999px;margin-top:1px",u.appendChild(n).appendChild(d),d.innerHTML="<table><tr><td></td><td>t</td></tr></table>",a=d.getElementsByTagName("td"),a[0].style.cssText="padding:0;margin:0;border:0;display:none",p=0===a[0].offsetHeight,a[0].style.display="",a[1].style.display="none",t.reliableHiddenOffsets=p&&0===a[0].offsetHeight,d.innerHTML="",d.style.cssText="box-sizing:border-box;-moz-box-sizing:border-box;-webkit-box-sizing:border-box;padding:1px;border:1px;display:block;width:4px;margin-top:1%;position:absolute;top:1%;",t.boxSizing=4===d.offsetWidth,t.doesNotIncludeMarginInBodyOffset=1!==u.offsetTop,e.getComputedStyle&&(t.pixelPosition="1%"!==(e.getComputedStyle(d,null)||{}).top,t.boxSizingReliable="4px"===(e.getComputedStyle(d,null)||{width:"4px"}).width,r=d.appendChild(o.createElement("div")),r.style.cssText=d.style.cssText=s,r.style.marginRight=r.style.width="0",d.style.width="1px",t.reliableMarginRight=!parseFloat((e.getComputedStyle(r,null)||{}).marginRight)),typeof d.style.zoom!==i&&(d.innerHTML="",d.style.cssText=s+"width:1px;padding:1px;display:inline;zoom:1",t.inlineBlockNeedsLayout=3===d.offsetWidth,d.style.display="block",d.innerHTML="<div></div>",d.firstChild.style.width="5px",t.shrinkWrapBlocks=3!==d.offsetWidth,t.inlineBlockNeedsLayout&&(u.style.zoom=1)),u.removeChild(n),n=d=a=r=null)}),n=s=u=l=r=a=null,t}();var O=/(?:\{[\s\S]*\}|\[[\s\S]*\])$/,B=/([A-Z])/g;function P(e,n,r,i){if(b.acceptData(e)){var o,a,s=b.expando,u="string"==typeof n,l=e.nodeType,p=l?b.cache:e,f=l?e[s]:e[s]&&s;if(f&&p[f]&&(i||p[f].data)||!u||r!==t)return f||(l?e[s]=f=c.pop()||b.guid++:f=s),p[f]||(p[f]={},l||(p[f].toJSON=b.noop)),("object"==typeof n||"function"==typeof n)&&(i?p[f]=b.extend(p[f],n):p[f].data=b.extend(p[f].data,n)),o=p[f],i||(o.data||(o.data={}),o=o.data),r!==t&&(o[b.camelCase(n)]=r),u?(a=o[n],null==a&&(a=o[b.camelCase(n)])):a=o,a}}function R(e,t,n){if(b.acceptData(e)){var r,i,o,a=e.nodeType,s=a?b.cache:e,u=a?e[b.expando]:b.expando;if(s[u]){if(t&&(o=n?s[u]:s[u].data)){b.isArray(t)?t=t.concat(b.map(t,b.camelCase)):t in o?t=[t]:(t=b.camelCase(t),t=t in o?[t]:t.split(" "));for(r=0,i=t.length;i>r;r++)delete o[t[r]];if(!(n?$:b.isEmptyObject)(o))return}(n||(delete s[u].data,$(s[u])))&&(a?b.cleanData([e],!0):b.support.deleteExpando||s!=s.window?delete s[u]:s[u]=null)}}}b.extend({cache:{},expando:"jQuery"+(p+Math.random()).replace(/\D/g,""),noData:{embed:!0,object:"clsid:D27CDB6E-AE6D-11cf-96B8-444553540000",applet:!0},hasData:function(e){return e=e.nodeType?b.cache[e[b.expando]]:e[b.expando],!!e&&!$(e)},data:function(e,t,n){return P(e,t,n)},removeData:function(e,t){return R(e,t)},_data:function(e,t,n){return P(e,t,n,!0)},_removeData:function(e,t){return R(e,t,!0)},acceptData:function(e){if(e.nodeType&&1!==e.nodeType&&9!==e.nodeType)return!1;var t=e.nodeName&&b.noData[e.nodeName.toLowerCase()];return!t||t!==!0&&e.getAttribute("classid")===t}}),b.fn.extend({data:function(e,n){var r,i,o=this[0],a=0,s=null;if(e===t){if(this.length&&(s=b.data(o),1===o.nodeType&&!b._data(o,"parsedAttrs"))){for(r=o.attributes;r.length>a;a++)i=r[a].name,i.indexOf("data-")||(i=b.camelCase(i.slice(5)),W(o,i,s[i]));b._data(o,"parsedAttrs",!0)}return s}return"object"==typeof e?this.each(function(){b.data(this,e)}):b.access(this,function(n){return n===t?o?W(o,e,b.data(o,e)):null:(this.each(function(){b.data(this,e,n)}),t)},null,n,arguments.length>1,null,!0)},removeData:function(e){return this.each(function(){b.removeData(this,e)})}});function W(e,n,r){if(r===t&&1===e.nodeType){var i="data-"+n.replace(B,"-$1").toLowerCase();if(r=e.getAttribute(i),"string"==typeof r){try{r="true"===r?!0:"false"===r?!1:"null"===r?null:+r+""===r?+r:O.test(r)?b.parseJSON(r):r}catch(o){}b.data(e,n,r)}else r=t}return r}function $(e){var t;for(t in e)if(("data"!==t||!b.isEmptyObject(e[t]))&&"toJSON"!==t)return!1;return!0}b.extend({queue:function(e,n,r){var i;return e?(n=(n||"fx")+"queue",i=b._data(e,n),r&&(!i||b.isArray(r)?i=b._data(e,n,b.makeArray(r)):i.push(r)),i||[]):t},dequeue:function(e,t){t=t||"fx";var n=b.queue(e,t),r=n.length,i=n.shift(),o=b._queueHooks(e,t),a=function(){b.dequeue(e,t)};"inprogress"===i&&(i=n.shift(),r--),o.cur=i,i&&("fx"===t&&n.unshift("inprogress"),delete o.stop,i.call(e,a,o)),!r&&o&&o.empty.fire()},_queueHooks:function(e,t){var n=t+"queueHooks";return b._data(e,n)||b._data(e,n,{empty:b.Callbacks("once memory").add(function(){b._removeData(e,t+"queue"),b._removeData(e,n)})})}}),b.fn.extend({queue:function(e,n){var r=2;return"string"!=typeof e&&(n=e,e="fx",r--),r>arguments.length?b.queue(this[0],e):n===t?this:this.each(function(){var t=b.queue(this,e,n);b._queueHooks(this,e),"fx"===e&&"inprogress"!==t[0]&&b.dequeue(this,e)})},dequeue:function(e){return this.each(function(){b.dequeue(this,e)})},delay:function(e,t){return e=b.fx?b.fx.speeds[e]||e:e,t=t||"fx",this.queue(t,function(t,n){var r=setTimeout(t,e);n.stop=function(){clearTimeout(r)}})},clearQueue:function(e){return this.queue(e||"fx",[])},promise:function(e,n){var r,i=1,o=b.Deferred(),a=this,s=this.length,u=function(){--i||o.resolveWith(a,[a])};"string"!=typeof e&&(n=e,e=t),e=e||"fx";while(s--)r=b._data(a[s],e+"queueHooks"),r&&r.empty&&(i++,r.empty.add(u));return u(),o.promise(n)}});var I,z,X=/[\t\r\n]/g,U=/\r/g,V=/^(?:input|select|textarea|button|object)$/i,Y=/^(?:a|area)$/i,J=/^(?:checked|selected|autofocus|autoplay|async|controls|defer|disabled|hidden|loop|multiple|open|readonly|required|scoped)$/i,G=/^(?:checked|selected)$/i,Q=b.support.getSetAttribute,K=b.support.input;b.fn.extend({attr:function(e,t){return b.access(this,b.attr,e,t,arguments.length>1)},removeAttr:function(e){return this.each(function(){b.removeAttr(this,e)})},prop:function(e,t){return b.access(this,b.prop,e,t,arguments.length>1)},removeProp:function(e){return e=b.propFix[e]||e,this.each(function(){try{this[e]=t,delete this[e]}catch(n){}})},addClass:function(e){var t,n,r,i,o,a=0,s=this.length,u="string"==typeof e&&e;if(b.isFunction(e))return this.each(function(t){b(this).addClass(e.call(this,t,this.className))});if(u)for(t=(e||"").match(w)||[];s>a;a++)if(n=this[a],r=1===n.nodeType&&(n.className?(" "+n.className+" ").replace(X," "):" ")){o=0;while(i=t[o++])0>r.indexOf(" "+i+" ")&&(r+=i+" ");n.className=b.trim(r)}return this},removeClass:function(e){var t,n,r,i,o,a=0,s=this.length,u=0===arguments.length||"string"==typeof e&&e;if(b.isFunction(e))return this.each(function(t){b(this).removeClass(e.call(this,t,this.className))});if(u)for(t=(e||"").match(w)||[];s>a;a++)if(n=this[a],r=1===n.nodeType&&(n.className?(" "+n.className+" ").replace(X," "):"")){o=0;while(i=t[o++])while(r.indexOf(" "+i+" ")>=0)r=r.replace(" "+i+" "," ");n.className=e?b.trim(r):""}return this},toggleClass:function(e,t){var n=typeof e,r="boolean"==typeof t;return b.isFunction(e)?this.each(function(n){b(this).toggleClass(e.call(this,n,this.className,t),t)}):this.each(function(){if("string"===n){var o,a=0,s=b(this),u=t,l=e.match(w)||[];while(o=l[a++])u=r?u:!s.hasClass(o),s[u?"addClass":"removeClass"](o)}else(n===i||"boolean"===n)&&(this.className&&b._data(this,"__className__",this.className),this.className=this.className||e===!1?"":b._data(this,"__className__")||"")})},hasClass:function(e){var t=" "+e+" ",n=0,r=this.length;for(;r>n;n++)if(1===this[n].nodeType&&(" "+this[n].className+" ").replace(X," ").indexOf(t)>=0)return!0;return!1},val:function(e){var n,r,i,o=this[0];{if(arguments.length)return i=b.isFunction(e),this.each(function(n){var o,a=b(this);1===this.nodeType&&(o=i?e.call(this,n,a.val()):e,null==o?o="":"number"==typeof o?o+="":b.isArray(o)&&(o=b.map(o,function(e){return null==e?"":e+""})),r=b.valHooks[this.type]||b.valHooks[this.nodeName.toLowerCase()],r&&"set"in r&&r.set(this,o,"value")!==t||(this.value=o))});if(o)return r=b.valHooks[o.type]||b.valHooks[o.nodeName.toLowerCase()],r&&"get"in r&&(n=r.get(o,"value"))!==t?n:(n=o.value,"string"==typeof n?n.replace(U,""):null==n?"":n)}}}),b.extend({valHooks:{option:{get:function(e){var t=e.attributes.value;return!t||t.specified?e.value:e.text}},select:{get:function(e){var t,n,r=e.options,i=e.selectedIndex,o="select-one"===e.type||0>i,a=o?null:[],s=o?i+1:r.length,u=0>i?s:o?i:0;for(;s>u;u++)if(n=r[u],!(!n.selected&&u!==i||(b.support.optDisabled?n.disabled:null!==n.getAttribute("disabled"))||n.parentNode.disabled&&b.nodeName(n.parentNode,"optgroup"))){if(t=b(n).val(),o)return t;a.push(t)}return a},set:function(e,t){var n=b.makeArray(t);return b(e).find("option").each(function(){this.selected=b.inArray(b(this).val(),n)>=0}),n.length||(e.selectedIndex=-1),n}}},attr:function(e,n,r){var o,a,s,u=e.nodeType;if(e&&3!==u&&8!==u&&2!==u)return typeof e.getAttribute===i?b.prop(e,n,r):(a=1!==u||!b.isXMLDoc(e),a&&(n=n.toLowerCase(),o=b.attrHooks[n]||(J.test(n)?z:I)),r===t?o&&a&&"get"in o&&null!==(s=o.get(e,n))?s:(typeof e.getAttribute!==i&&(s=e.getAttribute(n)),null==s?t:s):null!==r?o&&a&&"set"in o&&(s=o.set(e,r,n))!==t?s:(e.setAttribute(n,r+""),r):(b.removeAttr(e,n),t))},removeAttr:function(e,t){var n,r,i=0,o=t&&t.match(w);if(o&&1===e.nodeType)while(n=o[i++])r=b.propFix[n]||n,J.test(n)?!Q&&G.test(n)?e[b.camelCase("default-"+n)]=e[r]=!1:e[r]=!1:b.attr(e,n,""),e.removeAttribute(Q?n:r)},attrHooks:{type:{set:function(e,t){if(!b.support.radioValue&&"radio"===t&&b.nodeName(e,"input")){var n=e.value;return e.setAttribute("type",t),n&&(e.value=n),t}}}},propFix:{tabindex:"tabIndex",readonly:"readOnly","for":"htmlFor","class":"className",maxlength:"maxLength",cellspacing:"cellSpacing",cellpadding:"cellPadding",rowspan:"rowSpan",colspan:"colSpan",usemap:"useMap",frameborder:"frameBorder",contenteditable:"contentEditable"},prop:function(e,n,r){var i,o,a,s=e.nodeType;if(e&&3!==s&&8!==s&&2!==s)return a=1!==s||!b.isXMLDoc(e),a&&(n=b.propFix[n]||n,o=b.propHooks[n]),r!==t?o&&"set"in o&&(i=o.set(e,r,n))!==t?i:e[n]=r:o&&"get"in o&&null!==(i=o.get(e,n))?i:e[n]},propHooks:{tabIndex:{get:function(e){var n=e.getAttributeNode("tabindex");return n&&n.specified?parseInt(n.value,10):V.test(e.nodeName)||Y.test(e.nodeName)&&e.href?0:t}}}}),z={get:function(e,n){var r=b.prop(e,n),i="boolean"==typeof r&&e.getAttribute(n),o="boolean"==typeof r?K&&Q?null!=i:G.test(n)?e[b.camelCase("default-"+n)]:!!i:e.getAttributeNode(n);return o&&o.value!==!1?n.toLowerCase():t},set:function(e,t,n){return t===!1?b.removeAttr(e,n):K&&Q||!G.test(n)?e.setAttribute(!Q&&b.propFix[n]||n,n):e[b.camelCase("default-"+n)]=e[n]=!0,n}},K&&Q||(b.attrHooks.value={get:function(e,n){var r=e.getAttributeNode(n);return b.nodeName(e,"input")?e.defaultValue:r&&r.specified?r.value:t},set:function(e,n,r){return b.nodeName(e,"input")?(e.defaultValue=n,t):I&&I.set(e,n,r)}}),Q||(I=b.valHooks.button={get:function(e,n){var r=e.getAttributeNode(n);return r&&("id"===n||"name"===n||"coords"===n?""!==r.value:r.specified)?r.value:t},set:function(e,n,r){var i=e.getAttributeNode(r);return i||e.setAttributeNode(i=e.ownerDocument.createAttribute(r)),i.value=n+="","value"===r||n===e.getAttribute(r)?n:t}},b.attrHooks.contenteditable={get:I.get,set:function(e,t,n){I.set(e,""===t?!1:t,n)}},b.each(["width","height"],function(e,n){b.attrHooks[n]=b.extend(b.attrHooks[n],{set:function(e,r){return""===r?(e.setAttribute(n,"auto"),r):t}})})),b.support.hrefNormalized||(b.each(["href","src","width","height"],function(e,n){b.attrHooks[n]=b.extend(b.attrHooks[n],{get:function(e){var r=e.getAttribute(n,2);return null==r?t:r}})}),b.each(["href","src"],function(e,t){b.propHooks[t]={get:function(e){return e.getAttribute(t,4)}}})),b.support.style||(b.attrHooks.style={get:function(e){return e.style.cssText||t},set:function(e,t){return e.style.cssText=t+""}}),b.support.optSelected||(b.propHooks.selected=b.extend(b.propHooks.selected,{get:function(e){var t=e.parentNode;return t&&(t.selectedIndex,t.parentNode&&t.parentNode.selectedIndex),null}})),b.support.enctype||(b.propFix.enctype="encoding"),b.support.checkOn||b.each(["radio","checkbox"],function(){b.valHooks[this]={get:function(e){return null===e.getAttribute("value")?"on":e.value}}}),b.each(["radio","checkbox"],function(){b.valHooks[this]=b.extend(b.valHooks[this],{set:function(e,n){return b.isArray(n)?e.checked=b.inArray(b(e).val(),n)>=0:t}})});var Z=/^(?:input|select|textarea)$/i,et=/^key/,tt=/^(?:mouse|contextmenu)|click/,nt=/^(?:focusinfocus|focusoutblur)$/,rt=/^([^.]*)(?:\.(.+)|)$/;function it(){return!0}function ot(){return!1}b.event={global:{},add:function(e,n,r,o,a){var s,u,l,c,p,f,d,h,g,m,y,v=b._data(e);if(v){r.handler&&(c=r,r=c.handler,a=c.selector),r.guid||(r.guid=b.guid++),(u=v.events)||(u=v.events={}),(f=v.handle)||(f=v.handle=function(e){return typeof b===i||e&&b.event.triggered===e.type?t:b.event.dispatch.apply(f.elem,arguments)},f.elem=e),n=(n||"").match(w)||[""],l=n.length;while(l--)s=rt.exec(n[l])||[],g=y=s[1],m=(s[2]||"").split(".").sort(),p=b.event.special[g]||{},g=(a?p.delegateType:p.bindType)||g,p=b.event.special[g]||{},d=b.extend({type:g,origType:y,data:o,handler:r,guid:r.guid,selector:a,needsContext:a&&b.expr.match.needsContext.test(a),namespace:m.join(".")},c),(h=u[g])||(h=u[g]=[],h.delegateCount=0,p.setup&&p.setup.call(e,o,m,f)!==!1||(e.addEventListener?e.addEventListener(g,f,!1):e.attachEvent&&e.attachEvent("on"+g,f))),p.add&&(p.add.call(e,d),d.handler.guid||(d.handler.guid=r.guid)),a?h.splice(h.delegateCount++,0,d):h.push(d),b.event.global[g]=!0;e=null}},remove:function(e,t,n,r,i){var o,a,s,u,l,c,p,f,d,h,g,m=b.hasData(e)&&b._data(e);if(m&&(c=m.events)){t=(t||"").match(w)||[""],l=t.length;while(l--)if(s=rt.exec(t[l])||[],d=g=s[1],h=(s[2]||"").split(".").sort(),d){p=b.event.special[d]||{},d=(r?p.delegateType:p.bindType)||d,f=c[d]||[],s=s[2]&&RegExp("(^|\\.)"+h.join("\\.(?:.*\\.|)")+"(\\.|$)"),u=o=f.length;while(o--)a=f[o],!i&&g!==a.origType||n&&n.guid!==a.guid||s&&!s.test(a.namespace)||r&&r!==a.selector&&("**"!==r||!a.selector)||(f.splice(o,1),a.selector&&f.delegateCount--,p.remove&&p.remove.call(e,a));u&&!f.length&&(p.teardown&&p.teardown.call(e,h,m.handle)!==!1||b.removeEvent(e,d,m.handle),delete c[d])}else for(d in c)b.event.remove(e,d+t[l],n,r,!0);b.isEmptyObject(c)&&(delete m.handle,b._removeData(e,"events"))}},trigger:function(n,r,i,a){var s,u,l,c,p,f,d,h=[i||o],g=y.call(n,"type")?n.type:n,m=y.call(n,"namespace")?n.namespace.split("."):[];if(l=f=i=i||o,3!==i.nodeType&&8!==i.nodeType&&!nt.test(g+b.event.triggered)&&(g.indexOf(".")>=0&&(m=g.split("."),g=m.shift(),m.sort()),u=0>g.indexOf(":")&&"on"+g,n=n[b.expando]?n:new b.Event(g,"object"==typeof n&&n),n.isTrigger=!0,n.namespace=m.join("."),n.namespace_re=n.namespace?RegExp("(^|\\.)"+m.join("\\.(?:.*\\.|)")+"(\\.|$)"):null,n.result=t,n.target||(n.target=i),r=null==r?[n]:b.makeArray(r,[n]),p=b.event.special[g]||{},a||!p.trigger||p.trigger.apply(i,r)!==!1)){if(!a&&!p.noBubble&&!b.isWindow(i)){for(c=p.delegateType||g,nt.test(c+g)||(l=l.parentNode);l;l=l.parentNode)h.push(l),f=l;f===(i.ownerDocument||o)&&h.push(f.defaultView||f.parentWindow||e)}d=0;while((l=h[d++])&&!n.isPropagationStopped())n.type=d>1?c:p.bindType||g,s=(b._data(l,"events")||{})[n.type]&&b._data(l,"handle"),s&&s.apply(l,r),s=u&&l[u],s&&b.acceptData(l)&&s.apply&&s.apply(l,r)===!1&&n.preventDefault();if(n.type=g,!(a||n.isDefaultPrevented()||p._default&&p._default.apply(i.ownerDocument,r)!==!1||"click"===g&&b.nodeName(i,"a")||!b.acceptData(i)||!u||!i[g]||b.isWindow(i))){f=i[u],f&&(i[u]=null),b.event.triggered=g;try{i[g]()}catch(v){}b.event.triggered=t,f&&(i[u]=f)}return n.result}},dispatch:function(e){e=b.event.fix(e);var n,r,i,o,a,s=[],u=h.call(arguments),l=(b._data(this,"events")||{})[e.type]||[],c=b.event.special[e.type]||{};if(u[0]=e,e.delegateTarget=this,!c.preDispatch||c.preDispatch.call(this,e)!==!1){s=b.event.handlers.call(this,e,l),n=0;while((o=s[n++])&&!e.isPropagationStopped()){e.currentTarget=o.elem,a=0;while((i=o.handlers[a++])&&!e.isImmediatePropagationStopped())(!e.namespace_re||e.namespace_re.test(i.namespace))&&(e.handleObj=i,e.data=i.data,r=((b.event.special[i.origType]||{}).handle||i.handler).apply(o.elem,u),r!==t&&(e.result=r)===!1&&(e.preventDefault(),e.stopPropagation()))}return c.postDispatch&&c.postDispatch.call(this,e),e.result}},handlers:function(e,n){var r,i,o,a,s=[],u=n.delegateCount,l=e.target;if(u&&l.nodeType&&(!e.button||"click"!==e.type))for(;l!=this;l=l.parentNode||this)if(1===l.nodeType&&(l.disabled!==!0||"click"!==e.type)){for(o=[],a=0;u>a;a++)i=n[a],r=i.selector+" ",o[r]===t&&(o[r]=i.needsContext?b(r,this).index(l)>=0:b.find(r,this,null,[l]).length),o[r]&&o.push(i);o.length&&s.push({elem:l,handlers:o})}return n.length>u&&s.push({elem:this,handlers:n.slice(u)}),s},fix:function(e){if(e[b.expando])return e;var t,n,r,i=e.type,a=e,s=this.fixHooks[i];s||(this.fixHooks[i]=s=tt.test(i)?this.mouseHooks:et.test(i)?this.keyHooks:{}),r=s.props?this.props.concat(s.props):this.props,e=new b.Event(a),t=r.length;while(t--)n=r[t],e[n]=a[n];return e.target||(e.target=a.srcElement||o),3===e.target.nodeType&&(e.target=e.target.parentNode),e.metaKey=!!e.metaKey,s.filter?s.filter(e,a):e},props:"altKey bubbles cancelable ctrlKey currentTarget eventPhase metaKey relatedTarget shiftKey target timeStamp view which".split(" "),fixHooks:{},keyHooks:{props:"char charCode key keyCode".split(" "),filter:function(e,t){return null==e.which&&(e.which=null!=t.charCode?t.charCode:t.keyCode),e}},mouseHooks:{props:"button buttons clientX clientY fromElement offsetX offsetY pageX pageY screenX screenY toElement".split(" "),filter:function(e,n){var r,i,a,s=n.button,u=n.fromElement;return null==e.pageX&&null!=n.clientX&&(i=e.target.ownerDocument||o,a=i.documentElement,r=i.body,e.pageX=n.clientX+(a&&a.scrollLeft||r&&r.scrollLeft||0)-(a&&a.clientLeft||r&&r.clientLeft||0),e.pageY=n.clientY+(a&&a.scrollTop||r&&r.scrollTop||0)-(a&&a.clientTop||r&&r.clientTop||0)),!e.relatedTarget&&u&&(e.relatedTarget=u===e.target?n.toElement:u),e.which||s===t||(e.which=1&s?1:2&s?3:4&s?2:0),e}},special:{load:{noBubble:!0},click:{trigger:function(){return b.nodeName(this,"input")&&"checkbox"===this.type&&this.click?(this.click(),!1):t}},focus:{trigger:function(){if(this!==o.activeElement&&this.focus)try{return this.focus(),!1}catch(e){}},delegateType:"focusin"},blur:{trigger:function(){return this===o.activeElement&&this.blur?(this.blur(),!1):t},delegateType:"focusout"},beforeunload:{postDispatch:function(e){e.result!==t&&(e.originalEvent.returnValue=e.result)}}},simulate:function(e,t,n,r){var i=b.extend(new b.Event,n,{type:e,isSimulated:!0,originalEvent:{}});r?b.event.trigger(i,null,t):b.event.dispatch.call(t,i),i.isDefaultPrevented()&&n.preventDefault()}},b.removeEvent=o.removeEventListener?function(e,t,n){e.removeEventListener&&e.removeEventListener(t,n,!1)}:function(e,t,n){var r="on"+t;e.detachEvent&&(typeof e[r]===i&&(e[r]=null),e.detachEvent(r,n))},b.Event=function(e,n){return this instanceof b.Event?(e&&e.type?(this.originalEvent=e,this.type=e.type,this.isDefaultPrevented=e.defaultPrevented||e.returnValue===!1||e.getPreventDefault&&e.getPreventDefault()?it:ot):this.type=e,n&&b.extend(this,n),this.timeStamp=e&&e.timeStamp||b.now(),this[b.expando]=!0,t):new b.Event(e,n)},b.Event.prototype={isDefaultPrevented:ot,isPropagationStopped:ot,isImmediatePropagationStopped:ot,preventDefault:function(){var e=this.originalEvent;this.isDefaultPrevented=it,e&&(e.preventDefault?e.preventDefault():e.returnValue=!1)},stopPropagation:function(){var e=this.originalEvent;this.isPropagationStopped=it,e&&(e.stopPropagation&&e.stopPropagation(),e.cancelBubble=!0)},stopImmediatePropagation:function(){this.isImmediatePropagationStopped=it,this.stopPropagation()}},b.each({mouseenter:"mouseover",mouseleave:"mouseout"},function(e,t){b.event.special[e]={delegateType:t,bindType:t,handle:function(e){var n,r=this,i=e.relatedTarget,o=e.handleObj;
-return(!i||i!==r&&!b.contains(r,i))&&(e.type=o.origType,n=o.handler.apply(this,arguments),e.type=t),n}}}),b.support.submitBubbles||(b.event.special.submit={setup:function(){return b.nodeName(this,"form")?!1:(b.event.add(this,"click._submit keypress._submit",function(e){var n=e.target,r=b.nodeName(n,"input")||b.nodeName(n,"button")?n.form:t;r&&!b._data(r,"submitBubbles")&&(b.event.add(r,"submit._submit",function(e){e._submit_bubble=!0}),b._data(r,"submitBubbles",!0))}),t)},postDispatch:function(e){e._submit_bubble&&(delete e._submit_bubble,this.parentNode&&!e.isTrigger&&b.event.simulate("submit",this.parentNode,e,!0))},teardown:function(){return b.nodeName(this,"form")?!1:(b.event.remove(this,"._submit"),t)}}),b.support.changeBubbles||(b.event.special.change={setup:function(){return Z.test(this.nodeName)?(("checkbox"===this.type||"radio"===this.type)&&(b.event.add(this,"propertychange._change",function(e){"checked"===e.originalEvent.propertyName&&(this._just_changed=!0)}),b.event.add(this,"click._change",function(e){this._just_changed&&!e.isTrigger&&(this._just_changed=!1),b.event.simulate("change",this,e,!0)})),!1):(b.event.add(this,"beforeactivate._change",function(e){var t=e.target;Z.test(t.nodeName)&&!b._data(t,"changeBubbles")&&(b.event.add(t,"change._change",function(e){!this.parentNode||e.isSimulated||e.isTrigger||b.event.simulate("change",this.parentNode,e,!0)}),b._data(t,"changeBubbles",!0))}),t)},handle:function(e){var n=e.target;return this!==n||e.isSimulated||e.isTrigger||"radio"!==n.type&&"checkbox"!==n.type?e.handleObj.handler.apply(this,arguments):t},teardown:function(){return b.event.remove(this,"._change"),!Z.test(this.nodeName)}}),b.support.focusinBubbles||b.each({focus:"focusin",blur:"focusout"},function(e,t){var n=0,r=function(e){b.event.simulate(t,e.target,b.event.fix(e),!0)};b.event.special[t]={setup:function(){0===n++&&o.addEventListener(e,r,!0)},teardown:function(){0===--n&&o.removeEventListener(e,r,!0)}}}),b.fn.extend({on:function(e,n,r,i,o){var a,s;if("object"==typeof e){"string"!=typeof n&&(r=r||n,n=t);for(a in e)this.on(a,n,r,e[a],o);return this}if(null==r&&null==i?(i=n,r=n=t):null==i&&("string"==typeof n?(i=r,r=t):(i=r,r=n,n=t)),i===!1)i=ot;else if(!i)return this;return 1===o&&(s=i,i=function(e){return b().off(e),s.apply(this,arguments)},i.guid=s.guid||(s.guid=b.guid++)),this.each(function(){b.event.add(this,e,i,r,n)})},one:function(e,t,n,r){return this.on(e,t,n,r,1)},off:function(e,n,r){var i,o;if(e&&e.preventDefault&&e.handleObj)return i=e.handleObj,b(e.delegateTarget).off(i.namespace?i.origType+"."+i.namespace:i.origType,i.selector,i.handler),this;if("object"==typeof e){for(o in e)this.off(o,n,e[o]);return this}return(n===!1||"function"==typeof n)&&(r=n,n=t),r===!1&&(r=ot),this.each(function(){b.event.remove(this,e,r,n)})},bind:function(e,t,n){return this.on(e,null,t,n)},unbind:function(e,t){return this.off(e,null,t)},delegate:function(e,t,n,r){return this.on(t,e,n,r)},undelegate:function(e,t,n){return 1===arguments.length?this.off(e,"**"):this.off(t,e||"**",n)},trigger:function(e,t){return this.each(function(){b.event.trigger(e,t,this)})},triggerHandler:function(e,n){var r=this[0];return r?b.event.trigger(e,n,r,!0):t}}),function(e,t){var n,r,i,o,a,s,u,l,c,p,f,d,h,g,m,y,v,x="sizzle"+-new Date,w=e.document,T={},N=0,C=0,k=it(),E=it(),S=it(),A=typeof t,j=1<<31,D=[],L=D.pop,H=D.push,q=D.slice,M=D.indexOf||function(e){var t=0,n=this.length;for(;n>t;t++)if(this[t]===e)return t;return-1},_="[\\x20\\t\\r\\n\\f]",F="(?:\\\\.|[\\w-]|[^\\x00-\\xa0])+",O=F.replace("w","w#"),B="([*^$|!~]?=)",P="\\["+_+"*("+F+")"+_+"*(?:"+B+_+"*(?:(['\"])((?:\\\\.|[^\\\\])*?)\\3|("+O+")|)|)"+_+"*\\]",R=":("+F+")(?:\\(((['\"])((?:\\\\.|[^\\\\])*?)\\3|((?:\\\\.|[^\\\\()[\\]]|"+P.replace(3,8)+")*)|.*)\\)|)",W=RegExp("^"+_+"+|((?:^|[^\\\\])(?:\\\\.)*)"+_+"+$","g"),$=RegExp("^"+_+"*,"+_+"*"),I=RegExp("^"+_+"*([\\x20\\t\\r\\n\\f>+~])"+_+"*"),z=RegExp(R),X=RegExp("^"+O+"$"),U={ID:RegExp("^#("+F+")"),CLASS:RegExp("^\\.("+F+")"),NAME:RegExp("^\\[name=['\"]?("+F+")['\"]?\\]"),TAG:RegExp("^("+F.replace("w","w*")+")"),ATTR:RegExp("^"+P),PSEUDO:RegExp("^"+R),CHILD:RegExp("^:(only|first|last|nth|nth-last)-(child|of-type)(?:\\("+_+"*(even|odd|(([+-]|)(\\d*)n|)"+_+"*(?:([+-]|)"+_+"*(\\d+)|))"+_+"*\\)|)","i"),needsContext:RegExp("^"+_+"*[>+~]|:(even|odd|eq|gt|lt|nth|first|last)(?:\\("+_+"*((?:-\\d)?\\d*)"+_+"*\\)|)(?=[^-]|$)","i")},V=/[\x20\t\r\n\f]*[+~]/,Y=/^[^{]+\{\s*\[native code/,J=/^(?:#([\w-]+)|(\w+)|\.([\w-]+))$/,G=/^(?:input|select|textarea|button)$/i,Q=/^h\d$/i,K=/'|\\/g,Z=/\=[\x20\t\r\n\f]*([^'"\]]*)[\x20\t\r\n\f]*\]/g,et=/\\([\da-fA-F]{1,6}[\x20\t\r\n\f]?|.)/g,tt=function(e,t){var n="0x"+t-65536;return n!==n?t:0>n?String.fromCharCode(n+65536):String.fromCharCode(55296|n>>10,56320|1023&n)};try{q.call(w.documentElement.childNodes,0)[0].nodeType}catch(nt){q=function(e){var t,n=[];while(t=this[e++])n.push(t);return n}}function rt(e){return Y.test(e+"")}function it(){var e,t=[];return e=function(n,r){return t.push(n+=" ")>i.cacheLength&&delete e[t.shift()],e[n]=r}}function ot(e){return e[x]=!0,e}function at(e){var t=p.createElement("div");try{return e(t)}catch(n){return!1}finally{t=null}}function st(e,t,n,r){var i,o,a,s,u,l,f,g,m,v;if((t?t.ownerDocument||t:w)!==p&&c(t),t=t||p,n=n||[],!e||"string"!=typeof e)return n;if(1!==(s=t.nodeType)&&9!==s)return[];if(!d&&!r){if(i=J.exec(e))if(a=i[1]){if(9===s){if(o=t.getElementById(a),!o||!o.parentNode)return n;if(o.id===a)return n.push(o),n}else if(t.ownerDocument&&(o=t.ownerDocument.getElementById(a))&&y(t,o)&&o.id===a)return n.push(o),n}else{if(i[2])return H.apply(n,q.call(t.getElementsByTagName(e),0)),n;if((a=i[3])&&T.getByClassName&&t.getElementsByClassName)return H.apply(n,q.call(t.getElementsByClassName(a),0)),n}if(T.qsa&&!h.test(e)){if(f=!0,g=x,m=t,v=9===s&&e,1===s&&"object"!==t.nodeName.toLowerCase()){l=ft(e),(f=t.getAttribute("id"))?g=f.replace(K,"\\$&"):t.setAttribute("id",g),g="[id='"+g+"'] ",u=l.length;while(u--)l[u]=g+dt(l[u]);m=V.test(e)&&t.parentNode||t,v=l.join(",")}if(v)try{return H.apply(n,q.call(m.querySelectorAll(v),0)),n}catch(b){}finally{f||t.removeAttribute("id")}}}return wt(e.replace(W,"$1"),t,n,r)}a=st.isXML=function(e){var t=e&&(e.ownerDocument||e).documentElement;return t?"HTML"!==t.nodeName:!1},c=st.setDocument=function(e){var n=e?e.ownerDocument||e:w;return n!==p&&9===n.nodeType&&n.documentElement?(p=n,f=n.documentElement,d=a(n),T.tagNameNoComments=at(function(e){return e.appendChild(n.createComment("")),!e.getElementsByTagName("*").length}),T.attributes=at(function(e){e.innerHTML="<select></select>";var t=typeof e.lastChild.getAttribute("multiple");return"boolean"!==t&&"string"!==t}),T.getByClassName=at(function(e){return e.innerHTML="<div class='hidden e'></div><div class='hidden'></div>",e.getElementsByClassName&&e.getElementsByClassName("e").length?(e.lastChild.className="e",2===e.getElementsByClassName("e").length):!1}),T.getByName=at(function(e){e.id=x+0,e.innerHTML="<a name='"+x+"'></a><div name='"+x+"'></div>",f.insertBefore(e,f.firstChild);var t=n.getElementsByName&&n.getElementsByName(x).length===2+n.getElementsByName(x+0).length;return T.getIdNotName=!n.getElementById(x),f.removeChild(e),t}),i.attrHandle=at(function(e){return e.innerHTML="<a href='#'></a>",e.firstChild&&typeof e.firstChild.getAttribute!==A&&"#"===e.firstChild.getAttribute("href")})?{}:{href:function(e){return e.getAttribute("href",2)},type:function(e){return e.getAttribute("type")}},T.getIdNotName?(i.find.ID=function(e,t){if(typeof t.getElementById!==A&&!d){var n=t.getElementById(e);return n&&n.parentNode?[n]:[]}},i.filter.ID=function(e){var t=e.replace(et,tt);return function(e){return e.getAttribute("id")===t}}):(i.find.ID=function(e,n){if(typeof n.getElementById!==A&&!d){var r=n.getElementById(e);return r?r.id===e||typeof r.getAttributeNode!==A&&r.getAttributeNode("id").value===e?[r]:t:[]}},i.filter.ID=function(e){var t=e.replace(et,tt);return function(e){var n=typeof e.getAttributeNode!==A&&e.getAttributeNode("id");return n&&n.value===t}}),i.find.TAG=T.tagNameNoComments?function(e,n){return typeof n.getElementsByTagName!==A?n.getElementsByTagName(e):t}:function(e,t){var n,r=[],i=0,o=t.getElementsByTagName(e);if("*"===e){while(n=o[i++])1===n.nodeType&&r.push(n);return r}return o},i.find.NAME=T.getByName&&function(e,n){return typeof n.getElementsByName!==A?n.getElementsByName(name):t},i.find.CLASS=T.getByClassName&&function(e,n){return typeof n.getElementsByClassName===A||d?t:n.getElementsByClassName(e)},g=[],h=[":focus"],(T.qsa=rt(n.querySelectorAll))&&(at(function(e){e.innerHTML="<select><option selected=''></option></select>",e.querySelectorAll("[selected]").length||h.push("\\["+_+"*(?:checked|disabled|ismap|multiple|readonly|selected|value)"),e.querySelectorAll(":checked").length||h.push(":checked")}),at(function(e){e.innerHTML="<input type='hidden' i=''/>",e.querySelectorAll("[i^='']").length&&h.push("[*^$]="+_+"*(?:\"\"|'')"),e.querySelectorAll(":enabled").length||h.push(":enabled",":disabled"),e.querySelectorAll("*,:x"),h.push(",.*:")})),(T.matchesSelector=rt(m=f.matchesSelector||f.mozMatchesSelector||f.webkitMatchesSelector||f.oMatchesSelector||f.msMatchesSelector))&&at(function(e){T.disconnectedMatch=m.call(e,"div"),m.call(e,"[s!='']:x"),g.push("!=",R)}),h=RegExp(h.join("|")),g=RegExp(g.join("|")),y=rt(f.contains)||f.compareDocumentPosition?function(e,t){var n=9===e.nodeType?e.documentElement:e,r=t&&t.parentNode;return e===r||!(!r||1!==r.nodeType||!(n.contains?n.contains(r):e.compareDocumentPosition&&16&e.compareDocumentPosition(r)))}:function(e,t){if(t)while(t=t.parentNode)if(t===e)return!0;return!1},v=f.compareDocumentPosition?function(e,t){var r;return e===t?(u=!0,0):(r=t.compareDocumentPosition&&e.compareDocumentPosition&&e.compareDocumentPosition(t))?1&r||e.parentNode&&11===e.parentNode.nodeType?e===n||y(w,e)?-1:t===n||y(w,t)?1:0:4&r?-1:1:e.compareDocumentPosition?-1:1}:function(e,t){var r,i=0,o=e.parentNode,a=t.parentNode,s=[e],l=[t];if(e===t)return u=!0,0;if(!o||!a)return e===n?-1:t===n?1:o?-1:a?1:0;if(o===a)return ut(e,t);r=e;while(r=r.parentNode)s.unshift(r);r=t;while(r=r.parentNode)l.unshift(r);while(s[i]===l[i])i++;return i?ut(s[i],l[i]):s[i]===w?-1:l[i]===w?1:0},u=!1,[0,0].sort(v),T.detectDuplicates=u,p):p},st.matches=function(e,t){return st(e,null,null,t)},st.matchesSelector=function(e,t){if((e.ownerDocument||e)!==p&&c(e),t=t.replace(Z,"='$1']"),!(!T.matchesSelector||d||g&&g.test(t)||h.test(t)))try{var n=m.call(e,t);if(n||T.disconnectedMatch||e.document&&11!==e.document.nodeType)return n}catch(r){}return st(t,p,null,[e]).length>0},st.contains=function(e,t){return(e.ownerDocument||e)!==p&&c(e),y(e,t)},st.attr=function(e,t){var n;return(e.ownerDocument||e)!==p&&c(e),d||(t=t.toLowerCase()),(n=i.attrHandle[t])?n(e):d||T.attributes?e.getAttribute(t):((n=e.getAttributeNode(t))||e.getAttribute(t))&&e[t]===!0?t:n&&n.specified?n.value:null},st.error=function(e){throw Error("Syntax error, unrecognized expression: "+e)},st.uniqueSort=function(e){var t,n=[],r=1,i=0;if(u=!T.detectDuplicates,e.sort(v),u){for(;t=e[r];r++)t===e[r-1]&&(i=n.push(r));while(i--)e.splice(n[i],1)}return e};function ut(e,t){var n=t&&e,r=n&&(~t.sourceIndex||j)-(~e.sourceIndex||j);if(r)return r;if(n)while(n=n.nextSibling)if(n===t)return-1;return e?1:-1}function lt(e){return function(t){var n=t.nodeName.toLowerCase();return"input"===n&&t.type===e}}function ct(e){return function(t){var n=t.nodeName.toLowerCase();return("input"===n||"button"===n)&&t.type===e}}function pt(e){return ot(function(t){return t=+t,ot(function(n,r){var i,o=e([],n.length,t),a=o.length;while(a--)n[i=o[a]]&&(n[i]=!(r[i]=n[i]))})})}o=st.getText=function(e){var t,n="",r=0,i=e.nodeType;if(i){if(1===i||9===i||11===i){if("string"==typeof e.textContent)return e.textContent;for(e=e.firstChild;e;e=e.nextSibling)n+=o(e)}else if(3===i||4===i)return e.nodeValue}else for(;t=e[r];r++)n+=o(t);return n},i=st.selectors={cacheLength:50,createPseudo:ot,match:U,find:{},relative:{">":{dir:"parentNode",first:!0}," ":{dir:"parentNode"},"+":{dir:"previousSibling",first:!0},"~":{dir:"previousSibling"}},preFilter:{ATTR:function(e){return e[1]=e[1].replace(et,tt),e[3]=(e[4]||e[5]||"").replace(et,tt),"~="===e[2]&&(e[3]=" "+e[3]+" "),e.slice(0,4)},CHILD:function(e){return e[1]=e[1].toLowerCase(),"nth"===e[1].slice(0,3)?(e[3]||st.error(e[0]),e[4]=+(e[4]?e[5]+(e[6]||1):2*("even"===e[3]||"odd"===e[3])),e[5]=+(e[7]+e[8]||"odd"===e[3])):e[3]&&st.error(e[0]),e},PSEUDO:function(e){var t,n=!e[5]&&e[2];return U.CHILD.test(e[0])?null:(e[4]?e[2]=e[4]:n&&z.test(n)&&(t=ft(n,!0))&&(t=n.indexOf(")",n.length-t)-n.length)&&(e[0]=e[0].slice(0,t),e[2]=n.slice(0,t)),e.slice(0,3))}},filter:{TAG:function(e){return"*"===e?function(){return!0}:(e=e.replace(et,tt).toLowerCase(),function(t){return t.nodeName&&t.nodeName.toLowerCase()===e})},CLASS:function(e){var t=k[e+" "];return t||(t=RegExp("(^|"+_+")"+e+"("+_+"|$)"))&&k(e,function(e){return t.test(e.className||typeof e.getAttribute!==A&&e.getAttribute("class")||"")})},ATTR:function(e,t,n){return function(r){var i=st.attr(r,e);return null==i?"!="===t:t?(i+="","="===t?i===n:"!="===t?i!==n:"^="===t?n&&0===i.indexOf(n):"*="===t?n&&i.indexOf(n)>-1:"$="===t?n&&i.slice(-n.length)===n:"~="===t?(" "+i+" ").indexOf(n)>-1:"|="===t?i===n||i.slice(0,n.length+1)===n+"-":!1):!0}},CHILD:function(e,t,n,r,i){var o="nth"!==e.slice(0,3),a="last"!==e.slice(-4),s="of-type"===t;return 1===r&&0===i?function(e){return!!e.parentNode}:function(t,n,u){var l,c,p,f,d,h,g=o!==a?"nextSibling":"previousSibling",m=t.parentNode,y=s&&t.nodeName.toLowerCase(),v=!u&&!s;if(m){if(o){while(g){p=t;while(p=p[g])if(s?p.nodeName.toLowerCase()===y:1===p.nodeType)return!1;h=g="only"===e&&!h&&"nextSibling"}return!0}if(h=[a?m.firstChild:m.lastChild],a&&v){c=m[x]||(m[x]={}),l=c[e]||[],d=l[0]===N&&l[1],f=l[0]===N&&l[2],p=d&&m.childNodes[d];while(p=++d&&p&&p[g]||(f=d=0)||h.pop())if(1===p.nodeType&&++f&&p===t){c[e]=[N,d,f];break}}else if(v&&(l=(t[x]||(t[x]={}))[e])&&l[0]===N)f=l[1];else while(p=++d&&p&&p[g]||(f=d=0)||h.pop())if((s?p.nodeName.toLowerCase()===y:1===p.nodeType)&&++f&&(v&&((p[x]||(p[x]={}))[e]=[N,f]),p===t))break;return f-=i,f===r||0===f%r&&f/r>=0}}},PSEUDO:function(e,t){var n,r=i.pseudos[e]||i.setFilters[e.toLowerCase()]||st.error("unsupported pseudo: "+e);return r[x]?r(t):r.length>1?(n=[e,e,"",t],i.setFilters.hasOwnProperty(e.toLowerCase())?ot(function(e,n){var i,o=r(e,t),a=o.length;while(a--)i=M.call(e,o[a]),e[i]=!(n[i]=o[a])}):function(e){return r(e,0,n)}):r}},pseudos:{not:ot(function(e){var t=[],n=[],r=s(e.replace(W,"$1"));return r[x]?ot(function(e,t,n,i){var o,a=r(e,null,i,[]),s=e.length;while(s--)(o=a[s])&&(e[s]=!(t[s]=o))}):function(e,i,o){return t[0]=e,r(t,null,o,n),!n.pop()}}),has:ot(function(e){return function(t){return st(e,t).length>0}}),contains:ot(function(e){return function(t){return(t.textContent||t.innerText||o(t)).indexOf(e)>-1}}),lang:ot(function(e){return X.test(e||"")||st.error("unsupported lang: "+e),e=e.replace(et,tt).toLowerCase(),function(t){var n;do if(n=d?t.getAttribute("xml:lang")||t.getAttribute("lang"):t.lang)return n=n.toLowerCase(),n===e||0===n.indexOf(e+"-");while((t=t.parentNode)&&1===t.nodeType);return!1}}),target:function(t){var n=e.location&&e.location.hash;return n&&n.slice(1)===t.id},root:function(e){return e===f},focus:function(e){return e===p.activeElement&&(!p.hasFocus||p.hasFocus())&&!!(e.type||e.href||~e.tabIndex)},enabled:function(e){return e.disabled===!1},disabled:function(e){return e.disabled===!0},checked:function(e){var t=e.nodeName.toLowerCase();return"input"===t&&!!e.checked||"option"===t&&!!e.selected},selected:function(e){return e.parentNode&&e.parentNode.selectedIndex,e.selected===!0},empty:function(e){for(e=e.firstChild;e;e=e.nextSibling)if(e.nodeName>"@"||3===e.nodeType||4===e.nodeType)return!1;return!0},parent:function(e){return!i.pseudos.empty(e)},header:function(e){return Q.test(e.nodeName)},input:function(e){return G.test(e.nodeName)},button:function(e){var t=e.nodeName.toLowerCase();return"input"===t&&"button"===e.type||"button"===t},text:function(e){var t;return"input"===e.nodeName.toLowerCase()&&"text"===e.type&&(null==(t=e.getAttribute("type"))||t.toLowerCase()===e.type)},first:pt(function(){return[0]}),last:pt(function(e,t){return[t-1]}),eq:pt(function(e,t,n){return[0>n?n+t:n]}),even:pt(function(e,t){var n=0;for(;t>n;n+=2)e.push(n);return e}),odd:pt(function(e,t){var n=1;for(;t>n;n+=2)e.push(n);return e}),lt:pt(function(e,t,n){var r=0>n?n+t:n;for(;--r>=0;)e.push(r);return e}),gt:pt(function(e,t,n){var r=0>n?n+t:n;for(;t>++r;)e.push(r);return e})}};for(n in{radio:!0,checkbox:!0,file:!0,password:!0,image:!0})i.pseudos[n]=lt(n);for(n in{submit:!0,reset:!0})i.pseudos[n]=ct(n);function ft(e,t){var n,r,o,a,s,u,l,c=E[e+" "];if(c)return t?0:c.slice(0);s=e,u=[],l=i.preFilter;while(s){(!n||(r=$.exec(s)))&&(r&&(s=s.slice(r[0].length)||s),u.push(o=[])),n=!1,(r=I.exec(s))&&(n=r.shift(),o.push({value:n,type:r[0].replace(W," ")}),s=s.slice(n.length));for(a in i.filter)!(r=U[a].exec(s))||l[a]&&!(r=l[a](r))||(n=r.shift(),o.push({value:n,type:a,matches:r}),s=s.slice(n.length));if(!n)break}return t?s.length:s?st.error(e):E(e,u).slice(0)}function dt(e){var t=0,n=e.length,r="";for(;n>t;t++)r+=e[t].value;return r}function ht(e,t,n){var i=t.dir,o=n&&"parentNode"===i,a=C++;return t.first?function(t,n,r){while(t=t[i])if(1===t.nodeType||o)return e(t,n,r)}:function(t,n,s){var u,l,c,p=N+" "+a;if(s){while(t=t[i])if((1===t.nodeType||o)&&e(t,n,s))return!0}else while(t=t[i])if(1===t.nodeType||o)if(c=t[x]||(t[x]={}),(l=c[i])&&l[0]===p){if((u=l[1])===!0||u===r)return u===!0}else if(l=c[i]=[p],l[1]=e(t,n,s)||r,l[1]===!0)return!0}}function gt(e){return e.length>1?function(t,n,r){var i=e.length;while(i--)if(!e[i](t,n,r))return!1;return!0}:e[0]}function mt(e,t,n,r,i){var o,a=[],s=0,u=e.length,l=null!=t;for(;u>s;s++)(o=e[s])&&(!n||n(o,r,i))&&(a.push(o),l&&t.push(s));return a}function yt(e,t,n,r,i,o){return r&&!r[x]&&(r=yt(r)),i&&!i[x]&&(i=yt(i,o)),ot(function(o,a,s,u){var l,c,p,f=[],d=[],h=a.length,g=o||xt(t||"*",s.nodeType?[s]:s,[]),m=!e||!o&&t?g:mt(g,f,e,s,u),y=n?i||(o?e:h||r)?[]:a:m;if(n&&n(m,y,s,u),r){l=mt(y,d),r(l,[],s,u),c=l.length;while(c--)(p=l[c])&&(y[d[c]]=!(m[d[c]]=p))}if(o){if(i||e){if(i){l=[],c=y.length;while(c--)(p=y[c])&&l.push(m[c]=p);i(null,y=[],l,u)}c=y.length;while(c--)(p=y[c])&&(l=i?M.call(o,p):f[c])>-1&&(o[l]=!(a[l]=p))}}else y=mt(y===a?y.splice(h,y.length):y),i?i(null,a,y,u):H.apply(a,y)})}function vt(e){var t,n,r,o=e.length,a=i.relative[e[0].type],s=a||i.relative[" "],u=a?1:0,c=ht(function(e){return e===t},s,!0),p=ht(function(e){return M.call(t,e)>-1},s,!0),f=[function(e,n,r){return!a&&(r||n!==l)||((t=n).nodeType?c(e,n,r):p(e,n,r))}];for(;o>u;u++)if(n=i.relative[e[u].type])f=[ht(gt(f),n)];else{if(n=i.filter[e[u].type].apply(null,e[u].matches),n[x]){for(r=++u;o>r;r++)if(i.relative[e[r].type])break;return yt(u>1&&gt(f),u>1&&dt(e.slice(0,u-1)).replace(W,"$1"),n,r>u&&vt(e.slice(u,r)),o>r&&vt(e=e.slice(r)),o>r&&dt(e))}f.push(n)}return gt(f)}function bt(e,t){var n=0,o=t.length>0,a=e.length>0,s=function(s,u,c,f,d){var h,g,m,y=[],v=0,b="0",x=s&&[],w=null!=d,T=l,C=s||a&&i.find.TAG("*",d&&u.parentNode||u),k=N+=null==T?1:Math.random()||.1;for(w&&(l=u!==p&&u,r=n);null!=(h=C[b]);b++){if(a&&h){g=0;while(m=e[g++])if(m(h,u,c)){f.push(h);break}w&&(N=k,r=++n)}o&&((h=!m&&h)&&v--,s&&x.push(h))}if(v+=b,o&&b!==v){g=0;while(m=t[g++])m(x,y,u,c);if(s){if(v>0)while(b--)x[b]||y[b]||(y[b]=L.call(f));y=mt(y)}H.apply(f,y),w&&!s&&y.length>0&&v+t.length>1&&st.uniqueSort(f)}return w&&(N=k,l=T),x};return o?ot(s):s}s=st.compile=function(e,t){var n,r=[],i=[],o=S[e+" "];if(!o){t||(t=ft(e)),n=t.length;while(n--)o=vt(t[n]),o[x]?r.push(o):i.push(o);o=S(e,bt(i,r))}return o};function xt(e,t,n){var r=0,i=t.length;for(;i>r;r++)st(e,t[r],n);return n}function wt(e,t,n,r){var o,a,u,l,c,p=ft(e);if(!r&&1===p.length){if(a=p[0]=p[0].slice(0),a.length>2&&"ID"===(u=a[0]).type&&9===t.nodeType&&!d&&i.relative[a[1].type]){if(t=i.find.ID(u.matches[0].replace(et,tt),t)[0],!t)return n;e=e.slice(a.shift().value.length)}o=U.needsContext.test(e)?0:a.length;while(o--){if(u=a[o],i.relative[l=u.type])break;if((c=i.find[l])&&(r=c(u.matches[0].replace(et,tt),V.test(a[0].type)&&t.parentNode||t))){if(a.splice(o,1),e=r.length&&dt(a),!e)return H.apply(n,q.call(r,0)),n;break}}}return s(e,p)(r,t,d,n,V.test(e)),n}i.pseudos.nth=i.pseudos.eq;function Tt(){}i.filters=Tt.prototype=i.pseudos,i.setFilters=new Tt,c(),st.attr=b.attr,b.find=st,b.expr=st.selectors,b.expr[":"]=b.expr.pseudos,b.unique=st.uniqueSort,b.text=st.getText,b.isXMLDoc=st.isXML,b.contains=st.contains}(e);var at=/Until$/,st=/^(?:parents|prev(?:Until|All))/,ut=/^.[^:#\[\.,]*$/,lt=b.expr.match.needsContext,ct={children:!0,contents:!0,next:!0,prev:!0};b.fn.extend({find:function(e){var t,n,r,i=this.length;if("string"!=typeof e)return r=this,this.pushStack(b(e).filter(function(){for(t=0;i>t;t++)if(b.contains(r[t],this))return!0}));for(n=[],t=0;i>t;t++)b.find(e,this[t],n);return n=this.pushStack(i>1?b.unique(n):n),n.selector=(this.selector?this.selector+" ":"")+e,n},has:function(e){var t,n=b(e,this),r=n.length;return this.filter(function(){for(t=0;r>t;t++)if(b.contains(this,n[t]))return!0})},not:function(e){return this.pushStack(ft(this,e,!1))},filter:function(e){return this.pushStack(ft(this,e,!0))},is:function(e){return!!e&&("string"==typeof e?lt.test(e)?b(e,this.context).index(this[0])>=0:b.filter(e,this).length>0:this.filter(e).length>0)},closest:function(e,t){var n,r=0,i=this.length,o=[],a=lt.test(e)||"string"!=typeof e?b(e,t||this.context):0;for(;i>r;r++){n=this[r];while(n&&n.ownerDocument&&n!==t&&11!==n.nodeType){if(a?a.index(n)>-1:b.find.matchesSelector(n,e)){o.push(n);break}n=n.parentNode}}return this.pushStack(o.length>1?b.unique(o):o)},index:function(e){return e?"string"==typeof e?b.inArray(this[0],b(e)):b.inArray(e.jquery?e[0]:e,this):this[0]&&this[0].parentNode?this.first().prevAll().length:-1},add:function(e,t){var n="string"==typeof e?b(e,t):b.makeArray(e&&e.nodeType?[e]:e),r=b.merge(this.get(),n);return this.pushStack(b.unique(r))},addBack:function(e){return this.add(null==e?this.prevObject:this.prevObject.filter(e))}}),b.fn.andSelf=b.fn.addBack;function pt(e,t){do e=e[t];while(e&&1!==e.nodeType);return e}b.each({parent:function(e){var t=e.parentNode;return t&&11!==t.nodeType?t:null},parents:function(e){return b.dir(e,"parentNode")},parentsUntil:function(e,t,n){return b.dir(e,"parentNode",n)},next:function(e){return pt(e,"nextSibling")},prev:function(e){return pt(e,"previousSibling")},nextAll:function(e){return b.dir(e,"nextSibling")},prevAll:function(e){return b.dir(e,"previousSibling")},nextUntil:function(e,t,n){return b.dir(e,"nextSibling",n)},prevUntil:function(e,t,n){return b.dir(e,"previousSibling",n)},siblings:function(e){return b.sibling((e.parentNode||{}).firstChild,e)},children:function(e){return b.sibling(e.firstChild)},contents:function(e){return b.nodeName(e,"iframe")?e.contentDocument||e.contentWindow.document:b.merge([],e.childNodes)}},function(e,t){b.fn[e]=function(n,r){var i=b.map(this,t,n);return at.test(e)||(r=n),r&&"string"==typeof r&&(i=b.filter(r,i)),i=this.length>1&&!ct[e]?b.unique(i):i,this.length>1&&st.test(e)&&(i=i.reverse()),this.pushStack(i)}}),b.extend({filter:function(e,t,n){return n&&(e=":not("+e+")"),1===t.length?b.find.matchesSelector(t[0],e)?[t[0]]:[]:b.find.matches(e,t)},dir:function(e,n,r){var i=[],o=e[n];while(o&&9!==o.nodeType&&(r===t||1!==o.nodeType||!b(o).is(r)))1===o.nodeType&&i.push(o),o=o[n];return i},sibling:function(e,t){var n=[];for(;e;e=e.nextSibling)1===e.nodeType&&e!==t&&n.push(e);return n}});function ft(e,t,n){if(t=t||0,b.isFunction(t))return b.grep(e,function(e,r){var i=!!t.call(e,r,e);return i===n});if(t.nodeType)return b.grep(e,function(e){return e===t===n});if("string"==typeof t){var r=b.grep(e,function(e){return 1===e.nodeType});if(ut.test(t))return b.filter(t,r,!n);t=b.filter(t,r)}return b.grep(e,function(e){return b.inArray(e,t)>=0===n})}function dt(e){var t=ht.split("|"),n=e.createDocumentFragment();if(n.createElement)while(t.length)n.createElement(t.pop());return n}var ht="abbr|article|aside|audio|bdi|canvas|data|datalist|details|figcaption|figure|footer|header|hgroup|mark|meter|nav|output|progress|section|summary|time|video",gt=/ jQuery\d+="(?:null|\d+)"/g,mt=RegExp("<(?:"+ht+")[\\s/>]","i"),yt=/^\s+/,vt=/<(?!area|br|col|embed|hr|img|input|link|meta|param)(([\w:]+)[^>]*)\/>/gi,bt=/<([\w:]+)/,xt=/<tbody/i,wt=/<|&#?\w+;/,Tt=/<(?:script|style|link)/i,Nt=/^(?:checkbox|radio)$/i,Ct=/checked\s*(?:[^=]|=\s*.checked.)/i,kt=/^$|\/(?:java|ecma)script/i,Et=/^true\/(.*)/,St=/^\s*<!(?:\[CDATA\[|--)|(?:\]\]|--)>\s*$/g,At={option:[1,"<select multiple='multiple'>","</select>"],legend:[1,"<fieldset>","</fieldset>"],area:[1,"<map>","</map>"],param:[1,"<object>","</object>"],thead:[1,"<table>","</table>"],tr:[2,"<table><tbody>","</tbody></table>"],col:[2,"<table><tbody></tbody><colgroup>","</colgroup></table>"],td:[3,"<table><tbody><tr>","</tr></tbody></table>"],_default:b.support.htmlSerialize?[0,"",""]:[1,"X<div>","</div>"]},jt=dt(o),Dt=jt.appendChild(o.createElement("div"));At.optgroup=At.option,At.tbody=At.tfoot=At.colgroup=At.caption=At.thead,At.th=At.td,b.fn.extend({text:function(e){return b.access(this,function(e){return e===t?b.text(this):this.empty().append((this[0]&&this[0].ownerDocument||o).createTextNode(e))},null,e,arguments.length)},wrapAll:function(e){if(b.isFunction(e))return this.each(function(t){b(this).wrapAll(e.call(this,t))});if(this[0]){var t=b(e,this[0].ownerDocument).eq(0).clone(!0);this[0].parentNode&&t.insertBefore(this[0]),t.map(function(){var e=this;while(e.firstChild&&1===e.firstChild.nodeType)e=e.firstChild;return e}).append(this)}return this},wrapInner:function(e){return b.isFunction(e)?this.each(function(t){b(this).wrapInner(e.call(this,t))}):this.each(function(){var t=b(this),n=t.contents();n.length?n.wrapAll(e):t.append(e)})},wrap:function(e){var t=b.isFunction(e);return this.each(function(n){b(this).wrapAll(t?e.call(this,n):e)})},unwrap:function(){return this.parent().each(function(){b.nodeName(this,"body")||b(this).replaceWith(this.childNodes)}).end()},append:function(){return this.domManip(arguments,!0,function(e){(1===this.nodeType||11===this.nodeType||9===this.nodeType)&&this.appendChild(e)})},prepend:function(){return this.domManip(arguments,!0,function(e){(1===this.nodeType||11===this.nodeType||9===this.nodeType)&&this.insertBefore(e,this.firstChild)})},before:function(){return this.domManip(arguments,!1,function(e){this.parentNode&&this.parentNode.insertBefore(e,this)})},after:function(){return this.domManip(arguments,!1,function(e){this.parentNode&&this.parentNode.insertBefore(e,this.nextSibling)})},remove:function(e,t){var n,r=0;for(;null!=(n=this[r]);r++)(!e||b.filter(e,[n]).length>0)&&(t||1!==n.nodeType||b.cleanData(Ot(n)),n.parentNode&&(t&&b.contains(n.ownerDocument,n)&&Mt(Ot(n,"script")),n.parentNode.removeChild(n)));return this},empty:function(){var e,t=0;for(;null!=(e=this[t]);t++){1===e.nodeType&&b.cleanData(Ot(e,!1));while(e.firstChild)e.removeChild(e.firstChild);e.options&&b.nodeName(e,"select")&&(e.options.length=0)}return this},clone:function(e,t){return e=null==e?!1:e,t=null==t?e:t,this.map(function(){return b.clone(this,e,t)})},html:function(e){return b.access(this,function(e){var n=this[0]||{},r=0,i=this.length;if(e===t)return 1===n.nodeType?n.innerHTML.replace(gt,""):t;if(!("string"!=typeof e||Tt.test(e)||!b.support.htmlSerialize&&mt.test(e)||!b.support.leadingWhitespace&&yt.test(e)||At[(bt.exec(e)||["",""])[1].toLowerCase()])){e=e.replace(vt,"<$1></$2>");try{for(;i>r;r++)n=this[r]||{},1===n.nodeType&&(b.cleanData(Ot(n,!1)),n.innerHTML=e);n=0}catch(o){}}n&&this.empty().append(e)},null,e,arguments.length)},replaceWith:function(e){var t=b.isFunction(e);return t||"string"==typeof e||(e=b(e).not(this).detach()),this.domManip([e],!0,function(e){var t=this.nextSibling,n=this.parentNode;n&&(b(this).remove(),n.insertBefore(e,t))})},detach:function(e){return this.remove(e,!0)},domManip:function(e,n,r){e=f.apply([],e);var i,o,a,s,u,l,c=0,p=this.length,d=this,h=p-1,g=e[0],m=b.isFunction(g);if(m||!(1>=p||"string"!=typeof g||b.support.checkClone)&&Ct.test(g))return this.each(function(i){var o=d.eq(i);m&&(e[0]=g.call(this,i,n?o.html():t)),o.domManip(e,n,r)});if(p&&(l=b.buildFragment(e,this[0].ownerDocument,!1,this),i=l.firstChild,1===l.childNodes.length&&(l=i),i)){for(n=n&&b.nodeName(i,"tr"),s=b.map(Ot(l,"script"),Ht),a=s.length;p>c;c++)o=l,c!==h&&(o=b.clone(o,!0,!0),a&&b.merge(s,Ot(o,"script"))),r.call(n&&b.nodeName(this[c],"table")?Lt(this[c],"tbody"):this[c],o,c);if(a)for(u=s[s.length-1].ownerDocument,b.map(s,qt),c=0;a>c;c++)o=s[c],kt.test(o.type||"")&&!b._data(o,"globalEval")&&b.contains(u,o)&&(o.src?b.ajax({url:o.src,type:"GET",dataType:"script",async:!1,global:!1,"throws":!0}):b.globalEval((o.text||o.textContent||o.innerHTML||"").replace(St,"")));l=i=null}return this}});function Lt(e,t){return e.getElementsByTagName(t)[0]||e.appendChild(e.ownerDocument.createElement(t))}function Ht(e){var t=e.getAttributeNode("type");return e.type=(t&&t.specified)+"/"+e.type,e}function qt(e){var t=Et.exec(e.type);return t?e.type=t[1]:e.removeAttribute("type"),e}function Mt(e,t){var n,r=0;for(;null!=(n=e[r]);r++)b._data(n,"globalEval",!t||b._data(t[r],"globalEval"))}function _t(e,t){if(1===t.nodeType&&b.hasData(e)){var n,r,i,o=b._data(e),a=b._data(t,o),s=o.events;if(s){delete a.handle,a.events={};for(n in s)for(r=0,i=s[n].length;i>r;r++)b.event.add(t,n,s[n][r])}a.data&&(a.data=b.extend({},a.data))}}function Ft(e,t){var n,r,i;if(1===t.nodeType){if(n=t.nodeName.toLowerCase(),!b.support.noCloneEvent&&t[b.expando]){i=b._data(t);for(r in i.events)b.removeEvent(t,r,i.handle);t.removeAttribute(b.expando)}"script"===n&&t.text!==e.text?(Ht(t).text=e.text,qt(t)):"object"===n?(t.parentNode&&(t.outerHTML=e.outerHTML),b.support.html5Clone&&e.innerHTML&&!b.trim(t.innerHTML)&&(t.innerHTML=e.innerHTML)):"input"===n&&Nt.test(e.type)?(t.defaultChecked=t.checked=e.checked,t.value!==e.value&&(t.value=e.value)):"option"===n?t.defaultSelected=t.selected=e.defaultSelected:("input"===n||"textarea"===n)&&(t.defaultValue=e.defaultValue)}}b.each({appendTo:"append",prependTo:"prepend",insertBefore:"before",insertAfter:"after",replaceAll:"replaceWith"},function(e,t){b.fn[e]=function(e){var n,r=0,i=[],o=b(e),a=o.length-1;for(;a>=r;r++)n=r===a?this:this.clone(!0),b(o[r])[t](n),d.apply(i,n.get());return this.pushStack(i)}});function Ot(e,n){var r,o,a=0,s=typeof e.getElementsByTagName!==i?e.getElementsByTagName(n||"*"):typeof e.querySelectorAll!==i?e.querySelectorAll(n||"*"):t;if(!s)for(s=[],r=e.childNodes||e;null!=(o=r[a]);a++)!n||b.nodeName(o,n)?s.push(o):b.merge(s,Ot(o,n));return n===t||n&&b.nodeName(e,n)?b.merge([e],s):s}function Bt(e){Nt.test(e.type)&&(e.defaultChecked=e.checked)}b.extend({clone:function(e,t,n){var r,i,o,a,s,u=b.contains(e.ownerDocument,e);if(b.support.html5Clone||b.isXMLDoc(e)||!mt.test("<"+e.nodeName+">")?o=e.cloneNode(!0):(Dt.innerHTML=e.outerHTML,Dt.removeChild(o=Dt.firstChild)),!(b.support.noCloneEvent&&b.support.noCloneChecked||1!==e.nodeType&&11!==e.nodeType||b.isXMLDoc(e)))for(r=Ot(o),s=Ot(e),a=0;null!=(i=s[a]);++a)r[a]&&Ft(i,r[a]);if(t)if(n)for(s=s||Ot(e),r=r||Ot(o),a=0;null!=(i=s[a]);a++)_t(i,r[a]);else _t(e,o);return r=Ot(o,"script"),r.length>0&&Mt(r,!u&&Ot(e,"script")),r=s=i=null,o},buildFragment:function(e,t,n,r){var i,o,a,s,u,l,c,p=e.length,f=dt(t),d=[],h=0;for(;p>h;h++)if(o=e[h],o||0===o)if("object"===b.type(o))b.merge(d,o.nodeType?[o]:o);else if(wt.test(o)){s=s||f.appendChild(t.createElement("div")),u=(bt.exec(o)||["",""])[1].toLowerCase(),c=At[u]||At._default,s.innerHTML=c[1]+o.replace(vt,"<$1></$2>")+c[2],i=c[0];while(i--)s=s.lastChild;if(!b.support.leadingWhitespace&&yt.test(o)&&d.push(t.createTextNode(yt.exec(o)[0])),!b.support.tbody){o="table"!==u||xt.test(o)?"<table>"!==c[1]||xt.test(o)?0:s:s.firstChild,i=o&&o.childNodes.length;while(i--)b.nodeName(l=o.childNodes[i],"tbody")&&!l.childNodes.length&&o.removeChild(l)
-}b.merge(d,s.childNodes),s.textContent="";while(s.firstChild)s.removeChild(s.firstChild);s=f.lastChild}else d.push(t.createTextNode(o));s&&f.removeChild(s),b.support.appendChecked||b.grep(Ot(d,"input"),Bt),h=0;while(o=d[h++])if((!r||-1===b.inArray(o,r))&&(a=b.contains(o.ownerDocument,o),s=Ot(f.appendChild(o),"script"),a&&Mt(s),n)){i=0;while(o=s[i++])kt.test(o.type||"")&&n.push(o)}return s=null,f},cleanData:function(e,t){var n,r,o,a,s=0,u=b.expando,l=b.cache,p=b.support.deleteExpando,f=b.event.special;for(;null!=(n=e[s]);s++)if((t||b.acceptData(n))&&(o=n[u],a=o&&l[o])){if(a.events)for(r in a.events)f[r]?b.event.remove(n,r):b.removeEvent(n,r,a.handle);l[o]&&(delete l[o],p?delete n[u]:typeof n.removeAttribute!==i?n.removeAttribute(u):n[u]=null,c.push(o))}}});var Pt,Rt,Wt,$t=/alpha\([^)]*\)/i,It=/opacity\s*=\s*([^)]*)/,zt=/^(top|right|bottom|left)$/,Xt=/^(none|table(?!-c[ea]).+)/,Ut=/^margin/,Vt=RegExp("^("+x+")(.*)$","i"),Yt=RegExp("^("+x+")(?!px)[a-z%]+$","i"),Jt=RegExp("^([+-])=("+x+")","i"),Gt={BODY:"block"},Qt={position:"absolute",visibility:"hidden",display:"block"},Kt={letterSpacing:0,fontWeight:400},Zt=["Top","Right","Bottom","Left"],en=["Webkit","O","Moz","ms"];function tn(e,t){if(t in e)return t;var n=t.charAt(0).toUpperCase()+t.slice(1),r=t,i=en.length;while(i--)if(t=en[i]+n,t in e)return t;return r}function nn(e,t){return e=t||e,"none"===b.css(e,"display")||!b.contains(e.ownerDocument,e)}function rn(e,t){var n,r,i,o=[],a=0,s=e.length;for(;s>a;a++)r=e[a],r.style&&(o[a]=b._data(r,"olddisplay"),n=r.style.display,t?(o[a]||"none"!==n||(r.style.display=""),""===r.style.display&&nn(r)&&(o[a]=b._data(r,"olddisplay",un(r.nodeName)))):o[a]||(i=nn(r),(n&&"none"!==n||!i)&&b._data(r,"olddisplay",i?n:b.css(r,"display"))));for(a=0;s>a;a++)r=e[a],r.style&&(t&&"none"!==r.style.display&&""!==r.style.display||(r.style.display=t?o[a]||"":"none"));return e}b.fn.extend({css:function(e,n){return b.access(this,function(e,n,r){var i,o,a={},s=0;if(b.isArray(n)){for(o=Rt(e),i=n.length;i>s;s++)a[n[s]]=b.css(e,n[s],!1,o);return a}return r!==t?b.style(e,n,r):b.css(e,n)},e,n,arguments.length>1)},show:function(){return rn(this,!0)},hide:function(){return rn(this)},toggle:function(e){var t="boolean"==typeof e;return this.each(function(){(t?e:nn(this))?b(this).show():b(this).hide()})}}),b.extend({cssHooks:{opacity:{get:function(e,t){if(t){var n=Wt(e,"opacity");return""===n?"1":n}}}},cssNumber:{columnCount:!0,fillOpacity:!0,fontWeight:!0,lineHeight:!0,opacity:!0,orphans:!0,widows:!0,zIndex:!0,zoom:!0},cssProps:{"float":b.support.cssFloat?"cssFloat":"styleFloat"},style:function(e,n,r,i){if(e&&3!==e.nodeType&&8!==e.nodeType&&e.style){var o,a,s,u=b.camelCase(n),l=e.style;if(n=b.cssProps[u]||(b.cssProps[u]=tn(l,u)),s=b.cssHooks[n]||b.cssHooks[u],r===t)return s&&"get"in s&&(o=s.get(e,!1,i))!==t?o:l[n];if(a=typeof r,"string"===a&&(o=Jt.exec(r))&&(r=(o[1]+1)*o[2]+parseFloat(b.css(e,n)),a="number"),!(null==r||"number"===a&&isNaN(r)||("number"!==a||b.cssNumber[u]||(r+="px"),b.support.clearCloneStyle||""!==r||0!==n.indexOf("background")||(l[n]="inherit"),s&&"set"in s&&(r=s.set(e,r,i))===t)))try{l[n]=r}catch(c){}}},css:function(e,n,r,i){var o,a,s,u=b.camelCase(n);return n=b.cssProps[u]||(b.cssProps[u]=tn(e.style,u)),s=b.cssHooks[n]||b.cssHooks[u],s&&"get"in s&&(a=s.get(e,!0,r)),a===t&&(a=Wt(e,n,i)),"normal"===a&&n in Kt&&(a=Kt[n]),""===r||r?(o=parseFloat(a),r===!0||b.isNumeric(o)?o||0:a):a},swap:function(e,t,n,r){var i,o,a={};for(o in t)a[o]=e.style[o],e.style[o]=t[o];i=n.apply(e,r||[]);for(o in t)e.style[o]=a[o];return i}}),e.getComputedStyle?(Rt=function(t){return e.getComputedStyle(t,null)},Wt=function(e,n,r){var i,o,a,s=r||Rt(e),u=s?s.getPropertyValue(n)||s[n]:t,l=e.style;return s&&(""!==u||b.contains(e.ownerDocument,e)||(u=b.style(e,n)),Yt.test(u)&&Ut.test(n)&&(i=l.width,o=l.minWidth,a=l.maxWidth,l.minWidth=l.maxWidth=l.width=u,u=s.width,l.width=i,l.minWidth=o,l.maxWidth=a)),u}):o.documentElement.currentStyle&&(Rt=function(e){return e.currentStyle},Wt=function(e,n,r){var i,o,a,s=r||Rt(e),u=s?s[n]:t,l=e.style;return null==u&&l&&l[n]&&(u=l[n]),Yt.test(u)&&!zt.test(n)&&(i=l.left,o=e.runtimeStyle,a=o&&o.left,a&&(o.left=e.currentStyle.left),l.left="fontSize"===n?"1em":u,u=l.pixelLeft+"px",l.left=i,a&&(o.left=a)),""===u?"auto":u});function on(e,t,n){var r=Vt.exec(t);return r?Math.max(0,r[1]-(n||0))+(r[2]||"px"):t}function an(e,t,n,r,i){var o=n===(r?"border":"content")?4:"width"===t?1:0,a=0;for(;4>o;o+=2)"margin"===n&&(a+=b.css(e,n+Zt[o],!0,i)),r?("content"===n&&(a-=b.css(e,"padding"+Zt[o],!0,i)),"margin"!==n&&(a-=b.css(e,"border"+Zt[o]+"Width",!0,i))):(a+=b.css(e,"padding"+Zt[o],!0,i),"padding"!==n&&(a+=b.css(e,"border"+Zt[o]+"Width",!0,i)));return a}function sn(e,t,n){var r=!0,i="width"===t?e.offsetWidth:e.offsetHeight,o=Rt(e),a=b.support.boxSizing&&"border-box"===b.css(e,"boxSizing",!1,o);if(0>=i||null==i){if(i=Wt(e,t,o),(0>i||null==i)&&(i=e.style[t]),Yt.test(i))return i;r=a&&(b.support.boxSizingReliable||i===e.style[t]),i=parseFloat(i)||0}return i+an(e,t,n||(a?"border":"content"),r,o)+"px"}function un(e){var t=o,n=Gt[e];return n||(n=ln(e,t),"none"!==n&&n||(Pt=(Pt||b("<iframe frameborder='0' width='0' height='0'/>").css("cssText","display:block !important")).appendTo(t.documentElement),t=(Pt[0].contentWindow||Pt[0].contentDocument).document,t.write("<!doctype html><html><body>"),t.close(),n=ln(e,t),Pt.detach()),Gt[e]=n),n}function ln(e,t){var n=b(t.createElement(e)).appendTo(t.body),r=b.css(n[0],"display");return n.remove(),r}b.each(["height","width"],function(e,n){b.cssHooks[n]={get:function(e,r,i){return r?0===e.offsetWidth&&Xt.test(b.css(e,"display"))?b.swap(e,Qt,function(){return sn(e,n,i)}):sn(e,n,i):t},set:function(e,t,r){var i=r&&Rt(e);return on(e,t,r?an(e,n,r,b.support.boxSizing&&"border-box"===b.css(e,"boxSizing",!1,i),i):0)}}}),b.support.opacity||(b.cssHooks.opacity={get:function(e,t){return It.test((t&&e.currentStyle?e.currentStyle.filter:e.style.filter)||"")?.01*parseFloat(RegExp.$1)+"":t?"1":""},set:function(e,t){var n=e.style,r=e.currentStyle,i=b.isNumeric(t)?"alpha(opacity="+100*t+")":"",o=r&&r.filter||n.filter||"";n.zoom=1,(t>=1||""===t)&&""===b.trim(o.replace($t,""))&&n.removeAttribute&&(n.removeAttribute("filter"),""===t||r&&!r.filter)||(n.filter=$t.test(o)?o.replace($t,i):o+" "+i)}}),b(function(){b.support.reliableMarginRight||(b.cssHooks.marginRight={get:function(e,n){return n?b.swap(e,{display:"inline-block"},Wt,[e,"marginRight"]):t}}),!b.support.pixelPosition&&b.fn.position&&b.each(["top","left"],function(e,n){b.cssHooks[n]={get:function(e,r){return r?(r=Wt(e,n),Yt.test(r)?b(e).position()[n]+"px":r):t}}})}),b.expr&&b.expr.filters&&(b.expr.filters.hidden=function(e){return 0>=e.offsetWidth&&0>=e.offsetHeight||!b.support.reliableHiddenOffsets&&"none"===(e.style&&e.style.display||b.css(e,"display"))},b.expr.filters.visible=function(e){return!b.expr.filters.hidden(e)}),b.each({margin:"",padding:"",border:"Width"},function(e,t){b.cssHooks[e+t]={expand:function(n){var r=0,i={},o="string"==typeof n?n.split(" "):[n];for(;4>r;r++)i[e+Zt[r]+t]=o[r]||o[r-2]||o[0];return i}},Ut.test(e)||(b.cssHooks[e+t].set=on)});var cn=/%20/g,pn=/\[\]$/,fn=/\r?\n/g,dn=/^(?:submit|button|image|reset|file)$/i,hn=/^(?:input|select|textarea|keygen)/i;b.fn.extend({serialize:function(){return b.param(this.serializeArray())},serializeArray:function(){return this.map(function(){var e=b.prop(this,"elements");return e?b.makeArray(e):this}).filter(function(){var e=this.type;return this.name&&!b(this).is(":disabled")&&hn.test(this.nodeName)&&!dn.test(e)&&(this.checked||!Nt.test(e))}).map(function(e,t){var n=b(this).val();return null==n?null:b.isArray(n)?b.map(n,function(e){return{name:t.name,value:e.replace(fn,"\r\n")}}):{name:t.name,value:n.replace(fn,"\r\n")}}).get()}}),b.param=function(e,n){var r,i=[],o=function(e,t){t=b.isFunction(t)?t():null==t?"":t,i[i.length]=encodeURIComponent(e)+"="+encodeURIComponent(t)};if(n===t&&(n=b.ajaxSettings&&b.ajaxSettings.traditional),b.isArray(e)||e.jquery&&!b.isPlainObject(e))b.each(e,function(){o(this.name,this.value)});else for(r in e)gn(r,e[r],n,o);return i.join("&").replace(cn,"+")};function gn(e,t,n,r){var i;if(b.isArray(t))b.each(t,function(t,i){n||pn.test(e)?r(e,i):gn(e+"["+("object"==typeof i?t:"")+"]",i,n,r)});else if(n||"object"!==b.type(t))r(e,t);else for(i in t)gn(e+"["+i+"]",t[i],n,r)}b.each("blur focus focusin focusout load resize scroll unload click dblclick mousedown mouseup mousemove mouseover mouseout mouseenter mouseleave change select submit keydown keypress keyup error contextmenu".split(" "),function(e,t){b.fn[t]=function(e,n){return arguments.length>0?this.on(t,null,e,n):this.trigger(t)}}),b.fn.hover=function(e,t){return this.mouseenter(e).mouseleave(t||e)};var mn,yn,vn=b.now(),bn=/\?/,xn=/#.*$/,wn=/([?&])_=[^&]*/,Tn=/^(.*?):[ \t]*([^\r\n]*)\r?$/gm,Nn=/^(?:about|app|app-storage|.+-extension|file|res|widget):$/,Cn=/^(?:GET|HEAD)$/,kn=/^\/\//,En=/^([\w.+-]+:)(?:\/\/([^\/?#:]*)(?::(\d+)|)|)/,Sn=b.fn.load,An={},jn={},Dn="*/".concat("*");try{yn=a.href}catch(Ln){yn=o.createElement("a"),yn.href="",yn=yn.href}mn=En.exec(yn.toLowerCase())||[];function Hn(e){return function(t,n){"string"!=typeof t&&(n=t,t="*");var r,i=0,o=t.toLowerCase().match(w)||[];if(b.isFunction(n))while(r=o[i++])"+"===r[0]?(r=r.slice(1)||"*",(e[r]=e[r]||[]).unshift(n)):(e[r]=e[r]||[]).push(n)}}function qn(e,n,r,i){var o={},a=e===jn;function s(u){var l;return o[u]=!0,b.each(e[u]||[],function(e,u){var c=u(n,r,i);return"string"!=typeof c||a||o[c]?a?!(l=c):t:(n.dataTypes.unshift(c),s(c),!1)}),l}return s(n.dataTypes[0])||!o["*"]&&s("*")}function Mn(e,n){var r,i,o=b.ajaxSettings.flatOptions||{};for(i in n)n[i]!==t&&((o[i]?e:r||(r={}))[i]=n[i]);return r&&b.extend(!0,e,r),e}b.fn.load=function(e,n,r){if("string"!=typeof e&&Sn)return Sn.apply(this,arguments);var i,o,a,s=this,u=e.indexOf(" ");return u>=0&&(i=e.slice(u,e.length),e=e.slice(0,u)),b.isFunction(n)?(r=n,n=t):n&&"object"==typeof n&&(a="POST"),s.length>0&&b.ajax({url:e,type:a,dataType:"html",data:n}).done(function(e){o=arguments,s.html(i?b("<div>").append(b.parseHTML(e)).find(i):e)}).complete(r&&function(e,t){s.each(r,o||[e.responseText,t,e])}),this},b.each(["ajaxStart","ajaxStop","ajaxComplete","ajaxError","ajaxSuccess","ajaxSend"],function(e,t){b.fn[t]=function(e){return this.on(t,e)}}),b.each(["get","post"],function(e,n){b[n]=function(e,r,i,o){return b.isFunction(r)&&(o=o||i,i=r,r=t),b.ajax({url:e,type:n,dataType:o,data:r,success:i})}}),b.extend({active:0,lastModified:{},etag:{},ajaxSettings:{url:yn,type:"GET",isLocal:Nn.test(mn[1]),global:!0,processData:!0,async:!0,contentType:"application/x-www-form-urlencoded; charset=UTF-8",accepts:{"*":Dn,text:"text/plain",html:"text/html",xml:"application/xml, text/xml",json:"application/json, text/javascript"},contents:{xml:/xml/,html:/html/,json:/json/},responseFields:{xml:"responseXML",text:"responseText"},converters:{"* text":e.String,"text html":!0,"text json":b.parseJSON,"text xml":b.parseXML},flatOptions:{url:!0,context:!0}},ajaxSetup:function(e,t){return t?Mn(Mn(e,b.ajaxSettings),t):Mn(b.ajaxSettings,e)},ajaxPrefilter:Hn(An),ajaxTransport:Hn(jn),ajax:function(e,n){"object"==typeof e&&(n=e,e=t),n=n||{};var r,i,o,a,s,u,l,c,p=b.ajaxSetup({},n),f=p.context||p,d=p.context&&(f.nodeType||f.jquery)?b(f):b.event,h=b.Deferred(),g=b.Callbacks("once memory"),m=p.statusCode||{},y={},v={},x=0,T="canceled",N={readyState:0,getResponseHeader:function(e){var t;if(2===x){if(!c){c={};while(t=Tn.exec(a))c[t[1].toLowerCase()]=t[2]}t=c[e.toLowerCase()]}return null==t?null:t},getAllResponseHeaders:function(){return 2===x?a:null},setRequestHeader:function(e,t){var n=e.toLowerCase();return x||(e=v[n]=v[n]||e,y[e]=t),this},overrideMimeType:function(e){return x||(p.mimeType=e),this},statusCode:function(e){var t;if(e)if(2>x)for(t in e)m[t]=[m[t],e[t]];else N.always(e[N.status]);return this},abort:function(e){var t=e||T;return l&&l.abort(t),k(0,t),this}};if(h.promise(N).complete=g.add,N.success=N.done,N.error=N.fail,p.url=((e||p.url||yn)+"").replace(xn,"").replace(kn,mn[1]+"//"),p.type=n.method||n.type||p.method||p.type,p.dataTypes=b.trim(p.dataType||"*").toLowerCase().match(w)||[""],null==p.crossDomain&&(r=En.exec(p.url.toLowerCase()),p.crossDomain=!(!r||r[1]===mn[1]&&r[2]===mn[2]&&(r[3]||("http:"===r[1]?80:443))==(mn[3]||("http:"===mn[1]?80:443)))),p.data&&p.processData&&"string"!=typeof p.data&&(p.data=b.param(p.data,p.traditional)),qn(An,p,n,N),2===x)return N;u=p.global,u&&0===b.active++&&b.event.trigger("ajaxStart"),p.type=p.type.toUpperCase(),p.hasContent=!Cn.test(p.type),o=p.url,p.hasContent||(p.data&&(o=p.url+=(bn.test(o)?"&":"?")+p.data,delete p.data),p.cache===!1&&(p.url=wn.test(o)?o.replace(wn,"$1_="+vn++):o+(bn.test(o)?"&":"?")+"_="+vn++)),p.ifModified&&(b.lastModified[o]&&N.setRequestHeader("If-Modified-Since",b.lastModified[o]),b.etag[o]&&N.setRequestHeader("If-None-Match",b.etag[o])),(p.data&&p.hasContent&&p.contentType!==!1||n.contentType)&&N.setRequestHeader("Content-Type",p.contentType),N.setRequestHeader("Accept",p.dataTypes[0]&&p.accepts[p.dataTypes[0]]?p.accepts[p.dataTypes[0]]+("*"!==p.dataTypes[0]?", "+Dn+"; q=0.01":""):p.accepts["*"]);for(i in p.headers)N.setRequestHeader(i,p.headers[i]);if(p.beforeSend&&(p.beforeSend.call(f,N,p)===!1||2===x))return N.abort();T="abort";for(i in{success:1,error:1,complete:1})N[i](p[i]);if(l=qn(jn,p,n,N)){N.readyState=1,u&&d.trigger("ajaxSend",[N,p]),p.async&&p.timeout>0&&(s=setTimeout(function(){N.abort("timeout")},p.timeout));try{x=1,l.send(y,k)}catch(C){if(!(2>x))throw C;k(-1,C)}}else k(-1,"No Transport");function k(e,n,r,i){var c,y,v,w,T,C=n;2!==x&&(x=2,s&&clearTimeout(s),l=t,a=i||"",N.readyState=e>0?4:0,r&&(w=_n(p,N,r)),e>=200&&300>e||304===e?(p.ifModified&&(T=N.getResponseHeader("Last-Modified"),T&&(b.lastModified[o]=T),T=N.getResponseHeader("etag"),T&&(b.etag[o]=T)),204===e?(c=!0,C="nocontent"):304===e?(c=!0,C="notmodified"):(c=Fn(p,w),C=c.state,y=c.data,v=c.error,c=!v)):(v=C,(e||!C)&&(C="error",0>e&&(e=0))),N.status=e,N.statusText=(n||C)+"",c?h.resolveWith(f,[y,C,N]):h.rejectWith(f,[N,C,v]),N.statusCode(m),m=t,u&&d.trigger(c?"ajaxSuccess":"ajaxError",[N,p,c?y:v]),g.fireWith(f,[N,C]),u&&(d.trigger("ajaxComplete",[N,p]),--b.active||b.event.trigger("ajaxStop")))}return N},getScript:function(e,n){return b.get(e,t,n,"script")},getJSON:function(e,t,n){return b.get(e,t,n,"json")}});function _n(e,n,r){var i,o,a,s,u=e.contents,l=e.dataTypes,c=e.responseFields;for(s in c)s in r&&(n[c[s]]=r[s]);while("*"===l[0])l.shift(),o===t&&(o=e.mimeType||n.getResponseHeader("Content-Type"));if(o)for(s in u)if(u[s]&&u[s].test(o)){l.unshift(s);break}if(l[0]in r)a=l[0];else{for(s in r){if(!l[0]||e.converters[s+" "+l[0]]){a=s;break}i||(i=s)}a=a||i}return a?(a!==l[0]&&l.unshift(a),r[a]):t}function Fn(e,t){var n,r,i,o,a={},s=0,u=e.dataTypes.slice(),l=u[0];if(e.dataFilter&&(t=e.dataFilter(t,e.dataType)),u[1])for(i in e.converters)a[i.toLowerCase()]=e.converters[i];for(;r=u[++s];)if("*"!==r){if("*"!==l&&l!==r){if(i=a[l+" "+r]||a["* "+r],!i)for(n in a)if(o=n.split(" "),o[1]===r&&(i=a[l+" "+o[0]]||a["* "+o[0]])){i===!0?i=a[n]:a[n]!==!0&&(r=o[0],u.splice(s--,0,r));break}if(i!==!0)if(i&&e["throws"])t=i(t);else try{t=i(t)}catch(c){return{state:"parsererror",error:i?c:"No conversion from "+l+" to "+r}}}l=r}return{state:"success",data:t}}b.ajaxSetup({accepts:{script:"text/javascript, application/javascript, application/ecmascript, application/x-ecmascript"},contents:{script:/(?:java|ecma)script/},converters:{"text script":function(e){return b.globalEval(e),e}}}),b.ajaxPrefilter("script",function(e){e.cache===t&&(e.cache=!1),e.crossDomain&&(e.type="GET",e.global=!1)}),b.ajaxTransport("script",function(e){if(e.crossDomain){var n,r=o.head||b("head")[0]||o.documentElement;return{send:function(t,i){n=o.createElement("script"),n.async=!0,e.scriptCharset&&(n.charset=e.scriptCharset),n.src=e.url,n.onload=n.onreadystatechange=function(e,t){(t||!n.readyState||/loaded|complete/.test(n.readyState))&&(n.onload=n.onreadystatechange=null,n.parentNode&&n.parentNode.removeChild(n),n=null,t||i(200,"success"))},r.insertBefore(n,r.firstChild)},abort:function(){n&&n.onload(t,!0)}}}});var On=[],Bn=/(=)\?(?=&|$)|\?\?/;b.ajaxSetup({jsonp:"callback",jsonpCallback:function(){var e=On.pop()||b.expando+"_"+vn++;return this[e]=!0,e}}),b.ajaxPrefilter("json jsonp",function(n,r,i){var o,a,s,u=n.jsonp!==!1&&(Bn.test(n.url)?"url":"string"==typeof n.data&&!(n.contentType||"").indexOf("application/x-www-form-urlencoded")&&Bn.test(n.data)&&"data");return u||"jsonp"===n.dataTypes[0]?(o=n.jsonpCallback=b.isFunction(n.jsonpCallback)?n.jsonpCallback():n.jsonpCallback,u?n[u]=n[u].replace(Bn,"$1"+o):n.jsonp!==!1&&(n.url+=(bn.test(n.url)?"&":"?")+n.jsonp+"="+o),n.converters["script json"]=function(){return s||b.error(o+" was not called"),s[0]},n.dataTypes[0]="json",a=e[o],e[o]=function(){s=arguments},i.always(function(){e[o]=a,n[o]&&(n.jsonpCallback=r.jsonpCallback,On.push(o)),s&&b.isFunction(a)&&a(s[0]),s=a=t}),"script"):t});var Pn,Rn,Wn=0,$n=e.ActiveXObject&&function(){var e;for(e in Pn)Pn[e](t,!0)};function In(){try{return new e.XMLHttpRequest}catch(t){}}function zn(){try{return new e.ActiveXObject("Microsoft.XMLHTTP")}catch(t){}}b.ajaxSettings.xhr=e.ActiveXObject?function(){return!this.isLocal&&In()||zn()}:In,Rn=b.ajaxSettings.xhr(),b.support.cors=!!Rn&&"withCredentials"in Rn,Rn=b.support.ajax=!!Rn,Rn&&b.ajaxTransport(function(n){if(!n.crossDomain||b.support.cors){var r;return{send:function(i,o){var a,s,u=n.xhr();if(n.username?u.open(n.type,n.url,n.async,n.username,n.password):u.open(n.type,n.url,n.async),n.xhrFields)for(s in n.xhrFields)u[s]=n.xhrFields[s];n.mimeType&&u.overrideMimeType&&u.overrideMimeType(n.mimeType),n.crossDomain||i["X-Requested-With"]||(i["X-Requested-With"]="XMLHttpRequest");try{for(s in i)u.setRequestHeader(s,i[s])}catch(l){}u.send(n.hasContent&&n.data||null),r=function(e,i){var s,l,c,p;try{if(r&&(i||4===u.readyState))if(r=t,a&&(u.onreadystatechange=b.noop,$n&&delete Pn[a]),i)4!==u.readyState&&u.abort();else{p={},s=u.status,l=u.getAllResponseHeaders(),"string"==typeof u.responseText&&(p.text=u.responseText);try{c=u.statusText}catch(f){c=""}s||!n.isLocal||n.crossDomain?1223===s&&(s=204):s=p.text?200:404}}catch(d){i||o(-1,d)}p&&o(s,c,p,l)},n.async?4===u.readyState?setTimeout(r):(a=++Wn,$n&&(Pn||(Pn={},b(e).unload($n)),Pn[a]=r),u.onreadystatechange=r):r()},abort:function(){r&&r(t,!0)}}}});var Xn,Un,Vn=/^(?:toggle|show|hide)$/,Yn=RegExp("^(?:([+-])=|)("+x+")([a-z%]*)$","i"),Jn=/queueHooks$/,Gn=[nr],Qn={"*":[function(e,t){var n,r,i=this.createTween(e,t),o=Yn.exec(t),a=i.cur(),s=+a||0,u=1,l=20;if(o){if(n=+o[2],r=o[3]||(b.cssNumber[e]?"":"px"),"px"!==r&&s){s=b.css(i.elem,e,!0)||n||1;do u=u||".5",s/=u,b.style(i.elem,e,s+r);while(u!==(u=i.cur()/a)&&1!==u&&--l)}i.unit=r,i.start=s,i.end=o[1]?s+(o[1]+1)*n:n}return i}]};function Kn(){return setTimeout(function(){Xn=t}),Xn=b.now()}function Zn(e,t){b.each(t,function(t,n){var r=(Qn[t]||[]).concat(Qn["*"]),i=0,o=r.length;for(;o>i;i++)if(r[i].call(e,t,n))return})}function er(e,t,n){var r,i,o=0,a=Gn.length,s=b.Deferred().always(function(){delete u.elem}),u=function(){if(i)return!1;var t=Xn||Kn(),n=Math.max(0,l.startTime+l.duration-t),r=n/l.duration||0,o=1-r,a=0,u=l.tweens.length;for(;u>a;a++)l.tweens[a].run(o);return s.notifyWith(e,[l,o,n]),1>o&&u?n:(s.resolveWith(e,[l]),!1)},l=s.promise({elem:e,props:b.extend({},t),opts:b.extend(!0,{specialEasing:{}},n),originalProperties:t,originalOptions:n,startTime:Xn||Kn(),duration:n.duration,tweens:[],createTween:function(t,n){var r=b.Tween(e,l.opts,t,n,l.opts.specialEasing[t]||l.opts.easing);return l.tweens.push(r),r},stop:function(t){var n=0,r=t?l.tweens.length:0;if(i)return this;for(i=!0;r>n;n++)l.tweens[n].run(1);return t?s.resolveWith(e,[l,t]):s.rejectWith(e,[l,t]),this}}),c=l.props;for(tr(c,l.opts.specialEasing);a>o;o++)if(r=Gn[o].call(l,e,c,l.opts))return r;return Zn(l,c),b.isFunction(l.opts.start)&&l.opts.start.call(e,l),b.fx.timer(b.extend(u,{elem:e,anim:l,queue:l.opts.queue})),l.progress(l.opts.progress).done(l.opts.done,l.opts.complete).fail(l.opts.fail).always(l.opts.always)}function tr(e,t){var n,r,i,o,a;for(i in e)if(r=b.camelCase(i),o=t[r],n=e[i],b.isArray(n)&&(o=n[1],n=e[i]=n[0]),i!==r&&(e[r]=n,delete e[i]),a=b.cssHooks[r],a&&"expand"in a){n=a.expand(n),delete e[r];for(i in n)i in e||(e[i]=n[i],t[i]=o)}else t[r]=o}b.Animation=b.extend(er,{tweener:function(e,t){b.isFunction(e)?(t=e,e=["*"]):e=e.split(" ");var n,r=0,i=e.length;for(;i>r;r++)n=e[r],Qn[n]=Qn[n]||[],Qn[n].unshift(t)},prefilter:function(e,t){t?Gn.unshift(e):Gn.push(e)}});function nr(e,t,n){var r,i,o,a,s,u,l,c,p,f=this,d=e.style,h={},g=[],m=e.nodeType&&nn(e);n.queue||(c=b._queueHooks(e,"fx"),null==c.unqueued&&(c.unqueued=0,p=c.empty.fire,c.empty.fire=function(){c.unqueued||p()}),c.unqueued++,f.always(function(){f.always(function(){c.unqueued--,b.queue(e,"fx").length||c.empty.fire()})})),1===e.nodeType&&("height"in t||"width"in t)&&(n.overflow=[d.overflow,d.overflowX,d.overflowY],"inline"===b.css(e,"display")&&"none"===b.css(e,"float")&&(b.support.inlineBlockNeedsLayout&&"inline"!==un(e.nodeName)?d.zoom=1:d.display="inline-block")),n.overflow&&(d.overflow="hidden",b.support.shrinkWrapBlocks||f.always(function(){d.overflow=n.overflow[0],d.overflowX=n.overflow[1],d.overflowY=n.overflow[2]}));for(i in t)if(a=t[i],Vn.exec(a)){if(delete t[i],u=u||"toggle"===a,a===(m?"hide":"show"))continue;g.push(i)}if(o=g.length){s=b._data(e,"fxshow")||b._data(e,"fxshow",{}),"hidden"in s&&(m=s.hidden),u&&(s.hidden=!m),m?b(e).show():f.done(function(){b(e).hide()}),f.done(function(){var t;b._removeData(e,"fxshow");for(t in h)b.style(e,t,h[t])});for(i=0;o>i;i++)r=g[i],l=f.createTween(r,m?s[r]:0),h[r]=s[r]||b.style(e,r),r in s||(s[r]=l.start,m&&(l.end=l.start,l.start="width"===r||"height"===r?1:0))}}function rr(e,t,n,r,i){return new rr.prototype.init(e,t,n,r,i)}b.Tween=rr,rr.prototype={constructor:rr,init:function(e,t,n,r,i,o){this.elem=e,this.prop=n,this.easing=i||"swing",this.options=t,this.start=this.now=this.cur(),this.end=r,this.unit=o||(b.cssNumber[n]?"":"px")},cur:function(){var e=rr.propHooks[this.prop];return e&&e.get?e.get(this):rr.propHooks._default.get(this)},run:function(e){var t,n=rr.propHooks[this.prop];return this.pos=t=this.options.duration?b.easing[this.easing](e,this.options.duration*e,0,1,this.options.duration):e,this.now=(this.end-this.start)*t+this.start,this.options.step&&this.options.step.call(this.elem,this.now,this),n&&n.set?n.set(this):rr.propHooks._default.set(this),this}},rr.prototype.init.prototype=rr.prototype,rr.propHooks={_default:{get:function(e){var t;return null==e.elem[e.prop]||e.elem.style&&null!=e.elem.style[e.prop]?(t=b.css(e.elem,e.prop,""),t&&"auto"!==t?t:0):e.elem[e.prop]},set:function(e){b.fx.step[e.prop]?b.fx.step[e.prop](e):e.elem.style&&(null!=e.elem.style[b.cssProps[e.prop]]||b.cssHooks[e.prop])?b.style(e.elem,e.prop,e.now+e.unit):e.elem[e.prop]=e.now}}},rr.propHooks.scrollTop=rr.propHooks.scrollLeft={set:function(e){e.elem.nodeType&&e.elem.parentNode&&(e.elem[e.prop]=e.now)}},b.each(["toggle","show","hide"],function(e,t){var n=b.fn[t];b.fn[t]=function(e,r,i){return null==e||"boolean"==typeof e?n.apply(this,arguments):this.animate(ir(t,!0),e,r,i)}}),b.fn.extend({fadeTo:function(e,t,n,r){return this.filter(nn).css("opacity",0).show().end().animate({opacity:t},e,n,r)},animate:function(e,t,n,r){var i=b.isEmptyObject(e),o=b.speed(t,n,r),a=function(){var t=er(this,b.extend({},e),o);a.finish=function(){t.stop(!0)},(i||b._data(this,"finish"))&&t.stop(!0)};return a.finish=a,i||o.queue===!1?this.each(a):this.queue(o.queue,a)},stop:function(e,n,r){var i=function(e){var t=e.stop;delete e.stop,t(r)};return"string"!=typeof e&&(r=n,n=e,e=t),n&&e!==!1&&this.queue(e||"fx",[]),this.each(function(){var t=!0,n=null!=e&&e+"queueHooks",o=b.timers,a=b._data(this);if(n)a[n]&&a[n].stop&&i(a[n]);else for(n in a)a[n]&&a[n].stop&&Jn.test(n)&&i(a[n]);for(n=o.length;n--;)o[n].elem!==this||null!=e&&o[n].queue!==e||(o[n].anim.stop(r),t=!1,o.splice(n,1));(t||!r)&&b.dequeue(this,e)})},finish:function(e){return e!==!1&&(e=e||"fx"),this.each(function(){var t,n=b._data(this),r=n[e+"queue"],i=n[e+"queueHooks"],o=b.timers,a=r?r.length:0;for(n.finish=!0,b.queue(this,e,[]),i&&i.cur&&i.cur.finish&&i.cur.finish.call(this),t=o.length;t--;)o[t].elem===this&&o[t].queue===e&&(o[t].anim.stop(!0),o.splice(t,1));for(t=0;a>t;t++)r[t]&&r[t].finish&&r[t].finish.call(this);delete n.finish})}});function ir(e,t){var n,r={height:e},i=0;for(t=t?1:0;4>i;i+=2-t)n=Zt[i],r["margin"+n]=r["padding"+n]=e;return t&&(r.opacity=r.width=e),r}b.each({slideDown:ir("show"),slideUp:ir("hide"),slideToggle:ir("toggle"),fadeIn:{opacity:"show"},fadeOut:{opacity:"hide"},fadeToggle:{opacity:"toggle"}},function(e,t){b.fn[e]=function(e,n,r){return this.animate(t,e,n,r)}}),b.speed=function(e,t,n){var r=e&&"object"==typeof e?b.extend({},e):{complete:n||!n&&t||b.isFunction(e)&&e,duration:e,easing:n&&t||t&&!b.isFunction(t)&&t};return r.duration=b.fx.off?0:"number"==typeof r.duration?r.duration:r.duration in b.fx.speeds?b.fx.speeds[r.duration]:b.fx.speeds._default,(null==r.queue||r.queue===!0)&&(r.queue="fx"),r.old=r.complete,r.complete=function(){b.isFunction(r.old)&&r.old.call(this),r.queue&&b.dequeue(this,r.queue)},r},b.easing={linear:function(e){return e},swing:function(e){return.5-Math.cos(e*Math.PI)/2}},b.timers=[],b.fx=rr.prototype.init,b.fx.tick=function(){var e,n=b.timers,r=0;for(Xn=b.now();n.length>r;r++)e=n[r],e()||n[r]!==e||n.splice(r--,1);n.length||b.fx.stop(),Xn=t},b.fx.timer=function(e){e()&&b.timers.push(e)&&b.fx.start()},b.fx.interval=13,b.fx.start=function(){Un||(Un=setInterval(b.fx.tick,b.fx.interval))},b.fx.stop=function(){clearInterval(Un),Un=null},b.fx.speeds={slow:600,fast:200,_default:400},b.fx.step={},b.expr&&b.expr.filters&&(b.expr.filters.animated=function(e){return b.grep(b.timers,function(t){return e===t.elem}).length}),b.fn.offset=function(e){if(arguments.length)return e===t?this:this.each(function(t){b.offset.setOffset(this,e,t)});var n,r,o={top:0,left:0},a=this[0],s=a&&a.ownerDocument;if(s)return n=s.documentElement,b.contains(n,a)?(typeof a.getBoundingClientRect!==i&&(o=a.getBoundingClientRect()),r=or(s),{top:o.top+(r.pageYOffset||n.scrollTop)-(n.clientTop||0),left:o.left+(r.pageXOffset||n.scrollLeft)-(n.clientLeft||0)}):o},b.offset={setOffset:function(e,t,n){var r=b.css(e,"position");"static"===r&&(e.style.position="relative");var i=b(e),o=i.offset(),a=b.css(e,"top"),s=b.css(e,"left"),u=("absolute"===r||"fixed"===r)&&b.inArray("auto",[a,s])>-1,l={},c={},p,f;u?(c=i.position(),p=c.top,f=c.left):(p=parseFloat(a)||0,f=parseFloat(s)||0),b.isFunction(t)&&(t=t.call(e,n,o)),null!=t.top&&(l.top=t.top-o.top+p),null!=t.left&&(l.left=t.left-o.left+f),"using"in t?t.using.call(e,l):i.css(l)}},b.fn.extend({position:function(){if(this[0]){var e,t,n={top:0,left:0},r=this[0];return"fixed"===b.css(r,"position")?t=r.getBoundingClientRect():(e=this.offsetParent(),t=this.offset(),b.nodeName(e[0],"html")||(n=e.offset()),n.top+=b.css(e[0],"borderTopWidth",!0),n.left+=b.css(e[0],"borderLeftWidth",!0)),{top:t.top-n.top-b.css(r,"marginTop",!0),left:t.left-n.left-b.css(r,"marginLeft",!0)}}},offsetParent:function(){return this.map(function(){var e=this.offsetParent||o.documentElement;while(e&&!b.nodeName(e,"html")&&"static"===b.css(e,"position"))e=e.offsetParent;return e||o.documentElement})}}),b.each({scrollLeft:"pageXOffset",scrollTop:"pageYOffset"},function(e,n){var r=/Y/.test(n);b.fn[e]=function(i){return b.access(this,function(e,i,o){var a=or(e);return o===t?a?n in a?a[n]:a.document.documentElement[i]:e[i]:(a?a.scrollTo(r?b(a).scrollLeft():o,r?o:b(a).scrollTop()):e[i]=o,t)},e,i,arguments.length,null)}});function or(e){return b.isWindow(e)?e:9===e.nodeType?e.defaultView||e.parentWindow:!1}b.each({Height:"height",Width:"width"},function(e,n){b.each({padding:"inner"+e,content:n,"":"outer"+e},function(r,i){b.fn[i]=function(i,o){var a=arguments.length&&(r||"boolean"!=typeof i),s=r||(i===!0||o===!0?"margin":"border");return b.access(this,function(n,r,i){var o;return b.isWindow(n)?n.document.documentElement["client"+e]:9===n.nodeType?(o=n.documentElement,Math.max(n.body["scroll"+e],o["scroll"+e],n.body["offset"+e],o["offset"+e],o["client"+e])):i===t?b.css(n,r,s):b.style(n,r,i,s)},n,a?i:t,a,null)}})}),e.jQuery=e.$=b,"function"==typeof define&&define.amd&&define.amd.jQuery&&define("jquery",[],function(){return b})})(window);
-define("jQuery", (function (global) {
-    return function () {
-        var ret, fn;
-        return ret || global.jQuery;
-    };
-}(this)));
 
 /***
  * Contains core SlickGrid classes.
@@ -12677,8 +12851,8 @@ define('scalejs.linq-linqjs',[
 
                     this._listeners.forEach(function (l) {
                         if (l.onEntry) {
-                            evaluateAction(function () {
-                                l.onEntry.call(this, state.id);
+                            evaluateAction(function (currentEvent) {
+                                l.onEntry.call(this, state.id, currentEvent);
                             });
                         }
                     });
@@ -14654,7 +14828,7 @@ define('scalejs.statechart-scion',[
 
     return classBindingsProvider;
 }));
-/*global define,document*/
+/*global define,document,WinJS*/
 define('scalejs.mvvm/htmlTemplateSource',[
     'knockout',
     'scalejs!core'
@@ -14676,7 +14850,13 @@ define('scalejs.mvvm/htmlTemplateSource',[
         // for every child get its templateId and templateHtml 
         // and add it to 'templates'            
         var div = document.createElement('div');
-        div.innerHTML = templatesHtml;
+
+        if (typeof WinJS !== 'undefined') {
+            WinJS.Utilities.setInnerHTMLUnsafe(div, templatesHtml);
+        } else {
+            div.innerHTML = templatesHtml;
+        }
+
         toArray(div.childNodes).forEach(function (childNode) {
             if (childNode.nodeType === 1 && has(childNode, 'id')) {
                 templates[childNode.id] = childNode.innerHTML;
@@ -14946,9 +15126,13 @@ define('scalejs.mvvm/mvvm',[
     }
 
     function init() {
-        var body = document.getElementsByTagName('body')[0];
+        var body = document.getElementsByTagName('body')[0],
+            opening_comment = document.createComment(' ko class: scalejs-shell '),
+            closing_comment = document.createComment(' /ko ');
 
-        body.innerHTML = '<!-- ko class: scalejs-shell --><!-- /ko -->';
+        body.appendChild(opening_comment);
+        body.appendChild(closing_comment);
+
         registerBindings({
             'scalejs-shell': function (context) {
                 return {
@@ -15083,7 +15267,7 @@ define('scalejs.bindings/render',[
     var is = core.type.is,
         has = core.object.has,
         unwrap = ko.utils.unwrapObservable,
-        complete = core.functional.builders.complete,
+        continuation = core.functional.builders.continuation,
         $DO = core.functional.builder.$DO;
 
     function init() {
@@ -15144,7 +15328,7 @@ define('scalejs.bindings/render',[
             inTransitions = binding.transitions.inTransitions.map(function (t) { return $DO(t); });
         }
 
-        render = complete.apply(null, outTransitions.concat($DO(applyBindings)).concat(inTransitions));
+        render = continuation.apply(null, outTransitions.concat($DO(applyBindings)).concat(inTransitions));
 
         context = {
             getElement: function () {
@@ -15599,7 +15783,6 @@ define('scalejs.grid-slick/observableFilters',[
         ko.applyBindings(bindings, node);
 
         function sendExpression(expression) {
-            console.log(expression);
             filter(expression || []);
         }
 
@@ -16275,7 +16458,6 @@ define('scalejs.grid-slick/slickGrid',[
                 options.viewport.subscribe(function (vp) {
                     // stop stack overflow due to unknown issue with slickgrid
                     if (vp.top > top + 2 || vp.top < top -2) {
-                        console.log(vp.top);
                         grid.scrollRowIntoView(vp.top);
                         top = vp.top;
                     }
@@ -16284,7 +16466,7 @@ define('scalejs.grid-slick/slickGrid',[
         }
 
         function subscribeToLayout() {
-            if (core.layout && core.layout.onLayoutDone) {
+            if (core.layout) {
                 core.layout.onLayoutDone(function () {
                     grid.resizeCanvas();
                     if (isObservable(options.viewport)) {
@@ -19371,6 +19553,6774 @@ define('scalejs.layout-cssgrid',[
 });
 
 
+// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
+
+;(function (undefined) {
+
+    var objectTypes = {
+        'boolean': false,
+        'function': true,
+        'object': true,
+        'number': false,
+        'string': false,
+        'undefined': false
+    };
+
+    var root = (objectTypes[typeof window] && window) || this,
+        freeExports = objectTypes[typeof exports] && exports && !exports.nodeType && exports,
+        freeModule = objectTypes[typeof module] && module && !module.nodeType && module,
+        moduleExports = freeModule && freeModule.exports === freeExports && freeExports,
+        freeGlobal = objectTypes[typeof global] && global;
+    
+    if (freeGlobal && (freeGlobal.global === freeGlobal || freeGlobal.window === freeGlobal)) {
+        root = freeGlobal;
+    }
+
+    var Rx = { internals: {}, config: {} };
+    
+  // Defaults
+  function noop() { }
+  function identity(x) { return x; }
+  var defaultNow = Date.now;
+  function defaultComparer(x, y) { return isEqual(x, y); }
+  function defaultSubComparer(x, y) { return x - y; }
+  function defaultKeySerializer(x) { return x.toString(); }
+  function defaultError(err) { throw err; }
+  function isPromise(p) { return typeof p.then === 'function' && p.then !== Rx.Observable.prototype.then; }
+
+  // Errors
+  var sequenceContainsNoElements = 'Sequence contains no elements.';
+  var argumentOutOfRange = 'Argument out of range';
+  var objectDisposed = 'Object has been disposed';
+  function checkDisposed() { if (this.isDisposed) { throw new Error(objectDisposed); } }  
+  
+  // Shim in iterator support
+  var $iterator$ = (typeof Symbol === 'object' && Symbol.iterator) ||
+    '_es6shim_iterator_';
+  // Firefox ships a partial implementation using the name @@iterator.
+  // https://bugzilla.mozilla.org/show_bug.cgi?id=907077#c14
+  // So use that name if we detect it.
+  if (root.Set && typeof new root.Set()['@@iterator'] === 'function') {
+    $iterator$ = '@@iterator';
+  }
+  var doneEnumerator = { done: true, value: undefined };
+
+  /** `Object#toString` result shortcuts */
+  var argsClass = '[object Arguments]',
+    arrayClass = '[object Array]',
+    boolClass = '[object Boolean]',
+    dateClass = '[object Date]',
+    errorClass = '[object Error]',
+    funcClass = '[object Function]',
+    numberClass = '[object Number]',
+    objectClass = '[object Object]',
+    regexpClass = '[object RegExp]',
+    stringClass = '[object String]';
+
+  var toString = Object.prototype.toString,
+    hasOwnProperty = Object.prototype.hasOwnProperty,  
+    supportsArgsClass = toString.call(arguments) == argsClass, // For less <IE9 && FF<4
+    suportNodeClass,
+    errorProto = Error.prototype,
+    objectProto = Object.prototype,
+    propertyIsEnumerable = objectProto.propertyIsEnumerable;
+
+  try {
+      suportNodeClass = !(toString.call(document) == objectClass && !({ 'toString': 0 } + ''));
+  } catch(e) {
+      suportNodeClass = true;
+  }
+
+  var shadowedProps = [
+    'constructor', 'hasOwnProperty', 'isPrototypeOf', 'propertyIsEnumerable', 'toLocaleString', 'toString', 'valueOf'
+  ];
+
+  var nonEnumProps = {};
+  nonEnumProps[arrayClass] = nonEnumProps[dateClass] = nonEnumProps[numberClass] = { 'constructor': true, 'toLocaleString': true, 'toString': true, 'valueOf': true };
+  nonEnumProps[boolClass] = nonEnumProps[stringClass] = { 'constructor': true, 'toString': true, 'valueOf': true };
+  nonEnumProps[errorClass] = nonEnumProps[funcClass] = nonEnumProps[regexpClass] = { 'constructor': true, 'toString': true };
+  nonEnumProps[objectClass] = { 'constructor': true };
+
+  var support = {};
+  (function () {
+    var ctor = function() { this.x = 1; },
+      props = [];
+
+    ctor.prototype = { 'valueOf': 1, 'y': 1 };
+    for (var key in new ctor) { props.push(key); }      
+    for (key in arguments) { }
+
+    // Detect if `name` or `message` properties of `Error.prototype` are enumerable by default.
+    support.enumErrorProps = propertyIsEnumerable.call(errorProto, 'message') || propertyIsEnumerable.call(errorProto, 'name');
+
+    // Detect if `prototype` properties are enumerable by default.
+    support.enumPrototypes = propertyIsEnumerable.call(ctor, 'prototype');
+
+    // Detect if `arguments` object indexes are non-enumerable
+    support.nonEnumArgs = key != 0;
+
+    // Detect if properties shadowing those on `Object.prototype` are non-enumerable.
+    support.nonEnumShadows = !/valueOf/.test(props);
+  }(1));
+
+  function isObject(value) {
+    // check if the value is the ECMAScript language type of Object
+    // http://es5.github.io/#x8
+    // and avoid a V8 bug
+    // https://code.google.com/p/v8/issues/detail?id=2291
+    var type = typeof value;
+    return value && (type == 'function' || type == 'object') || false;
+  }
+
+  function keysIn(object) {
+    var result = [];
+    if (!isObject(object)) {
+      return result;
+    }
+    if (support.nonEnumArgs && object.length && isArguments(object)) {
+      object = slice.call(object);
+    }
+    var skipProto = support.enumPrototypes && typeof object == 'function',
+        skipErrorProps = support.enumErrorProps && (object === errorProto || object instanceof Error);
+
+    for (var key in object) {
+      if (!(skipProto && key == 'prototype') &&
+          !(skipErrorProps && (key == 'message' || key == 'name'))) {
+        result.push(key);
+      }
+    }
+
+    if (support.nonEnumShadows && object !== objectProto) {
+      var ctor = object.constructor,
+          index = -1,
+          length = shadowedProps.length;
+
+      if (object === (ctor && ctor.prototype)) {
+        var className = object === stringProto ? stringClass : object === errorProto ? errorClass : toString.call(object),
+            nonEnum = nonEnumProps[className];
+      }
+      while (++index < length) {
+        key = shadowedProps[index];
+        if (!(nonEnum && nonEnum[key]) && hasOwnProperty.call(object, key)) {
+          result.push(key);
+        }
+      }
+    }
+    return result;
+  }
+
+  function internalFor(object, callback, keysFunc) {
+    var index = -1,
+      props = keysFunc(object),
+      length = props.length;
+
+    while (++index < length) {
+      var key = props[index];
+      if (callback(object[key], key, object) === false) {
+        break;
+      }
+    }
+    return object;
+  }   
+
+  function internalForIn(object, callback) {
+    return internalFor(object, callback, keysIn);
+  }
+
+  function isNode(value) {
+    // IE < 9 presents DOM nodes as `Object` objects except they have `toString`
+    // methods that are `typeof` "string" and still can coerce nodes to strings
+    return typeof value.toString != 'function' && typeof (value + '') == 'string';
+  }
+
+  function isArguments(value) {
+    return (value && typeof value == 'object') ? toString.call(value) == argsClass : false;
+  }
+
+  // fallback for browsers that can't detect `arguments` objects by [[Class]]
+  if (!supportsArgsClass) {
+    isArguments = function(value) {
+      return (value && typeof value == 'object') ? hasOwnProperty.call(value, 'callee') : false;
+    };
+  }
+
+  function isFunction(value) {
+    return typeof value == 'function';
+  }
+
+  // fallback for older versions of Chrome and Safari
+  if (isFunction(/x/)) {
+    isFunction = function(value) {
+      return typeof value == 'function' && toString.call(value) == funcClass;
+    };
+  }        
+
+  var isEqual = Rx.internals.isEqual = function (x, y) {
+    return deepEquals(x, y, [], []); 
+  };
+
+  /** @private
+   * Used for deep comparison
+   **/
+  function deepEquals(a, b, stackA, stackB) {
+    // exit early for identical values
+    if (a === b) {
+      // treat `+0` vs. `-0` as not equal
+      return a !== 0 || (1 / a == 1 / b);
+    }
+
+    var type = typeof a,
+        otherType = typeof b;
+
+    // exit early for unlike primitive values
+    if (a === a && (a == null || b == null ||
+        (type != 'function' && type != 'object' && otherType != 'function' && otherType != 'object'))) {
+      return false;
+    }
+
+    // compare [[Class]] names
+    var className = toString.call(a),
+        otherClass = toString.call(b);
+
+    if (className == argsClass) {
+      className = objectClass;
+    }
+    if (otherClass == argsClass) {
+      otherClass = objectClass;
+    }
+    if (className != otherClass) {
+      return false;
+    }
+    switch (className) {
+      case boolClass:
+      case dateClass:
+        // coerce dates and booleans to numbers, dates to milliseconds and booleans
+        // to `1` or `0` treating invalid dates coerced to `NaN` as not equal
+        return +a == +b;
+
+      case numberClass:
+        // treat `NaN` vs. `NaN` as equal
+        return (a != +a)
+          ? b != +b
+          // but treat `-0` vs. `+0` as not equal
+          : (a == 0 ? (1 / a == 1 / b) : a == +b);
+
+      case regexpClass:
+      case stringClass:
+        // coerce regexes to strings (http://es5.github.io/#x15.10.6.4)
+        // treat string primitives and their corresponding object instances as equal
+        return a == String(b);
+    }
+    var isArr = className == arrayClass;
+    if (!isArr) {
+
+      // exit for functions and DOM nodes
+      if (className != objectClass || (!support.nodeClass && (isNode(a) || isNode(b)))) {
+        return false;
+      }
+      // in older versions of Opera, `arguments` objects have `Array` constructors
+      var ctorA = !support.argsObject && isArguments(a) ? Object : a.constructor,
+          ctorB = !support.argsObject && isArguments(b) ? Object : b.constructor;
+
+      // non `Object` object instances with different constructors are not equal
+      if (ctorA != ctorB &&
+            !(hasOwnProperty.call(a, 'constructor') && hasOwnProperty.call(b, 'constructor')) &&
+            !(isFunction(ctorA) && ctorA instanceof ctorA && isFunction(ctorB) && ctorB instanceof ctorB) &&
+            ('constructor' in a && 'constructor' in b)
+          ) {
+        return false;
+      }
+    }
+    // assume cyclic structures are equal
+    // the algorithm for detecting cyclic structures is adapted from ES 5.1
+    // section 15.12.3, abstract operation `JO` (http://es5.github.io/#x15.12.3)
+    var initedStack = !stackA;
+    stackA || (stackA = []);
+    stackB || (stackB = []);
+
+    var length = stackA.length;
+    while (length--) {
+      if (stackA[length] == a) {
+        return stackB[length] == b;
+      }
+    }
+    var size = 0;
+    result = true;
+
+    // add `a` and `b` to the stack of traversed objects
+    stackA.push(a);
+    stackB.push(b);
+
+    // recursively compare objects and arrays (susceptible to call stack limits)
+    if (isArr) {
+      // compare lengths to determine if a deep comparison is necessary
+      length = a.length;
+      size = b.length;
+      result = size == length;
+
+      if (result) {
+        // deep compare the contents, ignoring non-numeric properties
+        while (size--) {
+          var index = length,
+              value = b[size];
+
+          if (!(result = deepEquals(a[size], value, stackA, stackB))) {
+            break;
+          }
+        }
+      }
+    }
+    else {
+      // deep compare objects using `forIn`, instead of `forOwn`, to avoid `Object.keys`
+      // which, in this case, is more costly
+      internalForIn(b, function(value, key, b) {
+        if (hasOwnProperty.call(b, key)) {
+          // count the number of properties.
+          size++;
+          // deep compare each property value.
+          return (result = hasOwnProperty.call(a, key) && deepEquals(a[key], value, stackA, stackB));
+        }
+      });
+
+      if (result) {
+        // ensure both objects have the same number of properties
+        internalForIn(a, function(value, key, a) {
+          if (hasOwnProperty.call(a, key)) {
+            // `size` will be `-1` if `a` has more properties than `b`
+            return (result = --size > -1);
+          }
+        });
+      }
+    }
+    stackA.pop();
+    stackB.pop();
+
+    return result;
+  }
+    var slice = Array.prototype.slice;
+    function argsOrArray(args, idx) {
+        return args.length === 1 && Array.isArray(args[idx]) ?
+            args[idx] :
+            slice.call(args);
+    }
+    var hasProp = {}.hasOwnProperty;
+
+    /** @private */
+    var inherits = this.inherits = Rx.internals.inherits = function (child, parent) {
+        function __() { this.constructor = child; }
+        __.prototype = parent.prototype;
+        child.prototype = new __();
+    };
+
+    /** @private */    
+    var addProperties = Rx.internals.addProperties = function (obj) {
+        var sources = slice.call(arguments, 1);
+        for (var i = 0, len = sources.length; i < len; i++) {
+            var source = sources[i];
+            for (var prop in source) {
+                obj[prop] = source[prop];
+            }
+        }
+    };
+
+    // Rx Utils
+    var addRef = Rx.internals.addRef = function (xs, r) {
+        return new AnonymousObservable(function (observer) {
+            return new CompositeDisposable(r.getDisposable(), xs.subscribe(observer));
+        });
+    };
+
+    // Collection polyfills
+    function arrayInitialize(count, factory) {
+        var a = new Array(count);
+        for (var i = 0; i < count; i++) {
+            a[i] = factory();
+        }
+        return a;
+    }
+
+    // Collections
+    var IndexedItem = function (id, value) {
+        this.id = id;
+        this.value = value;
+    };
+
+    IndexedItem.prototype.compareTo = function (other) {
+        var c = this.value.compareTo(other.value);
+        if (c === 0) {
+            c = this.id - other.id;
+        }
+        return c;
+    };
+
+    // Priority Queue for Scheduling
+    var PriorityQueue = Rx.internals.PriorityQueue = function (capacity) {
+        this.items = new Array(capacity);
+        this.length = 0;
+    };
+
+    var priorityProto = PriorityQueue.prototype;
+    priorityProto.isHigherPriority = function (left, right) {
+        return this.items[left].compareTo(this.items[right]) < 0;
+    };
+
+    priorityProto.percolate = function (index) {
+        if (index >= this.length || index < 0) {
+            return;
+        }
+        var parent = index - 1 >> 1;
+        if (parent < 0 || parent === index) {
+            return;
+        }
+        if (this.isHigherPriority(index, parent)) {
+            var temp = this.items[index];
+            this.items[index] = this.items[parent];
+            this.items[parent] = temp;
+            this.percolate(parent);
+        }
+    };
+
+    priorityProto.heapify = function (index) {
+        if (index === undefined) {
+            index = 0;
+        }
+        if (index >= this.length || index < 0) {
+            return;
+        }
+        var left = 2 * index + 1,
+            right = 2 * index + 2,
+            first = index;
+        if (left < this.length && this.isHigherPriority(left, first)) {
+            first = left;
+        }
+        if (right < this.length && this.isHigherPriority(right, first)) {
+            first = right;
+        }
+        if (first !== index) {
+            var temp = this.items[index];
+            this.items[index] = this.items[first];
+            this.items[first] = temp;
+            this.heapify(first);
+        }
+    };
+    
+    priorityProto.peek = function () {  return this.items[0].value; };
+
+    priorityProto.removeAt = function (index) {
+        this.items[index] = this.items[--this.length];
+        delete this.items[this.length];
+        this.heapify();
+    };
+
+    priorityProto.dequeue = function () {
+        var result = this.peek();
+        this.removeAt(0);
+        return result;
+    };
+
+    priorityProto.enqueue = function (item) {
+        var index = this.length++;
+        this.items[index] = new IndexedItem(PriorityQueue.count++, item);
+        this.percolate(index);
+    };
+
+    priorityProto.remove = function (item) {
+        for (var i = 0; i < this.length; i++) {
+            if (this.items[i].value === item) {
+                this.removeAt(i);
+                return true;
+            }
+        }
+        return false;
+    };
+    PriorityQueue.count = 0;
+    /**
+     * Represents a group of disposable resources that are disposed together.
+     * @constructor
+     */
+    var CompositeDisposable = Rx.CompositeDisposable = function () {
+        this.disposables = argsOrArray(arguments, 0);
+        this.isDisposed = false;
+        this.length = this.disposables.length;
+    };
+
+    var CompositeDisposablePrototype = CompositeDisposable.prototype;
+
+    /**
+     * Adds a disposable to the CompositeDisposable or disposes the disposable if the CompositeDisposable is disposed.
+     * @param {Mixed} item Disposable to add.
+     */    
+    CompositeDisposablePrototype.add = function (item) {
+        if (this.isDisposed) {
+            item.dispose();
+        } else {
+            this.disposables.push(item);
+            this.length++;
+        }
+    };
+
+    /**
+     * Removes and disposes the first occurrence of a disposable from the CompositeDisposable.
+     * @param {Mixed} item Disposable to remove.
+     * @returns {Boolean} true if found; false otherwise.
+     */
+    CompositeDisposablePrototype.remove = function (item) {
+        var shouldDispose = false;
+        if (!this.isDisposed) {
+            var idx = this.disposables.indexOf(item);
+            if (idx !== -1) {
+                shouldDispose = true;
+                this.disposables.splice(idx, 1);
+                this.length--;
+                item.dispose();
+            }
+
+        }
+        return shouldDispose;
+    };
+
+    /**
+     *  Disposes all disposables in the group and removes them from the group.  
+     */
+    CompositeDisposablePrototype.dispose = function () {
+        if (!this.isDisposed) {
+            this.isDisposed = true;
+            var currentDisposables = this.disposables.slice(0);
+            this.disposables = [];
+            this.length = 0;
+
+            for (var i = 0, len = currentDisposables.length; i < len; i++) {
+                currentDisposables[i].dispose();
+            }
+        }
+    };
+
+    /**
+     * Removes and disposes all disposables from the CompositeDisposable, but does not dispose the CompositeDisposable.
+     */   
+    CompositeDisposablePrototype.clear = function () {
+        var currentDisposables = this.disposables.slice(0);
+        this.disposables = [];
+        this.length = 0;
+        for (var i = 0, len = currentDisposables.length; i < len; i++) {
+            currentDisposables[i].dispose();
+        }
+    };
+
+    /**
+     * Determines whether the CompositeDisposable contains a specific disposable.    
+     * @param {Mixed} item Disposable to search for.
+     * @returns {Boolean} true if the disposable was found; otherwise, false.
+     */    
+    CompositeDisposablePrototype.contains = function (item) {
+        return this.disposables.indexOf(item) !== -1;
+    };
+
+    /**
+     * Converts the existing CompositeDisposable to an array of disposables
+     * @returns {Array} An array of disposable objects.
+     */  
+    CompositeDisposablePrototype.toArray = function () {
+        return this.disposables.slice(0);
+    };
+    
+    /**
+     * Provides a set of static methods for creating Disposables.
+     *
+     * @constructor 
+     * @param {Function} dispose Action to run during the first call to dispose. The action is guaranteed to be run at most once.
+     */
+    var Disposable = Rx.Disposable = function (action) {
+        this.isDisposed = false;
+        this.action = action || noop;
+    };
+
+    /** Performs the task of cleaning up resources. */     
+    Disposable.prototype.dispose = function () {
+        if (!this.isDisposed) {
+            this.action();
+            this.isDisposed = true;
+        }
+    };
+
+    /**
+     * Creates a disposable object that invokes the specified action when disposed.
+     * @param {Function} dispose Action to run during the first call to dispose. The action is guaranteed to be run at most once.
+     * @return {Disposable} The disposable object that runs the given action upon disposal.
+     */
+    var disposableCreate = Disposable.create = function (action) { return new Disposable(action); };
+
+    /** 
+     * Gets the disposable that does nothing when disposed. 
+     */
+    var disposableEmpty = Disposable.empty = { dispose: noop };
+
+    var BooleanDisposable = (function () {
+        function BooleanDisposable (isSingle) {
+            this.isSingle = isSingle;
+            this.isDisposed = false;
+            this.current = null;
+        }
+
+        var booleanDisposablePrototype = BooleanDisposable.prototype;
+
+        /**
+         * Gets the underlying disposable.
+         * @return The underlying disposable.
+         */
+        booleanDisposablePrototype.getDisposable = function () {
+            return this.current;
+        };
+
+        /**
+         * Sets the underlying disposable.
+         * @param {Disposable} value The new underlying disposable.
+         */  
+        booleanDisposablePrototype.setDisposable = function (value) {
+            if (this.current && this.isSingle) {
+                throw new Error('Disposable has already been assigned');
+            }
+
+            var shouldDispose = this.isDisposed, old;
+            if (!shouldDispose) {
+                old = this.current;
+                this.current = value;
+            }
+            if (old) {
+                old.dispose();
+            }
+            if (shouldDispose && value) {
+                value.dispose();
+            }
+        };
+
+        /** 
+         * Disposes the underlying disposable as well as all future replacements.
+         */
+        booleanDisposablePrototype.dispose = function () {
+            var old;
+            if (!this.isDisposed) {
+                this.isDisposed = true;
+                old = this.current;
+                this.current = null;
+            }
+            if (old) {
+                old.dispose();
+            }
+        };
+
+        return BooleanDisposable;
+    }());
+
+    /**
+     * Represents a disposable resource which only allows a single assignment of its underlying disposable resource.
+     * If an underlying disposable resource has already been set, future attempts to set the underlying disposable resource will throw an Error.
+     */
+    var SingleAssignmentDisposable = Rx.SingleAssignmentDisposable = (function (super_) {
+        inherits(SingleAssignmentDisposable, super_);
+
+        function SingleAssignmentDisposable() {
+            super_.call(this, true);
+        }
+
+        return SingleAssignmentDisposable;
+    }(BooleanDisposable));
+
+    /**
+     * Represents a disposable resource whose underlying disposable resource can be replaced by another disposable resource, causing automatic disposal of the previous underlying disposable resource.
+     */
+    var SerialDisposable = Rx.SerialDisposable = (function (super_) {
+        inherits(SerialDisposable, super_);
+
+        function SerialDisposable() {
+            super_.call(this, false);
+        }
+
+        return SerialDisposable;
+    }(BooleanDisposable));
+
+    /**
+     * Represents a disposable resource that only disposes its underlying disposable resource when all dependent disposable objects have been disposed.
+     */  
+    var RefCountDisposable = Rx.RefCountDisposable = (function () {
+
+        function InnerDisposable(disposable) {
+            this.disposable = disposable;
+            this.disposable.count++;
+            this.isInnerDisposed = false;
+        }
+
+        InnerDisposable.prototype.dispose = function () {
+            if (!this.disposable.isDisposed) {
+                if (!this.isInnerDisposed) {
+                    this.isInnerDisposed = true;
+                    this.disposable.count--;
+                    if (this.disposable.count === 0 && this.disposable.isPrimaryDisposed) {
+                        this.disposable.isDisposed = true;
+                        this.disposable.underlyingDisposable.dispose();
+                    }
+                }
+            }
+        };
+
+        /**
+         * Initializes a new instance of the RefCountDisposable with the specified disposable.
+         * @constructor
+         * @param {Disposable} disposable Underlying disposable.
+          */
+        function RefCountDisposable(disposable) {
+            this.underlyingDisposable = disposable;
+            this.isDisposed = false;
+            this.isPrimaryDisposed = false;
+            this.count = 0;
+        }
+
+        /** 
+         * Disposes the underlying disposable only when all dependent disposables have been disposed 
+         */
+        RefCountDisposable.prototype.dispose = function () {
+            if (!this.isDisposed) {
+                if (!this.isPrimaryDisposed) {
+                    this.isPrimaryDisposed = true;
+                    if (this.count === 0) {
+                        this.isDisposed = true;
+                        this.underlyingDisposable.dispose();
+                    }
+                }
+            }
+        };
+
+        /**
+         * Returns a dependent disposable that when disposed decreases the refcount on the underlying disposable.      
+         * @returns {Disposable} A dependent disposable contributing to the reference count that manages the underlying disposable's lifetime.
+         */        
+        RefCountDisposable.prototype.getDisposable = function () {
+            return this.isDisposed ? disposableEmpty : new InnerDisposable(this);
+        };
+
+        return RefCountDisposable;
+    })();
+
+    function ScheduledDisposable(scheduler, disposable) {
+        this.scheduler = scheduler;
+        this.disposable = disposable;
+        this.isDisposed = false;
+    }
+
+    ScheduledDisposable.prototype.dispose = function () {
+        var parent = this;
+        this.scheduler.schedule(function () {
+            if (!parent.isDisposed) {
+                parent.isDisposed = true;
+                parent.disposable.dispose();
+            }
+        });
+    };
+
+    var ScheduledItem = Rx.internals.ScheduledItem = function (scheduler, state, action, dueTime, comparer) {
+        this.scheduler = scheduler;
+        this.state = state;
+        this.action = action;
+        this.dueTime = dueTime;
+        this.comparer = comparer || defaultSubComparer;
+        this.disposable = new SingleAssignmentDisposable();
+    }
+
+    ScheduledItem.prototype.invoke = function () {
+        this.disposable.setDisposable(this.invokeCore());
+    };
+
+    ScheduledItem.prototype.compareTo = function (other) {
+        return this.comparer(this.dueTime, other.dueTime);
+    };
+
+    ScheduledItem.prototype.isCancelled = function () {
+        return this.disposable.isDisposed;
+    };
+
+    ScheduledItem.prototype.invokeCore = function () {
+        return this.action(this.scheduler, this.state);
+    };
+
+    /** Provides a set of static properties to access commonly used schedulers. */
+    var Scheduler = Rx.Scheduler = (function () {
+
+        /** 
+         * @constructor 
+         * @private
+         */
+        function Scheduler(now, schedule, scheduleRelative, scheduleAbsolute) {
+            this.now = now;
+            this._schedule = schedule;
+            this._scheduleRelative = scheduleRelative;
+            this._scheduleAbsolute = scheduleAbsolute;
+        }
+
+        function invokeRecImmediate(scheduler, pair) {
+            var state = pair.first, action = pair.second, group = new CompositeDisposable(),
+            recursiveAction = function (state1) {
+                action(state1, function (state2) {
+                    var isAdded = false, isDone = false,
+                    d = scheduler.scheduleWithState(state2, function (scheduler1, state3) {
+                        if (isAdded) {
+                            group.remove(d);
+                        } else {
+                            isDone = true;
+                        }
+                        recursiveAction(state3);
+                        return disposableEmpty;
+                    });
+                    if (!isDone) {
+                        group.add(d);
+                        isAdded = true;
+                    }
+                });
+            };
+            recursiveAction(state);
+            return group;
+        }
+
+        function invokeRecDate(scheduler, pair, method) {
+            var state = pair.first, action = pair.second, group = new CompositeDisposable(),
+            recursiveAction = function (state1) {
+                action(state1, function (state2, dueTime1) {
+                    var isAdded = false, isDone = false,
+                    d = scheduler[method].call(scheduler, state2, dueTime1, function (scheduler1, state3) {
+                        if (isAdded) {
+                            group.remove(d);
+                        } else {
+                            isDone = true;
+                        }
+                        recursiveAction(state3);
+                        return disposableEmpty;
+                    });
+                    if (!isDone) {
+                        group.add(d);
+                        isAdded = true;
+                    }
+                });
+            };
+            recursiveAction(state);
+            return group;
+        }
+
+        function invokeAction(scheduler, action) {
+            action();
+            return disposableEmpty;
+        }
+
+        var schedulerProto = Scheduler.prototype;
+
+        /**
+         * Returns a scheduler that wraps the original scheduler, adding exception handling for scheduled actions.       
+         * @param {Function} handler Handler that's run if an exception is caught. The exception will be rethrown if the handler returns false.
+         * @returns {Scheduler} Wrapper around the original scheduler, enforcing exception handling.
+         */        
+        schedulerProto.catchException = schedulerProto['catch'] = function (handler) {
+            return new CatchScheduler(this, handler);
+        };
+        
+        /**
+         * Schedules a periodic piece of work by dynamically discovering the scheduler's capabilities. The periodic task will be scheduled using window.setInterval for the base implementation.       
+         * @param {Number} period Period for running the work periodically.
+         * @param {Function} action Action to be executed.
+         * @returns {Disposable} The disposable object used to cancel the scheduled recurring action (best effort).
+         */        
+        schedulerProto.schedulePeriodic = function (period, action) {
+            return this.schedulePeriodicWithState(null, period, function () {
+                action();
+            });
+        };
+
+        /**
+         * Schedules a periodic piece of work by dynamically discovering the scheduler's capabilities. The periodic task will be scheduled using window.setInterval for the base implementation.       
+         * @param {Mixed} state Initial state passed to the action upon the first iteration.
+         * @param {Number} period Period for running the work periodically.
+         * @param {Function} action Action to be executed, potentially updating the state.
+         * @returns {Disposable} The disposable object used to cancel the scheduled recurring action (best effort).
+         */
+        schedulerProto.schedulePeriodicWithState = function (state, period, action) {
+            var s = state, id = setInterval(function () {
+                s = action(s);
+            }, period);
+            return disposableCreate(function () {
+                clearInterval(id);
+            });
+        };
+
+        /**
+         * Schedules an action to be executed.        
+         * @param {Function} action Action to execute.
+         * @returns {Disposable} The disposable object used to cancel the scheduled action (best effort).
+         */
+        schedulerProto.schedule = function (action) {
+            return this._schedule(action, invokeAction);
+        };
+
+        /**
+         * Schedules an action to be executed.    
+         * @param state State passed to the action to be executed.
+         * @param {Function} action Action to be executed.
+         * @returns {Disposable} The disposable object used to cancel the scheduled action (best effort).
+         */
+        schedulerProto.scheduleWithState = function (state, action) {
+            return this._schedule(state, action);
+        };
+
+        /**
+         * Schedules an action to be executed after the specified relative due time.       
+         * @param {Function} action Action to execute.
+         * @param {Number} dueTime Relative time after which to execute the action.
+         * @returns {Disposable} The disposable object used to cancel the scheduled action (best effort).
+         */
+        schedulerProto.scheduleWithRelative = function (dueTime, action) {
+            return this._scheduleRelative(action, dueTime, invokeAction);
+        };
+
+        /**
+         * Schedules an action to be executed after dueTime.     
+         * @param state State passed to the action to be executed.
+         * @param {Function} action Action to be executed.
+         * @param {Number} dueTime Relative time after which to execute the action.
+         * @returns {Disposable} The disposable object used to cancel the scheduled action (best effort).
+         */
+        schedulerProto.scheduleWithRelativeAndState = function (state, dueTime, action) {
+            return this._scheduleRelative(state, dueTime, action);
+        };
+
+        /**
+         * Schedules an action to be executed at the specified absolute due time.    
+         * @param {Function} action Action to execute.
+         * @param {Number} dueTime Absolute time at which to execute the action.
+         * @returns {Disposable} The disposable object used to cancel the scheduled action (best effort).
+          */
+        schedulerProto.scheduleWithAbsolute = function (dueTime, action) {
+            return this._scheduleAbsolute(action, dueTime, invokeAction);
+        };
+
+        /**
+         * Schedules an action to be executed at dueTime.     
+         * @param {Mixed} state State passed to the action to be executed.
+         * @param {Function} action Action to be executed.
+         * @param {Number}dueTime Absolute time at which to execute the action.
+         * @returns {Disposable} The disposable object used to cancel the scheduled action (best effort).
+         */
+        schedulerProto.scheduleWithAbsoluteAndState = function (state, dueTime, action) {
+            return this._scheduleAbsolute(state, dueTime, action);
+        };
+
+        /**
+         * Schedules an action to be executed recursively.
+         * @param {Function} action Action to execute recursively. The parameter passed to the action is used to trigger recursive scheduling of the action.
+         * @returns {Disposable} The disposable object used to cancel the scheduled action (best effort).
+         */
+        schedulerProto.scheduleRecursive = function (action) {
+            return this.scheduleRecursiveWithState(action, function (_action, self) {
+                _action(function () {
+                    self(_action);
+                });
+            });
+        };
+
+        /**
+         * Schedules an action to be executed recursively.     
+         * @param {Mixed} state State passed to the action to be executed.
+         * @param {Function} action Action to execute recursively. The last parameter passed to the action is used to trigger recursive scheduling of the action, passing in recursive invocation state.
+         * @returns {Disposable} The disposable object used to cancel the scheduled action (best effort).
+         */
+        schedulerProto.scheduleRecursiveWithState = function (state, action) {
+            return this.scheduleWithState({ first: state, second: action }, function (s, p) {
+                return invokeRecImmediate(s, p);
+            });
+        };
+
+        /**
+         * Schedules an action to be executed recursively after a specified relative due time.     
+         * @param {Function} action Action to execute recursively. The parameter passed to the action is used to trigger recursive scheduling of the action at the specified relative time.
+         * @param {Number}dueTime Relative time after which to execute the action for the first time.
+         * @returns {Disposable} The disposable object used to cancel the scheduled action (best effort).
+         */
+        schedulerProto.scheduleRecursiveWithRelative = function (dueTime, action) {
+            return this.scheduleRecursiveWithRelativeAndState(action, dueTime, function (_action, self) {
+                _action(function (dt) {
+                    self(_action, dt);
+                });
+            });
+        };
+
+        /**
+         * Schedules an action to be executed recursively after a specified relative due time.  
+         * @param {Mixed} state State passed to the action to be executed.
+         * @param {Function} action Action to execute recursively. The last parameter passed to the action is used to trigger recursive scheduling of the action, passing in the recursive due time and invocation state.
+         * @param {Number}dueTime Relative time after which to execute the action for the first time.
+         * @returns {Disposable} The disposable object used to cancel the scheduled action (best effort).
+         */
+        schedulerProto.scheduleRecursiveWithRelativeAndState = function (state, dueTime, action) {
+            return this._scheduleRelative({ first: state, second: action }, dueTime, function (s, p) {
+                return invokeRecDate(s, p, 'scheduleWithRelativeAndState');
+            });
+        };
+
+        /**
+         * Schedules an action to be executed recursively at a specified absolute due time.    
+         * @param {Function} action Action to execute recursively. The parameter passed to the action is used to trigger recursive scheduling of the action at the specified absolute time.
+         * @param {Number}dueTime Absolute time at which to execute the action for the first time.
+         * @returns {Disposable} The disposable object used to cancel the scheduled action (best effort).
+         */
+        schedulerProto.scheduleRecursiveWithAbsolute = function (dueTime, action) {
+            return this.scheduleRecursiveWithAbsoluteAndState(action, dueTime, function (_action, self) {
+                _action(function (dt) {
+                    self(_action, dt);
+                });
+            });
+        };
+
+        /**
+         * Schedules an action to be executed recursively at a specified absolute due time.     
+         * @param {Mixed} state State passed to the action to be executed.
+         * @param {Function} action Action to execute recursively. The last parameter passed to the action is used to trigger recursive scheduling of the action, passing in the recursive due time and invocation state.
+         * @param {Number}dueTime Absolute time at which to execute the action for the first time.
+         * @returns {Disposable} The disposable object used to cancel the scheduled action (best effort).
+         */
+        schedulerProto.scheduleRecursiveWithAbsoluteAndState = function (state, dueTime, action) {
+            return this._scheduleAbsolute({ first: state, second: action }, dueTime, function (s, p) {
+                return invokeRecDate(s, p, 'scheduleWithAbsoluteAndState');
+            });
+        };
+
+        /** Gets the current time according to the local machine's system clock. */
+        Scheduler.now = defaultNow;
+
+        /**
+         * Normalizes the specified TimeSpan value to a positive value.
+         * @param {Number} timeSpan The time span value to normalize.
+         * @returns {Number} The specified TimeSpan value if it is zero or positive; otherwise, 0
+         */   
+        Scheduler.normalize = function (timeSpan) {
+            if (timeSpan < 0) {
+                timeSpan = 0;
+            }
+            return timeSpan;
+        };
+
+        return Scheduler;
+    }());
+
+    var normalizeTime = Scheduler.normalize;
+    
+    var SchedulePeriodicRecursive = Rx.internals.SchedulePeriodicRecursive = (function () {
+        function tick(command, recurse) {
+            recurse(0, this._period);
+            try {
+                this._state = this._action(this._state);
+            } catch (e) {
+                this._cancel.dispose();
+                throw e;
+            }
+        }
+
+        function SchedulePeriodicRecursive(scheduler, state, period, action) {
+            this._scheduler = scheduler;
+            this._state = state;
+            this._period = period;
+            this._action = action;
+        }
+
+        SchedulePeriodicRecursive.prototype.start = function () {
+            var d = new SingleAssignmentDisposable();
+            this._cancel = d;
+            d.setDisposable(this._scheduler.scheduleRecursiveWithRelativeAndState(0, this._period, tick.bind(this)));
+
+            return d;
+        };
+
+        return SchedulePeriodicRecursive;
+    }());
+
+    /**
+     * Gets a scheduler that schedules work immediately on the current thread.
+     */    
+    var immediateScheduler = Scheduler.immediate = (function () {
+
+        function scheduleNow(state, action) { return action(this, state); }
+
+        function scheduleRelative(state, dueTime, action) {
+            var dt = normalizeTime(dt);
+            while (dt - this.now() > 0) { }
+            return action(this, state);
+        }
+
+        function scheduleAbsolute(state, dueTime, action) {
+            return this.scheduleWithRelativeAndState(state, dueTime - this.now(), action);
+        }
+
+        return new Scheduler(defaultNow, scheduleNow, scheduleRelative, scheduleAbsolute);
+    }());
+
+    /** 
+     * Gets a scheduler that schedules work as soon as possible on the current thread.
+     */
+    var currentThreadScheduler = Scheduler.currentThread = (function () {
+        var queue;
+
+        function runTrampoline (q) {
+            var item;
+            while (q.length > 0) {
+                item = q.dequeue();
+                if (!item.isCancelled()) {
+                    // Note, do not schedule blocking work!
+                    while (item.dueTime - Scheduler.now() > 0) {
+                    }
+                    if (!item.isCancelled()) {
+                        item.invoke();
+                    }
+                }
+            }            
+        }
+
+        function scheduleNow(state, action) {
+            return this.scheduleWithRelativeAndState(state, 0, action);
+        }
+
+        function scheduleRelative(state, dueTime, action) {
+            var dt = this.now() + Scheduler.normalize(dueTime),
+                    si = new ScheduledItem(this, state, action, dt),
+                    t;
+            if (!queue) {
+                queue = new PriorityQueue(4);
+                queue.enqueue(si);
+                try {
+                    runTrampoline(queue);
+                } catch (e) { 
+                    throw e;
+                } finally {
+                    queue = null;
+                }
+            } else {
+                queue.enqueue(si);
+            }
+            return si.disposable;
+        }
+
+        function scheduleAbsolute(state, dueTime, action) {
+            return this.scheduleWithRelativeAndState(state, dueTime - this.now(), action);
+        }
+
+        var currentScheduler = new Scheduler(defaultNow, scheduleNow, scheduleRelative, scheduleAbsolute);
+        currentScheduler.scheduleRequired = function () { return queue === null; };
+        currentScheduler.ensureTrampoline = function (action) {
+            if (queue === null) {
+                return this.schedule(action);
+            } else {
+                return action();
+            }
+        };
+
+        return currentScheduler;
+    }());
+
+    
+    var scheduleMethod, clearMethod = noop;
+    (function () {
+
+        var reNative = RegExp('^' +
+          String(toString)
+            .replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+            .replace(/toString| for [^\]]+/g, '.*?') + '$'
+        );
+
+        var setImmediate = typeof (setImmediate = freeGlobal && moduleExports && freeGlobal.setImmediate) == 'function' &&
+            !reNative.test(setImmediate) && setImmediate,
+            clearImmediate = typeof (clearImmediate = freeGlobal && moduleExports && freeGlobal.clearImmediate) == 'function' &&
+            !reNative.test(clearImmediate) && clearImmediate;
+
+        function postMessageSupported () {
+            // Ensure not in a worker
+            if (!root.postMessage || root.importScripts) { return false; }
+            var isAsync = false, 
+                oldHandler = root.onmessage;
+            // Test for async
+            root.onmessage = function () { isAsync = true; };
+            root.postMessage('','*');
+            root.onmessage = oldHandler;
+
+            return isAsync;
+        }
+
+        // Use in order, nextTick, setImmediate, postMessage, MessageChannel, script readystatechanged, setTimeout
+        if (typeof process !== 'undefined' && {}.toString.call(process) === '[object process]') {
+            scheduleMethod = process.nextTick;
+        } else if (typeof setImmediate === 'function') {
+            scheduleMethod = setImmediate;
+            clearMethod = clearImmediate;
+        } else if (postMessageSupported()) {
+            var MSG_PREFIX = 'ms.rx.schedule' + Math.random(),
+                tasks = {},
+                taskId = 0;
+
+            function onGlobalPostMessage(event) {
+                // Only if we're a match to avoid any other global events
+                if (typeof event.data === 'string' && event.data.substring(0, MSG_PREFIX.length) === MSG_PREFIX) {
+                    var handleId = event.data.substring(MSG_PREFIX.length),
+                        action = tasks[handleId];
+                    action();
+                    delete tasks[handleId];
+                }
+            }
+
+            if (root.addEventListener) {
+                root.addEventListener('message', onGlobalPostMessage, false);
+            } else {
+                root.attachEvent('onmessage', onGlobalPostMessage, false);
+            }
+
+            scheduleMethod = function (action) {
+                var currentId = taskId++;
+                tasks[currentId] = action;
+                root.postMessage(MSG_PREFIX + currentId, '*');
+            };
+        } else if (!!root.MessageChannel) {
+            var channel = new root.MessageChannel(),
+                channelTasks = {},
+                channelTaskId = 0;
+
+            channel.port1.onmessage = function (event) {
+                var id = event.data,
+                    action = channelTasks[id];
+                action();
+                delete channelTasks[id];
+            };
+
+            scheduleMethod = function (action) {
+                var id = channelTaskId++;
+                channelTasks[id] = action;
+                channel.port2.postMessage(id);     
+            };
+        } else if ('document' in root && 'onreadystatechange' in root.document.createElement('script')) {
+            
+            scheduleMethod = function (action) {
+                var scriptElement = root.document.createElement('script');
+                scriptElement.onreadystatechange = function () { 
+                    action();
+                    scriptElement.onreadystatechange = null;
+                    scriptElement.parentNode.removeChild(scriptElement);
+                    scriptElement = null;  
+                };
+                root.document.documentElement.appendChild(scriptElement);  
+            };
+ 
+        } else {
+            scheduleMethod = function (action) { return setTimeout(action, 0); };
+            clearMethod = clearTimeout;
+        }
+    }());
+
+    /** 
+     * Gets a scheduler that schedules work via a timed callback based upon platform.
+     */
+    var timeoutScheduler = Scheduler.timeout = (function () {
+
+        function scheduleNow(state, action) {
+            var scheduler = this,
+                disposable = new SingleAssignmentDisposable();
+            var id = scheduleMethod(function () {
+                if (!disposable.isDisposed) {
+                    disposable.setDisposable(action(scheduler, state));
+                }
+            });
+            return new CompositeDisposable(disposable, disposableCreate(function () {
+                clearMethod(id);
+            }));
+        }
+
+        function scheduleRelative(state, dueTime, action) {
+            var scheduler = this,
+                dt = Scheduler.normalize(dueTime);
+            if (dt === 0) {
+                return scheduler.scheduleWithState(state, action);
+            }
+            var disposable = new SingleAssignmentDisposable();
+            var id = setTimeout(function () {
+                if (!disposable.isDisposed) {
+                    disposable.setDisposable(action(scheduler, state));
+                }
+            }, dt);
+            return new CompositeDisposable(disposable, disposableCreate(function () {
+                clearTimeout(id);
+            }));
+        }
+
+        function scheduleAbsolute(state, dueTime, action) {
+            return this.scheduleWithRelativeAndState(state, dueTime - this.now(), action);
+        }
+
+        return new Scheduler(defaultNow, scheduleNow, scheduleRelative, scheduleAbsolute);
+    })();
+
+    /** @private */
+    var CatchScheduler = (function (_super) {
+
+        function localNow() {
+            return this._scheduler.now();
+        }
+
+        function scheduleNow(state, action) {
+            return this._scheduler.scheduleWithState(state, this._wrap(action));
+        }
+
+        function scheduleRelative(state, dueTime, action) {
+            return this._scheduler.scheduleWithRelativeAndState(state, dueTime, this._wrap(action));
+        }
+
+        function scheduleAbsolute(state, dueTime, action) {
+            return this._scheduler.scheduleWithAbsoluteAndState(state, dueTime, this._wrap(action));
+        }
+
+        inherits(CatchScheduler, _super);
+
+        /** @private */
+        function CatchScheduler(scheduler, handler) {
+            this._scheduler = scheduler;
+            this._handler = handler;
+            this._recursiveOriginal = null;
+            this._recursiveWrapper = null;
+            _super.call(this, localNow, scheduleNow, scheduleRelative, scheduleAbsolute);
+        }
+
+        /** @private */
+        CatchScheduler.prototype._clone = function (scheduler) {
+            return new CatchScheduler(scheduler, this._handler);
+        };
+
+        /** @private */
+        CatchScheduler.prototype._wrap = function (action) {
+            var parent = this;
+            return function (self, state) {
+                try {
+                    return action(parent._getRecursiveWrapper(self), state);
+                } catch (e) {
+                    if (!parent._handler(e)) { throw e; }
+                    return disposableEmpty;
+                }
+            };
+        };
+
+        /** @private */
+        CatchScheduler.prototype._getRecursiveWrapper = function (scheduler) {
+            if (this._recursiveOriginal !== scheduler) {
+                this._recursiveOriginal = scheduler;
+                var wrapper = this._clone(scheduler);
+                wrapper._recursiveOriginal = scheduler;
+                wrapper._recursiveWrapper = wrapper;
+                this._recursiveWrapper = wrapper;
+            }
+            return this._recursiveWrapper;
+        };
+
+        /** @private */
+        CatchScheduler.prototype.schedulePeriodicWithState = function (state, period, action) {
+            var self = this, failed = false, d = new SingleAssignmentDisposable();
+
+            d.setDisposable(this._scheduler.schedulePeriodicWithState(state, period, function (state1) {
+                if (failed) { return null; }
+                try {
+                    return action(state1);
+                } catch (e) {
+                    failed = true;
+                    if (!self._handler(e)) { throw e; }
+                    d.dispose();
+                    return null;
+                }
+            }));
+
+            return d;
+        };
+
+        return CatchScheduler;
+    }(Scheduler));
+
+    /**
+     *  Represents a notification to an observer.
+     */
+    var Notification = Rx.Notification = (function () {
+        function Notification(kind, hasValue) { 
+            this.hasValue = hasValue == null ? false : hasValue;
+            this.kind = kind;
+        }
+
+        var NotificationPrototype = Notification.prototype;
+
+        /**
+         * Invokes the delegate corresponding to the notification or the observer's method corresponding to the notification and returns the produced result.
+         * 
+         * @memberOf Notification
+         * @param {Any} observerOrOnNext Delegate to invoke for an OnNext notification or Observer to invoke the notification on..
+         * @param {Function} onError Delegate to invoke for an OnError notification.
+         * @param {Function} onCompleted Delegate to invoke for an OnCompleted notification.
+         * @returns {Any} Result produced by the observation.
+         */
+        NotificationPrototype.accept = function (observerOrOnNext, onError, onCompleted) {
+            if (arguments.length === 1 && typeof observerOrOnNext === 'object') {
+                return this._acceptObservable(observerOrOnNext);
+            }
+            return this._accept(observerOrOnNext, onError, onCompleted);
+        };
+
+        /**
+         * Returns an observable sequence with a single notification.
+         * 
+         * @memberOf Notification
+         * @param {Scheduler} [scheduler] Scheduler to send out the notification calls on.
+         * @returns {Observable} The observable sequence that surfaces the behavior of the notification upon subscription.
+         */
+        NotificationPrototype.toObservable = function (scheduler) {
+            var notification = this;
+            scheduler || (scheduler = immediateScheduler);
+            return new AnonymousObservable(function (observer) {
+                return scheduler.schedule(function () {
+                    notification._acceptObservable(observer);
+                    if (notification.kind === 'N') {
+                        observer.onCompleted();
+                    }
+                });
+            });
+        };
+
+        return Notification;
+    })();
+
+    /**
+     * Creates an object that represents an OnNext notification to an observer.
+     * @param {Any} value The value contained in the notification.
+     * @returns {Notification} The OnNext notification containing the value.
+     */
+    var notificationCreateOnNext = Notification.createOnNext = (function () {
+
+        function _accept (onNext) {
+            return onNext(this.value);
+        }
+
+        function _acceptObservable(observer) {
+            return observer.onNext(this.value);
+        }
+
+        function toString () {
+            return 'OnNext(' + this.value + ')';
+        }
+
+        return function (value) {
+            var notification = new Notification('N', true);
+            notification.value = value;
+            notification._accept = _accept;
+            notification._acceptObservable = _acceptObservable;
+            notification.toString = toString;
+            return notification;
+        };
+    }());
+
+    /**
+     * Creates an object that represents an OnError notification to an observer.
+     * @param {Any} error The exception contained in the notification.
+     * @returns {Notification} The OnError notification containing the exception.
+     */
+    var notificationCreateOnError = Notification.createOnError = (function () {
+
+        function _accept (onNext, onError) {
+            return onError(this.exception);
+        }
+
+        function _acceptObservable(observer) {
+            return observer.onError(this.exception);
+        }
+
+        function toString () {
+            return 'OnError(' + this.exception + ')';
+        }
+
+        return function (exception) {
+            var notification = new Notification('E');
+            notification.exception = exception;
+            notification._accept = _accept;
+            notification._acceptObservable = _acceptObservable;
+            notification.toString = toString;
+            return notification;
+        };
+    }());
+
+    /**
+     * Creates an object that represents an OnCompleted notification to an observer.
+     * @returns {Notification} The OnCompleted notification.
+     */
+    var notificationCreateOnCompleted = Notification.createOnCompleted = (function () {
+
+        function _accept (onNext, onError, onCompleted) {
+            return onCompleted();
+        }
+
+        function _acceptObservable(observer) {
+            return observer.onCompleted();
+        }
+
+        function toString () {
+            return 'OnCompleted()';
+        }
+
+        return function () {
+            var notification = new Notification('C');
+            notification._accept = _accept;
+            notification._acceptObservable = _acceptObservable;
+            notification.toString = toString;
+            return notification;
+        };
+    }());
+
+  var Enumerator = Rx.internals.Enumerator = function (next) {
+    this._next = next;
+  };
+
+  Enumerator.prototype.next = function () {
+    return this._next();
+  };
+
+  Enumerator.prototype[$iterator$] = function () { return this; }
+
+  var Enumerable = Rx.internals.Enumerable = function (iterator) {
+      this._iterator = iterator;
+  };
+
+  Enumerable.prototype[$iterator$] = function () {
+      return this._iterator();
+  };
+
+  Enumerable.prototype.concat = function () {
+      var sources = this;
+      return new AnonymousObservable(function (observer) {
+        var e;
+        try {
+          e = sources[$iterator$]();
+        } catch(err) {
+          observer.onError();
+          return;
+        }
+
+        var isDisposed, 
+          subscription = new SerialDisposable();
+        var cancelable = immediateScheduler.scheduleRecursive(function (self) {
+          var currentItem;
+          if (isDisposed) { return; }
+
+          try {
+            currentItem = e.next();
+          } catch (ex) {
+            observer.onError(ex);
+            return;
+          }
+
+          if (currentItem.done) {
+            observer.onCompleted();
+            return;
+          }
+
+          var d = new SingleAssignmentDisposable();
+          subscription.setDisposable(d);
+          d.setDisposable(currentItem.value.subscribe(
+            observer.onNext.bind(observer),
+            observer.onError.bind(observer),
+            function () { self(); })
+          );
+        });
+
+        return new CompositeDisposable(subscription, cancelable, disposableCreate(function () {
+          isDisposed = true;
+        }));
+      });
+  };
+
+  Enumerable.prototype.catchException = function () {
+    var sources = this;
+    return new AnonymousObservable(function (observer) {
+      var e;
+      try {
+        e = sources[$iterator$]();
+      } catch(err) {
+        observer.onError();
+        return;
+      }
+
+      var isDisposed, 
+        lastException,
+        subscription = new SerialDisposable();
+      var cancelable = immediateScheduler.scheduleRecursive(function (self) {
+        if (isDisposed) { return; }
+
+        var currentItem;
+        try {
+          currentItem = e.next();
+        } catch (ex) {
+          observer.onError(ex);
+          return;
+        }
+
+        if (currentItem.done) {
+          if (lastException) {
+            observer.onError(lastException);
+          } else {
+            observer.onCompleted();
+          }
+          return;
+        }
+
+        var d = new SingleAssignmentDisposable();
+        subscription.setDisposable(d);
+        d.setDisposable(currentItem.value.subscribe(
+          observer.onNext.bind(observer),
+          function (exn) {
+            lastException = exn;
+            self();
+          },
+          observer.onCompleted.bind(observer)));
+      });
+      return new CompositeDisposable(subscription, cancelable, disposableCreate(function () {
+        isDisposed = true;
+      }));
+    });
+  };
+
+
+  var enumerableRepeat = Enumerable.repeat = function (value, repeatCount) {
+    if (repeatCount == null) { repeatCount = -1; }
+    return new Enumerable(function () {
+      var left = repeatCount;
+      return new Enumerator(function () {
+        if (left === 0) { return doneEnumerator; }
+        if (left > 0) { left--; }
+        return { done: false, value: value };
+      });
+    });
+  };
+
+  var enumerableFor = Enumerable.forEach = function (source, selector, thisArg) {
+    selector || (selector = identity);
+    return new Enumerable(function () {
+      var index = -1;
+      return new Enumerator(
+        function () {
+          return ++index < source.length ?
+            { done: false, value: selector.call(thisArg, source[index], index, source) } :
+            doneEnumerator;
+        });
+    });
+  };
+
+    /**
+     * Supports push-style iteration over an observable sequence.
+     */
+    var Observer = Rx.Observer = function () { };
+
+    /**
+     *  Creates a notification callback from an observer.
+     *  
+     * @param observer Observer object.
+     * @returns The action that forwards its input notification to the underlying observer.
+     */
+    Observer.prototype.toNotifier = function () {
+        var observer = this;
+        return function (n) {
+            return n.accept(observer);
+        };
+    };
+
+    /**
+     *  Hides the identity of an observer.
+
+     * @returns An observer that hides the identity of the specified observer. 
+     */   
+    Observer.prototype.asObserver = function () {
+        return new AnonymousObserver(this.onNext.bind(this), this.onError.bind(this), this.onCompleted.bind(this));
+    };
+
+    /**
+     *  Checks access to the observer for grammar violations. This includes checking for multiple OnError or OnCompleted calls, as well as reentrancy in any of the observer methods.
+     *  If a violation is detected, an Error is thrown from the offending observer method call.
+     *  
+     * @returns An observer that checks callbacks invocations against the observer grammar and, if the checks pass, forwards those to the specified observer.
+     */    
+    Observer.prototype.checked = function () { return new CheckedObserver(this); };
+
+    /**
+     *  Creates an observer from the specified OnNext, along with optional OnError, and OnCompleted actions.
+     *  
+     * @static
+     * @memberOf Observer
+     * @param {Function} [onNext] Observer's OnNext action implementation.
+     * @param {Function} [onError] Observer's OnError action implementation.
+     * @param {Function} [onCompleted] Observer's OnCompleted action implementation.
+     * @returns {Observer} The observer object implemented using the given actions.
+     */
+    var observerCreate = Observer.create = function (onNext, onError, onCompleted) {
+        onNext || (onNext = noop);
+        onError || (onError = defaultError);
+        onCompleted || (onCompleted = noop);
+        return new AnonymousObserver(onNext, onError, onCompleted);
+    };
+
+    /**
+     *  Creates an observer from a notification callback.
+     *  
+     * @static
+     * @memberOf Observer
+     * @param {Function} handler Action that handles a notification.
+     * @returns The observer object that invokes the specified handler using a notification corresponding to each message it receives.
+     */
+    Observer.fromNotifier = function (handler) {
+        return new AnonymousObserver(function (x) {
+            return handler(notificationCreateOnNext(x));
+        }, function (exception) {
+            return handler(notificationCreateOnError(exception));
+        }, function () {
+            return handler(notificationCreateOnCompleted());
+        });
+    };
+
+    /**
+     * Schedules the invocation of observer methods on the given scheduler.
+     * @param {Scheduler} scheduler Scheduler to schedule observer messages on.
+     * @returns {Observer} Observer whose messages are scheduled on the given scheduler.
+     */
+    Observer.notifyOn = function (scheduler) {
+        return new ObserveOnObserver(scheduler, this);
+    };
+    
+    /**
+     * Abstract base class for implementations of the Observer class.
+     * This base class enforces the grammar of observers where OnError and OnCompleted are terminal messages. 
+     */
+    var AbstractObserver = Rx.internals.AbstractObserver = (function (_super) {
+        inherits(AbstractObserver, _super);
+
+        /**
+         * Creates a new observer in a non-stopped state.
+         *
+         * @constructor
+         */
+        function AbstractObserver() {
+            this.isStopped = false;
+            _super.call(this);
+        }
+
+        /**
+         * Notifies the observer of a new element in the sequence.
+         *  
+         * @memberOf AbstractObserver
+         * @param {Any} value Next element in the sequence. 
+         */
+        AbstractObserver.prototype.onNext = function (value) {
+            if (!this.isStopped) {
+                this.next(value);
+            }
+        };
+
+        /**
+         * Notifies the observer that an exception has occurred.
+         * 
+         * @memberOf AbstractObserver
+         * @param {Any} error The error that has occurred.     
+         */    
+        AbstractObserver.prototype.onError = function (error) {
+            if (!this.isStopped) {
+                this.isStopped = true;
+                this.error(error);
+            }
+        };
+
+        /**
+         * Notifies the observer of the end of the sequence.
+         */    
+        AbstractObserver.prototype.onCompleted = function () {
+            if (!this.isStopped) {
+                this.isStopped = true;
+                this.completed();
+            }
+        };
+
+        /**
+         * Disposes the observer, causing it to transition to the stopped state.
+         */
+        AbstractObserver.prototype.dispose = function () {
+            this.isStopped = true;
+        };
+
+        AbstractObserver.prototype.fail = function (e) {
+            if (!this.isStopped) {
+                this.isStopped = true;
+                this.error(e);
+                return true;
+            }
+
+            return false;
+        };
+
+        return AbstractObserver;
+    }(Observer));
+
+  /**
+   * Class to create an Observer instance from delegate-based implementations of the on* methods.
+   */
+  var AnonymousObserver = Rx.AnonymousObserver = (function (_super) {
+    inherits(AnonymousObserver, _super);
+
+    /**
+     * Creates an observer from the specified OnNext, OnError, and OnCompleted actions.
+     * @param {Any} onNext Observer's OnNext action implementation.
+     * @param {Any} onError Observer's OnError action implementation.
+     * @param {Any} onCompleted Observer's OnCompleted action implementation.  
+     */      
+    function AnonymousObserver(onNext, onError, onCompleted) {
+      _super.call(this);
+      this._onNext = onNext;
+      this._onError = onError;
+      this._onCompleted = onCompleted;
+    }
+
+    /**
+     * Calls the onNext action.
+     * @param {Any} value Next element in the sequence.   
+     */     
+    AnonymousObserver.prototype.next = function (value) {
+      this._onNext(value);
+    };
+
+    /**
+     * Calls the onError action.
+     * @param {Any} error The error that has occurred.   
+     */     
+    AnonymousObserver.prototype.error = function (exception) {
+      this._onError(exception);
+    };
+
+    /**
+     *  Calls the onCompleted action.
+     */        
+    AnonymousObserver.prototype.completed = function () {
+      this._onCompleted();
+    };
+
+    return AnonymousObserver;
+  }(AbstractObserver));
+
+    var CheckedObserver = (function (_super) {
+        inherits(CheckedObserver, _super);
+
+        function CheckedObserver(observer) {
+            _super.call(this);
+            this._observer = observer;
+            this._state = 0; // 0 - idle, 1 - busy, 2 - done
+        }
+
+        var CheckedObserverPrototype = CheckedObserver.prototype;
+
+        CheckedObserverPrototype.onNext = function (value) {
+            this.checkAccess();
+            try {
+                this._observer.onNext(value);
+            } catch (e) { 
+                throw e;                
+            } finally {
+                this._state = 0;
+            }
+        };
+
+        CheckedObserverPrototype.onError = function (err) {
+            this.checkAccess();
+            try {
+                this._observer.onError(err);
+            } catch (e) { 
+                throw e;                
+            } finally {
+                this._state = 2;
+            }
+        };
+
+        CheckedObserverPrototype.onCompleted = function () {
+            this.checkAccess();
+            try {
+                this._observer.onCompleted();
+            } catch (e) { 
+                throw e;                
+            } finally {
+                this._state = 2;
+            }
+        };
+
+        CheckedObserverPrototype.checkAccess = function () {
+            if (this._state === 1) { throw new Error('Re-entrancy detected'); }
+            if (this._state === 2) { throw new Error('Observer completed'); }
+            if (this._state === 0) { this._state = 1; }
+        };
+
+        return CheckedObserver;
+    }(Observer));
+
+  var ScheduledObserver = Rx.internals.ScheduledObserver = (function (_super) {
+    inherits(ScheduledObserver, _super);
+
+    function ScheduledObserver(scheduler, observer) {
+      _super.call(this);
+      this.scheduler = scheduler;
+      this.observer = observer;
+      this.isAcquired = false;
+      this.hasFaulted = false;
+      this.queue = [];
+      this.disposable = new SerialDisposable();
+    }
+
+    ScheduledObserver.prototype.next = function (value) {
+      var self = this;
+      this.queue.push(function () {
+        self.observer.onNext(value);
+      });
+    };
+
+    ScheduledObserver.prototype.error = function (exception) {
+      var self = this;
+      this.queue.push(function () {
+        self.observer.onError(exception);
+      });
+    };
+
+    ScheduledObserver.prototype.completed = function () {
+      var self = this;
+      this.queue.push(function () {
+        self.observer.onCompleted();
+      });
+    };
+
+    ScheduledObserver.prototype.ensureActive = function () {
+      var isOwner = false, parent = this;
+      if (!this.hasFaulted && this.queue.length > 0) {
+        isOwner = !this.isAcquired;
+        this.isAcquired = true;
+      }
+      if (isOwner) {
+        this.disposable.setDisposable(this.scheduler.scheduleRecursive(function (self) {
+          var work;
+          if (parent.queue.length > 0) {
+            work = parent.queue.shift();
+          } else {
+            parent.isAcquired = false;
+            return;
+          }
+          try {
+            work();
+          } catch (ex) {
+            parent.queue = [];
+            parent.hasFaulted = true;
+            throw ex;
+          }
+          self();
+        }));
+      }
+    };
+
+    ScheduledObserver.prototype.dispose = function () {
+      _super.prototype.dispose.call(this);
+      this.disposable.dispose();
+    };
+
+    return ScheduledObserver;
+  }(AbstractObserver));
+
+    /** @private */
+    var ObserveOnObserver = (function (_super) {
+        inherits(ObserveOnObserver, _super);
+
+        /** @private */ 
+        function ObserveOnObserver() {
+            _super.apply(this, arguments);
+        }
+
+        /** @private */ 
+        ObserveOnObserver.prototype.next = function (value) {
+            _super.prototype.next.call(this, value);
+            this.ensureActive();
+        };
+
+        /** @private */ 
+        ObserveOnObserver.prototype.error = function (e) {
+            _super.prototype.error.call(this, e);
+            this.ensureActive();
+        };
+
+        /** @private */ 
+        ObserveOnObserver.prototype.completed = function () {
+            _super.prototype.completed.call(this);
+            this.ensureActive();
+        };
+
+        return ObserveOnObserver;
+    })(ScheduledObserver);
+
+    var observableProto;
+
+    /**
+     * Represents a push-style collection.
+     */
+    var Observable = Rx.Observable = (function () {
+
+        /**
+         * @constructor
+         * @private
+         */
+        function Observable(subscribe) {
+            this._subscribe = subscribe;
+        }
+
+        observableProto = Observable.prototype;
+
+        observableProto.finalValue = function () {
+            var source = this;
+            return new AnonymousObservable(function (observer) {
+                var hasValue = false, value;
+                return source.subscribe(function (x) {
+                    hasValue = true;
+                    value = x;
+                }, observer.onError.bind(observer), function () {
+                    if (!hasValue) {
+                        observer.onError(new Error(sequenceContainsNoElements));
+                    } else {
+                        observer.onNext(value);
+                        observer.onCompleted();
+                    }
+                });
+            });
+        };
+
+        /**
+         *  Subscribes an observer to the observable sequence.
+         *  
+         * @example
+         *  1 - source.subscribe();
+         *  2 - source.subscribe(observer);
+         *  3 - source.subscribe(function (x) { console.log(x); });
+         *  4 - source.subscribe(function (x) { console.log(x); }, function (err) { console.log(err); });
+         *  5 - source.subscribe(function (x) { console.log(x); }, function (err) { console.log(err); }, function () { console.log('done'); });
+         *  @param {Mixed} [observerOrOnNext] The object that is to receive notifications or an action to invoke for each element in the observable sequence.
+         *  @param {Function} [onError] Action to invoke upon exceptional termination of the observable sequence.
+         *  @param {Function} [onCompleted] Action to invoke upon graceful termination of the observable sequence.
+         *  @returns {Diposable} The source sequence whose subscriptions and unsubscriptions happen on the specified scheduler. 
+         */
+        observableProto.subscribe = observableProto.forEach = function (observerOrOnNext, onError, onCompleted) {
+            var subscriber;
+            if (typeof observerOrOnNext === 'object') {
+                subscriber = observerOrOnNext;
+            } else {
+                subscriber = observerCreate(observerOrOnNext, onError, onCompleted);
+            }
+
+            return this._subscribe(subscriber);
+        };
+
+        /**
+         *  Creates a list from an observable sequence.
+         *  
+         * @memberOf Observable
+         * @returns An observable sequence containing a single element with a list containing all the elements of the source sequence.  
+         */
+        observableProto.toArray = function () {
+            function accumulator(list, i) {
+                var newList = list.slice(0);
+                newList.push(i);
+                return newList;
+            }
+            return this.scan([], accumulator).startWith([]).finalValue();
+        };
+
+        return Observable;
+    })();
+
+     /**
+     *  Wraps the source sequence in order to run its observer callbacks on the specified scheduler.
+     * 
+     *  This only invokes observer callbacks on a scheduler. In case the subscription and/or unsubscription actions have side-effects
+     *  that require to be run on a scheduler, use subscribeOn.
+     *          
+     *  @param {Scheduler} scheduler Scheduler to notify observers on.
+     *  @returns {Observable} The source sequence whose observations happen on the specified scheduler.     
+     */
+    observableProto.observeOn = function (scheduler) {
+        var source = this;
+        return new AnonymousObservable(function (observer) {
+            return source.subscribe(new ObserveOnObserver(scheduler, observer));
+        });
+    };
+
+     /**
+     *  Wraps the source sequence in order to run its subscription and unsubscription logic on the specified scheduler. This operation is not commonly used;
+     *  see the remarks section for more information on the distinction between subscribeOn and observeOn.
+
+     *  This only performs the side-effects of subscription and unsubscription on the specified scheduler. In order to invoke observer
+     *  callbacks on a scheduler, use observeOn.
+
+     *  @param {Scheduler} scheduler Scheduler to perform subscription and unsubscription actions on.
+     *  @returns {Observable} The source sequence whose subscriptions and unsubscriptions happen on the specified scheduler.
+     */
+    observableProto.subscribeOn = function (scheduler) {
+        var source = this;
+        return new AnonymousObservable(function (observer) {
+            var m = new SingleAssignmentDisposable(), d = new SerialDisposable();
+            d.setDisposable(m);
+            m.setDisposable(scheduler.schedule(function () {
+                d.setDisposable(new ScheduledDisposable(scheduler, source.subscribe(observer)));
+            }));
+            return d;
+        });
+    };
+
+  /**
+   * Converts a Promise to an Observable sequence
+   * @param {Promise} An ES6 Compliant promise.
+   * @returns {Observable} An Observable sequence which wraps the existing promise success and failure.
+   */
+  var observableFromPromise = Observable.fromPromise = function (promise) {
+    return new AnonymousObservable(function (observer) {
+      promise.then(
+        function (value) {
+          observer.onNext(value);
+          observer.onCompleted();
+        }, 
+        function (reason) {
+          observer.onError(reason);
+        });
+    });
+  };
+    /*
+     * Converts an existing observable sequence to an ES6 Compatible Promise
+     * @example
+     * var promise = Rx.Observable.return(42).toPromise(RSVP.Promise);
+     * 
+     * // With config
+     * Rx.config.Promise = RSVP.Promise;
+     * var promise = Rx.Observable.return(42).toPromise();
+     * @param {Function} [promiseCtor] The constructor of the promise. If not provided, it looks for it in Rx.config.Promise.
+     * @returns {Promise} An ES6 compatible promise with the last value from the observable sequence.
+     */
+    observableProto.toPromise = function (promiseCtor) {
+        promiseCtor || (promiseCtor = Rx.config.Promise);
+        if (!promiseCtor) {
+            throw new Error('Promise type not provided nor in Rx.config.Promise');
+        }
+        var source = this;
+        return new promiseCtor(function (resolve, reject) {
+            // No cancellation can be done
+            var value, hasValue = false;
+            source.subscribe(function (v) {
+                value = v;
+                hasValue = true;
+            }, function (err) {
+                reject(err);
+            }, function () {
+                if (hasValue) {
+                    resolve(value);
+                }
+            });
+        });
+    };
+    /**
+     *  Creates an observable sequence from a specified subscribe method implementation.
+     *  
+     * @example
+     *  var res = Rx.Observable.create(function (observer) { return function () { } );
+     *  var res = Rx.Observable.create(function (observer) { return Rx.Disposable.empty; } ); 
+     *  var res = Rx.Observable.create(function (observer) { } ); 
+     *  
+     * @param {Function} subscribe Implementation of the resulting observable sequence's subscribe method, returning a function that will be wrapped in a Disposable.
+     * @returns {Observable} The observable sequence with the specified implementation for the Subscribe method.
+     */
+    Observable.create = Observable.createWithDisposable = function (subscribe) {
+        return new AnonymousObservable(subscribe);
+    };
+
+    /**
+     *  Returns an observable sequence that invokes the specified factory function whenever a new observer subscribes.
+     *  
+     * @example
+     *  var res = Rx.Observable.defer(function () { return Rx.Observable.fromArray([1,2,3]); });    
+     * @param {Function} observableFactory Observable factory function to invoke for each observer that subscribes to the resulting sequence.
+     * @returns {Observable} An observable sequence whose observers trigger an invocation of the given observable factory function.
+     */
+    var observableDefer = Observable.defer = function (observableFactory) {
+        return new AnonymousObservable(function (observer) {
+            var result;
+            try {
+                result = observableFactory();
+            } catch (e) {
+                return observableThrow(e).subscribe(observer);
+            }
+            return result.subscribe(observer);
+        });
+    };
+
+    /**
+     *  Returns an empty observable sequence, using the specified scheduler to send out the single OnCompleted message.
+     *  
+     * @example
+     *  var res = Rx.Observable.empty();  
+     *  var res = Rx.Observable.empty(Rx.Scheduler.timeout);  
+     * @param {Scheduler} [scheduler] Scheduler to send the termination call on.
+     * @returns {Observable} An observable sequence with no elements.
+     */
+    var observableEmpty = Observable.empty = function (scheduler) {
+        scheduler || (scheduler = immediateScheduler);
+        return new AnonymousObservable(function (observer) {
+            return scheduler.schedule(function () {
+                observer.onCompleted();
+            });
+        });
+    };
+
+    /**
+     *  Converts an array to an observable sequence, using an optional scheduler to enumerate the array.
+     *  
+     * @example
+     *  var res = Rx.Observable.fromArray([1,2,3]);
+     *  var res = Rx.Observable.fromArray([1,2,3], Rx.Scheduler.timeout);
+     * @param {Scheduler} [scheduler] Scheduler to run the enumeration of the input sequence on.
+     * @returns {Observable} The observable sequence whose elements are pulled from the given enumerable sequence.
+     */
+    var observableFromArray = Observable.fromArray = function (array, scheduler) {
+        scheduler || (scheduler = currentThreadScheduler);
+        return new AnonymousObservable(function (observer) {
+            var count = 0;
+            return scheduler.scheduleRecursive(function (self) {
+                if (count < array.length) {
+                    observer.onNext(array[count++]);
+                    self();
+                } else {
+                    observer.onCompleted();
+                }
+            });
+        });
+    };
+
+  /**
+   *  Converts an iterable into an Observable sequence
+   *  
+   * @example
+   *  var res = Rx.Observable.fromIterable(new Map());
+   *  var res = Rx.Observable.fromIterable(new Set(), Rx.Scheduler.timeout);
+   * @param {Scheduler} [scheduler] Scheduler to run the enumeration of the input sequence on.
+   * @returns {Observable} The observable sequence whose elements are pulled from the given generator sequence.
+   */
+  Observable.fromIterable = function (iterable, scheduler) {
+    scheduler || (scheduler = currentThreadScheduler);
+    return new AnonymousObservable(function (observer) {
+      var iterator;
+      try {
+        iterator = iterable[$iterator$]();
+      } catch (e) {
+        observer.onError(e);
+        return;
+      }
+
+      return scheduler.scheduleRecursive(function (self) {
+        var next;
+        try {
+          next = iterator.next();
+        } catch (err) {
+          observer.onError(err);
+          return;
+        }
+
+        if (next.done) {
+          observer.onCompleted();
+        } else {
+          observer.onNext(next.value);
+          self();
+        }
+      });
+    });
+  };
+
+    /**
+     *  Generates an observable sequence by running a state-driven loop producing the sequence's elements, using the specified scheduler to send out observer messages.
+     *  
+     * @example
+     *  var res = Rx.Observable.generate(0, function (x) { return x < 10; }, function (x) { return x + 1; }, function (x) { return x; });
+     *  var res = Rx.Observable.generate(0, function (x) { return x < 10; }, function (x) { return x + 1; }, function (x) { return x; }, Rx.Scheduler.timeout);
+     * @param {Mixed} initialState Initial state.
+     * @param {Function} condition Condition to terminate generation (upon returning false).
+     * @param {Function} iterate Iteration step function.
+     * @param {Function} resultSelector Selector function for results produced in the sequence.
+     * @param {Scheduler} [scheduler] Scheduler on which to run the generator loop. If not provided, defaults to Scheduler.currentThread.
+     * @returns {Observable} The generated sequence.
+     */
+    Observable.generate = function (initialState, condition, iterate, resultSelector, scheduler) {
+        scheduler || (scheduler = currentThreadScheduler);
+        return new AnonymousObservable(function (observer) {
+            var first = true, state = initialState;
+            return scheduler.scheduleRecursive(function (self) {
+                var hasResult, result;
+                try {
+                    if (first) {
+                        first = false;
+                    } else {
+                        state = iterate(state);
+                    }
+                    hasResult = condition(state);
+                    if (hasResult) {
+                        result = resultSelector(state);
+                    }
+                } catch (exception) {
+                    observer.onError(exception);
+                    return;
+                }
+                if (hasResult) {
+                    observer.onNext(result);
+                    self();
+                } else {
+                    observer.onCompleted();
+                }
+            });
+        });
+    };
+
+    /**
+     *  Returns a non-terminating observable sequence, which can be used to denote an infinite duration (e.g. when using reactive joins).
+     * @returns {Observable} An observable sequence whose observers will never get called.
+     */
+    var observableNever = Observable.never = function () {
+        return new AnonymousObservable(function () {
+            return disposableEmpty;
+        });
+    };
+
+    /**
+     *  Generates an observable sequence of integral numbers within a specified range, using the specified scheduler to send out observer messages.
+     *  
+     * @example
+     *  var res = Rx.Observable.range(0, 10);
+     *  var res = Rx.Observable.range(0, 10, Rx.Scheduler.timeout);
+     * @param {Number} start The value of the first integer in the sequence.
+     * @param {Number} count The number of sequential integers to generate.
+     * @param {Scheduler} [scheduler] Scheduler to run the generator loop on. If not specified, defaults to Scheduler.currentThread.
+     * @returns {Observable} An observable sequence that contains a range of sequential integral numbers.
+     */
+    Observable.range = function (start, count, scheduler) {
+        scheduler || (scheduler = currentThreadScheduler);
+        return new AnonymousObservable(function (observer) {
+            return scheduler.scheduleRecursiveWithState(0, function (i, self) {
+                if (i < count) {
+                    observer.onNext(start + i);
+                    self(i + 1);
+                } else {
+                    observer.onCompleted();
+                }
+            });
+        });
+    };
+
+    /**
+     *  Generates an observable sequence that repeats the given element the specified number of times, using the specified scheduler to send out observer messages.
+     *  
+     * @example
+     *  var res = Rx.Observable.repeat(42);
+     *  var res = Rx.Observable.repeat(42, 4);
+     *  3 - res = Rx.Observable.repeat(42, 4, Rx.Scheduler.timeout);
+     *  4 - res = Rx.Observable.repeat(42, null, Rx.Scheduler.timeout);
+     * @param {Mixed} value Element to repeat.
+     * @param {Number} repeatCount [Optiona] Number of times to repeat the element. If not specified, repeats indefinitely.
+     * @param {Scheduler} scheduler Scheduler to run the producer loop on. If not specified, defaults to Scheduler.immediate.
+     * @returns {Observable} An observable sequence that repeats the given element the specified number of times.
+     */
+    Observable.repeat = function (value, repeatCount, scheduler) {
+        scheduler || (scheduler = currentThreadScheduler);
+        if (repeatCount == null) {
+            repeatCount = -1;
+        }
+        return observableReturn(value, scheduler).repeat(repeatCount);
+    };
+
+    /**
+     *  Returns an observable sequence that contains a single element, using the specified scheduler to send out observer messages.
+     *  There is an alias called 'returnValue' for browsers <IE9.
+     *  
+     * @example
+     *  var res = Rx.Observable.return(42);
+     *  var res = Rx.Observable.return(42, Rx.Scheduler.timeout);
+     * @param {Mixed} value Single element in the resulting observable sequence.
+     * @param {Scheduler} scheduler Scheduler to send the single element on. If not specified, defaults to Scheduler.immediate.
+     * @returns {Observable} An observable sequence containing the single specified element.
+     */
+    var observableReturn = Observable['return'] = Observable.returnValue = function (value, scheduler) {
+        scheduler || (scheduler = immediateScheduler);
+        return new AnonymousObservable(function (observer) {
+            return scheduler.schedule(function () {
+                observer.onNext(value);
+                observer.onCompleted();
+            });
+        });
+    };
+
+    /**
+     *  Returns an observable sequence that terminates with an exception, using the specified scheduler to send out the single onError message.
+     *  There is an alias to this method called 'throwException' for browsers <IE9.
+     *  
+     * @example
+     *  var res = Rx.Observable.throwException(new Error('Error'));
+     *  var res = Rx.Observable.throwException(new Error('Error'), Rx.Scheduler.timeout);
+     * @param {Mixed} exception An object used for the sequence's termination.
+     * @param {Scheduler} scheduler Scheduler to send the exceptional termination call on. If not specified, defaults to Scheduler.immediate.
+     * @returns {Observable} The observable sequence that terminates exceptionally with the specified exception object.
+     */
+    var observableThrow = Observable['throw'] = Observable.throwException = function (exception, scheduler) {
+        scheduler || (scheduler = immediateScheduler);
+        return new AnonymousObservable(function (observer) {
+            return scheduler.schedule(function () {
+                observer.onError(exception);
+            });
+        });
+    };
+
+    /**
+     *  Constructs an observable sequence that depends on a resource object, whose lifetime is tied to the resulting observable sequence's lifetime.
+     *  
+     * @example
+     *  var res = Rx.Observable.using(function () { return new AsyncSubject(); }, function (s) { return s; });
+     * @param {Function} resourceFactory Factory function to obtain a resource object.
+     * @param {Function} observableFactory Factory function to obtain an observable sequence that depends on the obtained resource.
+     * @returns {Observable} An observable sequence whose lifetime controls the lifetime of the dependent resource object.
+     */
+    Observable.using = function (resourceFactory, observableFactory) {
+        return new AnonymousObservable(function (observer) {
+            var disposable = disposableEmpty, resource, source;
+            try {
+                resource = resourceFactory();
+                if (resource) {
+                    disposable = resource;
+                }
+                source = observableFactory(resource);
+            } catch (exception) {
+                return new CompositeDisposable(observableThrow(exception).subscribe(observer), disposable);
+            }
+            return new CompositeDisposable(source.subscribe(observer), disposable);
+        });
+    };
+
+    /**
+     * Propagates the observable sequence that reacts first.
+     * @param {Observable} rightSource Second observable sequence.
+     * @returns {Observable} {Observable} An observable sequence that surfaces either of the given sequences, whichever reacted first.
+     */  
+    observableProto.amb = function (rightSource) {
+        var leftSource = this;
+        return new AnonymousObservable(function (observer) {
+
+            var choice,
+                leftChoice = 'L', rightChoice = 'R',
+                leftSubscription = new SingleAssignmentDisposable(),
+                rightSubscription = new SingleAssignmentDisposable();
+
+            function choiceL() {
+                if (!choice) {
+                    choice = leftChoice;
+                    rightSubscription.dispose();
+                }
+            }
+
+            function choiceR() {
+                if (!choice) {
+                    choice = rightChoice;
+                    leftSubscription.dispose();
+                }
+            }
+
+            leftSubscription.setDisposable(leftSource.subscribe(function (left) {
+                choiceL();
+                if (choice === leftChoice) {
+                    observer.onNext(left);
+                }
+            }, function (err) {
+                choiceL();
+                if (choice === leftChoice) {
+                    observer.onError(err);
+                }
+            }, function () {
+                choiceL();
+                if (choice === leftChoice) {
+                    observer.onCompleted();
+                }
+            }));
+
+            rightSubscription.setDisposable(rightSource.subscribe(function (right) {
+                choiceR();
+                if (choice === rightChoice) {
+                    observer.onNext(right);
+                }
+            }, function (err) {
+                choiceR();
+                if (choice === rightChoice) {
+                    observer.onError(err);
+                }
+            }, function () {
+                choiceR();
+                if (choice === rightChoice) {
+                    observer.onCompleted();
+                }
+            }));
+
+            return new CompositeDisposable(leftSubscription, rightSubscription);
+        });
+    };
+
+    /**
+     * Propagates the observable sequence that reacts first.
+     *
+     * @example
+     * var = Rx.Observable.amb(xs, ys, zs);
+     * @returns {Observable} An observable sequence that surfaces any of the given sequences, whichever reacted first.
+     */  
+    Observable.amb = function () {
+        var acc = observableNever(),
+            items = argsOrArray(arguments, 0);
+        function func(previous, current) {
+            return previous.amb(current);
+        }
+        for (var i = 0, len = items.length; i < len; i++) {
+            acc = func(acc, items[i]);
+        }
+        return acc;
+    };
+
+    function observableCatchHandler(source, handler) {
+        return new AnonymousObservable(function (observer) {
+            var d1 = new SingleAssignmentDisposable(), subscription = new SerialDisposable();
+            subscription.setDisposable(d1);
+            d1.setDisposable(source.subscribe(observer.onNext.bind(observer), function (exception) {
+                var d, result;
+                try {
+                    result = handler(exception);
+                } catch (ex) {
+                    observer.onError(ex);
+                    return;
+                }
+                d = new SingleAssignmentDisposable();
+                subscription.setDisposable(d);
+                d.setDisposable(result.subscribe(observer));
+            }, observer.onCompleted.bind(observer)));
+            return subscription;
+        });
+    }
+
+    /**
+     * Continues an observable sequence that is terminated by an exception with the next observable sequence.
+     * @example
+     * 1 - xs.catchException(ys)
+     * 2 - xs.catchException(function (ex) { return ys(ex); })
+     * @param {Mixed} handlerOrSecond Exception handler function that returns an observable sequence given the error that occurred in the first sequence, or a second observable sequence used to produce results when an error occurred in the first sequence.
+     * @returns {Observable} An observable sequence containing the first sequence's elements, followed by the elements of the handler sequence in case an exception occurred.
+     */      
+    observableProto['catch'] = observableProto.catchException = function (handlerOrSecond) {
+        if (typeof handlerOrSecond === 'function') {
+            return observableCatchHandler(this, handlerOrSecond);
+        }
+        return observableCatch([this, handlerOrSecond]);
+    };
+
+    /**
+     * Continues an observable sequence that is terminated by an exception with the next observable sequence.
+     * 
+     * @example
+     * 1 - res = Rx.Observable.catchException(xs, ys, zs);
+     * 2 - res = Rx.Observable.catchException([xs, ys, zs]);
+     * @returns {Observable} An observable sequence containing elements from consecutive source sequences until a source sequence terminates successfully.
+     */
+    var observableCatch = Observable.catchException = Observable['catch'] = function () {
+        var items = argsOrArray(arguments, 0);
+        return enumerableFor(items).catchException();
+    };
+
+    /**
+     * Merges the specified observable sequences into one observable sequence by using the selector function whenever any of the observable sequences produces an element.
+     * This can be in the form of an argument list of observables or an array.
+     *
+     * @example
+     * 1 - obs = observable.combineLatest(obs1, obs2, obs3, function (o1, o2, o3) { return o1 + o2 + o3; });
+     * 2 - obs = observable.combineLatest([obs1, obs2, obs3], function (o1, o2, o3) { return o1 + o2 + o3; });
+     * @returns {Observable} An observable sequence containing the result of combining elements of the sources using the specified result selector function. 
+     */
+    observableProto.combineLatest = function () {
+        var args = slice.call(arguments);
+        if (Array.isArray(args[0])) {
+            args[0].unshift(this);
+        } else {
+            args.unshift(this);
+        }
+        return combineLatest.apply(this, args);
+    };
+
+    /**
+     * Merges the specified observable sequences into one observable sequence by using the selector function whenever any of the observable sequences produces an element.
+     * 
+     * @example
+     * 1 - obs = Rx.Observable.combineLatest(obs1, obs2, obs3, function (o1, o2, o3) { return o1 + o2 + o3; });
+     * 2 - obs = Rx.Observable.combineLatest([obs1, obs2, obs3], function (o1, o2, o3) { return o1 + o2 + o3; });     
+     * @returns {Observable} An observable sequence containing the result of combining elements of the sources using the specified result selector function.
+     */
+    var combineLatest = Observable.combineLatest = function () {
+        var args = slice.call(arguments), resultSelector = args.pop();
+        
+        if (Array.isArray(args[0])) {
+            args = args[0];
+        }
+
+        return new AnonymousObservable(function (observer) {
+            var falseFactory = function () { return false; },
+                n = args.length,
+                hasValue = arrayInitialize(n, falseFactory),
+                hasValueAll = false,
+                isDone = arrayInitialize(n, falseFactory),
+                values = new Array(n);
+
+            function next(i) {
+                var res;
+                hasValue[i] = true;
+                if (hasValueAll || (hasValueAll = hasValue.every(identity))) {
+                    try {
+                        res = resultSelector.apply(null, values);
+                    } catch (ex) {
+                        observer.onError(ex);
+                        return;
+                    }
+                    observer.onNext(res);
+                } else if (isDone.filter(function (x, j) { return j !== i; }).every(identity)) {
+                    observer.onCompleted();
+                }
+            }
+
+            function done (i) {
+                isDone[i] = true;
+                if (isDone.every(identity)) {
+                    observer.onCompleted();
+                }
+            }
+
+            var subscriptions = new Array(n);
+            for (var idx = 0; idx < n; idx++) {
+                (function (i) {
+                    subscriptions[i] = new SingleAssignmentDisposable();
+                    subscriptions[i].setDisposable(args[i].subscribe(function (x) {
+                        values[i] = x;
+                        next(i);
+                    }, observer.onError.bind(observer), function () {
+                        done(i);
+                    }));
+                }(idx));
+            }
+
+            return new CompositeDisposable(subscriptions);
+        });
+    };
+
+    /**
+     * Concatenates all the observable sequences.  This takes in either an array or variable arguments to concatenate.
+     * 
+     * @example
+     * 1 - concatenated = xs.concat(ys, zs);
+     * 2 - concatenated = xs.concat([ys, zs]);
+     * @returns {Observable} An observable sequence that contains the elements of each given sequence, in sequential order. 
+     */ 
+    observableProto.concat = function () {
+        var items = slice.call(arguments, 0);
+        items.unshift(this);
+        return observableConcat.apply(this, items);
+    };
+
+    /**
+     * Concatenates all the observable sequences.
+     * 
+     * @example
+     * 1 - res = Rx.Observable.concat(xs, ys, zs);
+     * 2 - res = Rx.Observable.concat([xs, ys, zs]);
+     * @returns {Observable} An observable sequence that contains the elements of each given sequence, in sequential order. 
+     */
+    var observableConcat = Observable.concat = function () {
+        var sources = argsOrArray(arguments, 0);
+        return enumerableFor(sources).concat();
+    };  
+
+    /**
+     * Concatenates an observable sequence of observable sequences.
+     * @returns {Observable} An observable sequence that contains the elements of each observed inner sequence, in sequential order. 
+     */ 
+    observableProto.concatObservable = observableProto.concatAll =function () {
+        return this.merge(1);
+    };
+
+    /**
+     * Merges an observable sequence of observable sequences into an observable sequence, limiting the number of concurrent subscriptions to inner sequences.
+     * Or merges two observable sequences into a single observable sequence.
+     * 
+     * @example
+     * 1 - merged = sources.merge(1);
+     * 2 - merged = source.merge(otherSource);  
+     * @param {Mixed} [maxConcurrentOrOther] Maximum number of inner observable sequences being subscribed to concurrently or the second observable sequence.
+     * @returns {Observable} The observable sequence that merges the elements of the inner sequences. 
+     */ 
+    observableProto.merge = function (maxConcurrentOrOther) {
+        if (typeof maxConcurrentOrOther !== 'number') {
+            return observableMerge(this, maxConcurrentOrOther);
+        }
+        var sources = this;
+        return new AnonymousObservable(function (observer) {
+            var activeCount = 0,
+                group = new CompositeDisposable(),
+                isStopped = false,
+                q = [],
+                subscribe = function (xs) {
+                    var subscription = new SingleAssignmentDisposable();
+                    group.add(subscription);
+
+                    // Check for promises support
+                    if (isPromise(xs)) { xs = observableFromPromise(xs); }
+
+                    subscription.setDisposable(xs.subscribe(observer.onNext.bind(observer), observer.onError.bind(observer), function () {
+                        var s;
+                        group.remove(subscription);
+                        if (q.length > 0) {
+                            s = q.shift();
+                            subscribe(s);
+                        } else {
+                            activeCount--;
+                            if (isStopped && activeCount === 0) {
+                                observer.onCompleted();
+                            }
+                        }
+                    }));
+                };
+            group.add(sources.subscribe(function (innerSource) {
+                if (activeCount < maxConcurrentOrOther) {
+                    activeCount++;
+                    subscribe(innerSource);
+                } else {
+                    q.push(innerSource);
+                }
+            }, observer.onError.bind(observer), function () {
+                isStopped = true;
+                if (activeCount === 0) {
+                    observer.onCompleted();
+                }
+            }));
+            return group;
+        });
+    };
+
+    /**
+     * Merges all the observable sequences into a single observable sequence.  
+     * The scheduler is optional and if not specified, the immediate scheduler is used.
+     * 
+     * @example
+     * 1 - merged = Rx.Observable.merge(xs, ys, zs);
+     * 2 - merged = Rx.Observable.merge([xs, ys, zs]);
+     * 3 - merged = Rx.Observable.merge(scheduler, xs, ys, zs);
+     * 4 - merged = Rx.Observable.merge(scheduler, [xs, ys, zs]);    
+     * @returns {Observable} The observable sequence that merges the elements of the observable sequences. 
+     */  
+    var observableMerge = Observable.merge = function () {
+        var scheduler, sources;
+        if (!arguments[0]) {
+            scheduler = immediateScheduler;
+            sources = slice.call(arguments, 1);
+        } else if (arguments[0].now) {
+            scheduler = arguments[0];
+            sources = slice.call(arguments, 1);
+        } else {
+            scheduler = immediateScheduler;
+            sources = slice.call(arguments, 0);
+        }
+        if (Array.isArray(sources[0])) {
+            sources = sources[0];
+        }
+        return observableFromArray(sources, scheduler).mergeObservable();
+    };   
+
+  /**
+   * Merges an observable sequence of observable sequences into an observable sequence.
+   * @returns {Observable} The observable sequence that merges the elements of the inner sequences.   
+   */  
+  observableProto.mergeObservable = observableProto.mergeAll =function () {
+    var sources = this;
+    return new AnonymousObservable(function (observer) {
+      var group = new CompositeDisposable(),
+        isStopped = false,
+        m = new SingleAssignmentDisposable();
+
+      group.add(m);
+      m.setDisposable(sources.subscribe(function (innerSource) {
+        var innerSubscription = new SingleAssignmentDisposable();
+        group.add(innerSubscription);
+
+        // Check if Promise or Observable
+        if (isPromise(innerSource)) {
+            innerSource = observableFromPromise(innerSource);
+        }
+
+        innerSubscription.setDisposable(innerSource.subscribe(function (x) {
+            observer.onNext(x);
+        }, observer.onError.bind(observer), function () {
+            group.remove(innerSubscription);
+            if (isStopped && group.length === 1) { observer.onCompleted(); }
+        }));
+      }, observer.onError.bind(observer), function () {
+        isStopped = true;
+        if (group.length === 1) { observer.onCompleted(); }
+      }));
+      return group;
+    });
+  };
+
+    /**
+     * Continues an observable sequence that is terminated normally or by an exception with the next observable sequence.
+     * @param {Observable} second Second observable sequence used to produce results after the first sequence terminates.
+     * @returns {Observable} An observable sequence that concatenates the first and second sequence, even if the first sequence terminates exceptionally.
+     */
+    observableProto.onErrorResumeNext = function (second) {
+        if (!second) {
+            throw new Error('Second observable is required');
+        }
+        return onErrorResumeNext([this, second]);
+    };
+
+    /**
+     * Continues an observable sequence that is terminated normally or by an exception with the next observable sequence.
+     * 
+     * @example
+     * 1 - res = Rx.Observable.onErrorResumeNext(xs, ys, zs);
+     * 1 - res = Rx.Observable.onErrorResumeNext([xs, ys, zs]);
+     * @returns {Observable} An observable sequence that concatenates the source sequences, even if a sequence terminates exceptionally.   
+     */
+    var onErrorResumeNext = Observable.onErrorResumeNext = function () {
+        var sources = argsOrArray(arguments, 0);
+        return new AnonymousObservable(function (observer) {
+            var pos = 0, subscription = new SerialDisposable(),
+            cancelable = immediateScheduler.scheduleRecursive(function (self) {
+                var current, d;
+                if (pos < sources.length) {
+                    current = sources[pos++];
+                    d = new SingleAssignmentDisposable();
+                    subscription.setDisposable(d);
+                    d.setDisposable(current.subscribe(observer.onNext.bind(observer), function () {
+                        self();
+                    }, function () {
+                        self();
+                    }));
+                } else {
+                    observer.onCompleted();
+                }
+            });
+            return new CompositeDisposable(subscription, cancelable);
+        });
+    };
+
+    /**
+     * Returns the values from the source observable sequence only after the other observable sequence produces a value.
+     * @param {Observable} other The observable sequence that triggers propagation of elements of the source sequence.
+     * @returns {Observable} An observable sequence containing the elements of the source sequence starting from the point the other sequence triggered propagation.    
+     */
+    observableProto.skipUntil = function (other) {
+        var source = this;
+        return new AnonymousObservable(function (observer) {
+            var isOpen = false;
+            var disposables = new CompositeDisposable(source.subscribe(function (left) {
+                if (isOpen) {
+                    observer.onNext(left);
+                }
+            }, observer.onError.bind(observer), function () {
+                if (isOpen) {
+                    observer.onCompleted();
+                }
+            }));
+
+            var rightSubscription = new SingleAssignmentDisposable();
+            disposables.add(rightSubscription);
+            rightSubscription.setDisposable(other.subscribe(function () {
+                isOpen = true;
+                rightSubscription.dispose();
+            }, observer.onError.bind(observer), function () {
+                rightSubscription.dispose();
+            }));
+
+            return disposables;
+        });
+    };
+
+    /**
+     * Transforms an observable sequence of observable sequences into an observable sequence producing values only from the most recent observable sequence.
+     * @returns {Observable} The observable sequence that at any point in time produces the elements of the most recent inner observable sequence that has been received.  
+     */
+    observableProto['switch'] = observableProto.switchLatest = function () {
+        var sources = this;
+        return new AnonymousObservable(function (observer) {
+            var hasLatest = false,
+                innerSubscription = new SerialDisposable(),
+                isStopped = false,
+                latest = 0,
+                subscription = sources.subscribe(function (innerSource) {
+                    var d = new SingleAssignmentDisposable(), id = ++latest;
+                    hasLatest = true;
+                    innerSubscription.setDisposable(d);
+
+                    // Check if Promise or Observable
+                    if (isPromise(innerSource)) {
+                        innerSource = observableFromPromise(innerSource);
+                    }
+
+                    d.setDisposable(innerSource.subscribe(function (x) {
+                        if (latest === id) {
+                            observer.onNext(x);
+                        }
+                    }, function (e) {
+                        if (latest === id) {
+                            observer.onError(e);
+                        }
+                    }, function () {
+                        if (latest === id) {
+                            hasLatest = false;
+                            if (isStopped) {
+                                observer.onCompleted();
+                            }
+                        }
+                    }));
+                }, observer.onError.bind(observer), function () {
+                    isStopped = true;
+                    if (!hasLatest) {
+                        observer.onCompleted();
+                    }
+                });
+            return new CompositeDisposable(subscription, innerSubscription);
+        });
+    };
+
+    /**
+     * Returns the values from the source observable sequence until the other observable sequence produces a value.
+     * @param {Observable} other Observable sequence that terminates propagation of elements of the source sequence.
+     * @returns {Observable} An observable sequence containing the elements of the source sequence up to the point the other sequence interrupted further propagation.   
+     */
+    observableProto.takeUntil = function (other) {
+        var source = this;
+        return new AnonymousObservable(function (observer) {
+            return new CompositeDisposable(
+                source.subscribe(observer),
+                other.subscribe(observer.onCompleted.bind(observer), observer.onError.bind(observer), noop)
+            );
+        });
+    };
+
+    function zipArray(second, resultSelector) {
+        var first = this;
+        return new AnonymousObservable(function (observer) {
+            var index = 0, len = second.length;
+            return first.subscribe(function (left) {
+                if (index < len) {
+                    var right = second[index++], result;
+                    try {
+                        result = resultSelector(left, right);
+                    } catch (e) {
+                        observer.onError(e);
+                        return;
+                    }
+                    observer.onNext(result);
+                } else {
+                    observer.onCompleted();
+                }
+            }, observer.onError.bind(observer), observer.onCompleted.bind(observer));
+        });
+    }    
+
+    /**
+     * Merges the specified observable sequences into one observable sequence by using the selector function whenever all of the observable sequences or an array have produced an element at a corresponding index.
+     * The last element in the arguments must be a function to invoke for each series of elements at corresponding indexes in the sources.
+     *
+     * @example
+     * 1 - res = obs1.zip(obs2, fn);
+     * 1 - res = x1.zip([1,2,3], fn);  
+     * @returns {Observable} An observable sequence containing the result of combining elements of the sources using the specified result selector function. 
+     */   
+    observableProto.zip = function () {
+        if (Array.isArray(arguments[0])) {
+            return zipArray.apply(this, arguments);
+        }
+        var parent = this, sources = slice.call(arguments), resultSelector = sources.pop();
+        sources.unshift(parent);
+        return new AnonymousObservable(function (observer) {
+            var n = sources.length,
+              queues = arrayInitialize(n, function () { return []; }),
+              isDone = arrayInitialize(n, function () { return false; });
+              
+            var next = function (i) {
+                var res, queuedValues;
+                if (queues.every(function (x) { return x.length > 0; })) {
+                    try {
+                        queuedValues = queues.map(function (x) { return x.shift(); });
+                        res = resultSelector.apply(parent, queuedValues);
+                    } catch (ex) {
+                        observer.onError(ex);
+                        return;
+                    }
+                    observer.onNext(res);
+                } else if (isDone.filter(function (x, j) { return j !== i; }).every(identity)) {
+                    observer.onCompleted();
+                }
+            };
+
+            function done(i) {
+                isDone[i] = true;
+                if (isDone.every(function (x) { return x; })) {
+                    observer.onCompleted();
+                }
+            }
+
+            var subscriptions = new Array(n);
+            for (var idx = 0; idx < n; idx++) {
+                (function (i) {
+                    subscriptions[i] = new SingleAssignmentDisposable();
+                    subscriptions[i].setDisposable(sources[i].subscribe(function (x) {
+                        queues[i].push(x);
+                        next(i);
+                    }, observer.onError.bind(observer), function () {
+                        done(i);
+                    }));
+                })(idx);
+            }
+
+            return new CompositeDisposable(subscriptions);
+        });
+    };
+    /**
+     * Merges the specified observable sequences into one observable sequence by using the selector function whenever all of the observable sequences have produced an element at a corresponding index.
+     * @param arguments Observable sources.
+     * @param {Function} resultSelector Function to invoke for each series of elements at corresponding indexes in the sources.
+     * @returns {Observable} An observable sequence containing the result of combining elements of the sources using the specified result selector function.
+     */
+    Observable.zip = function () {
+        var args = slice.call(arguments, 0),
+            first = args.shift();
+        return first.zip.apply(first, args);
+    };
+
+    /**
+     * Merges the specified observable sequences into one observable sequence by emitting a list with the elements of the observable sequences at corresponding indexes.
+     * @param arguments Observable sources.
+     * @returns {Observable} An observable sequence containing lists of elements at corresponding indexes.
+     */
+    Observable.zipArray = function () {
+        var sources = argsOrArray(arguments, 0);
+        return new AnonymousObservable(function (observer) {
+            var n = sources.length,
+              queues = arrayInitialize(n, function () { return []; }),
+              isDone = arrayInitialize(n, function () { return false; });
+
+            function next(i) {
+                if (queues.every(function (x) { return x.length > 0; })) {
+                    var res = queues.map(function (x) { return x.shift(); });
+                    observer.onNext(res);
+                } else if (isDone.filter(function (x, j) { return j !== i; }).every(identity)) {
+                    observer.onCompleted();
+                    return;
+                }
+            };
+
+            function done(i) {
+                isDone[i] = true;
+                if (isDone.every(identity)) {
+                    observer.onCompleted();
+                    return;
+                }
+            }
+
+            var subscriptions = new Array(n);
+            for (var idx = 0; idx < n; idx++) {
+                (function (i) {
+                    subscriptions[i] = new SingleAssignmentDisposable();
+                    subscriptions[i].setDisposable(sources[i].subscribe(function (x) {
+                        queues[i].push(x);
+                        next(i);
+                    }, observer.onError.bind(observer), function () {
+                        done(i);
+                    }));
+                })(idx);
+            }
+
+            var compositeDisposable = new CompositeDisposable(subscriptions);
+            compositeDisposable.add(disposableCreate(function () {
+                for (var qIdx = 0, qLen = queues.length; qIdx < qLen; qIdx++) {
+                    queues[qIdx] = [];
+                }
+            }));
+            return compositeDisposable;
+        });
+    };
+
+    /**
+     *  Hides the identity of an observable sequence.
+     * @returns {Observable} An observable sequence that hides the identity of the source sequence.    
+     */
+    observableProto.asObservable = function () {
+        var source = this;
+        return new AnonymousObservable(function (observer) {
+            return source.subscribe(observer);
+        });
+    };
+
+    /**
+     *  Projects each element of an observable sequence into zero or more buffers which are produced based on element count information.
+     *  
+     * @example
+     *  var res = xs.bufferWithCount(10);
+     *  var res = xs.bufferWithCount(10, 1);
+     * @param {Number} count Length of each buffer.
+     * @param {Number} [skip] Number of elements to skip between creation of consecutive buffers. If not provided, defaults to the count.
+     * @returns {Observable} An observable sequence of buffers.    
+     */
+    observableProto.bufferWithCount = function (count, skip) {
+        if (arguments.length === 1) {
+            skip = count;
+        }
+        return this.windowWithCount(count, skip).selectMany(function (x) {
+            return x.toArray();
+        }).where(function (x) {
+            return x.length > 0;
+        });
+    };
+
+    /**
+     * Dematerializes the explicit notification values of an observable sequence as implicit notifications.
+     * @returns {Observable} An observable sequence exhibiting the behavior corresponding to the source sequence's notification values.
+     */ 
+    observableProto.dematerialize = function () {
+        var source = this;
+        return new AnonymousObservable(function (observer) {
+            return source.subscribe(function (x) {
+                return x.accept(observer);
+            }, observer.onError.bind(observer), observer.onCompleted.bind(observer));
+        });
+    };
+
+    /**
+     *  Returns an observable sequence that contains only distinct contiguous elements according to the keySelector and the comparer.
+     *  
+     *  var obs = observable.distinctUntilChanged();
+     *  var obs = observable.distinctUntilChanged(function (x) { return x.id; });
+     *  var obs = observable.distinctUntilChanged(function (x) { return x.id; }, function (x, y) { return x === y; });
+     *
+     * @param {Function} [keySelector] A function to compute the comparison key for each element. If not provided, it projects the value.
+     * @param {Function} [comparer] Equality comparer for computed key values. If not provided, defaults to an equality comparer function.
+     * @returns {Observable} An observable sequence only containing the distinct contiguous elements, based on a computed key value, from the source sequence.   
+     */
+    observableProto.distinctUntilChanged = function (keySelector, comparer) {
+        var source = this;
+        keySelector || (keySelector = identity);
+        comparer || (comparer = defaultComparer);
+        return new AnonymousObservable(function (observer) {
+            var hasCurrentKey = false, currentKey;
+            return source.subscribe(function (value) {
+                var comparerEquals = false, key;
+                try {
+                    key = keySelector(value);
+                } catch (exception) {
+                    observer.onError(exception);
+                    return;
+                }
+                if (hasCurrentKey) {
+                    try {
+                        comparerEquals = comparer(currentKey, key);
+                    } catch (exception) {
+                        observer.onError(exception);
+                        return;
+                    }
+                }
+                if (!hasCurrentKey || !comparerEquals) {
+                    hasCurrentKey = true;
+                    currentKey = key;
+                    observer.onNext(value);
+                }
+            }, observer.onError.bind(observer), observer.onCompleted.bind(observer));
+        });
+    };
+
+    /**
+     *  Invokes an action for each element in the observable sequence and invokes an action upon graceful or exceptional termination of the observable sequence.
+     *  This method can be used for debugging, logging, etc. of query behavior by intercepting the message stream to run arbitrary actions for messages on the pipeline.
+     *  
+     * @example
+     *  var res = observable.doAction(observer);
+     *  var res = observable.doAction(onNext);
+     *  var res = observable.doAction(onNext, onError);
+     *  var res = observable.doAction(onNext, onError, onCompleted);
+     * @param {Mixed} observerOrOnNext Action to invoke for each element in the observable sequence or an observer.
+     * @param {Function} [onError]  Action to invoke upon exceptional termination of the observable sequence. Used if only the observerOrOnNext parameter is also a function.
+     * @param {Function} [onCompleted]  Action to invoke upon graceful termination of the observable sequence. Used if only the observerOrOnNext parameter is also a function.
+     * @returns {Observable} The source sequence with the side-effecting behavior applied.   
+     */
+    observableProto['do'] = observableProto.doAction = function (observerOrOnNext, onError, onCompleted) {
+        var source = this, onNextFunc;
+        if (typeof observerOrOnNext === 'function') {
+            onNextFunc = observerOrOnNext;
+        } else {
+            onNextFunc = observerOrOnNext.onNext.bind(observerOrOnNext);
+            onError = observerOrOnNext.onError.bind(observerOrOnNext);
+            onCompleted = observerOrOnNext.onCompleted.bind(observerOrOnNext);
+        }
+        return new AnonymousObservable(function (observer) {
+            return source.subscribe(function (x) {
+                try {
+                    onNextFunc(x);
+                } catch (e) {
+                    observer.onError(e);
+                }
+                observer.onNext(x);
+            }, function (exception) {
+                if (!onError) {
+                    observer.onError(exception);
+                } else {
+                    try {
+                        onError(exception);
+                    } catch (e) {
+                        observer.onError(e);
+                    }
+                    observer.onError(exception);
+                }
+            }, function () {
+                if (!onCompleted) {
+                    observer.onCompleted();
+                } else {
+                    try {
+                        onCompleted();
+                    } catch (e) {
+                        observer.onError(e);
+                    }
+                    observer.onCompleted();
+                }
+            });
+        });
+    };
+
+    /**
+     *  Invokes a specified action after the source observable sequence terminates gracefully or exceptionally.
+     *  
+     * @example
+     *  var res = observable.finallyAction(function () { console.log('sequence ended'; });
+     * @param {Function} finallyAction Action to invoke after the source observable sequence terminates.
+     * @returns {Observable} Source sequence with the action-invoking termination behavior applied. 
+     */  
+    observableProto['finally'] = observableProto.finallyAction = function (action) {
+        var source = this;
+        return new AnonymousObservable(function (observer) {
+            var subscription = source.subscribe(observer);
+            return disposableCreate(function () {
+                try {
+                    subscription.dispose();
+                } catch (e) { 
+                    throw e;                    
+                } finally {
+                    action();
+                }
+            });
+        });
+    };
+
+    /**
+     *  Ignores all elements in an observable sequence leaving only the termination messages.
+     * @returns {Observable} An empty observable sequence that signals termination, successful or exceptional, of the source sequence.    
+     */
+    observableProto.ignoreElements = function () {
+        var source = this;
+        return new AnonymousObservable(function (observer) {
+            return source.subscribe(noop, observer.onError.bind(observer), observer.onCompleted.bind(observer));
+        });
+    };
+
+    /**
+     *  Materializes the implicit notifications of an observable sequence as explicit notification values.
+     * @returns {Observable} An observable sequence containing the materialized notification values from the source sequence.
+     */    
+    observableProto.materialize = function () {
+        var source = this;
+        return new AnonymousObservable(function (observer) {
+            return source.subscribe(function (value) {
+                observer.onNext(notificationCreateOnNext(value));
+            }, function (e) {
+                observer.onNext(notificationCreateOnError(e));
+                observer.onCompleted();
+            }, function () {
+                observer.onNext(notificationCreateOnCompleted());
+                observer.onCompleted();
+            });
+        });
+    };
+
+    /**
+     *  Repeats the observable sequence a specified number of times. If the repeat count is not specified, the sequence repeats indefinitely.
+     *  
+     * @example
+     *  var res = repeated = source.repeat();
+     *  var res = repeated = source.repeat(42);
+     * @param {Number} [repeatCount]  Number of times to repeat the sequence. If not provided, repeats the sequence indefinitely.
+     * @returns {Observable} The observable sequence producing the elements of the given sequence repeatedly.   
+     */
+    observableProto.repeat = function (repeatCount) {
+        return enumerableRepeat(this, repeatCount).concat();
+    };
+
+    /**
+     *  Repeats the source observable sequence the specified number of times or until it successfully terminates. If the retry count is not specified, it retries indefinitely.
+     *  
+     * @example
+     *  var res = retried = retry.repeat();
+     *  var res = retried = retry.repeat(42);
+     * @param {Number} [retryCount]  Number of times to retry the sequence. If not provided, retry the sequence indefinitely.
+     * @returns {Observable} An observable sequence producing the elements of the given sequence repeatedly until it terminates successfully. 
+     */
+    observableProto.retry = function (retryCount) {
+        return enumerableRepeat(this, retryCount).catchException();
+    };
+
+    /**
+     *  Applies an accumulator function over an observable sequence and returns each intermediate result. The optional seed value is used as the initial accumulator value.
+     *  For aggregation behavior with no intermediate results, see Observable.aggregate.
+     * @example
+     *  var res = source.scan(function (acc, x) { return acc + x; });
+     *  var res = source.scan(0, function (acc, x) { return acc + x; });
+     * @param {Mixed} [seed] The initial accumulator value.
+     * @param {Function} accumulator An accumulator function to be invoked on each element.
+     * @returns {Observable} An observable sequence containing the accumulated values.
+     */
+    observableProto.scan = function () {
+        var hasSeed = false, seed, accumulator, source = this;
+        if (arguments.length === 2) {
+            hasSeed = true;
+            seed = arguments[0];
+            accumulator = arguments[1];        
+        } else {
+            accumulator = arguments[0];
+        }
+        return new AnonymousObservable(function (observer) {
+            var hasAccumulation, accumulation, hasValue;
+            return source.subscribe (
+                function (x) {
+                    try {
+                        if (!hasValue) {
+                            hasValue = true;
+                        }
+     
+                        if (hasAccumulation) {
+                            accumulation = accumulator(accumulation, x);
+                        } else {
+                            accumulation = hasSeed ? accumulator(seed, x) : x;
+                            hasAccumulation = true;
+                        }                    
+                    } catch (e) {
+                        observer.onError(e);
+                        return;
+                    }
+     
+                    observer.onNext(accumulation);
+                },
+                observer.onError.bind(observer),
+                function () {
+                    if (!hasValue && hasSeed) {
+                        observer.onNext(seed);
+                    }
+                    observer.onCompleted();
+                }
+            );
+        });
+    };
+
+    /**
+     *  Bypasses a specified number of elements at the end of an observable sequence.
+     * @description
+     *  This operator accumulates a queue with a length enough to store the first `count` elements. As more elements are
+     *  received, elements are taken from the front of the queue and produced on the result sequence. This causes elements to be delayed.     
+     * @param count Number of elements to bypass at the end of the source sequence.
+     * @returns {Observable} An observable sequence containing the source sequence elements except for the bypassed ones at the end.   
+     */
+    observableProto.skipLast = function (count) {
+        var source = this;
+        return new AnonymousObservable(function (observer) {
+            var q = [];
+            return source.subscribe(function (x) {
+                q.push(x);
+                if (q.length > count) {
+                    observer.onNext(q.shift());
+                }
+            }, observer.onError.bind(observer), observer.onCompleted.bind(observer));
+        });
+    };
+
+    /**
+     *  Prepends a sequence of values to an observable sequence with an optional scheduler and an argument list of values to prepend.
+     *  
+     *  var res = source.startWith(1, 2, 3);
+     *  var res = source.startWith(Rx.Scheduler.timeout, 1, 2, 3);
+     *  
+     * @memberOf Observable#
+     * @returns {Observable} The source sequence prepended with the specified values.  
+     */
+    observableProto.startWith = function () {
+        var values, scheduler, start = 0;
+        if (!!arguments.length && 'now' in Object(arguments[0])) {
+            scheduler = arguments[0];
+            start = 1;
+        } else {
+            scheduler = immediateScheduler;
+        }
+        values = slice.call(arguments, start);
+        return enumerableFor([observableFromArray(values, scheduler), this]).concat();
+    };
+
+    /**
+     *  Returns a specified number of contiguous elements from the end of an observable sequence, using an optional scheduler to drain the queue.
+     *  
+     * @example
+     *  var res = source.takeLast(5);
+     *  var res = source.takeLast(5, Rx.Scheduler.timeout);
+     *  
+     * @description
+     *  This operator accumulates a buffer with a length enough to store elements count elements. Upon completion of
+     *  the source sequence, this buffer is drained on the result sequence. This causes the elements to be delayed.
+     * @param {Number} count Number of elements to take from the end of the source sequence.
+     * @param {Scheduler} [scheduler] Scheduler used to drain the queue upon completion of the source sequence.
+     * @returns {Observable} An observable sequence containing the specified number of elements from the end of the source sequence.
+     */   
+    observableProto.takeLast = function (count, scheduler) {
+        return this.takeLastBuffer(count).selectMany(function (xs) { return observableFromArray(xs, scheduler); });
+    };
+
+    /**
+     *  Returns an array with the specified number of contiguous elements from the end of an observable sequence.
+     *  
+     * @description
+     *  This operator accumulates a buffer with a length enough to store count elements. Upon completion of the
+     *  source sequence, this buffer is produced on the result sequence.       
+     * @param {Number} count Number of elements to take from the end of the source sequence.
+     * @returns {Observable} An observable sequence containing a single array with the specified number of elements from the end of the source sequence.
+     */
+    observableProto.takeLastBuffer = function (count) {
+        var source = this;
+        return new AnonymousObservable(function (observer) {
+            var q = [];
+            return source.subscribe(function (x) {
+                q.push(x);
+                if (q.length > count) {
+                    q.shift();
+                }
+            }, observer.onError.bind(observer), function () {
+                observer.onNext(q);
+                observer.onCompleted();
+            });
+        });
+    };
+
+    /**
+     *  Projects each element of an observable sequence into zero or more windows which are produced based on element count information.
+     *  
+     *  var res = xs.windowWithCount(10);
+     *  var res = xs.windowWithCount(10, 1);
+     * @param {Number} count Length of each window.
+     * @param {Number} [skip] Number of elements to skip between creation of consecutive windows. If not specified, defaults to the count.
+     * @returns {Observable} An observable sequence of windows.  
+     */
+    observableProto.windowWithCount = function (count, skip) {
+        var source = this;
+        if (count <= 0) {
+            throw new Error(argumentOutOfRange);
+        }
+        if (arguments.length === 1) {
+            skip = count;
+        }
+        if (skip <= 0) {
+            throw new Error(argumentOutOfRange);
+        }
+        return new AnonymousObservable(function (observer) {
+            var m = new SingleAssignmentDisposable(),
+                refCountDisposable = new RefCountDisposable(m),
+                n = 0,
+                q = [],
+                createWindow = function () {
+                    var s = new Subject();
+                    q.push(s);
+                    observer.onNext(addRef(s, refCountDisposable));
+                };
+            createWindow();
+            m.setDisposable(source.subscribe(function (x) {
+                var s;
+                for (var i = 0, len = q.length; i < len; i++) {
+                    q[i].onNext(x);
+                }
+                var c = n - count + 1;
+                if (c >= 0 && c % skip === 0) {
+                    s = q.shift();
+                    s.onCompleted();
+                }
+                n++;
+                if (n % skip === 0) {
+                    createWindow();
+                }
+            }, function (exception) {
+                while (q.length > 0) {
+                    q.shift().onError(exception);
+                }
+                observer.onError(exception);
+            }, function () {
+                while (q.length > 0) {
+                    q.shift().onCompleted();
+                }
+                observer.onCompleted();
+            }));
+            return refCountDisposable;
+        });
+    };
+
+    /**
+     *  Returns the elements of the specified sequence or the specified value in a singleton sequence if the sequence is empty.
+     *  
+     *  var res = obs = xs.defaultIfEmpty();
+     *  2 - obs = xs.defaultIfEmpty(false);
+     *      
+     * @memberOf Observable#
+     * @param defaultValue The value to return if the sequence is empty. If not provided, this defaults to null.
+     * @returns {Observable} An observable sequence that contains the specified default value if the source is empty; otherwise, the elements of the source itself. 
+     */
+    observableProto.defaultIfEmpty = function (defaultValue) {
+        var source = this;
+        if (defaultValue === undefined) {
+            defaultValue = null;
+        }
+        return new AnonymousObservable(function (observer) {
+            var found = false;
+            return source.subscribe(function (x) {
+                found = true;
+                observer.onNext(x);
+            }, observer.onError.bind(observer), function () {
+                if (!found) {
+                    observer.onNext(defaultValue);
+                }
+                observer.onCompleted();
+            });
+        });
+    };
+
+    /**
+     *  Returns an observable sequence that contains only distinct elements according to the keySelector and the comparer.
+     *  Usage of this operator should be considered carefully due to the maintenance of an internal lookup structure which can grow large. 
+     * 
+     * @example
+     *  var res = obs = xs.distinct();
+     *  2 - obs = xs.distinct(function (x) { return x.id; });
+     *  2 - obs = xs.distinct(function (x) { return x.id; }, function (x) { return x.toString(); });  
+     * @param {Function} [keySelector]  A function to compute the comparison key for each element.
+     * @param {Function} [keySerializer]  Used to serialize the given object into a string for object comparison.
+     * @returns {Observable} An observable sequence only containing the distinct elements, based on a computed key value, from the source sequence.
+     */
+   observableProto.distinct = function (keySelector, keySerializer) {
+        var source = this;
+        keySelector || (keySelector = identity);
+        keySerializer || (keySerializer = defaultKeySerializer);
+        return new AnonymousObservable(function (observer) {
+            var hashSet = {};
+            return source.subscribe(function (x) {
+                var key, serializedKey, otherKey, hasMatch = false;
+                try {
+                    key = keySelector(x);
+                    serializedKey = keySerializer(key);
+                } catch (exception) {
+                    observer.onError(exception);
+                    return;
+                }
+                for (otherKey in hashSet) {
+                    if (serializedKey === otherKey) {
+                        hasMatch = true;
+                        break;
+                    }
+                }
+                if (!hasMatch) {
+                    hashSet[serializedKey] = null;
+                    observer.onNext(x);
+                }
+            }, observer.onError.bind(observer), observer.onCompleted.bind(observer));
+        });
+    };
+
+    /**
+     *  Groups the elements of an observable sequence according to a specified key selector function and comparer and selects the resulting elements by using a specified function.
+     *  
+     * @example
+     *  var res = observable.groupBy(function (x) { return x.id; });
+     *  2 - observable.groupBy(function (x) { return x.id; }), function (x) { return x.name; });
+     *  3 - observable.groupBy(function (x) { return x.id; }), function (x) { return x.name; }, function (x) { return x.toString(); });
+     * @param {Function} keySelector A function to extract the key for each element.
+     * @param {Function} [elementSelector]  A function to map each source element to an element in an observable group.
+     * @param {Function} [keySerializer]  Used to serialize the given object into a string for object comparison.
+     * @returns {Observable} A sequence of observable groups, each of which corresponds to a unique key value, containing all elements that share that same key value.    
+     */
+    observableProto.groupBy = function (keySelector, elementSelector, keySerializer) {
+        return this.groupByUntil(keySelector, elementSelector, function () {
+            return observableNever();
+        }, keySerializer);
+    };
+
+    /**
+     *  Groups the elements of an observable sequence according to a specified key selector function.
+     *  A duration selector function is used to control the lifetime of groups. When a group expires, it receives an OnCompleted notification. When a new element with the same
+     *  key value as a reclaimed group occurs, the group will be reborn with a new lifetime request.
+     *  
+     * @example
+     *  var res = observable.groupByUntil(function (x) { return x.id; }, null,  function () { return Rx.Observable.never(); });
+     *  2 - observable.groupBy(function (x) { return x.id; }), function (x) { return x.name; },  function () { return Rx.Observable.never(); });
+     *  3 - observable.groupBy(function (x) { return x.id; }), function (x) { return x.name; },  function () { return Rx.Observable.never(); }, function (x) { return x.toString(); });
+     * @param {Function} keySelector A function to extract the key for each element.
+     * @param {Function} durationSelector A function to signal the expiration of a group.
+     * @param {Function} [keySerializer]  Used to serialize the given object into a string for object comparison.
+     * @returns {Observable} 
+     *  A sequence of observable groups, each of which corresponds to a unique key value, containing all elements that share that same key value.
+     *  If a group's lifetime expires, a new group with the same key value can be created once an element with such a key value is encoutered.
+     *      
+     */
+    observableProto.groupByUntil = function (keySelector, elementSelector, durationSelector, keySerializer) {
+        var source = this;
+        elementSelector || (elementSelector = identity);
+        keySerializer || (keySerializer = defaultKeySerializer);
+        return new AnonymousObservable(function (observer) {
+            var map = {},
+                groupDisposable = new CompositeDisposable(),
+                refCountDisposable = new RefCountDisposable(groupDisposable);
+            groupDisposable.add(source.subscribe(function (x) {
+                var duration, durationGroup, element, fireNewMapEntry, group, key, serializedKey, md, writer, w;
+                try {
+                    key = keySelector(x);
+                    serializedKey = keySerializer(key);
+                } catch (e) {
+                    for (w in map) {
+                        map[w].onError(e);
+                    }
+                    observer.onError(e);
+                    return;
+                }
+                fireNewMapEntry = false;
+                try {
+                    writer = map[serializedKey];
+                    if (!writer) {
+                        writer = new Subject();
+                        map[serializedKey] = writer;
+                        fireNewMapEntry = true;
+                    }
+                } catch (e) {
+                    for (w in map) {
+                        map[w].onError(e);
+                    }
+                    observer.onError(e);
+                    return;
+                }
+                if (fireNewMapEntry) {
+                    group = new GroupedObservable(key, writer, refCountDisposable);
+                    durationGroup = new GroupedObservable(key, writer);
+                    try {
+                        duration = durationSelector(durationGroup);
+                    } catch (e) {
+                        for (w in map) {
+                            map[w].onError(e);
+                        }
+                        observer.onError(e);
+                        return;
+                    }
+                    observer.onNext(group);
+                    md = new SingleAssignmentDisposable();
+                    groupDisposable.add(md);
+                    var expire = function  () {
+                        if (serializedKey in map) {
+                            delete map[serializedKey];
+                            writer.onCompleted();
+                        }
+                        groupDisposable.remove(md);
+                    };
+                    md.setDisposable(duration.take(1).subscribe(noop, function (exn) {
+                        for (w in map) {
+                            map[w].onError(exn);
+                        }
+                        observer.onError(exn);
+                    }, function () {
+                        expire();
+                    }));
+                }
+                try {
+                    element = elementSelector(x);
+                } catch (e) {
+                    for (w in map) {
+                        map[w].onError(e);
+                    }
+                    observer.onError(e);
+                    return;
+                }
+                writer.onNext(element);
+            }, function (ex) {
+                for (var w in map) {
+                    map[w].onError(ex);
+                }
+                observer.onError(ex);
+            }, function () {
+                for (var w in map) {
+                    map[w].onCompleted();
+                }
+                observer.onCompleted();
+            }));
+            return refCountDisposable;
+        });
+    };
+
+    /**
+     *  Projects each element of an observable sequence into a new form by incorporating the element's index.
+     * @param {Function} selector A transform function to apply to each source element; the second parameter of the function represents the index of the source element.
+     * @param {Any} [thisArg] Object to use as this when executing callback.
+     * @returns {Observable} An observable sequence whose elements are the result of invoking the transform function on each element of source. 
+     */
+    observableProto.select = observableProto.map = function (selector, thisArg) {
+        var parent = this;
+        return new AnonymousObservable(function (observer) {
+            var count = 0;
+            return parent.subscribe(function (value) {
+                var result;
+                try {
+                    result = selector.call(thisArg, value, count++, parent);
+                } catch (exception) {
+                    observer.onError(exception);
+                    return;
+                }
+                observer.onNext(result);
+            }, observer.onError.bind(observer), observer.onCompleted.bind(observer));
+        });
+    };
+
+    /**
+     * Retrieves the value of a specified property from all elements in the Observable sequence.
+     * @param {String} property The property to pluck.
+     * @returns {Observable} Returns a new Observable sequence of property values.
+     */
+    observableProto.pluck = function (property) {
+        return this.select(function (x) { return x[property]; });
+    };
+
+    function selectMany(selector) {
+      return this.select(function (x, i) {
+        var result = selector(x, i);
+        return isPromise(result) ? observableFromPromise(result) : result;
+      }).mergeObservable();
+    }
+
+    /**
+     *  One of the Following:
+     *  Projects each element of an observable sequence to an observable sequence and merges the resulting observable sequences into one observable sequence.
+     *  
+     * @example
+     *  var res = source.selectMany(function (x) { return Rx.Observable.range(0, x); });
+     *  Or:
+     *  Projects each element of an observable sequence to an observable sequence, invokes the result selector for the source element and each of the corresponding inner sequence's elements, and merges the results into one observable sequence.
+     *  
+     *  var res = source.selectMany(function (x) { return Rx.Observable.range(0, x); }, function (x, y) { return x + y; });
+     *  Or:
+     *  Projects each element of the source observable sequence to the other observable sequence and merges the resulting observable sequences into one observable sequence.
+     *  
+     *  var res = source.selectMany(Rx.Observable.fromArray([1,2,3]));
+     * @param selector A transform function to apply to each element or an observable sequence to project each element from the 
+     * source sequence onto which could be either an observable or Promise.
+     * @param {Function} [resultSelector]  A transform function to apply to each element of the intermediate sequence.
+     * @returns {Observable} An observable sequence whose elements are the result of invoking the one-to-many transform function collectionSelector on each element of the input sequence and then mapping each of those sequence elements and their corresponding source element to a result element.   
+     */
+    observableProto.selectMany = observableProto.flatMap = function (selector, resultSelector) {
+      if (resultSelector) {
+          return this.selectMany(function (x, i) {
+            var selectorResult = selector(x, i),
+              result = isPromise(selectorResult) ? observableFromPromise(selectorResult) : selectorResult;
+
+            return result.select(function (y) {
+              return resultSelector(x, y, i);
+            });
+          });
+      }
+      if (typeof selector === 'function') {
+        return selectMany.call(this, selector);
+      }
+      return selectMany.call(this, function () {
+        return selector;
+      });
+    };
+
+    /**
+     *  Projects each element of an observable sequence into a new sequence of observable sequences by incorporating the element's index and then 
+     *  transforms an observable sequence of observable sequences into an observable sequence producing values only from the most recent observable sequence.
+     * @param {Function} selector A transform function to apply to each source element; the second parameter of the function represents the index of the source element.
+     * @param {Any} [thisArg] Object to use as this when executing callback.
+     * @returns {Observable} An observable sequence whose elements are the result of invoking the transform function on each element of source producing an Observable of Observable sequences 
+     *  and that at any point in time produces the elements of the most recent inner observable sequence that has been received.
+     */
+    observableProto.selectSwitch = observableProto.flatMapLatest = function (selector, thisArg) {
+        return this.select(selector, thisArg).switchLatest();
+    };
+
+    /**
+     * Bypasses a specified number of elements in an observable sequence and then returns the remaining elements.
+     * @param {Number} count The number of elements to skip before returning the remaining elements.
+     * @returns {Observable} An observable sequence that contains the elements that occur after the specified index in the input sequence.   
+     */
+    observableProto.skip = function (count) {
+        if (count < 0) {
+            throw new Error(argumentOutOfRange);
+        }
+        var observable = this;
+        return new AnonymousObservable(function (observer) {
+            var remaining = count;
+            return observable.subscribe(function (x) {
+                if (remaining <= 0) {
+                    observer.onNext(x);
+                } else {
+                    remaining--;
+                }
+            }, observer.onError.bind(observer), observer.onCompleted.bind(observer));
+        });
+    };
+
+    /**
+     *  Bypasses elements in an observable sequence as long as a specified condition is true and then returns the remaining elements.
+     *  The element's index is used in the logic of the predicate function.
+     *  
+     *  var res = source.skipWhile(function (value) { return value < 10; });
+     *  var res = source.skipWhile(function (value, index) { return value < 10 || index < 10; });
+     * @param {Function} predicate A function to test each element for a condition; the second parameter of the function represents the index of the source element.
+     * @param {Any} [thisArg] Object to use as this when executing callback.     
+     * @returns {Observable} An observable sequence that contains the elements from the input sequence starting at the first element in the linear series that does not pass the test specified by predicate.   
+     */
+    observableProto.skipWhile = function (predicate, thisArg) {
+        var source = this;
+        return new AnonymousObservable(function (observer) {
+            var i = 0, running = false;
+            return source.subscribe(function (x) {
+                if (!running) {
+                    try {
+                        running = !predicate.call(thisArg, x, i++, source);
+                    } catch (e) {
+                        observer.onError(e);
+                        return;
+                    }
+                }
+                if (running) {
+                    observer.onNext(x);
+                }
+            }, observer.onError.bind(observer), observer.onCompleted.bind(observer));
+        });
+    };
+
+    /**
+     *  Returns a specified number of contiguous elements from the start of an observable sequence, using the specified scheduler for the edge case of take(0).
+     *  
+     *  var res = source.take(5);
+     *  var res = source.take(0, Rx.Scheduler.timeout);
+     * @param {Number} count The number of elements to return.
+     * @param {Scheduler} [scheduler] Scheduler used to produce an OnCompleted message in case <paramref name="count count</paramref> is set to 0.
+     * @returns {Observable} An observable sequence that contains the specified number of elements from the start of the input sequence.  
+     */
+    observableProto.take = function (count, scheduler) {
+        if (count < 0) {
+            throw new Error(argumentOutOfRange);
+        }
+        if (count === 0) {
+            return observableEmpty(scheduler);
+        }
+        var observable = this;
+        return new AnonymousObservable(function (observer) {
+            var remaining = count;
+            return observable.subscribe(function (x) {
+                if (remaining > 0) {
+                    remaining--;
+                    observer.onNext(x);
+                    if (remaining === 0) {
+                        observer.onCompleted();
+                    }
+                }
+            }, observer.onError.bind(observer), observer.onCompleted.bind(observer));
+        });
+    };
+
+    /**
+     *  Returns elements from an observable sequence as long as a specified condition is true.
+     *  The element's index is used in the logic of the predicate function.
+     *  
+     * @example
+     *  var res = source.takeWhile(function (value) { return value < 10; });
+     *  var res = source.takeWhile(function (value, index) { return value < 10 || index < 10; });
+     * @param {Function} predicate A function to test each element for a condition; the second parameter of the function represents the index of the source element.
+     * @param {Any} [thisArg] Object to use as this when executing callback.     
+     * @returns {Observable} An observable sequence that contains the elements from the input sequence that occur before the element at which the test no longer passes.  
+     */
+    observableProto.takeWhile = function (predicate, thisArg) {
+        var observable = this;
+        return new AnonymousObservable(function (observer) {
+            var i = 0, running = true;
+            return observable.subscribe(function (x) {
+                if (running) {
+                    try {
+                        running = predicate.call(thisArg, x, i++, observable);
+                    } catch (e) {
+                        observer.onError(e);
+                        return;
+                    }
+                    if (running) {
+                        observer.onNext(x);
+                    } else {
+                        observer.onCompleted();
+                    }
+                }
+            }, observer.onError.bind(observer), observer.onCompleted.bind(observer));
+        });
+    };
+
+    /**
+     *  Filters the elements of an observable sequence based on a predicate by incorporating the element's index.
+     *  
+     * @example
+     *  var res = source.where(function (value) { return value < 10; });
+     *  var res = source.where(function (value, index) { return value < 10 || index < 10; });
+     * @param {Function} predicate A function to test each source element for a condition; the second parameter of the function represents the index of the source element.
+     * @param {Any} [thisArg] Object to use as this when executing callback.
+     * @returns {Observable} An observable sequence that contains elements from the input sequence that satisfy the condition.   
+     */
+    observableProto.where = observableProto.filter = function (predicate, thisArg) {
+        var parent = this;
+        return new AnonymousObservable(function (observer) {
+            var count = 0;
+            return parent.subscribe(function (value) {
+                var shouldRun;
+                try {
+                    shouldRun = predicate.call(thisArg, value, count++, parent);
+                } catch (exception) {
+                    observer.onError(exception);
+                    return;
+                }
+                if (shouldRun) {
+                    observer.onNext(value);
+                }
+            }, observer.onError.bind(observer), observer.onCompleted.bind(observer));
+        });
+    };
+
+    var AnonymousObservable = Rx.AnonymousObservable = (function (_super) {
+        inherits(AnonymousObservable, _super);
+
+        // Fix subscriber to check for undefined or function returned to decorate as Disposable
+        function fixSubscriber(subscriber) {
+            if (typeof subscriber === 'undefined') {
+                subscriber = disposableEmpty;
+            } else if (typeof subscriber === 'function') {
+                subscriber = disposableCreate(subscriber);
+            }
+
+            return subscriber;
+        }
+
+        function AnonymousObservable(subscribe) {
+            if (!(this instanceof AnonymousObservable)) {
+                return new AnonymousObservable(subscribe);
+            }
+
+            function s(observer) {
+                var autoDetachObserver = new AutoDetachObserver(observer);
+                if (currentThreadScheduler.scheduleRequired()) {
+                    currentThreadScheduler.schedule(function () {
+                        try {
+                            autoDetachObserver.setDisposable(fixSubscriber(subscribe(autoDetachObserver)));
+                        } catch (e) {
+                            if (!autoDetachObserver.fail(e)) {
+                                throw e;
+                            } 
+                        }
+                    });
+                } else {
+                    try {
+                        autoDetachObserver.setDisposable(fixSubscriber(subscribe(autoDetachObserver)));
+                    } catch (e) {
+                        if (!autoDetachObserver.fail(e)) {
+                            throw e;
+                        }
+                    }
+                }
+
+                return autoDetachObserver;
+            }
+
+            _super.call(this, s);
+        }
+
+        return AnonymousObservable;
+
+    }(Observable));
+
+    /** @private */
+    var AutoDetachObserver = (function (_super) {
+        inherits(AutoDetachObserver, _super);
+
+        function AutoDetachObserver(observer) {
+            _super.call(this);
+            this.observer = observer;
+            this.m = new SingleAssignmentDisposable();
+        }
+
+        var AutoDetachObserverPrototype = AutoDetachObserver.prototype;
+
+        AutoDetachObserverPrototype.next = function (value) {
+            var noError = false;
+            try {
+                this.observer.onNext(value);
+                noError = true;
+            } catch (e) { 
+                throw e;                
+            } finally {
+                if (!noError) {
+                    this.dispose();
+                }
+            }
+        };
+
+        AutoDetachObserverPrototype.error = function (exn) {
+            try {
+                this.observer.onError(exn);
+            } catch (e) { 
+                throw e;                
+            } finally {
+                this.dispose();
+            }
+        };
+
+        AutoDetachObserverPrototype.completed = function () {
+            try {
+                this.observer.onCompleted();
+            } catch (e) { 
+                throw e;                
+            } finally {
+                this.dispose();
+            }
+        };
+
+        AutoDetachObserverPrototype.setDisposable = function (value) { this.m.setDisposable(value); };
+        AutoDetachObserverPrototype.getDisposable = function (value) { return this.m.getDisposable(); };
+        /* @private */
+        AutoDetachObserverPrototype.disposable = function (value) {
+            return arguments.length ? this.getDisposable() : setDisposable(value);
+        };
+
+        AutoDetachObserverPrototype.dispose = function () {
+            _super.prototype.dispose.call(this);
+            this.m.dispose();
+        };
+
+        return AutoDetachObserver;
+    }(AbstractObserver));
+
+    /** @private */
+    var GroupedObservable = (function (_super) {
+        inherits(GroupedObservable, _super);
+
+        function subscribe(observer) {
+            return this.underlyingObservable.subscribe(observer);
+        }
+
+        /** 
+         * @constructor
+         * @private
+         */
+        function GroupedObservable(key, underlyingObservable, mergedDisposable) {
+            _super.call(this, subscribe);
+            this.key = key;
+            this.underlyingObservable = !mergedDisposable ?
+                underlyingObservable :
+                new AnonymousObservable(function (observer) {
+                    return new CompositeDisposable(mergedDisposable.getDisposable(), underlyingObservable.subscribe(observer));
+                });
+        }
+
+        return GroupedObservable;
+    }(Observable));
+
+    /** @private */
+    var InnerSubscription = function (subject, observer) {
+        this.subject = subject;
+        this.observer = observer;
+    };
+
+    /**
+     * @private
+     * @memberOf InnerSubscription
+     */
+    InnerSubscription.prototype.dispose = function () {
+        if (!this.subject.isDisposed && this.observer !== null) {
+            var idx = this.subject.observers.indexOf(this.observer);
+            this.subject.observers.splice(idx, 1);
+            this.observer = null;
+        }
+    };
+
+    /**
+     *  Represents an object that is both an observable sequence as well as an observer.
+     *  Each notification is broadcasted to all subscribed observers.
+     */
+    var Subject = Rx.Subject = (function (_super) {
+        function subscribe(observer) {
+            checkDisposed.call(this);
+            if (!this.isStopped) {
+                this.observers.push(observer);
+                return new InnerSubscription(this, observer);
+            }
+            if (this.exception) {
+                observer.onError(this.exception);
+                return disposableEmpty;
+            }
+            observer.onCompleted();
+            return disposableEmpty;
+        }
+
+        inherits(Subject, _super);
+
+        /**
+         * Creates a subject.
+         * @constructor
+         */      
+        function Subject() {
+            _super.call(this, subscribe);
+            this.isDisposed = false,
+            this.isStopped = false,
+            this.observers = [];
+        }
+
+        addProperties(Subject.prototype, Observer, {
+            /**
+             * Indicates whether the subject has observers subscribed to it.
+             * @returns {Boolean} Indicates whether the subject has observers subscribed to it.
+             */         
+            hasObservers: function () {
+                return this.observers.length > 0;
+            },
+            /**
+             * Notifies all subscribed observers about the end of the sequence.
+             */                          
+            onCompleted: function () {
+                checkDisposed.call(this);
+                if (!this.isStopped) {
+                    var os = this.observers.slice(0);
+                    this.isStopped = true;
+                    for (var i = 0, len = os.length; i < len; i++) {
+                        os[i].onCompleted();
+                    }
+
+                    this.observers = [];
+                }
+            },
+            /**
+             * Notifies all subscribed observers about the exception.
+             * @param {Mixed} error The exception to send to all observers.
+             */               
+            onError: function (exception) {
+                checkDisposed.call(this);
+                if (!this.isStopped) {
+                    var os = this.observers.slice(0);
+                    this.isStopped = true;
+                    this.exception = exception;
+                    for (var i = 0, len = os.length; i < len; i++) {
+                        os[i].onError(exception);
+                    }
+
+                    this.observers = [];
+                }
+            },
+            /**
+             * Notifies all subscribed observers about the arrival of the specified element in the sequence.
+             * @param {Mixed} value The value to send to all observers.
+             */                 
+            onNext: function (value) {
+                checkDisposed.call(this);
+                if (!this.isStopped) {
+                    var os = this.observers.slice(0);
+                    for (var i = 0, len = os.length; i < len; i++) {
+                        os[i].onNext(value);
+                    }
+                }
+            },
+            /**
+             * Unsubscribe all observers and release resources.
+             */                
+            dispose: function () {
+                this.isDisposed = true;
+                this.observers = null;
+            }
+        });
+
+        /**
+         * Creates a subject from the specified observer and observable.
+         * @param {Observer} observer The observer used to send messages to the subject.
+         * @param {Observable} observable The observable used to subscribe to messages sent from the subject.
+         * @returns {Subject} Subject implemented using the given observer and observable.
+         */
+        Subject.create = function (observer, observable) {
+            return new AnonymousSubject(observer, observable);
+        };
+
+        return Subject;
+    }(Observable));
+
+    /**
+     *  Represents the result of an asynchronous operation.
+     *  The last value before the OnCompleted notification, or the error received through OnError, is sent to all subscribed observers.
+     */   
+    var AsyncSubject = Rx.AsyncSubject = (function (_super) {
+
+        function subscribe(observer) {
+            checkDisposed.call(this);
+            
+            if (!this.isStopped) {
+                this.observers.push(observer);
+                return new InnerSubscription(this, observer);
+            }
+
+            var ex = this.exception,
+                hv = this.hasValue,
+                v = this.value;
+
+            if (ex) {
+                observer.onError(ex);
+            } else if (hv) {
+                observer.onNext(v);
+                observer.onCompleted();
+            } else {
+                observer.onCompleted();
+            }
+
+            return disposableEmpty;
+        }
+
+        inherits(AsyncSubject, _super);
+
+        /**
+         * Creates a subject that can only receive one value and that value is cached for all future observations.
+         * @constructor
+         */ 
+        function AsyncSubject() {
+            _super.call(this, subscribe);
+
+            this.isDisposed = false;
+            this.isStopped = false;
+            this.value = null;
+            this.hasValue = false;
+            this.observers = [];
+            this.exception = null;
+        }
+
+        addProperties(AsyncSubject.prototype, Observer, {
+            /**
+             * Indicates whether the subject has observers subscribed to it.
+             * @returns {Boolean} Indicates whether the subject has observers subscribed to it.
+             */         
+            hasObservers: function () {
+                checkDisposed.call(this);
+                return this.observers.length > 0;
+            },
+            /**
+             * Notifies all subscribed observers about the end of the sequence, also causing the last received value to be sent out (if any).
+             */ 
+            onCompleted: function () {
+                var o, i, len;
+                checkDisposed.call(this);
+                if (!this.isStopped) {
+                    this.isStopped = true;
+                    var os = this.observers.slice(0),
+                        v = this.value,
+                        hv = this.hasValue;
+
+                    if (hv) {
+                        for (i = 0, len = os.length; i < len; i++) {
+                            o = os[i];
+                            o.onNext(v);
+                            o.onCompleted();
+                        }
+                    } else {
+                        for (i = 0, len = os.length; i < len; i++) {
+                            os[i].onCompleted();
+                        }
+                    }
+
+                    this.observers = [];
+                }
+            },
+            /**
+             * Notifies all subscribed observers about the exception.
+             * @param {Mixed} error The exception to send to all observers.
+             */ 
+            onError: function (exception) {
+                checkDisposed.call(this);
+                if (!this.isStopped) {
+                    var os = this.observers.slice(0);
+                    this.isStopped = true;
+                    this.exception = exception;
+
+                    for (var i = 0, len = os.length; i < len; i++) {
+                        os[i].onError(exception);
+                    }
+
+                    this.observers = [];
+                }
+            },
+            /**
+             * Sends a value to the subject. The last value received before successful termination will be sent to all subscribed and future observers.
+             * @param {Mixed} value The value to store in the subject.
+             */             
+            onNext: function (value) {
+                checkDisposed.call(this);
+                if (!this.isStopped) {
+                    this.value = value;
+                    this.hasValue = true;
+                }
+            },
+            /**
+             * Unsubscribe all observers and release resources.
+             */
+            dispose: function () {
+                this.isDisposed = true;
+                this.observers = null;
+                this.exception = null;
+                this.value = null;
+            }
+        });
+
+        return AsyncSubject;
+    }(Observable));
+
+    /** @private */
+    var AnonymousSubject = (function (_super) {
+        inherits(AnonymousSubject, _super);
+
+        function subscribe(observer) {
+            return this.observable.subscribe(observer);
+        }
+
+        /**
+         * @private
+         * @constructor
+         */
+        function AnonymousSubject(observer, observable) {
+            _super.call(this, subscribe);
+            this.observer = observer;
+            this.observable = observable;
+        }
+
+        addProperties(AnonymousSubject.prototype, Observer, {
+            /**
+             * @private
+             * @memberOf AnonymousSubject#
+            */
+            onCompleted: function () {
+                this.observer.onCompleted();
+            },
+            /**
+             * @private
+             * @memberOf AnonymousSubject#
+            */            
+            onError: function (exception) {
+                this.observer.onError(exception);
+            },
+            /**
+             * @private
+             * @memberOf AnonymousSubject#
+            */            
+            onNext: function (value) {
+                this.observer.onNext(value);
+            }
+        });
+
+        return AnonymousSubject;
+    }(Observable));
+
+    if (typeof define == 'function' && typeof define.amd == 'object' && define.amd) {
+        root.Rx = Rx;
+
+        define('rx',[],function() {
+            return Rx;
+        });
+    } else if (freeExports && freeModule) {
+        // in Node.js or RingoJS
+        if (moduleExports) {
+            (freeModule.exports = Rx).Rx = Rx;
+        } else {
+          freeExports.Rx = Rx;
+        }
+    } else {
+        // in a browser or Rhino
+        root.Rx = Rx;
+    }
+}.call(this));
+// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
+
+;(function (factory) {
+    var objectTypes = {
+        'boolean': false,
+        'function': true,
+        'object': true,
+        'number': false,
+        'string': false,
+        'undefined': false
+    };
+
+    var root = (objectTypes[typeof window] && window) || this,
+        freeExports = objectTypes[typeof exports] && exports && !exports.nodeType && exports,
+        freeModule = objectTypes[typeof module] && module && !module.nodeType && module,
+        moduleExports = freeModule && freeModule.exports === freeExports && freeExports,
+        freeGlobal = objectTypes[typeof global] && global;
+    
+    if (freeGlobal && (freeGlobal.global === freeGlobal || freeGlobal.window === freeGlobal)) {
+        root = freeGlobal;
+    }
+
+    // Because of build optimizers
+    if (typeof define === 'function' && define.amd) {
+        define('rx.binding',['rx', 'exports'], function (Rx, exports) {
+            root.Rx = factory(root, exports, Rx);
+            return root.Rx;
+        });
+    } else if (typeof module === 'object' && module && module.exports === freeExports) {
+        module.exports = factory(root, module.exports, require('./rx'));
+    } else {
+        root.Rx = factory(root, {}, root.Rx);
+    }
+}.call(this, function (root, exp, Rx, undefined) {
+    
+    var Observable = Rx.Observable,
+        observableProto = Observable.prototype,
+        AnonymousObservable = Rx.AnonymousObservable,
+        Subject = Rx.Subject,
+        AsyncSubject = Rx.AsyncSubject,
+        Observer = Rx.Observer,
+        ScheduledObserver = Rx.internals.ScheduledObserver,
+        disposableCreate = Rx.Disposable.create,
+        disposableEmpty = Rx.Disposable.empty,
+        CompositeDisposable = Rx.CompositeDisposable,
+        currentThreadScheduler = Rx.Scheduler.currentThread,
+        inherits = Rx.internals.inherits,
+        addProperties = Rx.internals.addProperties;
+
+    // Utilities
+    var objectDisposed = 'Object has been disposed';
+    function checkDisposed() {
+        if (this.isDisposed) {
+            throw new Error(objectDisposed);
+        }
+    }
+
+    /**
+     * Multicasts the source sequence notifications through an instantiated subject into all uses of the sequence within a selector function. Each
+     * subscription to the resulting sequence causes a separate multicast invocation, exposing the sequence resulting from the selector function's
+     * invocation. For specializations with fixed subject types, see Publish, PublishLast, and Replay.
+     * 
+     * @example
+     * 1 - res = source.multicast(observable);
+     * 2 - res = source.multicast(function () { return new Subject(); }, function (x) { return x; });
+     * 
+     * @param {Function|Subject} subjectOrSubjectSelector 
+     * Factory function to create an intermediate subject through which the source sequence's elements will be multicast to the selector function.
+     * Or:
+     * Subject to push source elements into.
+     * 
+     * @param {Function} [selector] Optional selector function which can use the multicasted source sequence subject to the policies enforced by the created subject. Specified only if <paramref name="subjectOrSubjectSelector" is a factory function.
+     * @returns {Observable} An observable sequence that contains the elements of a sequence produced by multicasting the source sequence within a selector function.
+     */
+    observableProto.multicast = function (subjectOrSubjectSelector, selector) {
+        var source = this;
+        return typeof subjectOrSubjectSelector === 'function' ?
+            new AnonymousObservable(function (observer) {
+                var connectable = source.multicast(subjectOrSubjectSelector());
+                return new CompositeDisposable(selector(connectable).subscribe(observer), connectable.connect());
+            }) :
+            new ConnectableObservable(source, subjectOrSubjectSelector);
+    };
+
+    /**
+     * Returns an observable sequence that is the result of invoking the selector on a connectable observable sequence that shares a single subscription to the underlying sequence.
+     * This operator is a specialization of Multicast using a regular Subject.
+     * 
+     * @example
+     * var resres = source.publish();
+     * var res = source.publish(function (x) { return x; });
+     * 
+     * @param {Function} [selector] Selector function which can use the multicasted source sequence as many times as needed, without causing multiple subscriptions to the source sequence. Subscribers to the given source will receive all notifications of the source from the time of the subscription on.
+     * @returns {Observable} An observable sequence that contains the elements of a sequence produced by multicasting the source sequence within a selector function.
+     */
+    observableProto.publish = function (selector) {
+        return !selector ?
+            this.multicast(new Subject()) :
+            this.multicast(function () {
+                return new Subject();
+            }, selector);
+    };
+
+    /**
+     * Returns an observable sequence that shares a single subscription to the underlying sequence.
+     * This operator is a specialization of publish which creates a subscription when the number of observers goes from zero to one, then shares that subscription with all subsequent observers until the number of observers returns to zero, at which point the subscription is disposed.
+     * 
+     * @example
+     * var res = source.share();
+     * 
+     * @returns {Observable} An observable sequence that contains the elements of a sequence produced by multicasting the source sequence.
+     */
+    observableProto.share = function () {
+        return this.publish(null).refCount();
+    };
+
+    /**
+     * Returns an observable sequence that is the result of invoking the selector on a connectable observable sequence that shares a single subscription to the underlying sequence containing only the last notification.
+     * This operator is a specialization of Multicast using a AsyncSubject.
+     * 
+     * @example
+     * var res = source.publishLast();
+     * var res = source.publishLast(function (x) { return x; });
+     * 
+     * @param selector [Optional] Selector function which can use the multicasted source sequence as many times as needed, without causing multiple subscriptions to the source sequence. Subscribers to the given source will only receive the last notification of the source.
+     * @returns {Observable} An observable sequence that contains the elements of a sequence produced by multicasting the source sequence within a selector function.
+     */
+    observableProto.publishLast = function (selector) {
+        return !selector ?
+            this.multicast(new AsyncSubject()) :
+            this.multicast(function () {
+                return new AsyncSubject();
+            }, selector);
+    };
+
+    /**
+     * Returns an observable sequence that is the result of invoking the selector on a connectable observable sequence that shares a single subscription to the underlying sequence and starts with initialValue.
+     * This operator is a specialization of Multicast using a BehaviorSubject.
+     * 
+     * @example
+     * var res = source.publishValue(42);
+     * var res = source.publishValue(function (x) { return x.select(function (y) { return y * y; }) }, 42);
+     * 
+     * @param {Function} [selector] Optional selector function which can use the multicasted source sequence as many times as needed, without causing multiple subscriptions to the source sequence. Subscribers to the given source will receive immediately receive the initial value, followed by all notifications of the source from the time of the subscription on.
+     * @param {Mixed} initialValue Initial value received by observers upon subscription.
+     * @returns {Observable} An observable sequence that contains the elements of a sequence produced by multicasting the source sequence within a selector function.
+     */
+    observableProto.publishValue = function (initialValueOrSelector, initialValue) {
+        return arguments.length === 2 ?
+            this.multicast(function () {
+                return new BehaviorSubject(initialValue);
+            }, initialValueOrSelector) :
+            this.multicast(new BehaviorSubject(initialValueOrSelector));
+    };
+
+    /**
+     * Returns an observable sequence that shares a single subscription to the underlying sequence and starts with an initialValue.
+     * This operator is a specialization of publishValue which creates a subscription when the number of observers goes from zero to one, then shares that subscription with all subsequent observers until the number of observers returns to zero, at which point the subscription is disposed.
+     * 
+     * @example
+     * var res = source.shareValue(42);
+     * 
+     * @param {Mixed} initialValue Initial value received by observers upon subscription.
+     * @returns {Observable} An observable sequence that contains the elements of a sequence produced by multicasting the source sequence.
+     */
+    observableProto.shareValue = function (initialValue) {
+        return this.publishValue(initialValue).
+            refCount();
+    };
+
+    /**
+     * Returns an observable sequence that is the result of invoking the selector on a connectable observable sequence that shares a single subscription to the underlying sequence replaying notifications subject to a maximum time length for the replay buffer.
+     * This operator is a specialization of Multicast using a ReplaySubject.
+     * 
+     * @example
+     * var res = source.replay(null, 3);
+     * var res = source.replay(null, 3, 500);
+     * var res = source.replay(null, 3, 500, scheduler);
+     * var res = source.replay(function (x) { return x.take(6).repeat(); }, 3, 500, scheduler);
+     * 
+     * @param selector [Optional] Selector function which can use the multicasted source sequence as many times as needed, without causing multiple subscriptions to the source sequence. Subscribers to the given source will receive all the notifications of the source subject to the specified replay buffer trimming policy.
+     * @param bufferSize [Optional] Maximum element count of the replay buffer.
+     * @param window [Optional] Maximum time length of the replay buffer.
+     * @param scheduler [Optional] Scheduler where connected observers within the selector function will be invoked on.
+     * @returns {Observable} An observable sequence that contains the elements of a sequence produced by multicasting the source sequence within a selector function.
+     */
+    observableProto.replay = function (selector, bufferSize, window, scheduler) {
+        return !selector ?
+            this.multicast(new ReplaySubject(bufferSize, window, scheduler)) :
+            this.multicast(function () {
+                return new ReplaySubject(bufferSize, window, scheduler);
+            }, selector);
+    };
+
+    /**
+     * Returns an observable sequence that shares a single subscription to the underlying sequence replaying notifications subject to a maximum time length for the replay buffer.
+     * This operator is a specialization of replay which creates a subscription when the number of observers goes from zero to one, then shares that subscription with all subsequent observers until the number of observers returns to zero, at which point the subscription is disposed.
+     * 
+     * @example
+     * var res = source.replayWhileObserved(3);
+     * var res = source.replayWhileObserved(3, 500);
+     * var res = source.replayWhileObserved(3, 500, scheduler);
+     * 
+
+     * @param bufferSize [Optional] Maximum element count of the replay buffer.
+     * @param window [Optional] Maximum time length of the replay buffer.
+     * @param scheduler [Optional] Scheduler where connected observers within the selector function will be invoked on.
+     * @returns {Observable} An observable sequence that contains the elements of a sequence produced by multicasting the source sequence.
+     */
+    observableProto.replayWhileObserved = function (bufferSize, window, scheduler) {
+        return this.replay(null, bufferSize, window, scheduler).refCount();
+    };
+
+    /** @private */
+    var InnerSubscription = function (subject, observer) {
+        this.subject = subject;
+        this.observer = observer;
+    };
+
+    /**
+     * @private
+     * @memberOf InnerSubscription
+     */
+    InnerSubscription.prototype.dispose = function () {
+        if (!this.subject.isDisposed && this.observer !== null) {
+            var idx = this.subject.observers.indexOf(this.observer);
+            this.subject.observers.splice(idx, 1);
+            this.observer = null;
+        }
+    };
+
+    /**
+     *  Represents a value that changes over time.
+     *  Observers can subscribe to the subject to receive the last (or initial) value and all subsequent notifications.
+     */
+    var BehaviorSubject = Rx.BehaviorSubject = (function (_super) {
+        function subscribe(observer) {
+            checkDisposed.call(this);
+            if (!this.isStopped) {
+                this.observers.push(observer);
+                observer.onNext(this.value);
+                return new InnerSubscription(this, observer);
+            }
+            var ex = this.exception;
+            if (ex) {
+                observer.onError(ex);
+            } else {
+                observer.onCompleted();
+            }
+            return disposableEmpty;
+        }
+
+        inherits(BehaviorSubject, _super);
+
+        /**
+         * @constructor
+         *  Initializes a new instance of the BehaviorSubject class which creates a subject that caches its last value and starts with the specified value.
+         *  @param {Mixed} value Initial value sent to observers when no other value has been received by the subject yet.
+         */       
+        function BehaviorSubject(value) {
+            _super.call(this, subscribe);
+
+            this.value = value,
+            this.observers = [],
+            this.isDisposed = false,
+            this.isStopped = false,
+            this.exception = null;
+        }
+
+        addProperties(BehaviorSubject.prototype, Observer, {
+            /**
+             * Indicates whether the subject has observers subscribed to it.
+             * @returns {Boolean} Indicates whether the subject has observers subscribed to it.
+             */         
+            hasObservers: function () {
+                return this.observers.length > 0;
+            },
+            /**
+             * Notifies all subscribed observers about the end of the sequence.
+             */ 
+            onCompleted: function () {
+                checkDisposed.call(this);
+                if (!this.isStopped) {
+                    var os = this.observers.slice(0);
+                    this.isStopped = true;
+                    for (var i = 0, len = os.length; i < len; i++) {
+                        os[i].onCompleted();
+                    }
+
+                    this.observers = [];
+                }
+            },
+            /**
+             * Notifies all subscribed observers about the exception.
+             * @param {Mixed} error The exception to send to all observers.
+             */             
+            onError: function (error) {
+                checkDisposed.call(this);
+                if (!this.isStopped) {
+                    var os = this.observers.slice(0);
+                    this.isStopped = true;
+                    this.exception = error;
+
+                    for (var i = 0, len = os.length; i < len; i++) {
+                        os[i].onError(error);
+                    }
+
+                    this.observers = [];
+                }
+            },
+            /**
+             * Notifies all subscribed observers about the arrival of the specified element in the sequence.
+             * @param {Mixed} value The value to send to all observers.
+             */              
+            onNext: function (value) {
+                checkDisposed.call(this);
+                if (!this.isStopped) {
+                    this.value = value;
+                    var os = this.observers.slice(0);
+                    for (var i = 0, len = os.length; i < len; i++) {
+                        os[i].onNext(value);
+                    }
+                }
+            },
+            /**
+             * Unsubscribe all observers and release resources.
+             */            
+            dispose: function () {
+                this.isDisposed = true;
+                this.observers = null;
+                this.value = null;
+                this.exception = null;
+            }
+        });
+
+        return BehaviorSubject;
+    }(Observable));
+
+    /**
+     * Represents an object that is both an observable sequence as well as an observer.
+     * Each notification is broadcasted to all subscribed and future observers, subject to buffer trimming policies.
+     */  
+    var ReplaySubject = Rx.ReplaySubject = (function (_super) {
+
+        function RemovableDisposable (subject, observer) {
+            this.subject = subject;
+            this.observer = observer;
+        };
+
+        RemovableDisposable.prototype.dispose = function () {
+            this.observer.dispose();
+            if (!this.subject.isDisposed) {
+                var idx = this.subject.observers.indexOf(this.observer);
+                this.subject.observers.splice(idx, 1);
+            }
+        };
+
+        function subscribe(observer) {
+            var so = new ScheduledObserver(this.scheduler, observer),
+                subscription = new RemovableDisposable(this, so);
+            checkDisposed.call(this);
+            this._trim(this.scheduler.now());
+            this.observers.push(so);
+
+            var n = this.q.length;
+
+            for (var i = 0, len = this.q.length; i < len; i++) {
+                so.onNext(this.q[i].value);
+            }
+
+            if (this.hasError) {
+                n++;
+                so.onError(this.error);
+            } else if (this.isStopped) {
+                n++;
+                so.onCompleted();
+            }
+
+            so.ensureActive(n);
+            return subscription;
+        }
+
+        inherits(ReplaySubject, _super);
+
+        /**
+         *  Initializes a new instance of the ReplaySubject class with the specified buffer size, window size and scheduler.
+         *  @param {Number} [bufferSize] Maximum element count of the replay buffer.
+         *  @param {Number} [windowSize] Maximum time length of the replay buffer.
+         *  @param {Scheduler} [scheduler] Scheduler the observers are invoked on.
+         */
+        function ReplaySubject(bufferSize, windowSize, scheduler) {
+            this.bufferSize = bufferSize == null ? Number.MAX_VALUE : bufferSize;
+            this.windowSize = windowSize == null ? Number.MAX_VALUE : windowSize;
+            this.scheduler = scheduler || currentThreadScheduler;
+            this.q = [];
+            this.observers = [];
+            this.isStopped = false;
+            this.isDisposed = false;
+            this.hasError = false;
+            this.error = null;
+            _super.call(this, subscribe);
+        }
+
+        addProperties(ReplaySubject.prototype, Observer, {
+            /**
+             * Indicates whether the subject has observers subscribed to it.
+             * @returns {Boolean} Indicates whether the subject has observers subscribed to it.
+             */         
+            hasObservers: function () {
+                return this.observers.length > 0;
+            },            
+            /* @private  */
+            _trim: function (now) {
+                while (this.q.length > this.bufferSize) {
+                    this.q.shift();
+                }
+                while (this.q.length > 0 && (now - this.q[0].interval) > this.windowSize) {
+                    this.q.shift();
+                }
+            },
+            /**
+             * Notifies all subscribed observers about the arrival of the specified element in the sequence.
+             * @param {Mixed} value The value to send to all observers.
+             */              
+            onNext: function (value) {
+                var observer;
+                checkDisposed.call(this);
+                if (!this.isStopped) {
+                    var now = this.scheduler.now();
+                    this.q.push({ interval: now, value: value });
+                    this._trim(now);
+
+                    var o = this.observers.slice(0);
+                    for (var i = 0, len = o.length; i < len; i++) {
+                        observer = o[i];
+                        observer.onNext(value);
+                        observer.ensureActive();
+                    }
+                }
+            },
+            /**
+             * Notifies all subscribed observers about the exception.
+             * @param {Mixed} error The exception to send to all observers.
+             */                 
+            onError: function (error) {
+                var observer;
+                checkDisposed.call(this);
+                if (!this.isStopped) {
+                    this.isStopped = true;
+                    this.error = error;
+                    this.hasError = true;
+                    var now = this.scheduler.now();
+                    this._trim(now);
+                    var o = this.observers.slice(0);
+                    for (var i = 0, len = o.length; i < len; i++) {
+                        observer = o[i];
+                        observer.onError(error);
+                        observer.ensureActive();
+                    }
+                    this.observers = [];
+                }
+            },
+            /**
+             * Notifies all subscribed observers about the end of the sequence.
+             */             
+            onCompleted: function () {
+                var observer;
+                checkDisposed.call(this);
+                if (!this.isStopped) {
+                    this.isStopped = true;
+                    var now = this.scheduler.now();
+                    this._trim(now);
+                    var o = this.observers.slice(0);
+                    for (var i = 0, len = o.length; i < len; i++) {
+                        observer = o[i];
+                        observer.onCompleted();
+                        observer.ensureActive();
+                    }
+                    this.observers = [];
+                }
+            },
+            /**
+             * Unsubscribe all observers and release resources.
+             */               
+            dispose: function () {
+                this.isDisposed = true;
+                this.observers = null;
+            }
+        });
+
+        return ReplaySubject;
+    }(Observable));
+
+    /** @private */
+    var ConnectableObservable = Rx.ConnectableObservable = (function (_super) {
+        inherits(ConnectableObservable, _super);
+
+        /**
+         * @constructor
+         * @private
+         */
+        function ConnectableObservable(source, subject) {
+            var state = {
+                subject: subject,
+                source: source.asObservable(),
+                hasSubscription: false,
+                subscription: null
+            };
+
+            this.connect = function () {
+                if (!state.hasSubscription) {
+                    state.hasSubscription = true;
+                    state.subscription = new CompositeDisposable(state.source.subscribe(state.subject), disposableCreate(function () {
+                        state.hasSubscription = false;
+                    }));
+                }
+                return state.subscription;
+            };
+
+            function subscribe(observer) {
+                return state.subject.subscribe(observer);
+            }
+
+            _super.call(this, subscribe);
+        }
+
+        /**
+         * @private
+         * @memberOf ConnectableObservable
+         */
+        ConnectableObservable.prototype.connect = function () { return this.connect(); };
+
+        /**
+         * @private
+         * @memberOf ConnectableObservable
+         */        
+        ConnectableObservable.prototype.refCount = function () {
+            var connectableSubscription = null, count = 0, source = this;
+            return new AnonymousObservable(function (observer) {
+                var shouldConnect, subscription;
+                count++;
+                shouldConnect = count === 1;
+                subscription = source.subscribe(observer);
+                if (shouldConnect) {
+                    connectableSubscription = source.connect();
+                }
+                return disposableCreate(function () {
+                    subscription.dispose();
+                    count--;
+                    if (count === 0) {
+                        connectableSubscription.dispose();
+                    }
+                });
+            });
+        };
+
+        return ConnectableObservable;
+    }(Observable));
+
+    return Rx;
+}));
+// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
+
+;(function (factory) {
+    var objectTypes = {
+        'boolean': false,
+        'function': true,
+        'object': true,
+        'number': false,
+        'string': false,
+        'undefined': false
+    };
+
+    var root = (objectTypes[typeof window] && window) || this,
+        freeExports = objectTypes[typeof exports] && exports && !exports.nodeType && exports,
+        freeModule = objectTypes[typeof module] && module && !module.nodeType && module,
+        moduleExports = freeModule && freeModule.exports === freeExports && freeExports,
+        freeGlobal = objectTypes[typeof global] && global;
+    
+    if (freeGlobal && (freeGlobal.global === freeGlobal || freeGlobal.window === freeGlobal)) {
+        root = freeGlobal;
+    }
+
+    // Because of build optimizers
+    if (typeof define === 'function' && define.amd) {
+        define('rx.time',['rx', 'exports'], function (Rx, exports) {
+            root.Rx = factory(root, exports, Rx);
+            return root.Rx;
+        });
+    } else if (typeof module === 'object' && module && module.exports === freeExports) {
+        module.exports = factory(root, module.exports, require('./rx'));
+    } else {
+        root.Rx = factory(root, {}, root.Rx);
+    }
+}.call(this, function (root, exp, Rx, undefined) {
+    
+    // Refernces
+    var Observable = Rx.Observable,
+        observableProto = Observable.prototype,
+        AnonymousObservable = Rx.AnonymousObservable,
+        observableDefer = Observable.defer,
+        observableEmpty = Observable.empty,
+        observableNever = Observable.never,
+        observableThrow = Observable.throwException,
+        observableFromArray = Observable.fromArray,
+        timeoutScheduler = Rx.Scheduler.timeout,
+        SingleAssignmentDisposable = Rx.SingleAssignmentDisposable,
+        SerialDisposable = Rx.SerialDisposable,
+        CompositeDisposable = Rx.CompositeDisposable,
+        RefCountDisposable = Rx.RefCountDisposable,
+        Subject = Rx.Subject,
+        addRef = Rx.internals.addRef,
+        normalizeTime = Rx.Scheduler.normalize;
+
+    function observableTimerDate(dueTime, scheduler) {
+        return new AnonymousObservable(function (observer) {
+            return scheduler.scheduleWithAbsolute(dueTime, function () {
+                observer.onNext(0);
+                observer.onCompleted();
+            });
+        });
+    }
+
+    function observableTimerDateAndPeriod(dueTime, period, scheduler) {
+        var p = normalizeTime(period);
+        return new AnonymousObservable(function (observer) {
+            var count = 0, d = dueTime;
+            return scheduler.scheduleRecursiveWithAbsolute(d, function (self) {
+                var now;
+                if (p > 0) {
+                    now = scheduler.now();
+                    d = d + p;
+                    if (d <= now) {
+                        d = now + p;
+                    }
+                }
+                observer.onNext(count++);
+                self(d);
+            });
+        });
+    }
+
+    function observableTimerTimeSpan(dueTime, scheduler) {
+        var d = normalizeTime(dueTime);
+        return new AnonymousObservable(function (observer) {
+            return scheduler.scheduleWithRelative(d, function () {
+                observer.onNext(0);
+                observer.onCompleted();
+            });
+        });
+    }
+
+    function observableTimerTimeSpanAndPeriod(dueTime, period, scheduler) {
+        if (dueTime === period) {
+            return new AnonymousObservable(function (observer) {
+                return scheduler.schedulePeriodicWithState(0, period, function (count) {
+                    observer.onNext(count);
+                    return count + 1;
+                });
+            });
+        }
+        return observableDefer(function () {
+            return observableTimerDateAndPeriod(scheduler.now() + dueTime, period, scheduler);
+        });
+    }
+
+    /**
+     *  Returns an observable sequence that produces a value after each period.
+     *  
+     * @example
+     *  1 - res = Rx.Observable.interval(1000);
+     *  2 - res = Rx.Observable.interval(1000, Rx.Scheduler.timeout);
+     *      
+     * @param {Number} period Period for producing the values in the resulting sequence (specified as an integer denoting milliseconds).
+     * @param {Scheduler} [scheduler] Scheduler to run the timer on. If not specified, Rx.Scheduler.timeout is used.
+     * @returns {Observable} An observable sequence that produces a value after each period.
+     */
+    var observableinterval = Observable.interval = function (period, scheduler) {
+        scheduler || (scheduler = timeoutScheduler);
+        return observableTimerTimeSpanAndPeriod(period, period, scheduler);
+    };
+
+    /**
+     *  Returns an observable sequence that produces a value after dueTime has elapsed and then after each period.
+     *  
+     * @example
+     *  1 - res = Rx.Observable.timer(new Date());
+     *  2 - res = Rx.Observable.timer(new Date(), 1000);
+     *  3 - res = Rx.Observable.timer(new Date(), Rx.Scheduler.timeout);
+     *  4 - res = Rx.Observable.timer(new Date(), 1000, Rx.Scheduler.timeout);
+     *  
+     *  5 - res = Rx.Observable.timer(5000);
+     *  6 - res = Rx.Observable.timer(5000, 1000);
+     *  7 - res = Rx.Observable.timer(5000, Rx.Scheduler.timeout);
+     *  8 - res = Rx.Observable.timer(5000, 1000, Rx.Scheduler.timeout);
+     *  
+     * @param {Number} dueTime Absolute (specified as a Date object) or relative time (specified as an integer denoting milliseconds) at which to produce the first value.
+     * @param {Mixed} [periodOrScheduler]  Period to produce subsequent values (specified as an integer denoting milliseconds), or the scheduler to run the timer on. If not specified, the resulting timer is not recurring.
+     * @param {Scheduler} [scheduler]  Scheduler to run the timer on. If not specified, the timeout scheduler is used.
+     * @returns {Observable} An observable sequence that produces a value after due time has elapsed and then each period.
+     */
+    var observableTimer = Observable.timer = function (dueTime, periodOrScheduler, scheduler) {
+        var period;
+        scheduler || (scheduler = timeoutScheduler);
+        if (periodOrScheduler !== undefined && typeof periodOrScheduler === 'number') {
+            period = periodOrScheduler;
+        } else if (periodOrScheduler !== undefined && typeof periodOrScheduler === 'object') {
+            scheduler = periodOrScheduler;
+        }
+        if (dueTime instanceof Date && period === undefined) {
+            return observableTimerDate(dueTime.getTime(), scheduler);
+        }
+        if (dueTime instanceof Date && period !== undefined) {
+            period = periodOrScheduler;
+            return observableTimerDateAndPeriod(dueTime.getTime(), period, scheduler);
+        }
+        if (period === undefined) {
+            return observableTimerTimeSpan(dueTime, scheduler);
+        }
+        return observableTimerTimeSpanAndPeriod(dueTime, period, scheduler);
+    };
+
+    function observableDelayTimeSpan(dueTime, scheduler) {
+        var source = this;
+        return new AnonymousObservable(function (observer) {
+            var active = false,
+                cancelable = new SerialDisposable(),
+                exception = null,
+                q = [],
+                running = false,
+                subscription;
+            subscription = source.materialize().timestamp(scheduler).subscribe(function (notification) {
+                var d, shouldRun;
+                if (notification.value.kind === 'E') {
+                    q = [];
+                    q.push(notification);
+                    exception = notification.value.exception;
+                    shouldRun = !running;
+                } else {
+                    q.push({ value: notification.value, timestamp: notification.timestamp + dueTime });
+                    shouldRun = !active;
+                    active = true;
+                }
+                if (shouldRun) {
+                    if (exception !== null) {
+                        observer.onError(exception);
+                    } else {
+                        d = new SingleAssignmentDisposable();
+                        cancelable.setDisposable(d);
+                        d.setDisposable(scheduler.scheduleRecursiveWithRelative(dueTime, function (self) {
+                            var e, recurseDueTime, result, shouldRecurse;
+                            if (exception !== null) {
+                                return;
+                            }
+                            running = true;
+                            do {
+                                result = null;
+                                if (q.length > 0 && q[0].timestamp - scheduler.now() <= 0) {
+                                    result = q.shift().value;
+                                }
+                                if (result !== null) {
+                                    result.accept(observer);
+                                }
+                            } while (result !== null);
+                            shouldRecurse = false;
+                            recurseDueTime = 0;
+                            if (q.length > 0) {
+                                shouldRecurse = true;
+                                recurseDueTime = Math.max(0, q[0].timestamp - scheduler.now());
+                            } else {
+                                active = false;
+                            }
+                            e = exception;
+                            running = false;
+                            if (e !== null) {
+                                observer.onError(e);
+                            } else if (shouldRecurse) {
+                                self(recurseDueTime);
+                            }
+                        }));
+                    }
+                }
+            });
+            return new CompositeDisposable(subscription, cancelable);
+        });
+    }
+
+    function observableDelayDate(dueTime, scheduler) {
+        var self = this;
+        return observableDefer(function () {
+            var timeSpan = dueTime - scheduler.now();
+            return observableDelayTimeSpan.call(self, timeSpan, scheduler);
+        });
+    }
+
+    /**
+     *  Time shifts the observable sequence by dueTime. The relative time intervals between the values are preserved.
+     *  
+     * @example
+     *  1 - res = Rx.Observable.delay(new Date());
+     *  2 - res = Rx.Observable.delay(new Date(), Rx.Scheduler.timeout);
+     *  
+     *  3 - res = Rx.Observable.delay(5000);
+     *  4 - res = Rx.Observable.delay(5000, 1000, Rx.Scheduler.timeout);
+     * @memberOf Observable#
+     * @param {Number} dueTime Absolute (specified as a Date object) or relative time (specified as an integer denoting milliseconds) by which to shift the observable sequence.
+     * @param {Scheduler} [scheduler] Scheduler to run the delay timers on. If not specified, the timeout scheduler is used.
+     * @returns {Observable} Time-shifted sequence.
+     */
+    observableProto.delay = function (dueTime, scheduler) {
+        scheduler || (scheduler = timeoutScheduler);
+        return dueTime instanceof Date ?
+            observableDelayDate.call(this, dueTime.getTime(), scheduler) :
+            observableDelayTimeSpan.call(this, dueTime, scheduler);
+    };
+
+    /**
+     *  Ignores values from an observable sequence which are followed by another value before dueTime.
+     *  
+     * @example
+     *  1 - res = source.throttle(5000); // 5 seconds
+     *  2 - res = source.throttle(5000, scheduler);        
+     * 
+     * @param {Number} dueTime Duration of the throttle period for each value (specified as an integer denoting milliseconds).
+     * @param {Scheduler} [scheduler]  Scheduler to run the throttle timers on. If not specified, the timeout scheduler is used.
+     * @returns {Observable} The throttled sequence.
+     */
+    observableProto.throttle = function (dueTime, scheduler) {
+        scheduler || (scheduler = timeoutScheduler);
+        var source = this;
+        return this.throttleWithSelector(function () { return observableTimer(dueTime, scheduler); })
+    };
+
+    /**
+     *  Projects each element of an observable sequence into zero or more windows which are produced based on timing information.
+     *  
+     * @example
+     *  1 - res = xs.windowWithTime(1000, scheduler); // non-overlapping segments of 1 second
+     *  2 - res = xs.windowWithTime(1000, 500 , scheduler); // segments of 1 second with time shift 0.5 seconds
+     *      
+     * @param {Number} timeSpan Length of each window (specified as an integer denoting milliseconds).
+     * @param {Mixed} [timeShiftOrScheduler]  Interval between creation of consecutive windows (specified as an integer denoting milliseconds), or an optional scheduler parameter. If not specified, the time shift corresponds to the timeSpan parameter, resulting in non-overlapping adjacent windows.
+     * @param {Scheduler} [scheduler]  Scheduler to run windowing timers on. If not specified, the timeout scheduler is used.
+     * @returns {Observable} An observable sequence of windows.
+     */
+    observableProto.windowWithTime = function (timeSpan, timeShiftOrScheduler, scheduler) {
+        var source = this, timeShift;
+        if (timeShiftOrScheduler === undefined) {
+            timeShift = timeSpan;
+        }
+        if (scheduler === undefined) {
+            scheduler = timeoutScheduler;
+        }
+        if (typeof timeShiftOrScheduler === 'number') {
+            timeShift = timeShiftOrScheduler;
+        } else if (typeof timeShiftOrScheduler === 'object') {
+            timeShift = timeSpan;
+            scheduler = timeShiftOrScheduler;
+        }
+        return new AnonymousObservable(function (observer) {
+            var groupDisposable,
+                nextShift = timeShift,
+                nextSpan = timeSpan,
+                q = [],
+                refCountDisposable,
+                timerD = new SerialDisposable(),
+                totalTime = 0;
+                groupDisposable = new CompositeDisposable(timerD),
+                refCountDisposable = new RefCountDisposable(groupDisposable);
+
+             function createTimer () {
+                var m = new SingleAssignmentDisposable(),
+                    isSpan = false,
+                    isShift = false;
+                timerD.setDisposable(m);
+                if (nextSpan === nextShift) {
+                    isSpan = true;
+                    isShift = true;
+                } else if (nextSpan < nextShift) {
+                    isSpan = true;
+                } else {
+                    isShift = true;
+                }
+                var newTotalTime = isSpan ? nextSpan : nextShift,
+                    ts = newTotalTime - totalTime;
+                totalTime = newTotalTime;
+                if (isSpan) {
+                    nextSpan += timeShift;
+                }
+                if (isShift) {
+                    nextShift += timeShift;
+                }
+                m.setDisposable(scheduler.scheduleWithRelative(ts, function () {
+                    var s;
+                    if (isShift) {
+                        s = new Subject();
+                        q.push(s);
+                        observer.onNext(addRef(s, refCountDisposable));
+                    }
+                    if (isSpan) {
+                        s = q.shift();
+                        s.onCompleted();
+                    }
+                    createTimer();
+                }));
+            };
+            q.push(new Subject());
+            observer.onNext(addRef(q[0], refCountDisposable));
+            createTimer();
+            groupDisposable.add(source.subscribe(function (x) {
+                var i, s;
+                for (i = 0; i < q.length; i++) {
+                    s = q[i];
+                    s.onNext(x);
+                }
+            }, function (e) {
+                var i, s;
+                for (i = 0; i < q.length; i++) {
+                    s = q[i];
+                    s.onError(e);
+                }
+                observer.onError(e);
+            }, function () {
+                var i, s;
+                for (i = 0; i < q.length; i++) {
+                    s = q[i];
+                    s.onCompleted();
+                }
+                observer.onCompleted();
+            }));
+            return refCountDisposable;
+        });
+    };
+
+    /**
+     *  Projects each element of an observable sequence into a window that is completed when either it's full or a given amount of time has elapsed.
+     *  @example
+     *  1 - res = source.windowWithTimeOrCount(5000, 50); // 5s or 50 items
+     *  2 - res = source.windowWithTimeOrCount(5000, 50, scheduler); //5s or 50 items
+     *      
+     * @memberOf Observable#
+     * @param {Number} timeSpan Maximum time length of a window.
+     * @param {Number} count Maximum element count of a window.
+     * @param {Scheduler} [scheduler]  Scheduler to run windowing timers on. If not specified, the timeout scheduler is used.
+     * @returns {Observable} An observable sequence of windows.
+     */
+    observableProto.windowWithTimeOrCount = function (timeSpan, count, scheduler) {
+        var source = this;
+        scheduler || (scheduler = timeoutScheduler);
+        return new AnonymousObservable(function (observer) {
+            var createTimer,
+                groupDisposable,
+                n = 0,
+                refCountDisposable,
+                s,
+                timerD = new SerialDisposable(),
+                windowId = 0;
+            groupDisposable = new CompositeDisposable(timerD);
+            refCountDisposable = new RefCountDisposable(groupDisposable);
+            createTimer = function (id) {
+                var m = new SingleAssignmentDisposable();
+                timerD.setDisposable(m);
+                m.setDisposable(scheduler.scheduleWithRelative(timeSpan, function () {
+                    var newId;
+                    if (id !== windowId) {
+                        return;
+                    }
+                    n = 0;
+                    newId = ++windowId;
+                    s.onCompleted();
+                    s = new Subject();
+                    observer.onNext(addRef(s, refCountDisposable));
+                    createTimer(newId);
+                }));
+            };
+            s = new Subject();
+            observer.onNext(addRef(s, refCountDisposable));
+            createTimer(0);
+            groupDisposable.add(source.subscribe(function (x) {
+                var newId = 0, newWindow = false;
+                s.onNext(x);
+                n++;
+                if (n === count) {
+                    newWindow = true;
+                    n = 0;
+                    newId = ++windowId;
+                    s.onCompleted();
+                    s = new Subject();
+                    observer.onNext(addRef(s, refCountDisposable));
+                }
+                if (newWindow) {
+                    createTimer(newId);
+                }
+            }, function (e) {
+                s.onError(e);
+                observer.onError(e);
+            }, function () {
+                s.onCompleted();
+                observer.onCompleted();
+            }));
+            return refCountDisposable;
+        });
+    };
+
+    /**
+     *  Projects each element of an observable sequence into zero or more buffers which are produced based on timing information.
+     *  
+     * @example
+     *  1 - res = xs.bufferWithTime(1000, scheduler); // non-overlapping segments of 1 second
+     *  2 - res = xs.bufferWithTime(1000, 500, scheduler; // segments of 1 second with time shift 0.5 seconds
+     *      
+     * @param {Number} timeSpan Length of each buffer (specified as an integer denoting milliseconds).
+     * @param {Mixed} [timeShiftOrScheduler]  Interval between creation of consecutive buffers (specified as an integer denoting milliseconds), or an optional scheduler parameter. If not specified, the time shift corresponds to the timeSpan parameter, resulting in non-overlapping adjacent buffers.
+     * @param {Scheduler} [scheduler]  Scheduler to run buffer timers on. If not specified, the timeout scheduler is used.
+     * @returns {Observable} An observable sequence of buffers.
+     */
+    observableProto.bufferWithTime = function (timeSpan, timeShiftOrScheduler, scheduler) {
+        return this.windowWithTime.apply(this, arguments).selectMany(function (x) { return x.toArray(); });
+    };
+
+    /**
+     *  Projects each element of an observable sequence into a buffer that is completed when either it's full or a given amount of time has elapsed.
+     *  
+     * @example
+     *  1 - res = source.bufferWithTimeOrCount(5000, 50); // 5s or 50 items in an array 
+     *  2 - res = source.bufferWithTimeOrCount(5000, 50, scheduler); // 5s or 50 items in an array
+     *      
+     * @param {Number} timeSpan Maximum time length of a buffer.
+     * @param {Number} count Maximum element count of a buffer.
+     * @param {Scheduler} [scheduler]  Scheduler to run bufferin timers on. If not specified, the timeout scheduler is used.
+     * @returns {Observable} An observable sequence of buffers.
+     */
+    observableProto.bufferWithTimeOrCount = function (timeSpan, count, scheduler) {
+        return this.windowWithTimeOrCount(timeSpan, count, scheduler).selectMany(function (x) {
+            return x.toArray();
+        });
+    };
+
+    /**
+     *  Records the time interval between consecutive values in an observable sequence.
+     *  
+     * @example
+     *  1 - res = source.timeInterval();
+     *  2 - res = source.timeInterval(Rx.Scheduler.timeout);
+     *      
+     * @param [scheduler]  Scheduler used to compute time intervals. If not specified, the timeout scheduler is used.
+     * @returns {Observable} An observable sequence with time interval information on values.
+     */
+    observableProto.timeInterval = function (scheduler) {
+        var source = this;
+        scheduler || (scheduler = timeoutScheduler);
+        return observableDefer(function () {
+            var last = scheduler.now();
+            return source.select(function (x) {
+                var now = scheduler.now(), span = now - last;
+                last = now;
+                return {
+                    value: x,
+                    interval: span
+                };
+            });
+        });
+    };
+
+    /**
+     *  Records the timestamp for each value in an observable sequence.
+     *  
+     * @example
+     *  1 - res = source.timestamp(); // produces { value: x, timestamp: ts }
+     *  2 - res = source.timestamp(Rx.Scheduler.timeout);
+     *      
+     * @param {Scheduler} [scheduler]  Scheduler used to compute timestamps. If not specified, the timeout scheduler is used.
+     * @returns {Observable} An observable sequence with timestamp information on values.
+     */
+    observableProto.timestamp = function (scheduler) {
+        scheduler || (scheduler = timeoutScheduler);
+        return this.select(function (x) {
+            return {
+                value: x,
+                timestamp: scheduler.now()
+            };
+        });
+    };
+
+    function sampleObservable(source, sampler) {
+        
+        return new AnonymousObservable(function (observer) {
+            var atEnd, value, hasValue;
+
+            function sampleSubscribe() {
+                if (hasValue) {
+                    hasValue = false;
+                    observer.onNext(value);
+                }
+                if (atEnd) {
+                    observer.onCompleted();
+                }
+            }
+
+            return new CompositeDisposable(
+                source.subscribe(function (newValue) {
+                    hasValue = true;
+                    value = newValue;
+                }, observer.onError.bind(observer), function () {
+                    atEnd = true;
+                }),
+                sampler.subscribe(sampleSubscribe, observer.onError.bind(observer), sampleSubscribe)
+            );
+        });
+    }
+
+    /**
+     *  Samples the observable sequence at each interval.
+     *  
+     * @example
+     *  1 - res = source.sample(sampleObservable); // Sampler tick sequence
+     *  2 - res = source.sample(5000); // 5 seconds
+     *  2 - res = source.sample(5000, Rx.Scheduler.timeout); // 5 seconds
+     *      
+     * @param {Mixed} intervalOrSampler Interval at which to sample (specified as an integer denoting milliseconds) or Sampler Observable.
+     * @param {Scheduler} [scheduler]  Scheduler to run the sampling timer on. If not specified, the timeout scheduler is used.
+     * @returns {Observable} Sampled observable sequence.
+     */
+    observableProto.sample = function (intervalOrSampler, scheduler) {
+        scheduler || (scheduler = timeoutScheduler);
+        if (typeof intervalOrSampler === 'number') {
+            return sampleObservable(this, observableinterval(intervalOrSampler, scheduler));
+        }
+        return sampleObservable(this, intervalOrSampler);
+    };
+
+    /**
+     *  Returns the source observable sequence or the other observable sequence if dueTime elapses.
+     *  
+     * @example
+     *  1 - res = source.timeout(new Date()); // As a date
+     *  2 - res = source.timeout(5000); // 5 seconds
+     *  3 - res = source.timeout(new Date(), Rx.Observable.returnValue(42)); // As a date and timeout observable
+     *  4 - res = source.timeout(5000, Rx.Observable.returnValue(42)); // 5 seconds and timeout observable
+     *  5 - res = source.timeout(new Date(), Rx.Observable.returnValue(42), Rx.Scheduler.timeout); // As a date and timeout observable
+     *  6 - res = source.timeout(5000, Rx.Observable.returnValue(42), Rx.Scheduler.timeout); // 5 seconds and timeout observable
+     *      
+     * @param {Number} dueTime Absolute (specified as a Date object) or relative time (specified as an integer denoting milliseconds) when a timeout occurs.
+     * @param {Observable} [other]  Sequence to return in case of a timeout. If not specified, a timeout error throwing sequence will be used.
+     * @param {Scheduler} [scheduler]  Scheduler to run the timeout timers on. If not specified, the timeout scheduler is used.
+     * @returns {Observable} The source sequence switching to the other sequence in case of a timeout.
+     */
+    observableProto.timeout = function (dueTime, other, scheduler) {
+        var schedulerMethod, source = this;
+        other || (other = observableThrow(new Error('Timeout')));
+        scheduler || (scheduler = timeoutScheduler);
+        if (dueTime instanceof Date) {
+            schedulerMethod = function (dt, action) {
+                scheduler.scheduleWithAbsolute(dt, action);
+            };
+        } else {
+            schedulerMethod = function (dt, action) {
+                scheduler.scheduleWithRelative(dt, action);
+            };
+        }
+        return new AnonymousObservable(function (observer) {
+            var createTimer,
+                id = 0,
+                original = new SingleAssignmentDisposable(),
+                subscription = new SerialDisposable(),
+                switched = false,
+                timer = new SerialDisposable();
+            subscription.setDisposable(original);
+            createTimer = function () {
+                var myId = id;
+                timer.setDisposable(schedulerMethod(dueTime, function () {
+                    switched = id === myId;
+                    var timerWins = switched;
+                    if (timerWins) {
+                        subscription.setDisposable(other.subscribe(observer));
+                    }
+                }));
+            };
+            createTimer();
+            original.setDisposable(source.subscribe(function (x) {
+                var onNextWins = !switched;
+                if (onNextWins) {
+                    id++;
+                    observer.onNext(x);
+                    createTimer();
+                }
+            }, function (e) {
+                var onErrorWins = !switched;
+                if (onErrorWins) {
+                    id++;
+                    observer.onError(e);
+                }
+            }, function () {
+                var onCompletedWins = !switched;
+                if (onCompletedWins) {
+                    id++;
+                    observer.onCompleted();
+                }
+            }));
+            return new CompositeDisposable(subscription, timer);
+        });
+    };
+
+    /**
+     *  Generates an observable sequence by iterating a state from an initial state until the condition fails.
+     *  
+     * @example
+     *  res = source.generateWithAbsoluteTime(0, 
+     *      function (x) { return return true; }, 
+     *      function (x) { return x + 1; }, 
+     *      function (x) { return x; }, 
+     *      function (x) { return new Date(); }
+     *  });
+     *      
+     * @param {Mixed} initialState Initial state.
+     * @param {Function} condition Condition to terminate generation (upon returning false).
+     * @param {Function} iterate Iteration step function.
+     * @param {Function} resultSelector Selector function for results produced in the sequence.
+     * @param {Function} timeSelector Time selector function to control the speed of values being produced each iteration, returning Date values.
+     * @param {Scheduler} [scheduler]  Scheduler on which to run the generator loop. If not specified, the timeout scheduler is used.
+     * @returns {Observable} The generated sequence.
+     */
+    Observable.generateWithAbsoluteTime = function (initialState, condition, iterate, resultSelector, timeSelector, scheduler) {
+        scheduler || (scheduler = timeoutScheduler);
+        return new AnonymousObservable(function (observer) {
+            var first = true,
+                hasResult = false,
+                result,
+                state = initialState,
+                time;
+            return scheduler.scheduleRecursiveWithAbsolute(scheduler.now(), function (self) {
+                if (hasResult) {
+                    observer.onNext(result);
+                }
+                try {
+                    if (first) {
+                        first = false;
+                    } else {
+                        state = iterate(state);
+                    }
+                    hasResult = condition(state);
+                    if (hasResult) {
+                        result = resultSelector(state);
+                        time = timeSelector(state);
+                    }
+                } catch (e) {
+                    observer.onError(e);
+                    return;
+                }
+                if (hasResult) {
+                    self(time);
+                } else {
+                    observer.onCompleted();
+                }
+            });
+        });
+    };
+
+    /**
+     *  Generates an observable sequence by iterating a state from an initial state until the condition fails.
+     * 
+     * @example 
+     *  res = source.generateWithRelativeTime(0, 
+     *      function (x) { return return true; }, 
+     *      function (x) { return x + 1; }, 
+     *      function (x) { return x; }, 
+     *      function (x) { return 500; }
+     *  );
+     *      
+     * @param {Mixed} initialState Initial state.
+     * @param {Function} condition Condition to terminate generation (upon returning false).
+     * @param {Function} iterate Iteration step function.
+     * @param {Function} resultSelector Selector function for results produced in the sequence.
+     * @param {Function} timeSelector Time selector function to control the speed of values being produced each iteration, returning integer values denoting milliseconds.
+     * @param {Scheduler} [scheduler]  Scheduler on which to run the generator loop. If not specified, the timeout scheduler is used.
+     * @returns {Observable} The generated sequence.
+     */
+    Observable.generateWithRelativeTime = function (initialState, condition, iterate, resultSelector, timeSelector, scheduler) {
+        scheduler || (scheduler = timeoutScheduler);
+        return new AnonymousObservable(function (observer) {
+            var first = true,
+                hasResult = false,
+                result,
+                state = initialState,
+                time;
+            return scheduler.scheduleRecursiveWithRelative(0, function (self) {
+                if (hasResult) {
+                    observer.onNext(result);
+                }
+                try {
+                    if (first) {
+                        first = false;
+                    } else {
+                        state = iterate(state);
+                    }
+                    hasResult = condition(state);
+                    if (hasResult) {
+                        result = resultSelector(state);
+                        time = timeSelector(state);
+                    }
+                } catch (e) {
+                    observer.onError(e);
+                    return;
+                }
+                if (hasResult) {
+                    self(time);
+                } else {
+                    observer.onCompleted();
+                }
+            });
+        });
+    };
+
+    /**
+     *  Time shifts the observable sequence by delaying the subscription.
+     *  
+     * @example
+     *  1 - res = source.delaySubscription(5000); // 5s
+     *  2 - res = source.delaySubscription(5000, Rx.Scheduler.timeout); // 5 seconds
+     *      
+     * @param {Number} dueTime Absolute or relative time to perform the subscription at.
+     * @param {Scheduler} [scheduler]  Scheduler to run the subscription delay timer on. If not specified, the timeout scheduler is used.
+     * @returns {Observable} Time-shifted sequence.
+     */
+    observableProto.delaySubscription = function (dueTime, scheduler) {
+        scheduler || (scheduler = timeoutScheduler);
+        return this.delayWithSelector(observableTimer(dueTime, scheduler), function () { return observableEmpty(); });
+    };
+
+    /**
+     *  Time shifts the observable sequence based on a subscription delay and a delay selector function for each element.
+     *  
+     * @example
+     *  1 - res = source.delayWithSelector(function (x) { return Rx.Scheduler.timer(5000); }); // with selector only
+     *  1 - res = source.delayWithSelector(Rx.Observable.timer(2000), function (x) { return Rx.Observable.timer(x); }); // with delay and selector
+     *
+     * @param {Observable} [subscriptionDelay]  Sequence indicating the delay for the subscription to the source. 
+     * @param {Function} delayDurationSelector Selector function to retrieve a sequence indicating the delay for each given element.
+     * @returns {Observable} Time-shifted sequence.
+     */
+    observableProto.delayWithSelector = function (subscriptionDelay, delayDurationSelector) {
+        var source = this, subDelay, selector;
+        if (typeof subscriptionDelay === 'function') {
+            selector = subscriptionDelay;
+        } else {
+            subDelay = subscriptionDelay;
+            selector = delayDurationSelector;
+        }
+        return new AnonymousObservable(function (observer) {
+            var delays = new CompositeDisposable(), atEnd = false, done = function () {
+                if (atEnd && delays.length === 0) {
+                    observer.onCompleted();
+                }
+            }, subscription = new SerialDisposable(), start = function () {
+                subscription.setDisposable(source.subscribe(function (x) {
+                    var delay;
+                    try {
+                        delay = selector(x);
+                    } catch (error) {
+                        observer.onError(error);
+                        return;
+                    }
+                    var d = new SingleAssignmentDisposable();
+                    delays.add(d);
+                    d.setDisposable(delay.subscribe(function () {
+                        observer.onNext(x);
+                        delays.remove(d);
+                        done();
+                    }, observer.onError.bind(observer), function () {
+                        observer.onNext(x);
+                        delays.remove(d);
+                        done();
+                    }));
+                }, observer.onError.bind(observer), function () {
+                    atEnd = true;
+                    subscription.dispose();
+                    done();
+                }));
+            };
+
+            if (!subDelay) {
+                start();
+            } else {
+                subscription.setDisposable(subDelay.subscribe(function () {
+                    start();
+                }, observer.onError.bind(observer), function () { start(); }));
+            }
+
+            return new CompositeDisposable(subscription, delays);
+        });
+    };
+
+    /**
+     *  Returns the source observable sequence, switching to the other observable sequence if a timeout is signaled.
+     *  
+     * @example
+     *  1 - res = source.timeoutWithSelector(Rx.Observable.timer(500)); 
+     *  2 - res = source.timeoutWithSelector(Rx.Observable.timer(500), function (x) { return Rx.Observable.timer(200); });
+     *  3 - res = source.timeoutWithSelector(Rx.Observable.timer(500), function (x) { return Rx.Observable.timer(200); }, Rx.Observable.returnValue(42));
+     *      
+     * @param {Observable} [firstTimeout]  Observable sequence that represents the timeout for the first element. If not provided, this defaults to Observable.never().
+     * @param {Function} [timeoutDurationSelector] Selector to retrieve an observable sequence that represents the timeout between the current element and the next element.
+     * @param {Observable} [other]  Sequence to return in case of a timeout. If not provided, this is set to Observable.throwException(). 
+     * @returns {Observable} The source sequence switching to the other sequence in case of a timeout.
+     */
+    observableProto.timeoutWithSelector = function (firstTimeout, timeoutdurationSelector, other) {
+        if (arguments.length === 1) {
+            timeoutdurationSelector = firstTimeout;
+            var firstTimeout = observableNever();
+        }
+        other || (other = observableThrow(new Error('Timeout')));
+        var source = this;
+        return new AnonymousObservable(function (observer) {
+            var subscription = new SerialDisposable(), timer = new SerialDisposable(), original = new SingleAssignmentDisposable();
+
+            subscription.setDisposable(original);
+
+            var id = 0, switched = false, setTimer = function (timeout) {
+                var myId = id, timerWins = function () {
+                    return id === myId;
+                };
+                var d = new SingleAssignmentDisposable();
+                timer.setDisposable(d);
+                d.setDisposable(timeout.subscribe(function () {
+                    if (timerWins()) {
+                        subscription.setDisposable(other.subscribe(observer));
+                    }
+                    d.dispose();
+                }, function (e) {
+                    if (timerWins()) {
+                        observer.onError(e);
+                    }
+                }, function () {
+                    if (timerWins()) {
+                        subscription.setDisposable(other.subscribe(observer));
+                    }
+                }));
+            };
+
+            setTimer(firstTimeout);
+            var observerWins = function () {
+                var res = !switched;
+                if (res) {
+                    id++;
+                }
+                return res;
+            };
+
+            original.setDisposable(source.subscribe(function (x) {
+                if (observerWins()) {
+                    observer.onNext(x);
+                    var timeout;
+                    try {
+                        timeout = timeoutdurationSelector(x);
+                    } catch (e) {
+                        observer.onError(e);
+                        return;
+                    }
+                    setTimer(timeout);
+                }
+            }, function (e) {
+                if (observerWins()) {
+                    observer.onError(e);
+                }
+            }, function () {
+                if (observerWins()) {
+                    observer.onCompleted();
+                }
+            }));
+            return new CompositeDisposable(subscription, timer);
+        });
+    };
+
+    /**
+     *  Ignores values from an observable sequence which are followed by another value within a computed throttle duration.
+     *  
+     * @example
+     *  1 - res = source.delayWithSelector(function (x) { return Rx.Scheduler.timer(x + x); }); 
+     * 
+     * @param {Function} throttleDurationSelector Selector function to retrieve a sequence indicating the throttle duration for each given element.
+     * @returns {Observable} The throttled sequence.
+     */
+    observableProto.throttleWithSelector = function (throttleDurationSelector) {
+        var source = this;
+        return new AnonymousObservable(function (observer) {
+            var value, hasValue = false, cancelable = new SerialDisposable(), id = 0, subscription = source.subscribe(function (x) {
+                var throttle;
+                try {
+                    throttle = throttleDurationSelector(x);
+                } catch (e) {
+                    observer.onError(e);
+                    return;
+                }
+                hasValue = true;
+                value = x;
+                id++;
+                var currentid = id, d = new SingleAssignmentDisposable();
+                cancelable.setDisposable(d);
+                d.setDisposable(throttle.subscribe(function () {
+                    if (hasValue && id === currentid) {
+                        observer.onNext(value);
+                    }
+                    hasValue = false;
+                    d.dispose();
+                }, observer.onError.bind(observer), function () {
+                    if (hasValue && id === currentid) {
+                        observer.onNext(value);
+                    }
+                    hasValue = false;
+                    d.dispose();
+                }));
+            }, function (e) {
+                cancelable.dispose();
+                observer.onError(e);
+                hasValue = false;
+                id++;
+            }, function () {
+                cancelable.dispose();
+                if (hasValue) {
+                    observer.onNext(value);
+                }
+                observer.onCompleted();
+                hasValue = false;
+                id++;
+            });
+            return new CompositeDisposable(subscription, cancelable);
+        });
+    };
+
+    /**
+     *  Skips elements for the specified duration from the end of the observable source sequence, using the specified scheduler to run timers.
+     *  
+     *  1 - res = source.skipLastWithTime(5000);     
+     *  2 - res = source.skipLastWithTime(5000, scheduler); 
+     *      
+     * @description
+     *  This operator accumulates a queue with a length enough to store elements received during the initial duration window.
+     *  As more elements are received, elements older than the specified duration are taken from the queue and produced on the
+     *  result sequence. This causes elements to be delayed with duration.          
+     * @param {Number} duration Duration for skipping elements from the end of the sequence.
+     * @param {Scheduler} [scheduler]  Scheduler to run the timer on. If not specified, defaults to Rx.Scheduler.timeout
+     * @returns {Observable} An observable sequence with the elements skipped during the specified duration from the end of the source sequence.
+     */
+    observableProto.skipLastWithTime = function (duration, scheduler) {
+        scheduler || (scheduler = timeoutScheduler);
+        var source = this;
+        return new AnonymousObservable(function (observer) {
+            var q = [];
+            return source.subscribe(function (x) {
+                var now = scheduler.now();
+                q.push({ interval: now, value: x });
+                while (q.length > 0 && now - q[0].interval >= duration) {
+                    observer.onNext(q.shift().value);
+                }
+            }, observer.onError.bind(observer), function () {
+                var now = scheduler.now();
+                while (q.length > 0 && now - q[0].interval >= duration) {
+                    observer.onNext(q.shift().value);
+                }
+                observer.onCompleted();
+            });
+        });
+    };
+
+    /**
+     *  Returns elements within the specified duration from the end of the observable source sequence, using the specified schedulers to run timers and to drain the collected elements.
+     *  
+     * @example
+     *  1 - res = source.takeLastWithTime(5000, [optional timer scheduler], [optional loop scheduler]); 
+     * @description
+     *  This operator accumulates a queue with a length enough to store elements received during the initial duration window.
+     *  As more elements are received, elements older than the specified duration are taken from the queue and produced on the
+     *  result sequence. This causes elements to be delayed with duration.    
+     * @param {Number} duration Duration for taking elements from the end of the sequence.
+     * @param {Scheduler} [timerScheduler]  Scheduler to run the timer on. If not specified, defaults to Rx.Scheduler.timeout.
+     * @param {Scheduler} [loopScheduler]  Scheduler to drain the collected elements. If not specified, defaults to Rx.Scheduler.immediate.
+     * @returns {Observable} An observable sequence with the elements taken during the specified duration from the end of the source sequence.
+     */
+    observableProto.takeLastWithTime = function (duration, timerScheduler, loopScheduler) {
+        return this.takeLastBufferWithTime(duration, timerScheduler).selectMany(function (xs) { return observableFromArray(xs, loopScheduler); });
+    };
+
+    /**
+     *  Returns an array with the elements within the specified duration from the end of the observable source sequence, using the specified scheduler to run timers.
+     *  
+     * @example
+     *  1 - res = source.takeLastBufferWithTime(5000, [optional scheduler]); 
+     * @description
+     *  This operator accumulates a queue with a length enough to store elements received during the initial duration window.
+     *  As more elements are received, elements older than the specified duration are taken from the queue and produced on the
+     *  result sequence. This causes elements to be delayed with duration.   
+     * @param {Number} duration Duration for taking elements from the end of the sequence.
+     * @param {Scheduler} scheduler Scheduler to run the timer on. If not specified, defaults to Rx.Scheduler.timeout.
+     * @returns {Observable} An observable sequence containing a single array with the elements taken during the specified duration from the end of the source sequence.
+     */
+    observableProto.takeLastBufferWithTime = function (duration, scheduler) {
+        var source = this;
+        scheduler || (scheduler = timeoutScheduler);
+        return new AnonymousObservable(function (observer) {
+            var q = [];
+
+            return source.subscribe(function (x) {
+                var now = scheduler.now();
+                q.push({ interval: now, value: x });
+                while (q.length > 0 && now - q[0].interval >= duration) {
+                    q.shift();
+                }
+            }, observer.onError.bind(observer), function () {
+                var now = scheduler.now(), res = [];
+                while (q.length > 0) {
+                    var next = q.shift();
+                    if (now - next.interval <= duration) {
+                        res.push(next.value);
+                    }
+                }
+
+                observer.onNext(res);
+                observer.onCompleted();
+            });
+        });
+    };
+
+    /**
+     *  Takes elements for the specified duration from the start of the observable source sequence, using the specified scheduler to run timers.
+     *  
+     * @example
+     *  1 - res = source.takeWithTime(5000,  [optional scheduler]); 
+     * @description
+     *  This operator accumulates a queue with a length enough to store elements received during the initial duration window.
+     *  As more elements are received, elements older than the specified duration are taken from the queue and produced on the
+     *  result sequence. This causes elements to be delayed with duration.    
+     * @param {Number} duration Duration for taking elements from the start of the sequence.
+     * @param {Scheduler} scheduler Scheduler to run the timer on. If not specified, defaults to Rx.Scheduler.timeout.
+     * @returns {Observable} An observable sequence with the elements taken during the specified duration from the start of the source sequence.
+     */
+    observableProto.takeWithTime = function (duration, scheduler) {
+        var source = this;
+        scheduler || (scheduler = timeoutScheduler);
+        return new AnonymousObservable(function (observer) {
+            var t = scheduler.scheduleWithRelative(duration, function () {
+                observer.onCompleted();
+            });
+
+            return new CompositeDisposable(t, source.subscribe(observer));
+        });
+    };
+
+    /**
+     *  Skips elements for the specified duration from the start of the observable source sequence, using the specified scheduler to run timers.
+     *  
+     * @example
+     *  1 - res = source.skipWithTime(5000, [optional scheduler]); 
+     *  
+     * @description     
+     *  Specifying a zero value for duration doesn't guarantee no elements will be dropped from the start of the source sequence.
+     *  This is a side-effect of the asynchrony introduced by the scheduler, where the action that causes callbacks from the source sequence to be forwarded
+     *  may not execute immediately, despite the zero due time.
+     *  
+     *  Errors produced by the source sequence are always forwarded to the result sequence, even if the error occurs before the duration.      
+     * @param {Number} duration Duration for skipping elements from the start of the sequence.
+     * @param {Scheduler} scheduler Scheduler to run the timer on. If not specified, defaults to Rx.Scheduler.timeout.
+     * @returns {Observable} An observable sequence with the elements skipped during the specified duration from the start of the source sequence.
+     */
+    observableProto.skipWithTime = function (duration, scheduler) {
+        var source = this;
+        scheduler || (scheduler = timeoutScheduler);
+        return new AnonymousObservable(function (observer) {
+            var open = false,
+                t = scheduler.scheduleWithRelative(duration, function () { open = true; }),
+                d = source.subscribe(function (x) {
+                    if (open) {
+                        observer.onNext(x);
+                    }
+                }, observer.onError.bind(observer), observer.onCompleted.bind(observer));
+
+            return new CompositeDisposable(t, d);
+        });
+    };
+
+    /**
+     *  Skips elements from the observable source sequence until the specified start time, using the specified scheduler to run timers.
+     *  Errors produced by the source sequence are always forwarded to the result sequence, even if the error occurs before the start time>.
+     *  
+     * @examples
+     *  1 - res = source.skipUntilWithTime(new Date(), [optional scheduler]);         
+     * @param startTime Time to start taking elements from the source sequence. If this value is less than or equal to Date(), no elements will be skipped.
+     * @param scheduler Scheduler to run the timer on. If not specified, defaults to Rx.Scheduler.timeout.
+     * @returns {Observable} An observable sequence with the elements skipped until the specified start time. 
+     */
+    observableProto.skipUntilWithTime = function (startTime, scheduler) {
+        scheduler || (scheduler = timeoutScheduler);
+        var source = this;
+        return new AnonymousObservable(function (observer) {
+            var open = false,
+                t = scheduler.scheduleWithAbsolute(startTime, function () { open = true; }),
+                d = source.subscribe(function (x) {
+                    if (open) {
+                        observer.onNext(x);
+                    }
+                }, observer.onError.bind(observer), observer.onCompleted.bind(observer));
+
+            return new CompositeDisposable(t, d);
+        });
+    };
+
+    /**
+     *  Takes elements for the specified duration until the specified end time, using the specified scheduler to run timers.
+     *  
+     * @example
+     *  1 - res = source.takeUntilWithTime(new Date(), [optional scheduler]);   
+     * @param {Number} endTime Time to stop taking elements from the source sequence. If this value is less than or equal to new Date(), the result stream will complete immediately.
+     * @param {Scheduler} scheduler Scheduler to run the timer on.
+     * @returns {Observable} An observable sequence with the elements taken until the specified end time.
+     */
+    observableProto.takeUntilWithTime = function (endTime, scheduler) {
+        scheduler || (scheduler = timeoutScheduler);
+        var source = this;
+        return new AnonymousObservable(function (observer) {
+            return new CompositeDisposable(scheduler.scheduleWithAbsolute(endTime, function () {
+                observer.onCompleted();
+            }),  source.subscribe(observer));
+        });
+    };
+
+    return Rx;
+}));
+// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
+
+;(function (factory) {
+    var objectTypes = {
+        'boolean': false,
+        'function': true,
+        'object': true,
+        'number': false,
+        'string': false,
+        'undefined': false
+    };
+
+    var root = (objectTypes[typeof window] && window) || this,
+        freeExports = objectTypes[typeof exports] && exports && !exports.nodeType && exports,
+        freeModule = objectTypes[typeof module] && module && !module.nodeType && module,
+        moduleExports = freeModule && freeModule.exports === freeExports && freeExports,
+        freeGlobal = objectTypes[typeof global] && global;
+    
+    if (freeGlobal && (freeGlobal.global === freeGlobal || freeGlobal.window === freeGlobal)) {
+        root = freeGlobal;
+    }
+
+    // Because of build optimizers
+    if (typeof define === 'function' && define.amd) {
+        define('rx.experimental',['rx', 'exports'], function (Rx, exports) {
+            root.Rx = factory(root, exports, Rx);
+            return root.Rx;
+        });
+    } else if (typeof module === 'object' && module && module.exports === freeExports) {
+        module.exports = factory(root, module.exports, require('./rx'));
+    } else {
+        root.Rx = factory(root, {}, root.Rx);
+    }
+}.call(this, function (root, exp, Rx, undefined) {
+    
+  // Aliases
+  var Observable = Rx.Observable,
+    observableProto = Observable.prototype,
+    AnonymousObservable = Rx.AnonymousObservable,
+    observableConcat = Observable.concat,
+    observableDefer = Observable.defer,
+    observableEmpty = Observable.empty,
+    disposableEmpty = Rx.Disposable.empty,
+    CompositeDisposable = Rx.CompositeDisposable,
+    SerialDisposable = Rx.SerialDisposable,
+    SingleAssignmentDisposable = Rx.SingleAssignmentDisposable,
+    Enumerator = Rx.internals.Enumerator,
+    Enumerable = Rx.internals.Enumerable,
+    enumerableForEach = Enumerable.forEach,
+    immediateScheduler = Rx.Scheduler.immediate,
+    currentThreadScheduler = Rx.Scheduler.currentThread,
+    slice = Array.prototype.slice,
+    AsyncSubject = Rx.AsyncSubject,
+    Observer = Rx.Observer,
+    inherits = Rx.internals.inherits,
+    addProperties = Rx.internals.addProperties;
+
+  // Utilities
+  function nothing () { }
+  function argsOrArray(args, idx) {
+    return args.length === 1 && Array.isArray(args[idx]) ?
+      args[idx] :
+      slice.call(args);
+  }
+
+  // Shim in iterator support
+  var $iterator$ = (typeof Symbol === 'object' && Symbol.iterator) ||
+    '_es6shim_iterator_';
+  // Firefox ships a partial implementation using the name @@iterator.
+  // https://bugzilla.mozilla.org/show_bug.cgi?id=907077#c14
+  // So use that name if we detect it.
+  if (root.Set && typeof new root.Set()['@@iterator'] === 'function') {
+    $iterator$ = '@@iterator';
+  }
+  var doneEnumerator = { done: true, value: undefined };
+
+  function enumerableWhile(condition, source) {
+    return new Enumerable(function () {
+      return new Enumerator(function () {
+        return condition() ?
+          { done: false, value: source } :
+          { done: true, value: undefined };  
+      });
+    });
+  }
+
+     /**
+     *  Returns an observable sequence that is the result of invoking the selector on the source sequence, without sharing subscriptions.
+     *  This operator allows for a fluent style of writing queries that use the same sequence multiple times.
+     *
+     * @param {Function} selector Selector function which can use the source sequence as many times as needed, without sharing subscriptions to the source sequence.
+     * @returns {Observable} An observable sequence that contains the elements of a sequence produced by multicasting the source sequence within a selector function.
+     */
+    observableProto.letBind = observableProto['let'] = function (func) {
+        return func(this);
+    };
+
+     /**
+     *  Determines whether an observable collection contains values. There is an alias for this method called 'ifThen' for browsers <IE9
+     *  
+     * @example
+     *  1 - res = Rx.Observable.if(condition, obs1);
+     *  2 - res = Rx.Observable.if(condition, obs1, obs2);
+     *  3 - res = Rx.Observable.if(condition, obs1, scheduler);
+     * @param {Function} condition The condition which determines if the thenSource or elseSource will be run.
+     * @param {Observable} thenSource The observable sequence that will be run if the condition function returns true.
+     * @param {Observable} [elseSource] The observable sequence that will be run if the condition function returns false. If this is not provided, it defaults to Rx.Observabe.Empty with the specified scheduler.  
+     * @returns {Observable} An observable sequence which is either the thenSource or elseSource.
+     */
+    Observable['if'] = Observable.ifThen = function (condition, thenSource, elseSourceOrScheduler) {
+        return observableDefer(function () {
+            elseSourceOrScheduler || (elseSourceOrScheduler = observableEmpty());
+            if (elseSourceOrScheduler.now) {
+                var scheduler = elseSourceOrScheduler;
+                elseSourceOrScheduler = observableEmpty(scheduler);
+            }
+            return condition() ? thenSource : elseSourceOrScheduler;
+        });
+    };
+
+     /**
+     *  Concatenates the observable sequences obtained by running the specified result selector for each element in source.
+     * There is an alias for this method called 'forIn' for browsers <IE9
+     * @param {Array} sources An array of values to turn into an observable sequence.
+     * @param {Function} resultSelector A function to apply to each item in the sources array to turn it into an observable sequence.
+     * @returns {Observable} An observable sequence from the concatenated observable sequences.  
+     */ 
+    Observable['for'] = Observable.forIn = function (sources, resultSelector) {
+        return enumerableForEach(sources, resultSelector).concat();
+    };
+
+     /**
+     *  Repeats source as long as condition holds emulating a while loop.
+     * There is an alias for this method called 'whileDo' for browsers <IE9
+     *
+     * @param {Function} condition The condition which determines if the source will be repeated.
+     * @param {Observable} source The observable sequence that will be run if the condition function returns true.
+     * @returns {Observable} An observable sequence which is repeated as long as the condition holds.  
+     */
+    var observableWhileDo = Observable['while'] = Observable.whileDo = function (condition, source) {
+        return enumerableWhile(condition, source).concat();
+    };
+
+     /**
+     *  Repeats source as long as condition holds emulating a do while loop.
+     *
+     * @param {Function} condition The condition which determines if the source will be repeated.
+     * @param {Observable} source The observable sequence that will be run if the condition function returns true.
+     * @returns {Observable} An observable sequence which is repeated as long as the condition holds. 
+     */ 
+    observableProto.doWhile = function (condition) {
+        return observableConcat([this, observableWhileDo(condition, this)]);
+    };
+
+     /**
+     *  Uses selector to determine which source in sources to use.
+     *  There is an alias 'switchCase' for browsers <IE9.
+     *  
+     * @example
+     *  1 - res = Rx.Observable.case(selector, { '1': obs1, '2': obs2 });
+     *  1 - res = Rx.Observable.case(selector, { '1': obs1, '2': obs2 }, obs0);
+     *  1 - res = Rx.Observable.case(selector, { '1': obs1, '2': obs2 }, scheduler);
+     * 
+     * @param {Function} selector The function which extracts the value for to test in a case statement.
+     * @param {Array} sources A object which has keys which correspond to the case statement labels.
+     * @param {Observable} [elseSource] The observable sequence that will be run if the sources are not matched. If this is not provided, it defaults to Rx.Observabe.Empty with the specified scheduler.
+     *       
+     * @returns {Observable} An observable sequence which is determined by a case statement.  
+     */
+    Observable['case'] = Observable.switchCase = function (selector, sources, defaultSourceOrScheduler) {
+        return observableDefer(function () {
+            defaultSourceOrScheduler || (defaultSourceOrScheduler = observableEmpty());
+            if (defaultSourceOrScheduler.now) {
+                var scheduler = defaultSourceOrScheduler;
+                defaultSourceOrScheduler = observableEmpty(scheduler);
+            }
+            var result = sources[selector()];
+            return result !== undefined ? result : defaultSourceOrScheduler;
+        });
+    };
+
+     /**
+     *  Expands an observable sequence by recursively invoking selector.
+     *  
+     * @param {Function} selector Selector function to invoke for each produced element, resulting in another sequence to which the selector will be invoked recursively again.
+     * @param {Scheduler} [scheduler] Scheduler on which to perform the expansion. If not provided, this defaults to the current thread scheduler.
+     * @returns {Observable} An observable sequence containing all the elements produced by the recursive expansion.
+     */
+    observableProto.expand = function (selector, scheduler) {
+        scheduler || (scheduler = immediateScheduler);
+        var source = this;
+        return new AnonymousObservable(function (observer) {
+            var q = [],
+                m = new SerialDisposable(),
+                d = new CompositeDisposable(m),
+                activeCount = 0,
+                isAcquired = false;
+
+            var ensureActive = function () {
+                var isOwner = false;
+                if (q.length > 0) {
+                    isOwner = !isAcquired;
+                    isAcquired = true;
+                }
+                if (isOwner) {
+                    m.setDisposable(scheduler.scheduleRecursive(function (self) {
+                        var work;
+                        if (q.length > 0) {
+                            work = q.shift();
+                        } else {
+                            isAcquired = false;
+                            return;
+                        }
+                        var m1 = new SingleAssignmentDisposable();
+                        d.add(m1);
+                        m1.setDisposable(work.subscribe(function (x) {
+                            observer.onNext(x);
+                            var result = null;
+                            try {
+                                result = selector(x);
+                            } catch (e) {
+                                observer.onError(e);
+                            }
+                            q.push(result);
+                            activeCount++;
+                            ensureActive();
+                        }, observer.onError.bind(observer), function () {
+                            d.remove(m1);
+                            activeCount--;
+                            if (activeCount === 0) {
+                                observer.onCompleted();
+                            }
+                        }));
+                        self();
+                    }));
+                }
+            };
+
+            q.push(source);
+            activeCount++;
+            ensureActive();
+            return d;
+        });
+    };
+
+     /**
+     *  Runs all observable sequences in parallel and collect their last elements.
+     *  
+     * @example
+     *  1 - res = Rx.Observable.forkJoin([obs1, obs2]);
+     *  1 - res = Rx.Observable.forkJoin(obs1, obs2, ...);  
+     * @returns {Observable} An observable sequence with an array collecting the last elements of all the input sequences.
+     */
+    Observable.forkJoin = function () {
+        var allSources = argsOrArray(arguments, 0);
+        return new AnonymousObservable(function (subscriber) {
+            var count = allSources.length;
+            if (count === 0) {
+                subscriber.onCompleted();
+                return disposableEmpty;
+            }
+            var group = new CompositeDisposable(),
+                finished = false,
+                hasResults = new Array(count),
+                hasCompleted = new Array(count),
+                results = new Array(count);
+
+            for (var idx = 0; idx < count; idx++) {
+                (function (i) {
+                    var source = allSources[i];
+                    group.add(source.subscribe(function (value) {
+                        if (!finished) {
+                            hasResults[i] = true;
+                            results[i] = value;
+                        }
+                    }, function (e) {
+                        finished = true;
+                        subscriber.onError(e);
+                        group.dispose();
+                    }, function () {
+                        if (!finished) {
+                            if (!hasResults[i]) {
+                                subscriber.onCompleted();
+                                return;
+                            }
+                            hasCompleted[i] = true;
+                            for (var ix = 0; ix < count; ix++) {
+                                if (!hasCompleted[ix]) {
+                                    return;
+                                }
+                            }
+                            finished = true;
+                            subscriber.onNext(results);
+                            subscriber.onCompleted();
+                        }
+                    }));
+                })(idx);
+            }
+
+            return group;
+        });
+    };
+
+     /**
+     *  Runs two observable sequences in parallel and combines their last elemenets.
+     *
+     * @param {Observable} second Second observable sequence.
+     * @param {Function} resultSelector Result selector function to invoke with the last elements of both sequences.
+     * @returns {Observable} An observable sequence with the result of calling the selector function with the last elements of both input sequences.
+     */
+    observableProto.forkJoin = function (second, resultSelector) {
+        var first = this;
+
+        return new AnonymousObservable(function (observer) {
+            var leftStopped = false, rightStopped = false,
+                hasLeft = false, hasRight = false,
+                lastLeft, lastRight,
+                leftSubscription = new SingleAssignmentDisposable(), rightSubscription = new SingleAssignmentDisposable();
+      
+            leftSubscription.setDisposable(
+                first.subscribe(function (left) {
+                    hasLeft = true;
+                    lastLeft = left;
+                }, function (err) {
+                    rightSubscription.dispose();
+                    observer.onError(err);
+                }, function () {
+                    leftStopped = true;
+                    if (rightStopped) {
+                        if (!hasLeft) {
+                            observer.onCompleted();
+                        } else if (!hasRight) {
+                            observer.onCompleted();
+                        } else {
+                            var result;
+                            try {
+                                result = resultSelector(lastLeft, lastRight);
+                            } catch (e) {
+                                observer.onError(e);
+                                return;
+                            }
+                            observer.onNext(result);
+                            observer.onCompleted();
+                        }
+                    }
+                })
+            );
+
+            rightSubscription.setDisposable(
+                second.subscribe(function (right) {
+                    hasRight = true;
+                    lastRight = right;
+                }, function (err) {
+                    leftSubscription.dispose();
+                    observer.onError(err);
+                }, function () {
+                    rightStopped = true;
+                    if (leftStopped) {
+                        if (!hasLeft) {
+                            observer.onCompleted();
+                        } else if (!hasRight) {
+                            observer.onCompleted();
+                        } else {
+                            var result;
+                            try {
+                                result = resultSelector(lastLeft, lastRight);
+                            } catch (e) {
+                                observer.onError(e);
+                                return;
+                            }
+                            observer.onNext(result);
+                            observer.onCompleted();
+                        }
+                    }
+                })
+            );
+
+            return new CompositeDisposable(leftSubscription, rightSubscription);
+        });
+    };
+
+    /**
+     * Comonadic bind operator.
+     * @param {Function} selector A transform function to apply to each element.
+     * @param {Object} scheduler Scheduler used to execute the operation. If not specified, defaults to the ImmediateScheduler.
+     * @returns {Observable} An observable sequence which results from the comonadic bind operation.
+     */
+    observableProto.manySelect = function (selector, scheduler) {
+        scheduler || (scheduler = immediateScheduler);
+        var source = this;
+        return observableDefer(function () {
+            var chain;
+
+            return source
+                .select(
+                    function (x) {
+                        var curr = new ChainObservable(x);
+                        if (chain) {
+                            chain.onNext(x);
+                        }
+                        chain = curr;
+
+                        return curr;
+                    })
+                .doAction(
+                    nothing,
+                    function (e) {
+                        if (chain) {
+                            chain.onError(e);
+                        }
+                    },
+                    function () {
+                        if (chain) {
+                            chain.onCompleted();
+                        }
+                    })
+                .observeOn(scheduler)
+                .select(function (x, i, o) { return selector(x, i, o); });
+        });
+    };
+
+    var ChainObservable = (function (_super) {
+
+        function subscribe (observer) {
+            var self = this, g = new CompositeDisposable();
+            g.add(currentThreadScheduler.schedule(function () {
+                observer.onNext(self.head);
+                g.add(self.tail.mergeObservable().subscribe(observer));
+            }));
+
+            return g;
+        }
+
+        inherits(ChainObservable, _super);
+
+        function ChainObservable(head) {
+            _super.call(this, subscribe);
+            this.head = head;
+            this.tail = new AsyncSubject();
+        }
+
+        addProperties(ChainObservable.prototype, Observer, {
+            onCompleted: function () {
+                this.onNext(Observable.empty());
+            },
+            onError: function (e) {
+                this.onNext(Observable.throwException(e));
+            },
+            onNext: function (v) {
+                this.tail.onNext(v);
+                this.tail.onCompleted();
+            }
+        });
+
+        return ChainObservable;
+
+    }(Observable));
+
+    return Rx;
+}));
+
+/*global define*/
+define('scalejs.reactive/reactive',[
+    'require',
+    'rx',
+    'rx.binding',
+    'rx.time',
+    'rx.experimental'
+], function (
+    require,
+    rx
+) {
+    
+
+    rx.Observable.fromRequire = function (dependencies) {
+        return rx.Observable.create(function (observer) {
+            require(dependencies, function () {
+                observer.onNext(arguments);
+                observer.onCompleted();
+            });
+        });
+    };
+
+    rx.Observable.fromEnumerable = function (source) {
+        return rx.Observable.createWithDisposable(function (observer) {
+            var disposable = rx.Disposable.create(function () {
+            }),
+                enumerator = source.GetEnumerator();
+
+            rx.Scheduler.currentThread.scheduleRecursive(function (self) {
+                try {
+                    if (!disposable.isDisposed && enumerator.MoveNext()) {
+                        observer.onNext(enumerator.Current());
+                        self();
+                    } else {
+                        enumerator.Dispose();
+                        observer.onCompleted();
+                    }
+                } catch (e) {
+                    enumerator.Dispose();
+                    observer.onError(e);
+                }
+            });
+
+            return disposable;
+        });
+    };
+
+    return rx;
+});
+
+/*global define*/
+define('scalejs.reactive/messageBus',[
+    'scalejs!core',
+    'rx',
+    'rx.binding'
+], function (
+    core,
+    rx
+) {
+    
+
+    var has = core.object.has,
+        subjects = {},
+        behaviorSubjects = {};
+
+    function ensureSubject(subject) {
+        if (!has(subjects, subject)) {
+            subjects[subject] = new rx.Subject();
+        }
+
+        return subjects[subject];
+    }
+
+    function ensureBehaviorSubject(subject) {
+        if (!has(behaviorSubjects, subject)) {
+            behaviorSubjects[subject] = new rx.BehaviorSubject();
+        }
+
+        return behaviorSubjects[subject];
+    }
+/*
+    function observe() {
+        return subject.asObservable();
+    } */
+
+    function notify(subject, message) {
+        var rxSubject = ensureSubject(subject);
+
+        rxSubject.onNext(message);
+    }
+
+    function receive(subject, filterOrReceiver, receiver) {
+        var rxSubject = ensureSubject(subject);
+
+        if (arguments.length === 1) {
+            return rxSubject.asObservable();
+        }
+
+        if (arguments.length === 2) {
+            return rxSubject.subscribe(filterOrReceiver);
+        }
+
+        if (arguments.length === 3) {
+            return rxSubject
+                .where(filterOrReceiver)
+                .subscribe(receiver);
+        }
+
+        throw {
+            name: 'Illegal Argument',
+            message: arguments.length + ' arguments have been provided. ' +
+                     'Valid arguments are subject (required), filter (optional), and receiver (optional).'
+        };
+    }
+
+    function set(subject, message) {
+        var behaviorSubject = ensureBehaviorSubject(subject);
+        behaviorSubject.onNext(message);
+    }
+
+    function get(subject, filterOrReceiver, receiver) {
+        var behaviorSubject = ensureBehaviorSubject(subject);
+
+        if (arguments.length === 1) {
+            return behaviorSubject.asObservable();
+        }
+
+        if (arguments.length === 2) {
+            return behaviorSubject.subscribe(filterOrReceiver);
+        }
+
+        if (arguments.length === 3) {
+            return behaviorSubject
+                .where(filterOrReceiver)
+                .subscribe(receiver);
+        }
+
+        throw {
+            name: 'Illegal Argument',
+            message: arguments.length + ' arguments have been provided. ' +
+                     'Valid arguments are subject (required), filter (optional), and receiver (optional).'
+        };
+    }
+
+    return {
+        notify: notify,
+        receive: receive,
+        set: set,
+        get: get
+    };
+
+});
+
+/*global define*/
+define('scalejs.reactive',[
+    'scalejs!core',
+    './scalejs.reactive/reactive',
+    './scalejs.reactive/messageBus'
+], function (
+    core,
+    reactive,
+    messageBus
+) {
+    
+
+    var merge = core.object.merge;
+
+    core.registerExtension({
+        reactive: merge(reactive, { messageBus: messageBus })
+    });
+});
+
 /*global define*/
 /*jslint unparam:true*/
 define('sandbox',[],function () {
@@ -19401,25 +26351,25 @@ define('app/main/viewmodels/mainViewModel',[
         var // imports
             range = sandbox.linq.enumerable.range,
             observableArray = sandbox.mvvm.observableArray,
+            ajaxGet = sandbox.ajax.jsonpGet,
             // vars
-            columns = ['Id', 'Name', 'Age'].select(function (x) {
-                return {
-                    id: x,
-                    name: x,
-                    field: x
-                }
-            }).toArray(),
-            itemsSource = observableArray(['Erica', 'Peter', 'Conor', 'Dillon']
-                .select(function (x, index) {
-                    return {
-                        index: index,
-                        Id: index,
-                        Name: x,
-                        Age: Math.random() * 70 | 0
-                    };
-                }).toArray());
+            columns,
+            itemsSource = observableArray();
 
-        window.is = itemsSource;
+        columns = [
+            { id: "Symbol", field: "Symbol", name: "Symbol" },
+            { id: "Name", field: "Name", name: "Name", width: 200 },
+            { id: "LastSale", field: "LastSale", name: "Last Sale" },
+            { id: "MarketCap", field: "MarketCap", name: "Market Cap" },
+            { id: "Sector", field: "Sector", name: "Sector" },
+            { id: "Industry", field: "industry", name: "Industry" }];
+
+        ajaxGet('./companylist.txt', {}).subscribe(function (data) {
+            itemsSource(JSON.parse(data).map(function(company, index) {
+                company.index = index
+                return company;
+            }));
+        });
 
         return {
             columns: columns,
@@ -19435,7 +26385,9 @@ define('views',[],function () {
 
     return {
         load: function (name, req, onLoad, config) {
-            var names = name.match(/([\w\-]+)/g) || [];
+            /*jslint regexp: true*/
+            var names = name.match(/([^,]+)/g) || [];
+            /*jslint regexp: false*/
 
             names = names.map(function (n) {
                 if (n.indexOf('.html', n.length - 5) === -1) {
@@ -19464,6 +26416,7 @@ define('views',[],function () {
         }
     };
 });
+
 define('text!app/main/views/main.html',[],function () { return '<div id="main_template">\n    <div class="main layout">\n        <div class="main grid" data-class="main-grid"></div>\n    </div>\n</div>\n';});
 
 /*global define*/
@@ -19473,7 +26426,9 @@ define('bindings',[],function () {
 
     return {
         load: function (name, req, onLoad, config) {
-            var names = name.match(/([\w\-]+)/g) || [];
+            /*jslint regexp: true*/
+            var names = name.match(/([^,]+)/g) || [];
+            /*jslint regexp: false*/
 
             names = names.map(function (n) {
                 if (n.indexOf('.js', n.length - 3) > -1) {
@@ -19506,6 +26461,7 @@ define('bindings',[],function () {
         }
     };
 });
+
 /*global define */
 /*jslint sloppy: true*/
 define('app/main/bindings/mainBindings',{
@@ -19792,7 +26748,7 @@ define('app/main/mainModule',[
     };
 });
 
-define("scalejs/extensions", ["scalejs.functional","scalejs.grid-slick","scalejs.layout-cssgrid","scalejs.linq-linqjs","scalejs.mvvm","scalejs.statechart-scion"], function () { return Array.prototype.slice(arguments); });
+define("scalejs/extensions", ["scalejs.ajax-jquery","scalejs.functional","scalejs.grid-slick","scalejs.layout-cssgrid","scalejs.linq-linqjs","scalejs.mvvm","scalejs.reactive","scalejs.statechart-scion"], function () { return Array.prototype.slice(arguments); });
 /*global require*/
 require([
     'scalejs!application/main'

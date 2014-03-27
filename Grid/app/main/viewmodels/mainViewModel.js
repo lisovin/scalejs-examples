@@ -10,25 +10,25 @@ define([
         var // imports
             range = sandbox.linq.enumerable.range,
             observableArray = sandbox.mvvm.observableArray,
+            ajaxGet = sandbox.ajax.jsonpGet,
             // vars
-            columns = ['Id', 'Name', 'Age'].select(function (x) {
-                return {
-                    id: x,
-                    name: x,
-                    field: x
-                }
-            }).toArray(),
-            itemsSource = observableArray(['Erica', 'Peter', 'Conor', 'Dillon']
-                .select(function (x, index) {
-                    return {
-                        index: index,
-                        Id: index,
-                        Name: x,
-                        Age: Math.random() * 70 | 0
-                    };
-                }).toArray());
+            columns,
+            itemsSource = observableArray();
 
-        window.is = itemsSource;
+        columns = [
+            { id: "Symbol", field: "Symbol", name: "Symbol" },
+            { id: "Name", field: "Name", name: "Name", minWidth: 300 },
+            { id: "LastSale", field: "LastSale", name: "Last Sale" },
+            { id: "MarketCap", field: "MarketCap", name: "Market Cap", minWidth: 150 },
+            { id: "Sector", field: "Sector", name: "Sector", minWidth: 150 },
+            { id: "Industry", field: "industry", name: "Industry", minWidth: 200}];
+
+        ajaxGet('./companylist.txt', {}).subscribe(function (data) {
+            itemsSource(JSON.parse(data).map(function(company, index) {
+                company.index = index
+                return company;
+            }));
+        });
 
         return {
             columns: columns,

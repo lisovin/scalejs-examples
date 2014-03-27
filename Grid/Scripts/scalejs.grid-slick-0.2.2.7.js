@@ -280,6 +280,7 @@ define('scalejs.grid-slick/observableFilters',[
                 }
             });
 
+            
             // Push filters to
             filter(value);
 

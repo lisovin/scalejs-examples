@@ -1,13 +1,42 @@
-﻿
+﻿html, body {
+    width: 100%;
+    height: 100%;
+    margin: 0px;
+    font-family: 'Segoe UI_', 'Open Sans', Verdana, Arial, Helvetica, sans-serif;
+    background-color: black;
+    color: orange;
+}
 .main {
-    &.layout {
-        display: -ms-grid;
-        -ms-grid-columns: 1fr;
-        -ms-grid-rows: auto;
-    }
     &.grid {
-        height: 600px;
-        -ms-grid-column: 1;
-        -ms-grid-row: 1;
+        height: 100%;
     }
+}
+
+.slick-header-column.ui-state-default {
+    padding: 10px 8px;
+    font-size: 14px;
+    line-height: 14pt;
+    border-bottom: 1px solid #111111;
+    font-weight: bold;
+    font-style: normal;
+    border-right: 0px;
+    color: white;
+}
+
+.slick-row.ui-widget-content, .slick-row.ui-state-active {
+    font-size: 16px;
+    line-height: 40px;
+}
+
+.slick-cell {
+    border: 0px;
+    padding: 0px 8px;
+}
+
+.slick-row.odd {    
+    background-color: #3b3b3b
+}
+
+.slick-row.even {
+    background-color: #121212;
 }

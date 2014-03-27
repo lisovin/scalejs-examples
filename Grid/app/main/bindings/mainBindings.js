@@ -6,7 +6,9 @@ define({
             slickGrid: {
                 columns: this.columns,
                 itemsSource: this.itemsSource,
-                enableColumnReorder: false
+                enableColumnReorder: false,
+                forceFitColumns: true,
+                rowHeight: 40
             }
         };
     }
