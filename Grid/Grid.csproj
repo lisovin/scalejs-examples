@@ -19,6 +19,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Content Include="companylist.txt" />
+    <Content Include="css\global.css" />
     <Content Include="css\jasmine.css" />
     <Content Include="css\slick\images\header-bg.gif" />
     <Content Include="css\slick\images\header-columns-bg.gif" />
@@ -27,6 +28,8 @@
     <Content Include="css\slick\images\sort-desc.gif" />
     <Content Include="css\slick\slick-default-theme.css" />
     <Content Include="css\slick\slick.grid.css" />
+    <Content Include="fonts\iconFont.dev.svg" />
+    <Content Include="fonts\iconFont.svg" />
     <Content Include="README.txt" />
     <Content Include="index.debug.html" />
     <Content Include="index.html" />
@@ -112,6 +115,10 @@
     <Content Include="Properties\Grid.nuspec" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="fonts\iconFont.eot" />
+    <None Include="fonts\iconFont.json" />
+    <None Include="fonts\iconFont.ttf" />
+    <None Include="fonts\iconFont.woff" />
     <None Include="packages.config" />
     <None Include="Scripts\jquery-1.9.1.min.map" />
   </ItemGroup>

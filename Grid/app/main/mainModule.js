@@ -18,7 +18,6 @@ define([
             registerStates = sandbox.state.registerStates,
             state = sandbox.state.builder.state,
             onEntry = sandbox.state.builder.onEntry,
-            invalidate = sandbox.layout.invalidate,
             // vars
             viewModel = mainViewModel();
 
@@ -30,7 +29,6 @@ define([
                         // Render viewModel using 'main_template' template 
                         // (defined in main.html) and show it in the `root` region.
                         root(template('main_template', viewModel));
-                        sandbox.layout.parseGridStyles(invalidate);
                     }))));
     };
 });

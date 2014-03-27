@@ -8,7 +8,8 @@ define({
                 itemsSource: this.itemsSource,
                 enableColumnReorder: false,
                 forceFitColumns: true,
-                rowHeight: 40
+                rowHeight: 40,
+                headerRowHeight: 40
             }
         };
     }
