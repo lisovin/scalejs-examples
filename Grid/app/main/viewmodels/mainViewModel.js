@@ -24,7 +24,8 @@ define([
             { id: "Industry", field: "industry", name: "Industry", minWidth: 200}];
 
         ajaxGet('./companylist.txt', {}).subscribe(function (data) {
-            itemsSource(JSON.parse(data).map(function(company, index) {
+            itemsSource(JSON.parse(data).map(function (company, index) {
+                // each item in itemsSource needs an index
                 company.index = index
                 return company;
             }));
