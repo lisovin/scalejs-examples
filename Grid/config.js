@@ -3,6 +3,9 @@ var require = {
     "config":  {
         "scalejs.statechart-scion":  {
             "logStatesEnteredAndExited":  true
+        },
+        "scalejs.mvvm": {
+            "root": "grid1"
         }
     },
     "paths":  {
