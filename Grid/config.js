@@ -3,9 +3,6 @@ var require = {
     "config":  {
         "scalejs.statechart-scion":  {
             "logStatesEnteredAndExited":  true
-        },
-        "scalejs.mvvm": {
-            "root": "grid1"
         }
     },
     "paths":  {
@@ -20,7 +17,8 @@ var require = {
         "jQuery":  "Scripts/jquery-1.9.1.min",
         "jQuery-Migrate":  "Scripts/jquery-migrate-1.1.1.min",
         "jquery.event.drag":  "Scripts/jquery.event.drag",
-        "jquery.event.drag.live":  "Scripts/jquery.event.drag",
+        "jquery.event.drag.live": "Scripts/jquery.event.drag",
+        "jquery-private": "Scripts/jquery-private",
         "knockout":  "Scripts/knockout-3.0.0.debug",
         "knockout.mapping":  "Scripts/knockout.mapping-latest.debug",
         "less":  "Scripts/less",
@@ -80,8 +78,8 @@ var require = {
                 "jasmine"
             ]
         },
-        "jQuery":  {
-            "exports":  "jQuery"
+        "jQuery": {            
+            "exports": "jQuery"
         },
         "jQuery-Migrate":  {
             "deps":  [

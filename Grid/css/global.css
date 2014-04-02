@@ -4,65 +4,7 @@ html, body {
     height: 100%;
     margin: 0px;
     font-family: 'Segoe UI_', 'Open Sans', Verdana, Arial, Helvetica, sans-serif;
-     background-color: #1b1b1b;
-    color: orange;
 }
-
-/* Grid Styles */
-.slick-header-column.ui-state-default {
-    font-size: 16px;
-    font-weight: bold;
-    font-style: normal;
-    border: 0px;
-}
-
-.slick-row.ui-widget-content, .slick-row.ui-state-active {
-    font-size: 16px;
-    line-height: 40px;
-}
-
-.slick-cell {
-    border: 0px;
-    padding: 0px 8px;
-}
-
-.slick-row.odd {   
-    background-color: #121212; 
-
-}
-
-/* Scrollbar Styles*/
-
-body   {
-    position: absolute;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    right: 10px;
-    overflow-y: scroll;
-    overflow-x: hidden;
-}
-
-html {
-    overflow-y: auto;
-    background-color: transparent;
-}
-
-::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
-}
-
-::-webkit-scrollbar-track-piece  {
-     background-color: #1b1b1b;
-}
-
-::-webkit-scrollbar-thumb:vertical {
-    height: 50px;
-    background-color: orange;
-    -webkit-border-radius: 6px;
-}
-
 /* Metro Fonts */
 @font-face {
   font-family: "PT Serif Caption";

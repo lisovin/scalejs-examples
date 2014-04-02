@@ -1,6 +1,7 @@
 ﻿({
 	mainConfigFile: '../config.js',
 	name: 'Scripts/almond',
-	include: 'app/app',
+	include: ['Properties/embedded-config', 'jquery-private', 'app/app'],
+	exclude: ['jQuery'],
 	preserveLicenseComments: false
 })

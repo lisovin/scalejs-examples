@@ -1,5 +1,64 @@
 ﻿.main {
     &.grid {
         height: 100%;
+        background-color: #1b1b1b;
+        color: orange;
+
+         /* Column Styles */
+         .money {
+             text-align: right;
+         }
+         /* Grid Styles */
+         .slick-header-columns {
+             height:40px;
+         }
+        .slick-header-column.ui-state-default {
+            font-size: 18px;
+            line-height: 30px;
+            font-weight: bold;
+            font-style: normal;
+            height:40px;
+            border: 0px;
+            text-align: center;
+        }
+
+        .slick-row.ui-widget-content, .slick-row.ui-state-active {
+            font-size: 16px;
+            line-height: 40px;            
+            color: #808080;
+        }
+
+        .slick-cell {
+            border: 0px;
+            padding: 0px 8px;
+        }
+
+        .slick-row.even {   
+            background-color: #121212; 
+
+        }
+
+        /* Scrollbar Styles*/
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+
+        ::-webkit-scrollbar-track-piece  {
+             background-color: #1b1b1b;
+        }
+
+        ::-webkit-scrollbar-thumb:vertical {
+            height: 50px;
+            background-color: #808080;
+        }
+
+        ::-webkit-scrollbar-thumb:horizontal {
+            width: 50px;
+            background-color: #808080;
+        }
+        ::-webkit-scrollbar-corner {
+             background-color: #1b1b1b;
+        }
     }
 }

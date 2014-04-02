@@ -30,6 +30,7 @@
     <Content Include="css\slick\slick.grid.css" />
     <Content Include="fonts\iconFont.dev.svg" />
     <Content Include="fonts\iconFont.svg" />
+    <Content Include="Properties\embedded-config.js" />
     <Content Include="README.txt" />
     <Content Include="index.debug.html" />
     <Content Include="index.html" />
@@ -44,6 +45,7 @@
     <Content Include="Scripts\jquery-1.9.1.min.js" />
     <Content Include="Scripts\jquery-migrate-1.1.1.js" />
     <Content Include="Scripts\jquery-migrate-1.1.1.min.js" />
+    <Content Include="Scripts\jquery-private.js" />
     <Content Include="Scripts\jquery.bpopup.min.js" />
     <Content Include="Scripts\jquery.event.drag.js" />
     <Content Include="Scripts\jquery.event.drag.live.js" />

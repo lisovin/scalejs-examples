@@ -359,7 +359,8 @@ define('scalejs.statechart-scion/state',[
     'scalejs!core',
     './state.builder',
     'scion',
-    'scalejs.functional'
+    'scalejs.functional',
+    'scalejs.linq-linqjs'
 ], function (
     core,
     createBuilder,
