@@ -16,9 +16,9 @@ var require = {
         "jasmine-html":  "Scripts/jasmine-html",
         "jQuery":  "Scripts/jquery-1.9.1.min",
         "jQuery-Migrate":  "Scripts/jquery-migrate-1.1.1.min",
+        "jquery-private":  "Scripts/jquery-private",
         "jquery.event.drag":  "Scripts/jquery.event.drag",
-        "jquery.event.drag.live": "Scripts/jquery.event.drag",
-        "jquery-private": "Scripts/jquery-private",
+        "jquery.event.drag.live":  "Scripts/jquery.event.drag",
         "knockout":  "Scripts/knockout-3.0.0.debug",
         "knockout.mapping":  "Scripts/knockout.mapping-latest.debug",
         "less":  "Scripts/less",
@@ -36,7 +36,7 @@ var require = {
         "scalejs":  "Scripts/scalejs-0.3.3",
         "scalejs.ajax-jquery":  "Scripts/scalejs.ajax-jquery-0.3.0.0",
         "scalejs.functional":  "Scripts/scalejs.functional-0.2.10",
-        "scalejs.grid-slick":  "Scripts/scalejs.grid-slick-0.2.2.9",
+        "scalejs.grid-slick":  "Scripts/scalejs.grid-slick-0.2.2.10",
         "scalejs.linq-linqjs":  "Scripts/scalejs.linq-linqjs-3.0.3.1",
         "scalejs.mvvm":  "Scripts/scalejs.mvvm-0.3.4.6",
         "scalejs.reactive":  "Scripts/scalejs.reactive-2.1.20.1",
@@ -78,8 +78,8 @@ var require = {
                 "jasmine"
             ]
         },
-        "jQuery": {            
-            "exports": "jQuery"
+        "jQuery":  {
+            "exports":  "jQuery"
         },
         "jQuery-Migrate":  {
             "deps":  [

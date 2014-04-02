@@ -1,4 +1,3 @@
-
 /*global define*/
 /// <reference path="../Scripts/_references.js" />
 define('scalejs.grid-slick/observableDataview',[
@@ -11,7 +10,7 @@ define('scalejs.grid-slick/observableDataview',[
     Slick
 ) {
     /// <param name="ko" value="window.ko" />
-
+    
 
 
     var isObservable = ko.isObservable,
@@ -57,8 +56,10 @@ define('scalejs.grid-slick/observableDataview',[
                         var newItems = opts.itemsSource() || [],
                             newCount = newItems.length;
 
-                        onRowCountChanged.notify({ previous: oldCount, current: newCount }, null, null);
-                        oldCount = newCount;
+                        if (newCount !== oldCount) {
+                            onRowCountChanged.notify({ previous: oldCount, current: newCount }, null, null);
+                            oldCount = newCount;
+                        }
                     }
                 });
             }
@@ -120,7 +121,8 @@ define('scalejs.grid-slick/observableDataview',[
     };
 });
 
-define('text!scalejs.grid-slick/filters.html',[],function () { return '<div id="number_filter_template">\r\n    <div data-bind="css: { iconArrowLeft: !flipped(), iconArrowRight: flipped }"></div> \r\n        <div class="numberFilter">\r\n            Select Value: \r\n               <div>Quick Search: <input data-bind="value: quickSearch, valueUpdate: \'afterkeydown\'" /></div> \r\n               <div class="listFilterBox">\r\n                   \r\n                    <div>\r\n                        <input type="checkbox" data-bind="checked: all" /> \r\n                        <span>Select All</span> \r\n                    </div> \r\n                    <!-- ko foreach: options --> \r\n                    <div>\r\n                        <input type="checkbox" data-bind="checked: selected" /> \r\n                        <span data-bind="text: value"></span> \r\n                    </div> \r\n                    <!-- /ko --> \r\n               </div> \r\n               Show rows with values that: \r\n            <div class="numberFilterBox">\r\n                <div> \r\n                <input type="checkbox" data-bind="checked: notEmpty" />\r\n                <span>Are Not Empty</span> \r\n                </div>\r\n                <div>and</div> \r\n                <div>\r\n                    <select data-bind="value: comparisonA">\r\n                        <option value="EqualTo">Is Equal To</option> \r\n                        <option value="LessThan">Is Less Than</option> \r\n                        <option value="NotEqualTo">Is Not Equal To</option> \r\n                        <option value="GreaterThan">Is Greater Than</option>         \r\n                    </select>\r\n                </div> \r\n                <input type="text" data-bind="value: valueA, valueUpdate: \'afterkeydown\'" /> \r\n                <div>and</div> \r\n                <div>\r\n                    <select data-bind="value: comparisonB">\r\n                        <option value="EqualTo">Is Equal To</option> \r\n                        <option value="LessThan">Is Less Than</option>\r\n                        <option value="NotEqualTo">Is Not Equal To</option>\r\n                        <option value="GreaterThan">Is Greater Than</option> \r\n                    </select>\r\n                </div> \r\n                <input type="text" data-bind="value: valueB, valueUpdate: \'afterkeydown\'" /> \r\n            </div> \r\n    </div>  \r\n</div> \r\n \r\n<div id="string_filter_template">\r\n    <div data-bind="css: { iconArrowLeft: !flipped(), iconArrowRight: flipped }"></div> \r\n    <div class="numberFilter">\r\n        Select Value: \r\n        <div>Quick Search:  <input data-bind="value: quickSearch, valueUpdate: \'afterkeydown\'" /></div> \r\n        <div class="listFilterBox">\r\n            \r\n            <div>\r\n                <input type="checkbox" data-bind="checked: all" /> \r\n                <span>Select All</span> \r\n            </div> \r\n            <!-- ko foreach: options --> \r\n            <div>\r\n                <input type="checkbox" data-bind="checked: selected" /> \r\n                <span data-bind="text: value"></span> \r\n            </div> \r\n            <!-- /ko --> \r\n        </div> \r\n        Show rows with values that: \r\n        <div class="numberFilterBox">\r\n            <div>\r\n                <input type="checkbox" data-bind="checked: notEmpty" />\r\n                <span>Are Not Empty</span> \r\n            </div>\r\n            <div>and</div> \r\n            <div>\r\n                <select data-bind="value: comparisonA">\r\n                    <option value="Contains">Contains</option> \r\n                    <option value="StartsWith">Starts With</option> \r\n                    <option value="EndsWith">Ends</option>  \r\n                </select>\r\n            </div> \r\n            <input type="text" data-bind="value: valueA, valueUpdate: \'afterkeydown\'" /> \r\n            <div>and</div> \r\n            <div>\r\n                <select data-bind="value: comparisonB">\r\n                    <option value="Contains">Contains</option> \r\n                    <option value="StartsWith">Starts With</option>\r\n                    <option value="EndsWith">Ends</option>\r\n                </select>\r\n            </div> \r\n            <input type="text" data-bind="value: valueB, valueUpdate: \'afterkeydown\'" />\r\n        </div> \r\n    </div>  \r\n</div>  \r\n\r\n';});
+
+define('text!scalejs.grid-slick/filters.html',[],function () { return '<div id="number_filter_template">\r\n    <div data-bind="css: { iconArrowLeft: !flipped(), iconArrowRight: flipped }"></div> \r\n        <div class="numberFilter">\r\n            Select Value: \r\n               <div>Quick Search: <input data-bind="value: quickSearch, valueUpdate: \'afterkeydown\'" /></div> \r\n               <div class="listFilterBox">\r\n                   <div data-bind="visible: loading" style="width:100%;height:200px;background:black;opacity:.2;position:absolute"></div> \r\n                    <div>\r\n                        <input type="checkbox" data-bind="checked: all" /> \r\n                        <span>Select All</span> \r\n                    </div> \r\n                    <!-- ko foreach: options --> \r\n                    <div>\r\n                        <input type="checkbox" data-bind="checked: selected" /> \r\n                        <span data-bind="text: value"></span> \r\n                    </div> \r\n                    <!-- /ko --> \r\n               </div> \r\n               Show rows with values that: \r\n            <div class="numberFilterBox">\r\n                <div> \r\n                <input type="checkbox" data-bind="checked: notEmpty" />\r\n                <span>Are Not Empty</span> \r\n                </div>\r\n                <div>and</div> \r\n                <div>\r\n                    <select data-bind="value: comparisonA">\r\n                        <option value="EqualTo">Is Equal To</option> \r\n                        <option value="LessThan">Is Less Than</option> \r\n                        <option value="NotEqualTo">Is Not Equal To</option> \r\n                        <option value="GreaterThan">Is Greater Than</option>         \r\n                    </select>\r\n                </div> \r\n                <input type="text" data-bind="value: valueA, valueUpdate: \'afterkeydown\'" /> \r\n                <div>and</div> \r\n                <div>\r\n                    <select data-bind="value: comparisonB">\r\n                        <option value="EqualTo">Is Equal To</option> \r\n                        <option value="LessThan">Is Less Than</option>\r\n                        <option value="NotEqualTo">Is Not Equal To</option>\r\n                        <option value="GreaterThan">Is Greater Than</option> \r\n                    </select>\r\n                </div> \r\n                <input type="text" data-bind="value: valueB, valueUpdate: \'afterkeydown\'" /> \r\n            </div> \r\n    </div>  \r\n</div> \r\n \r\n<div id="string_filter_template">\r\n    <div data-bind="css: { iconArrowLeft: !flipped(), iconArrowRight: flipped }"></div> \r\n    <div class="numberFilter">\r\n        Select Value: \r\n        <div>Quick Search:  <input data-bind="value: quickSearch, valueUpdate: \'afterkeydown\'" /></div> \r\n        <div class="listFilterBox">\r\n            <div data-bind="visible: loading" style="width:100%;height:200px;background:black;opacity:.2;position:absolute"></div> \r\n            <div>\r\n                <input type="checkbox" data-bind="checked: all" /> \r\n                <span>Select All</span> \r\n            </div> \r\n            <!-- ko foreach: options --> \r\n            <div>\r\n                <input type="checkbox" data-bind="checked: selected" /> \r\n                <span data-bind="text: value"></span> \r\n            </div> \r\n            <!-- /ko --> \r\n        </div> \r\n        Show rows with values that: \r\n        <div class="numberFilterBox">\r\n            <div>\r\n                <input type="checkbox" data-bind="checked: notEmpty" />\r\n                <span>Are Not Empty</span> \r\n            </div>\r\n            <div>and</div> \r\n            <div>\r\n                <select data-bind="value: comparisonA">\r\n                    <option value="Contains">Contains</option> \r\n                    <option value="StartsWith">Starts With</option> \r\n                    <option value="EndsWith">Ends</option>  \r\n                </select>\r\n            </div> \r\n            <input type="text" data-bind="value: valueA, valueUpdate: \'afterkeydown\'" /> \r\n            <div>and</div> \r\n            <div>\r\n                <select data-bind="value: comparisonB">\r\n                    <option value="Contains">Contains</option> \r\n                    <option value="StartsWith">Starts With</option>\r\n                    <option value="EndsWith">Ends</option>\r\n                </select>\r\n            </div> \r\n            <input type="text" data-bind="value: valueB, valueUpdate: \'afterkeydown\'" />\r\n        </div> \r\n    </div>  \r\n</div>  \r\n\r\n';});
 
 /*global define, console*/
 /// <reference path="../Scripts/_references.js" />
@@ -142,24 +144,24 @@ define('scalejs.grid-slick/observableFilters',[
     /// <param name="ko" value="window.ko" />
 
     var statechart = core.state.builder.statechart,
-        state = core.state.builder.state,
-        parallel = core.state.builder.parallel,
-        on = core.state.builder.on,
-        whenIn = core.state.builder.whenInStates,
-        onEntry = core.state.builder.onEntry,
-        onExit = core.state.builder.onExit,
-        goto = core.state.builder.goto,
-        gotoInternally = core.state.builder.gotoInternally,
-        observable = ko.observable,
-        computed = ko.computed,
-        observableArray = ko.observableArray,
-        unwrap = ko.utils.unwrapObservable,
-        registerTemplates = core.mvvm.registerTemplates,
-        has = core.object.has;
+          state = core.state.builder.state,
+          parallel = core.state.builder.parallel,
+          on = core.state.builder.on,
+          whenIn = core.state.builder.whenInStates,
+          onEntry = core.state.builder.onEntry,
+          onExit = core.state.builder.onExit,
+          goto = core.state.builder.goto,
+          gotoInternally = core.state.builder.gotoInternally,
+          observable = ko.observable,
+          computed = ko.computed,
+          observableArray = ko.observableArray,
+          unwrap = ko.utils.unwrapObservable,
+          registerTemplates = core.mvvm.registerTemplates,
+          has = core.object.has;
 
     registerTemplates(filterTemplates);
 
-    function setupFilter(fieldFilter, $node, node, column) {
+    function setupFilter(fieldFilter, column) {
         var filter = observable([]),
             quickSearch = observable(), //fieldFilter.quickSearch || observable(),
             quickOp = fieldFilter.quickFilterOp || "StartsWith",
@@ -235,6 +237,9 @@ define('scalejs.grid-slick/observableFilters',[
                 comps = fieldFilter.type === "string" ? ["Contains", "StartsWith", "EndsWith"] : ["EqualTo", "LessThan", "NotEqualTo", "GreaterThan"],
                 val;
 
+            // all, list, or val
+
+            /*
             // If no "In" operation, then check all:
             if (v) {
                 if (value.indexOf("In") === -1) {
@@ -242,7 +247,7 @@ define('scalejs.grid-slick/observableFilters',[
                 }
             } else {
                 checkAll();
-            }
+            }*/
 
             // Set NotEmpty to false if not in list:
             if (value.indexOf("NotEmpty") === -1) {
@@ -300,9 +305,9 @@ define('scalejs.grid-slick/observableFilters',[
         subscription.filter = filter.subscribe(updateFieldFilter);
 
         //converts a list item to a selectable list item
-        function option(value) {
+        function option(value, selected) {
             return {
-                selected: observable(allCheckbox()),
+                selected: observable(has(selected) ? selected : allCheckbox()),
                 value: has(value) ? value.toString() : ""
             };
         }
@@ -310,9 +315,18 @@ define('scalejs.grid-slick/observableFilters',[
         //converts new listItems to selectableListItems
         listItems.subscribe(function (newItems) {
             //item selection persists when the list items are changed
-            var items = newItems.groupJoin(selectableListItems(), "$.toString()", "$.value", function (o, i) {
-                return i.elementAtOrDefault(0, option(o));
-            }).toArray();
+            var filterValues = filter().length === 1 && filter()[0].op === 'In' ? filter()[0].values : [],
+                items;
+
+            if (filterValues.length > 0) {
+                items = newItems.map(function (item) {
+                    return option(item, filterValues.indexOf(item.toString()) > -1);
+                });
+            } else {
+                items = newItems.groupJoin(selectableListItems(), "$.toString()", "$.value", function (o, i) {
+                    return i.elementAtOrDefault(0, option(o));
+                }).toArray();
+            }
 
             selectableListItems(items);
         });
@@ -358,10 +372,18 @@ define('scalejs.grid-slick/observableFilters',[
                     op: 'In',
                     values: list.map(function (v) { return v.value })
                 }];
+            } else {
+                return undefined;
             }
         });
 
         quickExpression = computed(function () {
+            if (quickFilter()) {
+                return [{
+                    op: quickOp,
+                    values: [quickFilter()]
+                }];
+            }
             //When all checkbox is true, quickSearch behaves like Quick Filter
             //when filter is closed quickSearch becomes undefined
             if (allCheckbox() && quickSearch()) {
@@ -371,14 +393,7 @@ define('scalejs.grid-slick/observableFilters',[
                 }];
             }
 
-            if (!quickFilter()) {
-                return [];
-            }
-
-            return [{
-                op: quickOp,
-                values: [quickFilter()]
-            }];
+            return [];
         });
 
 
@@ -402,7 +417,6 @@ define('scalejs.grid-slick/observableFilters',[
             loading: loading
         };
 
-        ko.applyBindings(bindings, node);
 
         function sendExpression(expression) {
             filter(expression || []);
@@ -434,7 +448,7 @@ define('scalejs.grid-slick/observableFilters',[
             notEmpty(false);
         }
 
-        function initializeFilter() {
+        function initializeFilter($node) {
             //using jQuery instead of knockout because bindings have already been applied to the filter,
             //however we need to add a click event to the filter button so that when it is clicked
             //'filter.shown' state is entered.
@@ -487,55 +501,69 @@ define('scalejs.grid-slick/observableFilters',[
         */
 
         function createStatechart() {
+
             return statechart(
                 parallel('filter',
                 onEntry(function () {
                     send = this.send;
-                    initializeFilter();
+                    this.initial = true;
                 }),
                 state('filter.view',
-                state('filter.hidden',
-                        onEntry(function (e, isIn) {
-                            var stateProp = this;
-                            this.quickSearchSub = quickSearch.subscribe(function (v) {
-                                quickFilter(v);
-                            });
+                    state('filter.hidden',
+                            onEntry(function (e, isIn) {
+                                var stateProp = this,
+                                    sub;
 
-                            this.quickSub = quickFilter.subscribe(function (v) {
-                                // Prevent circular dependency by disposing quickSearch subscription:
-                                stateProp.quickSearchSub.dispose();
-                                // Update quickSearch:
-                                quickSearch(v);
-                                // Resubscribe to quickSearch:
-                                stateProp.quickSearchSub = quickSearch.subscribe(function (v) {
+                                subscription.quickSearchSub = quickSearch.subscribe(function (v) {
                                     quickFilter(v);
                                 });
-                                if (!isIn('filter.model.all')) {
-                                    send('filter.all');
+
+                                subscription.quickSub = quickFilter.subscribe(function (v) {
+                                    // Prevent circular dependency by disposing quickSearch subscription:
+                                    subscription.quickSearchSub.dispose();
+                                    // Update quickSearch:
+                                    quickSearch(v);
+                                    // Resubscribe to quickSearch:
+                                    subscription.quickSearchSub = quickSearch.subscribe(function (v) {
+                                        quickFilter(v);
+                                    });
+                                    if (!isIn('filter.model.all')) {
+                                        send('filter.all');
+                                    }
+                                });
+
+                                if (this.initial) {
+                                    updateFilter(fieldFilter.value());
+                                    updateQuickSearch(fieldFilter.quickSearch());
+                                    this.initial = false;
                                 }
-                            });
-
-                            updateFilter(fieldFilter.value());
-                            updateQuickSearch(fieldFilter.quickSearch());
+                            }),
+                        onExit(function () {
+                            subscription.quickSearchSub.dispose();
+                            subscription.quickSub.dispose();
                         }),
-                    onExit(function () {
-                        this.quickSearchSub.dispose();
-                        this.quickSub.dispose();
-                    }),
-                        on('filter.open', goto('filter.shown'))
-                    ),
-                state('filter.shown',
-                       onEntry(function () {
-                           //move open logic here
+                            on('filter.open', goto('filter.shown'))
+                        ),
+                    state('filter.shown',
+                           onEntry(function () {
+                               //move open logic here
 
-                           // Initialize list:
-                           quickSearch.valueHasMutated();
-                       }),
-                        on('filter.close', goto('filter.hidden')))
+                               // Initialize list:
+                               quickSearch.valueHasMutated();
+                           }),
+                            on('filter.close', goto('filter.hidden')))
                 ),
                 state('filter.model',
-                    state('filter.model.all',
+                /*
+                    state('filer.model.initial', 
                         onEntry(function () {
+                            // 1. move updateFilter, updateQuickSearch here
+                            // 2. do dispatch
+                            send('filter.lis', { internal: true });
+
+                        })),*/
+                    state('filter.model.all',
+                        onEntry(function (e) {
                             //update ui
                             checkAll();
                             clearValue();
@@ -544,7 +572,11 @@ define('scalejs.grid-slick/observableFilters',[
 
                             subscription.list = listExpression.subscribe(function (expression) {
                                 if (expression) {
+                                    //if there is an expression, go to list
                                     send('filter.list');
+                                } else if (getSelectedItems().length === 0) {
+                                    //if there are selected items and no expression, go to value
+                                    send('filter.value');
                                 }
                             });
                             subscription.value = valExpression.subscribe(function () {
@@ -576,8 +608,8 @@ define('scalejs.grid-slick/observableFilters',[
                                 });
                                 subscription.quick = quickSearch.subscribe(function (v) {
                                     if (v !== undefined) {
-                                        sendExpression(quickExpression());
                                         quickFilter(quickSearch());
+                                        sendExpression(quickExpression());
                                     }
                                 });
                             }),
@@ -597,9 +629,14 @@ define('scalejs.grid-slick/observableFilters',[
                             sendExpression(listExpression());
 
                             subscription.list = listExpression.subscribe(function (expression) {
-                                if (getSelectedItems().length === 0 || expression) {
+                                if (expression) {
+                                    // if there is an expression, send it
                                     sendExpression(expression);
+                                } else if (getSelectedItems().length === 0) {
+                                    // if its empty, go to value
+                                    send('filter.value');
                                 } else {
+                                    // else, all are selected
                                     send('filter.all');
                                 }
                             });
@@ -632,9 +669,13 @@ define('scalejs.grid-slick/observableFilters',[
 
                                 sendExpression(valExpression());
 
-                                subscription.list = listExpression.subscribe(function (v) {
-                                    if (v) {
+                                subscription.list = listExpression.subscribe(function (expression) {
+                                    if (expression) {
+                                        // if there is an expression, go to list
                                         send('filter.list');
+                                    } else if (getSelectedItems().length > 0) {
+                                        // if there are items, go to all
+                                        send('filter.all');
                                     }
                                 });
                                 subscription.value = valExpression.subscribe(function (expression) {
@@ -666,7 +707,17 @@ define('scalejs.grid-slick/observableFilters',[
 
         filterStatechart = createStatechart();
 
-        filterStatechart.start();
+        var initalized = false;
+        function start() {
+            filterStatechart.start();
+        }
+
+        return {
+            bindings: bindings,
+            start: start,
+            initalized: initalized,
+            init: initializeFilter
+        }
     }
 
     /*jslint unparam: true*/
@@ -680,14 +731,21 @@ define('scalejs.grid-slick/observableFilters',[
                     + '<div class="slick-filter" data-bind="css: { iconFilterOff: !filterOn(), iconFilterOn: filterOn }"></div>';
 
                 if (fieldFilter) {
+                    if (!fieldFilter.state) {
+                        fieldFilter.state = setupFilter(fieldFilter, args.column)
+                    }
                     $node.html(filterHtml);
-                    setupFilter(fieldFilter, $node, node, args.column);
+                    ko.applyBindings(fieldFilter.state.bindings, node);
+                    fieldFilter.state.init($node);
+                    if (!fieldFilter.state.initalized) {
+                        fieldFilter.state.start();
+                        fieldFilter.state.initialized = true;
+                    }
                 }
             });
         }
 
         function destroy() {
-
         }
 
         return {
@@ -1088,7 +1146,7 @@ define('scalejs.grid-slick/slickGrid',[
         }
 
         function subscribeToLayout() {
-            if (core.layout) {
+            if (core.layout && core.layout.onLayoutDone) {
                 core.layout.onLayoutDone(function () {
                     grid.resizeCanvas();
                     if (isObservable(options.viewport)) {
@@ -1147,7 +1205,7 @@ define('scalejs.grid-slick/slickGrid',[
             }
 
             filterableColumns.forEach(function (c) {
-                var quickSearch = observable('');
+                var quickSearch = observable();
                 c.filter = {
                     type: c.filter.type,
                     quickFilterOp: c.quickFilterOp,
@@ -1177,10 +1235,6 @@ define('scalejs.grid-slick/slickGrid',[
                             return valueOrDefault(r[c.id], "").toString();
                         });
 
-                    //if quickSearch is undefined then return
-                    if(!has(quickSearch())) {
-                        return;
-                    }
                     if (quickSearch().values[0]) {
                         s = quickSearch().values[0].toLowerCase();
                         listValues = listValues.where(function (v) {
@@ -1286,4 +1340,5 @@ define('scalejs.grid-slick',[
 
     ko.bindingHandlers.slickGrid = slickGrid;
 });
+
 
