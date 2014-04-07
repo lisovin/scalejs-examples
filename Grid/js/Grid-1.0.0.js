@@ -12175,9 +12175,8 @@ define('text',['module'], function (module) {
  * @demo: http://dinbror.dk/bpopup
  * @version: 0.9.4.min
  ================================================================================*/
-define('bPopup',["jQuery"], function (jQuery) {
-    (function (b) { b.fn.bPopup = function (z, F) { function K() { a.contentContainer = b(a.contentContainer || c); switch (a.content) { case "iframe": var h = b('<iframe class="b-iframe" ' + a.iframeAttr + "></iframe>"); h.appendTo(a.contentContainer); r = c.outerHeight(!0); s = c.outerWidth(!0); A(); h.attr("src", a.loadUrl); k(a.loadCallback); break; case "image": A(); b("<img />").load(function () { k(a.loadCallback); G(b(this)) }).attr("src", a.loadUrl).hide().appendTo(a.contentContainer); break; default: A(), b('<div class="b-ajax-wrapper"></div>').load(a.loadUrl, a.loadData, function () { k(a.loadCallback); G(b(this)) }).hide().appendTo(a.contentContainer) } } function A() { a.modal && b('<div class="b-modal ' + e + '"></div>').css({ backgroundColor: a.modalColor, position: "fixed", top: 0, right: 0, bottom: 0, left: 0, opacity: 0, zIndex: a.zIndex + t }).appendTo(a.appendTo).fadeTo(a.speed, a.opacity); D(); c.data("bPopup", a).data("id", e).css({ left: "slideIn" == a.transition || "slideBack" == a.transition ? "slideBack" == a.transition ? g.scrollLeft() + u : -1 * (v + s) : l(!(!a.follow[0] && m || f)), position: a.positionStyle || "absolute", top: "slideDown" == a.transition || "slideUp" == a.transition ? "slideUp" == a.transition ? g.scrollTop() + w : x + -1 * r : n(!(!a.follow[1] && p || f)), "z-index": a.zIndex + t + 1 }).each(function () { a.appending && b(this).appendTo(a.appendTo) }); H(!0) } function q() { a.modal && b(".b-modal." + c.data("id")).fadeTo(a.speed, 0, function () { b(this).remove() }); a.scrollBar || b("html").css("overflow", "auto"); b(".b-modal." + e).unbind("click"); g.unbind("keydown." + e); d.unbind("." + e).data("bPopup", 0 < d.data("bPopup") - 1 ? d.data("bPopup") - 1 : null); c.undelegate(".bClose, ." + a.closeClass, "click." + e, q).data("bPopup", null); H(); return !1 } function G(h) { var b = h.width(), e = h.height(), d = {}; a.contentContainer.css({ height: e, width: b }); e >= c.height() && (d.height = c.height()); b >= c.width() && (d.width = c.width()); r = c.outerHeight(!0); s = c.outerWidth(!0); D(); a.contentContainer.css({ height: "auto", width: "auto" }); d.left = l(!(!a.follow[0] && m || f)); d.top = n(!(!a.follow[1] && p || f)); c.animate(d, 250, function () { h.show(); B = E() }) } function L() { d.data("bPopup", t); c.delegate(".bClose, ." + a.closeClass, "click." + e, q); a.modalClose && b(".b-modal." + e).css("cursor", "pointer").bind("click", q); M || !a.follow[0] && !a.follow[1] || d.bind("scroll." + e, function () { B && c.dequeue().animate({ left: a.follow[0] ? l(!f) : "auto", top: a.follow[1] ? n(!f) : "auto" }, a.followSpeed, a.followEasing) }).bind("resize." + e, function () { w = y.innerHeight || d.height(); u = y.innerWidth || d.width(); if (B = E()) clearTimeout(I), I = setTimeout(function () { D(); c.dequeue().each(function () { f ? b(this).css({ left: v, top: x }) : b(this).animate({ left: a.follow[0] ? l(!0) : "auto", top: a.follow[1] ? n(!0) : "auto" }, a.followSpeed, a.followEasing) }) }, 50) }); a.escClose && g.bind("keydown." + e, function (a) { 27 == a.which && q() }) } function H(b) { function d(e) { c.css({ display: "block", opacity: 1 }).animate(e, a.speed, a.easing, function () { J(b) }) } switch (b ? a.transition : a.transitionClose || a.transition) { case "slideIn": d({ left: b ? l(!(!a.follow[0] && m || f)) : g.scrollLeft() - (s || c.outerWidth(!0)) - C }); break; case "slideBack": d({ left: b ? l(!(!a.follow[0] && m || f)) : g.scrollLeft() + u + C }); break; case "slideDown": d({ top: b ? n(!(!a.follow[1] && p || f)) : g.scrollTop() - (r || c.outerHeight(!0)) - C }); break; case "slideUp": d({ top: b ? n(!(!a.follow[1] && p || f)) : g.scrollTop() + w + C }); break; default: c.stop().fadeTo(a.speed, b ? 1 : 0, function () { J(b) }) } } function J(b) { b ? (L(), k(F), a.autoClose && setTimeout(q, a.autoClose)) : (c.hide(), k(a.onClose), a.loadUrl && (a.contentContainer.empty(), c.css({ height: "auto", width: "auto" }))) } function l(a) { return a ? v + g.scrollLeft() : v } function n(a) { return a ? x + g.scrollTop() : x } function k(a) { b.isFunction(a) && a.call(c) } function D() { x = p ? a.position[1] : Math.max(0, (w - c.outerHeight(!0)) / 2 - a.amsl); v = m ? a.position[0] : (u - c.outerWidth(!0)) / 2; B = E() } function E() { return w > c.outerHeight(!0) && u > c.outerWidth(!0) } b.isFunction(z) && (F = z, z = null); var a = b.extend({}, b.fn.bPopup.defaults, z); a.scrollBar || b("html").css("overflow", "hidden"); var c = this, g = b(document), y = window, d = b(y), w = y.innerHeight || d.height(), u = y.innerWidth || d.width(), M = /OS 6(_\d)+/i.test(navigator.userAgent), C = 200, t = 0, e, B, p, m, f, x, v, r, s, I; c.close = function () { a = this.data("bPopup"); e = "__b-popup" + d.data("bPopup") + "__"; q() }; return c.each(function () { b(this).data("bPopup") || (k(a.onOpen), t = (d.data("bPopup") || 0) + 1, e = "__b-popup" + t + "__", p = "auto" !== a.position[1], m = "auto" !== a.position[0], f = "fixed" === a.positionStyle, r = c.outerHeight(!0), s = c.outerWidth(!0), a.loadUrl ? K() : A()) }) }; b.fn.bPopup.defaults = { amsl: 50, appending: !0, appendTo: "body", autoClose: !1, closeClass: "b-close", content: "ajax", contentContainer: !1, easing: "swing", escClose: !0, follow: [!0, !0], followEasing: "swing", followSpeed: 500, iframeAttr: 'scrolling="no" frameborder="0"', loadCallback: !1, loadData: !1, loadUrl: !1, modal: !0, modalClose: !0, modalColor: "#000", onClose: !1, onOpen: !1, opacity: 0.7, position: ["auto", "auto"], positionStyle: "absolute", scrollBar: !0, speed: 250, transition: "fadeIn", transitionClose: !1, zIndex: 9997 } })(jQuery);
-});
+ (function(b){b.fn.bPopup=function(z,F){function K(){a.contentContainer=b(a.contentContainer||c);switch(a.content){case "iframe":var h=b('<iframe class="b-iframe" '+a.iframeAttr+"></iframe>");h.appendTo(a.contentContainer);r=c.outerHeight(!0);s=c.outerWidth(!0);A();h.attr("src",a.loadUrl);k(a.loadCallback);break;case "image":A();b("<img />").load(function(){k(a.loadCallback);G(b(this))}).attr("src",a.loadUrl).hide().appendTo(a.contentContainer);break;default:A(),b('<div class="b-ajax-wrapper"></div>').load(a.loadUrl,a.loadData,function(){k(a.loadCallback);G(b(this))}).hide().appendTo(a.contentContainer)}}function A(){a.modal&&b('<div class="b-modal '+e+'"></div>').css({backgroundColor:a.modalColor,position:"fixed",top:0,right:0,bottom:0,left:0,opacity:0,zIndex:a.zIndex+t}).appendTo(a.appendTo).fadeTo(a.speed,a.opacity);D();c.data("bPopup",a).data("id",e).css({left:"slideIn"==a.transition||"slideBack"==a.transition?"slideBack"==a.transition?g.scrollLeft()+u:-1*(v+s):l(!(!a.follow[0]&&m||f)),position:a.positionStyle||"absolute",top:"slideDown"==a.transition||"slideUp"==a.transition?"slideUp"==a.transition?g.scrollTop()+w:x+-1*r:n(!(!a.follow[1]&&p||f)),"z-index":a.zIndex+t+1}).each(function(){a.appending&&b(this).appendTo(a.appendTo)});H(!0)}function q(){a.modal&&b(".b-modal."+c.data("id")).fadeTo(a.speed,0,function(){b(this).remove()});a.scrollBar||b("html").css("overflow","auto");b(".b-modal."+e).unbind("click");g.unbind("keydown."+e);d.unbind("."+e).data("bPopup",0<d.data("bPopup")-1?d.data("bPopup")-1:null);c.undelegate(".bClose, ."+a.closeClass,"click."+e,q).data("bPopup",null);H();return!1}function G(h){var b=h.width(),e=h.height(),d={};a.contentContainer.css({height:e,width:b});e>=c.height()&&(d.height=c.height());b>=c.width()&&(d.width=c.width());r=c.outerHeight(!0);s=c.outerWidth(!0);D();a.contentContainer.css({height:"auto",width:"auto"});d.left=l(!(!a.follow[0]&&m||f));d.top=n(!(!a.follow[1]&&p||f));c.animate(d,250,function(){h.show();B=E()})}function L(){d.data("bPopup",t);c.delegate(".bClose, ."+a.closeClass,"click."+e,q);a.modalClose&&b(".b-modal."+e).css("cursor","pointer").bind("click",q);M||!a.follow[0]&&!a.follow[1]||d.bind("scroll."+e,function(){B&&c.dequeue().animate({left:a.follow[0]?l(!f):"auto",top:a.follow[1]?n(!f):"auto"},a.followSpeed,a.followEasing)}).bind("resize."+e,function(){w=y.innerHeight||d.height();u=y.innerWidth||d.width();if(B=E())clearTimeout(I),I=setTimeout(function(){D();c.dequeue().each(function(){f?b(this).css({left:v,top:x}):b(this).animate({left:a.follow[0]?l(!0):"auto",top:a.follow[1]?n(!0):"auto"},a.followSpeed,a.followEasing)})},50)});a.escClose&&g.bind("keydown."+e,function(a){27==a.which&&q()})}function H(b){function d(e){c.css({display:"block",opacity:1}).animate(e,a.speed,a.easing,function(){J(b)})}switch(b?a.transition:a.transitionClose||a.transition){case "slideIn":d({left:b?l(!(!a.follow[0]&&m||f)):g.scrollLeft()-(s||c.outerWidth(!0))-C});break;case "slideBack":d({left:b?l(!(!a.follow[0]&&m||f)):g.scrollLeft()+u+C});break;case "slideDown":d({top:b?n(!(!a.follow[1]&&p||f)):g.scrollTop()-(r||c.outerHeight(!0))-C});break;case "slideUp":d({top:b?n(!(!a.follow[1]&&p||f)):g.scrollTop()+w+C});break;default:c.stop().fadeTo(a.speed,b?1:0,function(){J(b)})}}function J(b){b?(L(),k(F),a.autoClose&&setTimeout(q,a.autoClose)):(c.hide(),k(a.onClose),a.loadUrl&&(a.contentContainer.empty(),c.css({height:"auto",width:"auto"})))}function l(a){return a?v+g.scrollLeft():v}function n(a){return a?x+g.scrollTop():x}function k(a){b.isFunction(a)&&a.call(c)}function D(){x=p?a.position[1]:Math.max(0,(w-c.outerHeight(!0))/2-a.amsl);v=m?a.position[0]:(u-c.outerWidth(!0))/2;B=E()}function E(){return w>c.outerHeight(!0)&&u>c.outerWidth(!0)}b.isFunction(z)&&(F=z,z=null);var a=b.extend({},b.fn.bPopup.defaults,z);a.scrollBar||b("html").css("overflow","hidden");var c=this,g=b(document),y=window,d=b(y),w=y.innerHeight||d.height(),u=y.innerWidth||d.width(),M=/OS 6(_\d)+/i.test(navigator.userAgent),C=200,t=0,e,B,p,m,f,x,v,r,s,I;c.close=function(){a=this.data("bPopup");e="__b-popup"+d.data("bPopup")+"__";q()};return c.each(function(){b(this).data("bPopup")||(k(a.onOpen),t=(d.data("bPopup")||0)+1,e="__b-popup"+t+"__",p="auto"!==a.position[1],m="auto"!==a.position[0],f="fixed"===a.positionStyle,r=c.outerHeight(!0),s=c.outerWidth(!0),a.loadUrl?K():A())})};b.fn.bPopup.defaults={amsl:50,appending:!0,appendTo:"body",autoClose:!1,closeClass:"b-close",content:"ajax",contentContainer:!1,easing:"swing",escClose:!0,follow:[!0,!0],followEasing:"swing",followSpeed:500,iframeAttr:'scrolling="no" frameborder="0"',loadCallback:!1,loadData:!1,loadUrl:!1,modal:!0,modalClose:!0,modalColor:"#000",onClose:!1,onOpen:!1,opacity:0.7,position:["auto","auto"],positionStyle:"absolute",scrollBar:!0,speed:250,transition:"fadeIn",transitionClose:!1,zIndex:9997}})(jQuery);
+define("bPopup", ["jQuery"], function(){});
 
 /*--------------------------------------------------------------------------
  * linq.js - LINQ for JavaScript
@@ -15385,7 +15384,6 @@ define('scalejs.mvvm',[
 });
 
 
-
 /*global define*/
 /// <reference path="../Scripts/_references.js" />
 define('scalejs.grid-slick/observableDataview',[
@@ -15398,7 +15396,7 @@ define('scalejs.grid-slick/observableDataview',[
     Slick
 ) {
     /// <param name="ko" value="window.ko" />
-
+    
 
 
     var isObservable = ko.isObservable,
@@ -15444,8 +15442,10 @@ define('scalejs.grid-slick/observableDataview',[
                         var newItems = opts.itemsSource() || [],
                             newCount = newItems.length;
 
-                        onRowCountChanged.notify({ previous: oldCount, current: newCount }, null, null);
-                        oldCount = newCount;
+                        if (newCount !== oldCount) {
+                            onRowCountChanged.notify({ previous: oldCount, current: newCount }, null, null);
+                            oldCount = newCount;
+                        }
                     }
                 });
             }
@@ -15507,7 +15507,8 @@ define('scalejs.grid-slick/observableDataview',[
     };
 });
 
-define('text!scalejs.grid-slick/filters.html',[],function () { return '<div id="number_filter_template">\r\n    <div data-bind="css: { iconArrowLeft: !flipped(), iconArrowRight: flipped }"></div> \r\n        <div class="numberFilter">\r\n            Select Value: \r\n               <div>Quick Search: <input data-bind="value: quickSearch, valueUpdate: \'afterkeydown\'" /></div> \r\n               <div class="listFilterBox">\r\n                   <div data-bind="visible: loading" style="width:100%;height:200px;background:black;opacity:.2;position:absolute"></div> \r\n                    <div>\r\n                        <input type="checkbox" data-bind="checked: all" /> \r\n                        <span>Select All</span> \r\n                    </div> \r\n                    <!-- ko foreach: options --> \r\n                    <div>\r\n                        <input type="checkbox" data-bind="checked: selected" /> \r\n                        <span data-bind="text: value"></span> \r\n                    </div> \r\n                    <!-- /ko --> \r\n               </div> \r\n               Show rows with values that: \r\n            <div class="numberFilterBox">\r\n                <div> \r\n                <input type="checkbox" data-bind="checked: notEmpty" />\r\n                <span>Are Not Empty</span> \r\n                </div>\r\n                <div>and</div> \r\n                <div>\r\n                    <select data-bind="value: comparisonA">\r\n                        <option value="EqualTo">Is Equal To</option> \r\n                        <option value="LessThan">Is Less Than</option> \r\n                        <option value="NotEqualTo">Is Not Equal To</option> \r\n                        <option value="GreaterThan">Is Greater Than</option>         \r\n                    </select>\r\n                </div> \r\n                <input type="text" data-bind="value: valueA, valueUpdate: \'afterkeydown\'" /> \r\n                <div>and</div> \r\n                <div>\r\n                    <select data-bind="value: comparisonB">\r\n                        <option value="EqualTo">Is Equal To</option> \r\n                        <option value="LessThan">Is Less Than</option>\r\n                        <option value="NotEqualTo">Is Not Equal To</option>\r\n                        <option value="GreaterThan">Is Greater Than</option> \r\n                    </select>\r\n                </div> \r\n                <input type="text" data-bind="value: valueB, valueUpdate: \'afterkeydown\'" /> \r\n            </div> \r\n    </div>  \r\n</div> \r\n \r\n<div id="string_filter_template">\r\n    <div data-bind="css: { iconArrowLeft: !flipped(), iconArrowRight: flipped }"></div> \r\n    <div class="numberFilter">\r\n        Select Value: \r\n        <div>Quick Search:  <input data-bind="value: quickSearch, valueUpdate: \\afterkeydown\\" /></div> \r\n        <div class="listFilterBox">\r\n            <div data-bind="visible: loading" style="width:100%;height:200px;background:black;opacity:.2;position:absolute"></div> \r\n            <div>\r\n                <input type="checkbox" data-bind="checked: all" /> \r\n                <span>Select All</span> \r\n            </div> \r\n            <!-- ko foreach: options --> \r\n            <div>\r\n                <input type="checkbox" data-bind="checked: selected" /> \r\n                <span data-bind="text: value"></span> \r\n            </div> \r\n            <!-- /ko --> \r\n        </div> \r\n        Show rows with values that: \r\n        <div class="numberFilterBox">\r\n            <div>\r\n                <input type="checkbox" data-bind="checked: notEmpty" />\r\n                <span>Are Not Empty</span> \r\n            </div>\r\n            <div>and</div> \r\n            <div>\r\n                <select data-bind="value: comparisonA">\r\n                    <option value="Contains">Contains</option> \r\n                    <option value="StartsWith">Starts With</option> \r\n                    <option value="EndsWith">Ends</option>  \r\n                </select>\r\n            </div> \r\n            <input type="text" data-bind="value: valueA, valueUpdate: \'afterkeydown\'" /> \r\n            <div>and</div> \r\n            <div>\r\n                <select data-bind="value: comparisonB">\r\n                    <option value="Contains">Contains</option> \r\n                    <option value="StartsWith">Starts With</option>\r\n                    <option value="EndsWith">Ends</option>\r\n                </select>\r\n            </div> \r\n            <input type="text" data-bind="value: valueB, valueUpdate: \'afterkeydown\'" />\r\n        </div> \r\n    </div>  \r\n</div>  \r\n\r\n';});
+
+define('text!scalejs.grid-slick/filters.html',[],function () { return '<div id="number_filter_template">\r\n    <div data-bind="css: { iconArrowLeft: !flipped(), iconArrowRight: flipped }"></div> \r\n        <div class="numberFilter">\r\n            Select Value: \r\n               <div>Quick Search: <input data-bind="value: quickSearch, valueUpdate: \'afterkeydown\'" /></div> \r\n               <div class="listFilterBox">\r\n                   <div data-bind="visible: loading" style="width:100%;height:200px;background:black;opacity:.2;position:absolute"></div> \r\n                    <div>\r\n                        <input type="checkbox" data-bind="checked: all" /> \r\n                        <span>Select All</span> \r\n                    </div> \r\n                    <!-- ko foreach: options --> \r\n                    <div>\r\n                        <input type="checkbox" data-bind="checked: selected" /> \r\n                        <span data-bind="text: value"></span> \r\n                    </div> \r\n                    <!-- /ko --> \r\n               </div> \r\n               Show rows with values that: \r\n            <div class="numberFilterBox">\r\n                <div> \r\n                <input type="checkbox" data-bind="checked: notEmpty" />\r\n                <span>Are Not Empty</span> \r\n                </div>\r\n                <div>and</div> \r\n                <div>\r\n                    <select data-bind="value: comparisonA">\r\n                        <option value="EqualTo">Is Equal To</option> \r\n                        <option value="LessThan">Is Less Than</option> \r\n                        <option value="NotEqualTo">Is Not Equal To</option> \r\n                        <option value="GreaterThan">Is Greater Than</option>         \r\n                    </select>\r\n                </div> \r\n                <input type="text" data-bind="value: valueA, valueUpdate: \'afterkeydown\'" /> \r\n                <div>and</div> \r\n                <div>\r\n                    <select data-bind="value: comparisonB">\r\n                        <option value="EqualTo">Is Equal To</option> \r\n                        <option value="LessThan">Is Less Than</option>\r\n                        <option value="NotEqualTo">Is Not Equal To</option>\r\n                        <option value="GreaterThan">Is Greater Than</option> \r\n                    </select>\r\n                </div> \r\n                <input type="text" data-bind="value: valueB, valueUpdate: \'afterkeydown\'" /> \r\n            </div> \r\n    </div>  \r\n</div> \r\n \r\n<div id="string_filter_template">\r\n    <div data-bind="css: { iconArrowLeft: !flipped(), iconArrowRight: flipped }"></div> \r\n    <div class="numberFilter">\r\n        Select Value: \r\n        <div>Quick Search:  <input data-bind="value: quickSearch, valueUpdate: \'afterkeydown\'" /></div> \r\n        <div class="listFilterBox">\r\n            <div data-bind="visible: loading" style="width:100%;height:200px;background:black;opacity:.2;position:absolute"></div> \r\n            <div>\r\n                <input type="checkbox" data-bind="checked: all" /> \r\n                <span>Select All</span> \r\n            </div> \r\n            <!-- ko foreach: options --> \r\n            <div>\r\n                <input type="checkbox" data-bind="checked: selected" /> \r\n                <span data-bind="text: value"></span> \r\n            </div> \r\n            <!-- /ko --> \r\n        </div> \r\n        Show rows with values that: \r\n        <div class="numberFilterBox">\r\n            <div>\r\n                <input type="checkbox" data-bind="checked: notEmpty" />\r\n                <span>Are Not Empty</span> \r\n            </div>\r\n            <div>and</div> \r\n            <div>\r\n                <select data-bind="value: comparisonA">\r\n                    <option value="Contains">Contains</option> \r\n                    <option value="StartsWith">Starts With</option> \r\n                    <option value="EndsWith">Ends</option>  \r\n                </select>\r\n            </div> \r\n            <input type="text" data-bind="value: valueA, valueUpdate: \'afterkeydown\'" /> \r\n            <div>and</div> \r\n            <div>\r\n                <select data-bind="value: comparisonB">\r\n                    <option value="Contains">Contains</option> \r\n                    <option value="StartsWith">Starts With</option>\r\n                    <option value="EndsWith">Ends</option>\r\n                </select>\r\n            </div> \r\n            <input type="text" data-bind="value: valueB, valueUpdate: \'afterkeydown\'" />\r\n        </div> \r\n    </div>  \r\n</div>  \r\n\r\n';});
 
 /*global define, console*/
 /// <reference path="../Scripts/_references.js" />
@@ -15529,24 +15530,24 @@ define('scalejs.grid-slick/observableFilters',[
     /// <param name="ko" value="window.ko" />
 
     var statechart = core.state.builder.statechart,
-        state = core.state.builder.state,
-        parallel = core.state.builder.parallel,
-        on = core.state.builder.on,
-        whenIn = core.state.builder.whenInStates,
-        onEntry = core.state.builder.onEntry,
-        onExit = core.state.builder.onExit,
-        goto = core.state.builder.goto,
-        gotoInternally = core.state.builder.gotoInternally,
-        observable = ko.observable,
-        computed = ko.computed,
-        observableArray = ko.observableArray,
-        unwrap = ko.utils.unwrapObservable,
-        registerTemplates = core.mvvm.registerTemplates,
-        has = core.object.has;
+          state = core.state.builder.state,
+          parallel = core.state.builder.parallel,
+          on = core.state.builder.on,
+          whenIn = core.state.builder.whenInStates,
+          onEntry = core.state.builder.onEntry,
+          onExit = core.state.builder.onExit,
+          goto = core.state.builder.goto,
+          gotoInternally = core.state.builder.gotoInternally,
+          observable = ko.observable,
+          computed = ko.computed,
+          observableArray = ko.observableArray,
+          unwrap = ko.utils.unwrapObservable,
+          registerTemplates = core.mvvm.registerTemplates,
+          has = core.object.has;
 
     registerTemplates(filterTemplates);
 
-    function setupFilter(fieldFilter, $node, node, column) {
+    function setupFilter(fieldFilter, column) {
         var filter = observable([]),
             quickSearch = observable(), //fieldFilter.quickSearch || observable(),
             quickOp = fieldFilter.quickFilterOp || "StartsWith",
@@ -15622,6 +15623,9 @@ define('scalejs.grid-slick/observableFilters',[
                 comps = fieldFilter.type === "string" ? ["Contains", "StartsWith", "EndsWith"] : ["EqualTo", "LessThan", "NotEqualTo", "GreaterThan"],
                 val;
 
+            // all, list, or val
+
+            /*
             // If no "In" operation, then check all:
             if (v) {
                 if (value.indexOf("In") === -1) {
@@ -15629,7 +15633,7 @@ define('scalejs.grid-slick/observableFilters',[
                 }
             } else {
                 checkAll();
-            }
+            }*/
 
             // Set NotEmpty to false if not in list:
             if (value.indexOf("NotEmpty") === -1) {
@@ -15687,9 +15691,9 @@ define('scalejs.grid-slick/observableFilters',[
         subscription.filter = filter.subscribe(updateFieldFilter);
 
         //converts a list item to a selectable list item
-        function option(value) {
+        function option(value, selected) {
             return {
-                selected: observable(allCheckbox()),
+                selected: observable(has(selected) ? selected : allCheckbox()),
                 value: has(value) ? value.toString() : ""
             };
         }
@@ -15697,9 +15701,18 @@ define('scalejs.grid-slick/observableFilters',[
         //converts new listItems to selectableListItems
         listItems.subscribe(function (newItems) {
             //item selection persists when the list items are changed
-            var items = newItems.groupJoin(selectableListItems(), "$.toString()", "$.value", function (o, i) {
-                return i.elementAtOrDefault(0, option(o));
-            }).toArray();
+            var filterValues = filter().length === 1 && filter()[0].op === 'In' ? filter()[0].values : [],
+                items;
+
+            if (filterValues.length > 0) {
+                items = newItems.map(function (item) {
+                    return option(item, filterValues.indexOf(item.toString()) > -1);
+                });
+            } else {
+                items = newItems.groupJoin(selectableListItems(), "$.toString()", "$.value", function (o, i) {
+                    return i.elementAtOrDefault(0, option(o));
+                }).toArray();
+            }
 
             selectableListItems(items);
         });
@@ -15745,10 +15758,18 @@ define('scalejs.grid-slick/observableFilters',[
                     op: 'In',
                     values: list.map(function (v) { return v.value })
                 }];
+            } else {
+                return undefined;
             }
         });
 
         quickExpression = computed(function () {
+            if (quickFilter()) {
+                return [{
+                    op: quickOp,
+                    values: [quickFilter()]
+                }];
+            }
             //When all checkbox is true, quickSearch behaves like Quick Filter
             //when filter is closed quickSearch becomes undefined
             if (allCheckbox() && quickSearch()) {
@@ -15758,14 +15779,7 @@ define('scalejs.grid-slick/observableFilters',[
                 }];
             }
 
-            if (!quickFilter()) {
-                return [];
-            }
-
-            return [{
-                op: quickOp,
-                values: [quickFilter()]
-            }];
+            return [];
         });
 
 
@@ -15789,7 +15803,6 @@ define('scalejs.grid-slick/observableFilters',[
             loading: loading
         };
 
-        ko.applyBindings(bindings, node);
 
         function sendExpression(expression) {
             filter(expression || []);
@@ -15821,7 +15834,7 @@ define('scalejs.grid-slick/observableFilters',[
             notEmpty(false);
         }
 
-        function initializeFilter() {
+        function initializeFilter($node) {
             //using jQuery instead of knockout because bindings have already been applied to the filter,
             //however we need to add a click event to the filter button so that when it is clicked
             //'filter.shown' state is entered.
@@ -15874,55 +15887,69 @@ define('scalejs.grid-slick/observableFilters',[
         */
 
         function createStatechart() {
+
             return statechart(
                 parallel('filter',
                 onEntry(function () {
                     send = this.send;
-                    initializeFilter();
+                    this.initial = true;
                 }),
                 state('filter.view',
-                state('filter.hidden',
-                        onEntry(function (e, isIn) {
-                            var stateProp = this;
-                            this.quickSearchSub = quickSearch.subscribe(function (v) {
-                                quickFilter(v);
-                            });
+                    state('filter.hidden',
+                            onEntry(function (e, isIn) {
+                                var stateProp = this,
+                                    sub;
 
-                            this.quickSub = quickFilter.subscribe(function (v) {
-                                // Prevent circular dependency by disposing quickSearch subscription:
-                                stateProp.quickSearchSub.dispose();
-                                // Update quickSearch:
-                                quickSearch(v);
-                                // Resubscribe to quickSearch:
-                                stateProp.quickSearchSub = quickSearch.subscribe(function (v) {
+                                subscription.quickSearchSub = quickSearch.subscribe(function (v) {
                                     quickFilter(v);
                                 });
-                                if (!isIn('filter.model.all')) {
-                                    send('filter.all');
+
+                                subscription.quickSub = quickFilter.subscribe(function (v) {
+                                    // Prevent circular dependency by disposing quickSearch subscription:
+                                    subscription.quickSearchSub.dispose();
+                                    // Update quickSearch:
+                                    quickSearch(v);
+                                    // Resubscribe to quickSearch:
+                                    subscription.quickSearchSub = quickSearch.subscribe(function (v) {
+                                        quickFilter(v);
+                                    });
+                                    if (!isIn('filter.model.all')) {
+                                        send('filter.all');
+                                    }
+                                });
+
+                                if (this.initial) {
+                                    updateFilter(fieldFilter.value());
+                                    updateQuickSearch(fieldFilter.quickSearch());
+                                    this.initial = false;
                                 }
-                            });
-
-                            updateFilter(fieldFilter.value());
-                            updateQuickSearch(fieldFilter.quickSearch());
+                            }),
+                        onExit(function () {
+                            subscription.quickSearchSub.dispose();
+                            subscription.quickSub.dispose();
                         }),
-                    onExit(function () {
-                        this.quickSearchSub.dispose();
-                        this.quickSub.dispose();
-                    }),
-                        on('filter.open', goto('filter.shown'))
-                    ),
-                state('filter.shown',
-                       onEntry(function () {
-                           //move open logic here
+                            on('filter.open', goto('filter.shown'))
+                        ),
+                    state('filter.shown',
+                           onEntry(function () {
+                               //move open logic here
 
-                           // Initialize list:
-                           quickSearch.valueHasMutated();
-                       }),
-                        on('filter.close', goto('filter.hidden')))
+                               // Initialize list:
+                               quickSearch.valueHasMutated();
+                           }),
+                            on('filter.close', goto('filter.hidden')))
                 ),
                 state('filter.model',
-                    state('filter.model.all',
+                /*
+                    state('filer.model.initial', 
                         onEntry(function () {
+                            // 1. move updateFilter, updateQuickSearch here
+                            // 2. do dispatch
+                            send('filter.lis', { internal: true });
+
+                        })),*/
+                    state('filter.model.all',
+                        onEntry(function (e) {
                             //update ui
                             checkAll();
                             clearValue();
@@ -15931,7 +15958,11 @@ define('scalejs.grid-slick/observableFilters',[
 
                             subscription.list = listExpression.subscribe(function (expression) {
                                 if (expression) {
+                                    //if there is an expression, go to list
                                     send('filter.list');
+                                } else if (getSelectedItems().length === 0) {
+                                    //if there are selected items and no expression, go to value
+                                    send('filter.value');
                                 }
                             });
                             subscription.value = valExpression.subscribe(function () {
@@ -15963,8 +15994,8 @@ define('scalejs.grid-slick/observableFilters',[
                                 });
                                 subscription.quick = quickSearch.subscribe(function (v) {
                                     if (v !== undefined) {
-                                        sendExpression(quickExpression());
                                         quickFilter(quickSearch());
+                                        sendExpression(quickExpression());
                                     }
                                 });
                             }),
@@ -15984,9 +16015,14 @@ define('scalejs.grid-slick/observableFilters',[
                             sendExpression(listExpression());
 
                             subscription.list = listExpression.subscribe(function (expression) {
-                                if (getSelectedItems().length === 0 || expression) {
+                                if (expression) {
+                                    // if there is an expression, send it
                                     sendExpression(expression);
+                                } else if (getSelectedItems().length === 0) {
+                                    // if its empty, go to value
+                                    send('filter.value');
                                 } else {
+                                    // else, all are selected
                                     send('filter.all');
                                 }
                             });
@@ -16019,9 +16055,13 @@ define('scalejs.grid-slick/observableFilters',[
 
                                 sendExpression(valExpression());
 
-                                subscription.list = listExpression.subscribe(function (v) {
-                                    if (v) {
+                                subscription.list = listExpression.subscribe(function (expression) {
+                                    if (expression) {
+                                        // if there is an expression, go to list
                                         send('filter.list');
+                                    } else if (getSelectedItems().length > 0) {
+                                        // if there are items, go to all
+                                        send('filter.all');
                                     }
                                 });
                                 subscription.value = valExpression.subscribe(function (expression) {
@@ -16053,7 +16093,17 @@ define('scalejs.grid-slick/observableFilters',[
 
         filterStatechart = createStatechart();
 
-        filterStatechart.start();
+        var initalized = false;
+        function start() {
+            filterStatechart.start();
+        }
+
+        return {
+            bindings: bindings,
+            start: start,
+            initalized: initalized,
+            init: initializeFilter
+        }
     }
 
     /*jslint unparam: true*/
@@ -16067,14 +16117,21 @@ define('scalejs.grid-slick/observableFilters',[
                     + '<div class="slick-filter" data-bind="css: { iconFilterOff: !filterOn(), iconFilterOn: filterOn }"></div>';
 
                 if (fieldFilter) {
+                    if (!fieldFilter.state) {
+                        fieldFilter.state = setupFilter(fieldFilter, args.column)
+                    }
                     $node.html(filterHtml);
-                    setupFilter(fieldFilter, $node, node, args.column);
+                    ko.applyBindings(fieldFilter.state.bindings, node);
+                    fieldFilter.state.init($node);
+                    if (!fieldFilter.state.initalized) {
+                        fieldFilter.state.start();
+                        fieldFilter.state.initialized = true;
+                    }
                 }
             });
         }
 
         function destroy() {
-
         }
 
         return {
@@ -16475,7 +16532,7 @@ define('scalejs.grid-slick/slickGrid',[
         }
 
         function subscribeToLayout() {
-            if (core.layout) {
+            if (core.layout && core.layout.onLayoutDone) {
                 core.layout.onLayoutDone(function () {
                     grid.resizeCanvas();
                     if (isObservable(options.viewport)) {
@@ -16564,10 +16621,6 @@ define('scalejs.grid-slick/slickGrid',[
                             return valueOrDefault(r[c.id], "").toString();
                         });
 
-                    //if quickSearch is undefined then return
-                    if(!has(quickSearch())) {
-                        return;
-                    }
                     if (quickSearch().values[0]) {
                         s = quickSearch().values[0].toLowerCase();
                         listValues = listValues.where(function (v) {
@@ -16579,7 +16632,7 @@ define('scalejs.grid-slick/slickGrid',[
                             return v.indexOf(s) === 0
                         });
                     }
-                    c.filter.values(listValues.toArray());
+                    c.filter.values(listValues.take(50).toArray());
                 })
             });
             itemsSource = computed(function () {
@@ -16599,7 +16652,10 @@ define('scalejs.grid-slick/slickGrid',[
                         }
                         return keep;
                     });
-                    return newItems;
+                    return options.sorting ? newItems : newItems.map(function (e, i) {
+                        e.index = i;
+                        return e;
+                    });
                 }
                 return options.itemsSource();
             });     
@@ -16670,6 +16726,7 @@ define('scalejs.grid-slick',[
 
     ko.bindingHandlers.slickGrid = slickGrid;
 });
+
 
 
 // Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
@@ -23480,12 +23537,12 @@ define('app/main/viewmodels/mainViewModel',[
         }
 
         columns = [
-            { id: "Symbol", field: "Symbol", name: "Symbol", minWidth: 75 },
-            { id: "Name", field: "Name", name: "Name", minWidth: 300 },
-            { id: "LastSale", field: "LastSale", name: "Last Sale", cssClass: "money", minWidth: 100 },
-            { id: "MarketCap", field: "MarketCap", name: "Market Cap", cssClass: "money", minWidth: 150 },
-            { id: "Sector", field: "Sector", name: "Sector", minWidth: 150 },
-            { id: "Industry", field: "industry", name: "Industry", minWidth: 350}];
+            { id: "Symbol", field: "Symbol", name: "Symbol", minWidth: 75, filter: { type: 'string' } },
+            { id: "Name", field: "Name", name: "Name", minWidth: 300, filter: { type: 'string' } },
+            { id: "LastSale", field: "LastSale", name: "Last Sale", cssClass: "money", minWidth: 100, filter: { type: 'number' } },
+            { id: "MarketCap", field: "MarketCap", name: "Market Cap", cssClass: "money", minWidth: 150, filter: { type: 'mumber' } },
+            { id: "Sector", field: "Sector", name: "Sector", minWidth: 150, filter: { type: 'string' } },
+            { id: "Industry", field: "industry", name: "Industry", minWidth: 350, filter: { type: 'string ' } }];
 
         ajaxGet('./companylist.txt', {}).subscribe(function (data) {
             itemsSource(JSON.parse(data).map(function (company, index) {
@@ -23599,7 +23656,11 @@ define('app/main/bindings/mainBindings',{
                 itemsSource: this.itemsSource,
                 enableColumnReorder: false,
                 forceFitColumns: true,
-                rowHeight: 40
+                rowHeight: 40,
+                showHeaderRow: true,
+                plugins: {
+                    'observableFilters': {}
+                }
             }
         };
     }
@@ -23892,4 +23953,4 @@ require([
 define("app/app", function(){});
 
 (function(c){var d=document,a='appendChild',i='styleSheet',s=d.createElement('style');s.type='text/css';d.getElementsByTagName('head')[0][a](s);s[i]?s[i].cssText=c:s[a](d.createTextNode(c));})
-('.main.grid {\n  height: 100%;\n  background-color: #1b1b1b;\n  color: orange;\n  /* Column Styles */\n  /* Grid Styles */\n  /* Scrollbar Styles*/\n}\n.main.grid .money {\n  text-align: right;\n}\n.main.grid .slick-header-columns {\n  height: 40px;\n}\n.main.grid .slick-header-column.ui-state-default {\n  font-size: 18px;\n  line-height: 30px;\n  font-weight: bold;\n  font-style: normal;\n  height: 40px;\n  border: 0px;\n  text-align: center;\n}\n.main.grid .slick-row.ui-widget-content,\n.main.grid .slick-row.ui-state-active {\n  font-size: 16px;\n  line-height: 40px;\n  color: #808080;\n}\n.main.grid .slick-cell {\n  border: 0px;\n  padding: 0px 8px;\n}\n.main.grid .slick-row.even {\n  background-color: #121212;\n}\n.main.grid ::-webkit-scrollbar {\n  width: 10px;\n  height: 10px;\n}\n.main.grid ::-webkit-scrollbar-track-piece {\n  background-color: #1b1b1b;\n}\n.main.grid ::-webkit-scrollbar-thumb:vertical {\n  height: 50px;\n  background-color: #808080;\n}\n.main.grid ::-webkit-scrollbar-thumb:horizontal {\n  width: 50px;\n  background-color: #808080;\n}\n.main.grid ::-webkit-scrollbar-corner {\n  background-color: #1b1b1b;\n}\n');
+('.main.grid {\n  height: 100%;\n  background-color: #1b1b1b;\n  color: orange;\n  /* Column Styles */\n  /* Grid Styles */\n  /* Filter Styles */\n  /* Scrollbar Styles*/\n}\n.main.grid .money {\n  text-align: right;\n}\n.main.grid .slick-header-columns {\n  height: 40px;\n  background-color: #121212;\n}\n.main.grid .slick-header-column.ui-state-default {\n  font-size: 18px;\n  line-height: 30px;\n  font-weight: bold;\n  font-style: normal;\n  height: 40px;\n  border: 0px;\n  text-align: center;\n}\n.main.grid .slick-row.ui-widget-content,\n.main.grid .slick-row.ui-state-active {\n  font-size: 16px;\n  line-height: 40px;\n  color: #808080;\n}\n.main.grid .slick-cell {\n  border: 0px;\n  padding: 0px 8px;\n}\n.main.grid .slick-row.even {\n  background-color: #121212;\n}\n.main.grid .slick-headerrow-column {\n  border: 0px;\n  padding: 0px;\n}\n.main.grid .slick-headerrow-column input {\n  width: 100%;\n  height: 100%;\n  color: white;\n  border: 0px;\n  background-color: transparent;\n}\n.main.grid .slick-headerrow-column input:focus {\n  outline-color: orange;\n}\n.main.grid .iconFilterOn {\n  width: 11px;\n  height: 10px;\n  background: url(\'/images/iconFilterOn.png\') no-repeat;\n  position: absolute;\n  top: 4px;\n  right: 4px;\n  margin-top: 3px;\n  cursor: pointer;\n}\n.main.grid .iconFilterOff {\n  width: 11px;\n  height: 10px;\n  background: url(\'/images/iconFilterOff.png\') no-repeat;\n  position: absolute;\n  top: 4px;\n  right: 4px;\n  margin-top: 2px;\n  cursor: pointer;\n}\n.main.grid ::-webkit-scrollbar {\n  width: 10px;\n  height: 10px;\n}\n.main.grid ::-webkit-scrollbar-track-piece {\n  background-color: #1b1b1b;\n}\n.main.grid ::-webkit-scrollbar-thumb:vertical {\n  height: 50px;\n  background-color: #808080;\n}\n.main.grid ::-webkit-scrollbar-thumb:horizontal {\n  width: 50px;\n  background-color: #808080;\n}\n.main.grid ::-webkit-scrollbar-corner {\n  background-color: #1b1b1b;\n}\n.slick-filter-popup {\n  position: absolute;\n  z-index: 0;\n  top: 0;\n  left: 0;\n  width: 271px;\n}\n.numberFilter {\n  padding: 10px 7px 5px 7px;\n}\n.numberFilter {\n  background: #090909;\n  border: 1px solid #00ffae;\n  color: #c0c0c0;\n}\n.numberFilterBox {\n  border: 1px solid #c0c0c0;\n}\n.listFilter {\n  background: #090909;\n  border: 1px solid #00ffae;\n  color: #c0c0c0;\n}\n.listFilterBox {\n  border: 1px solid #c0c0c0;\n}\n.button {\n  color: #8d8d8d;\n  background: #1d1d1d;\n  border: 1px solid #4d4d4d;\n}\n.button:hover:enabled {\n  cursor: pointer;\n  border: 1px solid #c0c0c0;\n}\n.button:active:enabled {\n  color: #000;\n  background: #ffa800;\n}\n.numberFilterBox {\n  padding: 5px 10px;\n  margin: 5px;\n}\n.listFilter {\n  padding: 10px 7px 5px 7px;\n}\n.listFilterBox {\n  padding: 5px 10px;\n  margin: 5px;\n  height: 200px;\n  overflow-y: auto;\n}\n.iconArrowLeft {\n  width: 11px;\n  height: 13px;\n  background: url(\'/images/iconArrow.png\') no-repeat;\n  position: absolute;\n  top: 5px;\n  left: -6px;\n}\n.iconArrowRight {\n  width: 11px;\n  height: 13px;\n  background: url(\'/images/iconArrow.png\') no-repeat;\n  position: absolute;\n  top: 5px;\n  right: -7px;\n  transform: rotate(180deg);\n  -ms-transform: rotate(180deg);\n  -webkit-transform: rotate(180deg);\n}\n');
