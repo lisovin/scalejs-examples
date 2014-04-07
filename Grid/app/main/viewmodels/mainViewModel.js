@@ -25,7 +25,7 @@ define([
             { id: "LastSale", field: "LastSale", name: "Last Sale", cssClass: "money", minWidth: 100, filter: { type: 'number' } },
             { id: "MarketCap", field: "MarketCap", name: "Market Cap", cssClass: "money", minWidth: 150, filter: { type: 'mumber' } },
             { id: "Sector", field: "Sector", name: "Sector", minWidth: 150, filter: { type: 'string' } },
-            { id: "Industry", field: "industry", name: "Industry", minWidth: 350, filter: { type: 'string ' } }];
+            { id: "Industry", field: "industry", name: "Industry", minWidth: 350, filter: { type: 'string' } }];
 
         ajaxGet('./companylist.txt', {}).subscribe(function (data) {
             itemsSource(JSON.parse(data).map(function (company, index) {
