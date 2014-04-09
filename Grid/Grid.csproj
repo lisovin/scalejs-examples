@@ -33,6 +33,7 @@
     <Content Include="css\jasmine.css" />
     <Content Include="fonts\iconFont.dev.svg" />
     <Content Include="fonts\iconFont.svg" />
+    <Content Include="js\Grid-1.0.2.min.js" />
     <Content Include="Properties\embedded-config.js" />
     <Content Include="README.txt" />
     <Content Include="index.debug.html" />

@@ -20,7 +20,7 @@ define([
         }
 
         columns = [
-            { id: "Symbol", field: "Symbol", name: "Symbol", minWidth: 75, filter: { type: 'string' }, sortable: true, defaultSort: 'asc' },
+            { id: "Symbol", field: "Symbol", name: "Symbol", minWidth: 100, filter: { type: 'string' }, sortable: true, defaultSort: 'asc' },
             { id: "Name", field: "Name", name: "Name", minWidth: 300, filter: { type: 'string' }, sortable: true },
             { id: "LastSale", field: "LastSale", name: "Last Sale", cssClass: "money", minWidth: 100, filter: { type: 'number' }, sortable: true },
             { id: "MarketCap", field: "MarketCap", name: "Market Cap", cssClass: "money", minWidth: 150, filter: { type: 'mumber' }, sortable: true },
