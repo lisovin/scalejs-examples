@@ -4,7 +4,7 @@ define([
     './filtering'
 ], function (
     sandbox,
-    filtering
+    setupFilter
 ) {
     'use strict';
 
@@ -18,22 +18,20 @@ define([
             itemsSource = observableArray(),
             itemsCount = observable();
    
-        // creates observables needed for filter
-        function createFilter(type) {
-            return {
-                type: type,
-                value: observable(), // contains the value of the filter
-                quickSearch: observable(), // contains the value of the quickSearch
-                values: observableArray() // displays the result of the quickSearch
-            };
-        }
-
         function moneyFormatter(m) {
             return parseFloat(m).toFixed(2);
         }
 
         columns = [
-            { id: "Symbol", field: "Symbol", name: "Symbol", minWidth: 75, filter: createFilter('string') },
+            {
+                id: "Symbol", field: "Symbol", name: "Symbol", minWidth: 75,
+                filter: {
+                    type: 'string',
+                    value: observable(), // contains the value of the filter
+                    quickSearch: observable(), // contains the value of the quickSearch
+                    values: observableArray() // displays the result of the quickSearch
+                }
+            },
             { id: "Name", field: "Name", name: "Name", minWidth: 300 },
             { id: "LastSale", field: "LastSale", name: "Last Sale", cssClass: "money", minWidth: 100 },
             { id: "MarketCap", field: "MarketCap", name: "Market Cap", cssClass: "money", minWidth: 150 },
@@ -55,7 +53,7 @@ define([
             itemsSource(companies);
 
             // enable filtering using filtering.js
-            filtering({
+            setupFilter({
                 filteredColumn: columns[0],
                 originalItems: companies,
                 itemsSource: itemsSource,
