@@ -1205,10 +1205,11 @@ define('scalejs.grid-slick/slickGrid',[
             }
 
             filterableColumns.forEach(function (c) {
-                var quickSearch = observable();
+                var quickSearch = observable(''),
+                    quickFilterOp = c.filter.quickFilterOp;
                 c.filter = {
                     type: c.filter.type,
-                    quickFilterOp: c.quickFilterOp,
+                    quickFilterOp: quickFilterOp,
                     value: observable(),
                     quickSearch: quickSearch,
                     values: observable([])
@@ -1240,7 +1241,7 @@ define('scalejs.grid-slick/slickGrid',[
                         listValues = listValues.where(function (v) {
                             v = v.toLowerCase();
 
-                            if (quickSearch.op === "Contains") {
+                            if (quickFilterOp === "Contains") {
                                 return v.indexOf(s) !== -1;
                             }
                             return v.indexOf(s) === 0
