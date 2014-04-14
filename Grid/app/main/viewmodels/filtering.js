@@ -6,38 +6,25 @@ define([
 ) {
     'use strict';
 
-    return function (config) {
-        var column = config.filteredColumn,
-            colFilter = column.filter,
-            originalItems = config.originalItems,
-            itemsSource = config.itemsSource,
-            itemsCount = config.itemsCount,
+    return function (column, originalItems, itemsSource, itemsCount) {
+        var colFilter = column.filter,
             // comparison functions needed for string filter
             // s is the 'source' items and v are the 'values' in the expression
             comparisons = {
-                In: function (s, v) { return v.indexOf(s) !== -1; },
-                Contains: function (s, v) { return s.indexOf(v[0]) !== -1; },
-                StartsWith: function (s, v) { return s.indexOf(v[0]) === 0; },
-                EndsWith: function (s, v) { return s.indexOf(v[0], s.length - v.length) !== -1; },
+                In: function (s, v) { return v.some(function (x) { return s.match(new RegExp('^' + x + '$', 'i')); }); },
+                Contains: function (s, v) { return s.match(new RegExp(v[0], 'i')); },
+                StartsWith: function (s, v) { return s.match(new RegExp('^' + v[0], 'i')); },
+                EndsWith: function (s, v) { return s.match(new RegExp(v[0] + '$', 'i')); },
                 NotEmpty: function (s) { return s !== "" }
             };
-
-
-        // helper function to convert an array of strings to uppercase
-        function arrayToUpperCase(value) {
-            return value.map(function (v) {
-                return v.toUpperCase();
-            });
-        }
 
         // filterExpression contains the operation (e.g. 'StartsWith') and values
         // returns a function which can be used to filter items
         function evaluate(filterExpression) {
-            var evaluateOperation = comparisons[filterExpression.op],
-                values = arrayToUpperCase(filterExpression.values);
+            var evaluateOperation = comparisons[filterExpression.op];
 
             return function(item) {
-                return evaluateOperation(item[column.field], values);
+                return evaluateOperation(item[column.field], filterExpression.values);
             }
         }
 

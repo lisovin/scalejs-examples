@@ -53,12 +53,7 @@ define([
             itemsSource(companies);
 
             // enable filtering using filtering.js
-            setupFilter({
-                filteredColumn: columns[0],
-                originalItems: companies,
-                itemsSource: itemsSource,
-                itemsCount: itemsCount
-            })
+            setupFilter(columns[0], companies, itemsSource, itemsCount);
         });
 
         return {
