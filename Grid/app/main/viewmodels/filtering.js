@@ -6,7 +6,7 @@ define([
 ) {
     'use strict';
 
-    return function (column, originalItems, itemsSource, itemsCount) {
+    return function (column, originalItems, itemsSource) {
         var colFilter = column.filter,
             // comparison functions needed for string filter
             // s is the 'source' items and v are the 'values' in the expression
@@ -44,8 +44,7 @@ define([
                 return item;
             });
 
-            // finally, update the itemsSource and itemsCount with the new items
-            itemsCount(filteredItems.length);
+            // finally, update the itemsSource with the new items
             itemsSource(filteredItems);
         });
 

@@ -18,6 +18,7 @@
     <StartArguments>/site:Grid</StartArguments>
   </PropertyGroup>
   <ItemGroup>
+    <Content Include="app\main\viewmodels\filtering.js" />
     <Content Include="css\slick\images\header-bg.gif" />
     <Content Include="css\slick\images\header-columns-bg.gif" />
     <Content Include="css\slick\images\header-columns-over-bg.gif" />

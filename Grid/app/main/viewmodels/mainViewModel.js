@@ -15,8 +15,7 @@ define([
             observable = sandbox.mvvm.observable,
             // vars
             columns,
-            itemsSource = observableArray(),
-            itemsCount = observable();
+            itemsSource = observableArray();
    
         function moneyFormatter(m) {
             return parseFloat(m).toFixed(2);
@@ -49,17 +48,15 @@ define([
                 return company;
             });
 
-            itemsCount(companies.length);
             itemsSource(companies);
 
             // enable filtering using filtering.js
-            setupFilter(columns[0], companies, itemsSource, itemsCount);
+            setupFilter(columns[0], companies, itemsSource);
         });
 
         return {
             columns: columns,
-            itemsSource: itemsSource,
-            itemsCount: itemsCount
+            itemsSource: itemsSource
         };
     };
 });

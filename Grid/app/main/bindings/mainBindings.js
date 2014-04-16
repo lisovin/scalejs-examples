@@ -12,8 +12,7 @@ define({
                 showHeaderRow: true,
                 plugins: {
                     'observableFilters': {}
-                },
-                itemsCount: this.itemsCount
+                }
             }
         };
     }

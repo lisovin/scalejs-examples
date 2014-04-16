@@ -23517,48 +23517,131 @@ define('sandbox',[],function () {
     };
 });
 /*global define */
-define('app/main/viewmodels/mainViewModel',[
+define('app/main/viewmodels/filtering',[
     'sandbox!main'
 ], function (
     sandbox
 ) {
     
 
+    return function (column, originalItems, itemsSource, itemsCount) {
+        var colFilter = column.filter,
+            // comparison functions needed for string filter
+            // s is the 'source' items and v are the 'values' in the expression
+            comparisons = {
+                In: function (s, v) { return v.some(function (x) { return s.match(new RegExp('^' + x + '$', 'i')); }); },
+                Contains: function (s, v) { return s.match(new RegExp(v[0], 'i')); },
+                StartsWith: function (s, v) { return s.match(new RegExp('^' + v[0], 'i')); },
+                EndsWith: function (s, v) { return s.match(new RegExp(v[0] + '$', 'i')); },
+                NotEmpty: function (s) { return s !== "" }
+            };
+
+        // filterExpression contains the operation (e.g. 'StartsWith') and values
+        // returns a function which can be used to filter items
+        function evaluate(filterExpression) {
+            var evaluateOperation = comparisons[filterExpression.op];
+
+            return function(item) {
+                return evaluateOperation(item[column.field], filterExpression.values);
+            }
+        }
+
+        // value is the filter expression(s) defined by user
+        // subscribe to value to respond to user input
+        colFilter.value.subscribe(function (expressions) {
+            var filteredItems;
+
+            // iterate through all expressions, filtering the items each item
+            filteredItems = expressions.reduce(function (items, filterExpression) {
+                return items.filter(evaluate(filterExpression));
+            }, originalItems);
+
+            // need to set new index on the filtered items
+            filteredItems = filteredItems.map(function (item, index) {
+                item.index = index;
+                return item;
+            });
+
+            // finally, update the itemsSource and itemsCount with the new items
+            itemsCount(filteredItems.length);
+            itemsSource(filteredItems);
+        });
+
+        // need to also set the list items by subscribing to quickSearch
+        colFilter.quickSearch.subscribe(function (quickSearchExpression) {
+            var listItems = originalItems
+                .filter(evaluate(quickSearchExpression))
+                .map(function (c) { return c[column.field] }); // only need the values in the column
+            
+            // update the list values (filter.values observableArray) with the new list items
+            // take 50 for optimization
+            colFilter.values(listItems.take(50).toArray());
+        });
+    };
+});
+
+/*global define */
+define('app/main/viewmodels/mainViewModel',[
+    'sandbox!main',
+    './filtering'
+], function (
+    sandbox,
+    setupFilter
+) {
+    
+
     return function () {
         var // imports
-            range = sandbox.linq.enumerable.range,
             observableArray = sandbox.mvvm.observableArray,
             ajaxGet = sandbox.ajax.jsonpGet,
+            observable = sandbox.mvvm.observable,
             // vars
             columns,
-            itemsSource = observableArray();
-
+            itemsSource = observableArray(),
+            itemsCount = observable();
+   
         function moneyFormatter(m) {
             return parseFloat(m).toFixed(2);
         }
 
         columns = [
-            { id: "Symbol", field: "Symbol", name: "Symbol", minWidth: 75, filter: { type: 'string' } },
-            { id: "Name", field: "Name", name: "Name", minWidth: 300, filter: { type: 'string', quickFilterOp: 'Contains' } },
-            { id: "LastSale", field: "LastSale", name: "Last Sale", cssClass: "money", minWidth: 100, filter: { type: 'number' } },
-            { id: "MarketCap", field: "MarketCap", name: "Market Cap", cssClass: "money", minWidth: 150, filter: { type: 'mumber' } },
-            { id: "Sector", field: "Sector", name: "Sector", minWidth: 150, filter: { type: 'string' } },
-            { id: "Industry", field: "industry", name: "Industry", minWidth: 350, filter: { type: 'string', quickFilterOp: 'Contains' } }];
+            {
+                id: "Symbol", field: "Symbol", name: "Symbol", minWidth: 75,
+                filter: {
+                    type: 'string',
+                    value: observable(), // contains the value of the filter
+                    quickSearch: observable(), // contains the value of the quickSearch
+                    values: observableArray() // displays the result of the quickSearch
+                }
+            },
+            { id: "Name", field: "Name", name: "Name", minWidth: 300 },
+            { id: "LastSale", field: "LastSale", name: "Last Sale", cssClass: "money", minWidth: 100 },
+            { id: "MarketCap", field: "MarketCap", name: "Market Cap", cssClass: "money", minWidth: 150 },
+            { id: "Sector", field: "Sector", name: "Sector", minWidth: 150 },
+            { id: "Industry", field: "industry", name: "Industry", minWidth: 350 }];
 
         ajaxGet('./companylist.txt', {}).subscribe(function (data) {
-            itemsSource(JSON.parse(data).map(function (company, index) {
+            // maintain original companies for filtering
+            var companies = JSON.parse(data).map(function (company, index) {
                 // each item in itemsSource needs an index
                 company.index = index;
                 // money formatter
                 company.LastSale = moneyFormatter(company.LastSale);
                 company.MarketCap = moneyFormatter(company.MarketCap);
                 return company;
-            }));
+            });
+
+            itemsCount(companies.length);
+            itemsSource(companies);
+
+            // enable filtering using filtering.js
+            setupFilter(columns[0], companies, itemsSource, itemsCount);
         });
 
         return {
             columns: columns,
-            itemsSource: itemsSource
+            itemsSource: itemsSource,
+            itemsCount: itemsCount
         };
     };
 });
@@ -23661,7 +23744,8 @@ define('app/main/bindings/mainBindings',{
                 showHeaderRow: true,
                 plugins: {
                     'observableFilters': {}
-                }
+                },
+                itemsCount: this.itemsCount
             }
         };
     }
