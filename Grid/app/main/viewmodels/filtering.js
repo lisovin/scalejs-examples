@@ -38,12 +38,6 @@ define([
                 return items.filter(evaluate(filterExpression));
             }, originalItems);
 
-            // need to set new index on the filtered items
-            filteredItems = filteredItems.map(function (item, index) {
-                item.index = index;
-                return item;
-            });
-
             // finally, update the itemsSource with the new items
             itemsSource(filteredItems);
         });

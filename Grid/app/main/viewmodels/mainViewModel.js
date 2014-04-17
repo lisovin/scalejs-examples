@@ -39,9 +39,7 @@ define([
 
         ajaxGet('./companylist.txt', {}).subscribe(function (data) {
             // maintain original companies for filtering
-            var companies = JSON.parse(data).map(function (company, index) {
-                // each item in itemsSource needs an index
-                company.index = index;
+            var companies = JSON.parse(data).map(function (company) {
                 // money formatter
                 company.LastSale = moneyFormatter(company.LastSale);
                 company.MarketCap = moneyFormatter(company.MarketCap);

@@ -9,10 +9,7 @@ define({
                 enableColumnReorder: false,
                 forceFitColumns: true,
                 rowHeight: 40,
-                showHeaderRow: true,
-                plugins: {
-                    'observableFilters': {}
-                }
+                showHeaderRow: true
             }
         };
     }
