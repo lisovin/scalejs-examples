@@ -8,7 +8,6 @@ define([
 
     return function () {
         var // imports
-            range = sandbox.linq.enumerable.range,
             observableArray = sandbox.mvvm.observableArray,
             ajaxGet = sandbox.ajax.jsonpGet,
             // vars
