@@ -28,9 +28,7 @@ define([
             { id: "Industry", field: "industry", name: "Industry", minWidth: 350, filter: { type: 'string', quickFilterOp: 'Contains' } }];
 
         ajaxGet('./companylist.txt', {}).subscribe(function (data) {
-            itemsSource(JSON.parse(data).map(function (company, index) {
-                // each item in itemsSource needs an index
-                company.index = index;
+            itemsSource(JSON.parse(data).map(function (company) {
                 // money formatter
                 company.LastSale = moneyFormatter(company.LastSale);
                 company.MarketCap = moneyFormatter(company.MarketCap);
