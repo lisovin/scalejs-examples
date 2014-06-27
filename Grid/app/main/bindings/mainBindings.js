@@ -9,7 +9,8 @@ define({
                 enableColumnReorder: false,
                 forceFitColumns: true,
                 rowHeight: 40,
-                showHeaderRow: true
+                showHeaderRow: true,
+                sorting: true
             }
         };
     }

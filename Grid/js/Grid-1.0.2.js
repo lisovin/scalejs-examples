@@ -23580,7 +23580,6 @@ define('app/main/viewmodels/mainViewModel',[
 
     return function () {
         var // imports
-            range = sandbox.linq.enumerable.range,
             observableArray = sandbox.mvvm.observableArray,
             ajaxGet = sandbox.ajax.jsonpGet,
             // vars
@@ -23710,10 +23709,7 @@ define('app/main/bindings/mainBindings',{
                 enableColumnReorder: false,
                 forceFitColumns: true,
                 rowHeight: 40,
-                showHeaderRow: true,
-                plugins: {
-                    'observableFilters': {}
-                }
+                showHeaderRow: true
             }
         };
     }

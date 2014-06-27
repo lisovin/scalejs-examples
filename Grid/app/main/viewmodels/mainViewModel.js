@@ -26,6 +26,11 @@ define([
             { id: "Sector", field: "Sector", name: "Sector", minWidth: 150, filter: { type: 'string' } },
             { id: "Industry", field: "industry", name: "Industry", minWidth: 350, filter: { type: 'string', quickFilterOp: 'Contains' } }];
 
+
+        columns.forEach(function (c) {
+            c.sortable = true;
+        });
+        console.log(columns);
         ajaxGet('./companylist.txt', {}).subscribe(function (data) {
             itemsSource(JSON.parse(data).map(function (company) {
                 // money formatter

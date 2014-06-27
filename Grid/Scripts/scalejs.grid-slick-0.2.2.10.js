@@ -2,11 +2,11 @@
 /*global define*/
 /// <reference path="../Scripts/_references.js" />
 define('scalejs.grid-slick/observableDataview', [
-    //'scalejs!core',
+    'scalejs!core',
     'knockout',
     'slick.grid'
 ], function (
-    //core, 
+    core, 
     ko,
     Slick
 ) {
@@ -15,7 +15,8 @@ define('scalejs.grid-slick/observableDataview', [
 
 
     var isObservable = ko.isObservable,
-        computed = ko.computed;
+        computed = ko.computed,
+        has = core.object.has;
 
     return function (opts) {
         var onRowCountChanged = new Slick.Event(),
@@ -75,6 +76,7 @@ define('scalejs.grid-slick/observableDataview', [
                         newIndexes,
                         deletedIndexes;
 
+                    newItems = newItems.filter(function (item) { return has(item); });
                     oldIndexes = Object.keys(items).map(function (key) { return parseInt(key, 10); });
                     newIndexes = newItems.map(function (newItem) { return newItem.index; });
 
@@ -122,7 +124,7 @@ define('scalejs.grid-slick/observableDataview', [
     };
 });
 
-define('text!scalejs.grid-slick/filters/filters.html', [], function () { return '<div id="number_filter_template">\r\n    <div data-bind="css: { iconArrowLeft: !flipped(), iconArrowRight: flipped }"></div> \r\n        <div class="numberFilter">\r\n            Select Value: \r\n               <div>Quick Search: <input data-bind="value: quickSearch, valueUpdate: \'afterkeydown\'" /></div> \r\n               <div class="listFilterBox">\r\n                   <div data-bind="visible: loading" style="width:100%;height:200px;background:black;opacity:.2;position:absolute"></div> \r\n                    <div>\r\n                        <input type="checkbox" data-bind="checked: all" /> \r\n                        <span>Select All</span> \r\n                    </div> \r\n                    <!-- ko foreach: options --> \r\n                    <div>\r\n                        <input type="checkbox" data-bind="checked: selected" /> \r\n                        <span data-bind="text: value"></span> \r\n                    </div> \r\n                    <!-- /ko --> \r\n               </div> \r\n               Show rows with values that: \r\n            <div class="numberFilterBox">\r\n                <div> \r\n                <input type="checkbox" data-bind="checked: notEmpty" />\r\n                <span>Are Not Empty</span> \r\n                </div>\r\n                <div>and</div> \r\n                <div>\r\n                    <select data-bind="value: comparisonA">\r\n                        <option value="EqualTo">Is Equal To</option> \r\n                        <option value="LessThan">Is Less Than</option> \r\n                        <option value="NotEqualTo">Is Not Equal To</option> \r\n                        <option value="GreaterThan">Is Greater Than</option>         \r\n                    </select>\r\n                </div> \r\n                <input type="text" data-bind="value: valueA, valueUpdate: \'afterkeydown\'" /> \r\n                <div>and</div> \r\n                <div>\r\n                    <select data-bind="value: comparisonB">\r\n                        <option value="EqualTo">Is Equal To</option> \r\n                        <option value="LessThan">Is Less Than</option>\r\n                        <option value="NotEqualTo">Is Not Equal To</option>\r\n                        <option value="GreaterThan">Is Greater Than</option> \r\n                    </select>\r\n                </div> \r\n                <input type="text" data-bind="value: valueB, valueUpdate: \'afterkeydown\'" /> \r\n            </div> \r\n    </div>  \r\n</div> \r\n \r\n<div id="string_filter_template">\r\n    <div data-bind="css: { iconArrowLeft: !flipped(), iconArrowRight: flipped }"></div> \r\n    <div class="numberFilter">\r\n        Select Value: \r\n        <div>Quick Search:  <input data-bind="value: quickSearch, valueUpdate: \'afterkeydown\'" /></div> \r\n        <div class="listFilterBox">\r\n            <div data-bind="visible: loading" style="width:100%;height:200px;background:black;opacity:.2;position:absolute"></div> \r\n            <div>\r\n                <input type="checkbox" data-bind="checked: all" /> \r\n                <span>Select All</span> \r\n            </div> \r\n            <!-- ko foreach: options --> \r\n            <div>\r\n                <input type="checkbox" data-bind="checked: selected" /> \r\n                <span data-bind="text: value"></span> \r\n            </div> \r\n            <!-- /ko --> \r\n        </div> \r\n        Show rows with values that: \r\n        <div class="numberFilterBox">\r\n            <div>\r\n                <input type="checkbox" data-bind="checked: notEmpty" />\r\n                <span>Are Not Empty</span> \r\n            </div>\r\n            <div>and</div> \r\n            <div>\r\n                <select data-bind="value: comparisonA">\r\n                    <option value="Contains">Contains</option> \r\n                    <option value="StartsWith">Starts With</option> \r\n                    <option value="EndsWith">Ends</option>  \r\n                </select>\r\n            </div> \r\n            <input type="text" data-bind="value: valueA, valueUpdate: \'afterkeydown\'" /> \r\n            <div>and</div> \r\n            <div>\r\n                <select data-bind="value: comparisonB">\r\n                    <option value="Contains">Contains</option> \r\n                    <option value="StartsWith">Starts With</option>\r\n                    <option value="EndsWith">Ends</option>\r\n                </select>\r\n            </div> \r\n            <input type="text" data-bind="value: valueB, valueUpdate: \'afterkeydown\'" />\r\n        </div> \r\n    </div>  \r\n</div>  \r\n\r\n'; });
+define('text!scalejs.grid-slick/filters/filters.html', [], function () { return '<div id="number_filter_template">\r\n    <div data-bind="css: { iconArrowLeft: !flipped(), iconArrowRight: flipped }"></div> \r\n        <div class="numberFilter">\r\n            Select Value: \r\n               <div>Quick Search: <input data-bind="value: quickSearch, valueUpdate: \'afterkeydown\'" /></div> \r\n               <div class="listFilterBox">\r\n                   <div data-bind="visible: loading" style="width:100%;height:200px;background:black;opacity:.4;position:absolute"></div> \r\n                    <div>\r\n                        <input type="checkbox" data-bind="checked: all" /> \r\n                        <span>Select All</span> \r\n                    </div> \r\n                    <!-- ko foreach: options --> \r\n                    <div>\r\n                        <input type="checkbox" data-bind="checked: selected" /> \r\n                        <span data-bind="text: value"></span> \r\n                    </div> \r\n                    <!-- /ko --> \r\n               </div> \r\n               Show rows with values that: \r\n            <div class="numberFilterBox">\r\n                <div> \r\n                <input type="checkbox" data-bind="checked: notEmpty" />\r\n                <span>Are Not Empty</span> \r\n                </div>\r\n                <div>and</div> \r\n                <div>\r\n                    <select data-bind="value: comparisonA">\r\n                        <option value="EqualTo">Is Equal To</option> \r\n                        <option value="LessThan">Is Less Than</option> \r\n                        <option value="NotEqualTo">Is Not Equal To</option> \r\n                        <option value="GreaterThan">Is Greater Than</option>         \r\n                    </select>\r\n                </div> \r\n                <input type="text" data-bind="value: valueA, valueUpdate: \'afterkeydown\'" /> \r\n                <div>and</div> \r\n                <div>\r\n                    <select data-bind="value: comparisonB">\r\n                        <option value="EqualTo">Is Equal To</option> \r\n                        <option value="LessThan">Is Less Than</option>\r\n                        <option value="NotEqualTo">Is Not Equal To</option>\r\n                        <option value="GreaterThan">Is Greater Than</option> \r\n                    </select>\r\n                </div> \r\n                <input type="text" data-bind="value: valueB, valueUpdate: \'afterkeydown\'" /> \r\n            </div> \r\n    </div>  \r\n</div> \r\n \r\n<div id="string_filter_template">\r\n    <div data-bind="css: { iconArrowLeft: !flipped(), iconArrowRight: flipped }"></div> \r\n    <div class="numberFilter">\r\n        Select Value: \r\n        <div>Quick Search:  <input data-bind="value: quickSearch, valueUpdate: \'afterkeydown\'" /></div> \r\n        <div class="listFilterBox">\r\n            <div data-bind="visible: loading" style="width:100%;height:200px;background:black;opacity:.4;position:absolute"></div> \r\n            <div>\r\n                <input type="checkbox" data-bind="checked: all" /> \r\n                <span>Select All</span> \r\n            </div> \r\n            <!-- ko foreach: options --> \r\n            <div>\r\n                <input type="checkbox" data-bind="checked: selected" /> \r\n                <span data-bind="text: value"></span> \r\n            </div> \r\n            <!-- /ko --> \r\n        </div> \r\n        Show rows with values that: \r\n        <div class="numberFilterBox">\r\n            <div>\r\n                <input type="checkbox" data-bind="checked: notEmpty" />\r\n                <span>Are Not Empty</span> \r\n            </div>\r\n            <div>and</div> \r\n            <div>\r\n                <select data-bind="value: comparisonA">\r\n                    <option value="Contains">Contains</option> \r\n                    <option value="StartsWith">Starts With</option> \r\n                    <option value="EndsWith">Ends</option>  \r\n                </select>\r\n            </div> \r\n            <input type="text" data-bind="value: valueA, valueUpdate: \'afterkeydown\'" /> \r\n            <div>and</div> \r\n            <div>\r\n                <select data-bind="value: comparisonB">\r\n                    <option value="Contains">Contains</option> \r\n                    <option value="StartsWith">Starts With</option>\r\n                    <option value="EndsWith">Ends</option>\r\n                </select>\r\n            </div> \r\n            <input type="text" data-bind="value: valueB, valueUpdate: \'afterkeydown\'" />\r\n        </div> \r\n    </div>  \r\n</div>  \r\n\r\n'; });
 
 /*global define, console*/
 /// <reference path="../Scripts/_references.js" />
@@ -547,6 +549,14 @@ define('scalejs.grid-slick/filters/observableFilters', [
                            onEntry(function () {
                                //move open logic here
 
+                               loading(true);
+
+                               //wait for list to load 
+                               var loadingSub = listItems.subscribe(function () {
+                                   loading(false);
+                                   loadingSub.dispose();
+                               });
+
                                // Initialize list:
                                quickSearch.valueHasMutated();
                            }),
@@ -895,7 +905,7 @@ define('scalejs.grid-slick/sorting/observableSorting', [
 ) {
     'use strict;'
     /// <param name="ko" value="window.ko" />
-    return function observableSorting(sortableColumns) {
+    return function observableSorting(sorting) {
         function init(grid) {
 
             // on grid sort, update sorting fields in the columns
@@ -903,23 +913,22 @@ define('scalejs.grid-slick/sorting/observableSorting', [
                 var sort = args.multiColumnSort ? args.sortCols : [args];
 
                 sort = sort.reduce(function (sortObj, arg) {
-                    sortObj[arg.sortCol.field] = arg.sortAsc === true ? 'asc' : 'dsc';
+                    sortObj[arg.sortCol.field] = arg.sortAsc;
                     return sortObj;
                 }, {});
 
-                sortableColumns.forEach(function (c) {
-                    c.sort(sort[c.field]);
-                });
+                sorting(sort);
             });
 
             // when sorting changes, set the sort columns on the grid
             ko.computed(function () {
-                var sortCols = sortableColumns.reduce(function (acc, c) {
-                    if (c.sort()) {
-                        acc.push({ columnId: c.field, sortAsc: c.sort() === 'asc' });
+                if (sorting() === undefined) return;
+                var sortCols = Object.keys(sorting()).map(function (id) {
+                    return {
+                        columnId: id,
+                        sortAsc: sorting()[id]
                     }
-                    return acc;
-                }, []);
+                });
                 grid.setSortColumns(sortCols);
             });
         }
@@ -945,8 +954,9 @@ define('scalejs.grid-slick/sorting/defaultSorting', [
     var has = core.object.has,
         computed = ko.computed;
 
-    return function (sortableColumns, itemsSource) {
+    return function (sorting, sortableColumns, itemsSource) {
         var sortedItemsSource,
+            defaultSort,
             sortBy;
 
         function lower(x) {
@@ -992,23 +1002,15 @@ define('scalejs.grid-slick/sorting/defaultSorting', [
             return items;
         }
 
-        // sets up observables for each sortable column
-        sortableColumns.forEach(function (c) {
-            c.sort = ko.observable(typeof c.sort === 'string' ? c.sort : undefined);
-        });
-
-        // determines how to sort the columns based on their sorting property
-        sortBy = computed(function () {
-            return sortableColumns.reduce(function (args, c) {
-                if (c.sort()) {
-                    args.push({ column: c.field, sortAsc: c.sort() === 'asc' });
-                }
-                return args;
-            }, [])
-        });
-
         sortedItemsSource = ko.computed(function () {
-            orderedItems = sortItems(itemsSource(), sortBy());
+            if (sorting() === undefined) return itemsSource();
+            var sortCols = Object.keys(sorting()).map(function (id) {
+                return {
+                    column: id,
+                    sortAsc: sorting()[id]
+                }
+            });
+            orderedItems = sortItems(itemsSource(), sortCols);
             return orderedItems;
         });
 
@@ -1188,28 +1190,30 @@ define('scalejs.grid-slick/slickGrid', [
                 filteredItemsSource = itemsSource;
             }
 
+            // add the filters to the plugins to be initialized later
             plugins.push(observableFilters());
 
             return filteredItemsSource;
         }
 
         function setupSorting(itemsSource) {
-            var sortableColumns = options.columns.filter(function (c) {
-                return c.sort ? c.sortable = true : false;
-            }),
-                sortedItemsSource;
+            var sorting = options.sorting,
+                sortableColumns = columns.filter(function (c) { return c.sortable; }),
+                sortedItemsSource
 
-            // if there are no sortable columns, no need to set up sorting
-            if (sortableColumns.length === 0) return itemsSource;
+            // if sorting is undefined, we dont need to set up sorting
+            if (sorting === undefined) return itemsSource;
 
-            // if any sorting isnt observable, we need to make it
-            if (sortableColumns.some(function (c) { return !ko.isObservable(c.sort); })) {
-                sortedItemsSource = defaultSorting(sortableColumns, itemsSource);
-            } else {
+            // if custom sort is enabled, we don't need to make our own sortedItemsSource
+            if (options.customSort) {
                 sortedItemsSource = itemsSource;
+            } else {
+                sorting = isObservable(options.sorting) ? options.sorting : observable();
+                sortedItemsSource = defaultSorting(sorting, sortableColumns, itemsSource);
             }
 
-            plugins.push(observableSorting(sortableColumns));
+            // add the sorting to the plugins to be initialized later
+            plugins.push(observableSorting(sorting));
 
             return sortedItemsSource;
         }
@@ -1232,6 +1236,7 @@ define('scalejs.grid-slick/slickGrid', [
             return indexedItemsSource;
         }
 
+        // when default filtering/sorting/vitualization is enabled, we need to create our own items source
         function createInternalItemsSource() {
             internalItemsSource = options.itemsSource;
             internalItemsSource = setupSorting(internalItemsSource);
