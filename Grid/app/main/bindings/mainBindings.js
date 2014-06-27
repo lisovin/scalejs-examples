@@ -10,7 +10,8 @@ define({
                 forceFitColumns: true,
                 rowHeight: 40,
                 showHeaderRow: true,
-                sorting: true
+                sorting: this.sorting,
+                multiColumnSort: true
             }
         };
     }

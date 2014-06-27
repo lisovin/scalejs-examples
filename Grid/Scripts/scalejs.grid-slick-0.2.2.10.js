@@ -6,7 +6,7 @@ define('scalejs.grid-slick/observableDataview', [
     'knockout',
     'slick.grid'
 ], function (
-    core, 
+    core,
     ko,
     Slick
 ) {

@@ -9,10 +9,12 @@ define([
     return function () {
         var // imports
             observableArray = sandbox.mvvm.observableArray,
+            observable = sandbox.mvvm.observable,
             ajaxGet = sandbox.ajax.jsonpGet,
             // vars
             columns,
-            itemsSource = observableArray();
+            itemsSource = observableArray(),
+            sorting = observable({ Symbol: true });
 
         function moneyFormatter(m) {
             return parseFloat(m).toFixed(2);
@@ -30,7 +32,7 @@ define([
         columns.forEach(function (c) {
             c.sortable = true;
         });
-        console.log(columns);
+
         ajaxGet('./companylist.txt', {}).subscribe(function (data) {
             itemsSource(JSON.parse(data).map(function (company) {
                 // money formatter
@@ -42,7 +44,8 @@ define([
 
         return {
             columns: columns,
-            itemsSource: itemsSource
+            itemsSource: itemsSource,
+            sorting: sorting
         };
     };
 });
