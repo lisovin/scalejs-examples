@@ -1,0 +1,39 @@
+﻿<div id="main_template">
+    <label>
+        Basic strings to be filtered by select2<br />
+        <input data-class="auto" class="select2" style="width: 400px">
+    </label>
+    <span data-bind="text: selectedItem1"></span>
+    <br /><br />
+    <label>
+        Viewmodel Filtering<br />
+        <input data-class="auto1" class="select2" style="width: 400px">
+    </label>
+    <span data-bind="text: selectedItem2"></span>
+    <span data-bind="text: userInput2"></span>
+    <br /><br />
+    <label>
+        Templating<br />
+        <input data-class="auto2" class="select2" style="width: 400px">
+    </label>
+    <span data-bind="text: selectedItem3"></span>
+    <span data-bind="text: userInput3"></span>
+    <br /><br />
+    <label>
+        Grouping<br />
+        <input data-class="grouping" class="select2" style="width: 400px">
+    </label>
+    <span data-bind="text: selectedItem4"></span>
+    <span data-bind="text: userInput4"></span>
+    <br /><br />
+    <label>
+        flare<br />
+        <input data-class="flare" class="select2" style="width: 400px">
+    </label>
+    <span data-bind="text: selectedItem5"></span>
+    <span data-bind="text: userInput5"></span>
+</div>
+
+<div id="autocomplete_item_template">
+    <b><span data-bind="text: $data + 1"></span></b>
+</div>
