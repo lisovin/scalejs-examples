@@ -1,0 +1,42 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.30501.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "scalejs.highstock", "scalejs.highstock\scalejs.highstock.csproj", "{CBB3D24D-A50D-45B2-9F11-0907BF96DF42}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{1DC9EED1-B2B3-452B-9414-1C6F5FE5D4B8}"
+	ProjectSection(SolutionItems) = preProject
+		JSLintOptions.xml = JSLintOptions.xml
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "scalejs.highstock.test", "scalejs.highstock.test\scalejs.highstock.test.csproj", "{7D9BBE50-A33C-4A0C-B660-9512BDCC9951}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Highstock", "Highstock\Highstock.csproj", "{CA3C7CB2-FE62-48FD-ADB0-D7039C8D0650}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{CBB3D24D-A50D-45B2-9F11-0907BF96DF42}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CBB3D24D-A50D-45B2-9F11-0907BF96DF42}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CBB3D24D-A50D-45B2-9F11-0907BF96DF42}.Release|Any CPU.ActiveCfg = Debug|Any CPU
+		{CBB3D24D-A50D-45B2-9F11-0907BF96DF42}.Release|Any CPU.Build.0 = Debug|Any CPU
+		{7D9BBE50-A33C-4A0C-B660-9512BDCC9951}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7D9BBE50-A33C-4A0C-B660-9512BDCC9951}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7D9BBE50-A33C-4A0C-B660-9512BDCC9951}.Release|Any CPU.ActiveCfg = Debug|Any CPU
+		{7D9BBE50-A33C-4A0C-B660-9512BDCC9951}.Release|Any CPU.Build.0 = Debug|Any CPU
+		{CA3C7CB2-FE62-48FD-ADB0-D7039C8D0650}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CA3C7CB2-FE62-48FD-ADB0-D7039C8D0650}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CA3C7CB2-FE62-48FD-ADB0-D7039C8D0650}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CA3C7CB2-FE62-48FD-ADB0-D7039C8D0650}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(JSLint) = preSolution
+		SolutionConfigurationLocation = JSLintOptions.xml
+	EndGlobalSection
+EndGlobal
