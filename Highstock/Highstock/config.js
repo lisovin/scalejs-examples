@@ -1,7 +1,6 @@
 var require = {
     "baseUrl":  ".",
     "paths":  {
-        "bindings":  "Scripts/scalejs.mvvm.bindings",
         "formdata":  "Scripts/formdata",
         "highstock":  "Scripts/highstock.src",
         "jQuery":  "Scripts/jquery-1.9.1.min",
@@ -16,7 +15,6 @@ var require = {
         "rx.experimental":  "Scripts/rx.experimental",
         "rx.joinpatterns":  "Scripts/rx.joinpatterns",
         "rx.time":  "Scripts/rx.time",
-        "sandbox":  "Scripts/scalejs.sandbox",
         "scalejs":  "Scripts/scalejs-0.3.0.1",
         "scalejs.ajax-jquery":  "Scripts/scalejs.ajax-jquery-0.3.0.0",
         "scalejs.functional":  "Scripts/scalejs.functional-0.2.9.8",
@@ -26,17 +24,14 @@ var require = {
         "scalejs.reactive":  "Scripts/scalejs.reactive-2.1.20.1",
         "scalejs.statechart-scion":  "Scripts/scalejs.statechart-scion-0.3.0.0",
         "scion":  "Scripts/scion",
-        "text":  "Scripts/text",
-        "views":  "Scripts/scalejs.mvvm.views"
+        "text":  "Scripts/text"
     },
     "scalejs":  {
         "extensions":  [
             "scalejs.ajax-jquery",
             "scalejs.functional",
-            "scalejs.functional",
             "scalejs.highstock",
             "scalejs.linq-linqjs",
-            "scalejs.mvvm",
             "scalejs.mvvm",
             "scalejs.reactive",
             "scalejs.statechart-scion"

@@ -28667,7 +28667,6 @@ define("highstock", ["jQuery"], (function (global) {
 	};
 }));
 
-
 /*global define,console*/
 define('scalejs.highstock/highstock',[
     'scalejs!core',
@@ -28801,6 +28800,7 @@ define('scalejs.highstock',[
 
     ko.bindingHandlers.highstock = highstock;
 });
+
 
 
 /*--------------------------------------------------------------------------

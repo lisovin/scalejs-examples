@@ -1,9 +1,2 @@
 
-/scalejs.highstock/build
-/scalejs.highstock/obj
-/scalejs.highstock.test/build
-/scalejs.highstock.test/obj
-/packages
 *.suo
-/TestResults
-/.nuget/nuget.exe
