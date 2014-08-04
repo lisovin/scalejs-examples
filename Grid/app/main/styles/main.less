@@ -1,4 +1,30 @@
-﻿.main {
+﻿@headerBackgroundColor: #121212; 
+@headerHeight: 40px;
+@headerFontSize: 18px;
+@headerLineHeight: 30px;
+@headerFontWeight: bold;
+@headerBorder: 0px;
+@headerTextAlign: center;
+
+@rowColor: #808080;
+@rowEvenBackgroundColor: #121212; 
+@rowFontSize: 16px;
+@rowLineHeight: 40px;
+
+
+@cellBorder: 0px;
+@cellPadding: 0px 8px;
+
+@headerRowBorder: 0px;
+@headerRowPadding: 0px;
+@headerRowInputColor: white;
+@headerRowInputBorder: 1px solid #444;
+@headerRowInputBackgroundColor: transparent;
+@headerRowInputFocusOutlineColor: orange;
+
+@scrollbarTrackPieceBackgroundColor: #1b1b1b;
+@scrollbarTrackPieceColor: #808080;
+.main {
     &.grid {
         height: 100%;
         background-color: #1b1b1b;
@@ -10,49 +36,49 @@
          }
          /* Grid Styles */
          .slick-header-columns {
-             height:40px;
-             background-color: #121212; 
+             height: @headerHeight;
+             background-color: @headerBackgroundColor;
 
          }
         .slick-header-column.ui-state-default {
-            font-size: 18px;
-            line-height: 30px;
-            font-weight: bold;
+            font-size: @headerFontSize;
+            line-height: @headerLineHeight;
+            font-weight: @headerFontWeight;
             font-style: normal;
-            height:40px;
-            border: 0px;
-            text-align: center;
+            height: @headerHeight;
+            border: @headerBorder;
+            text-align: @headerTextAlign;
         }
 
         .slick-row.ui-widget-content, .slick-row.ui-state-active {
-            font-size: 16px;
-            line-height: 40px;            
-            color: #808080;
+            font-size: @rowFontSize;
+            line-height: @rowLineHeight;         
+            color: @rowColor;
         }
 
         .slick-cell {
-            border: 0px;
-            padding: 0px 8px;
+            border: @cellBorder;
+            padding: @cellPadding;
         }
 
         .slick-row.even {   
-            background-color: #121212; 
+            background-color: @rowEvenBackgroundColor;
 
         }
 
         .slick-headerrow-column {
-            border: 0px;
-            padding: 0px;                
+            border: @headerRowBorder;
+            padding: @headerRowPadding;             
 
             input {
                 width: 100%;
                 height: 100%;
-                color: white;
-                border: 1px solid #444;
-                background-color: transparent;
+                color: @headerRowInputColor;
+                border: @headerRowInputBorder;
+                background-color: @headerRowInputBackgroundColor;
             }
             input:focus {
-                outline-color: orange;
+                outline-color: @headerRowInputFocusOutlineColor;
             }
         }
 
@@ -80,10 +106,10 @@
             cursor: pointer;
         }
 
-        /* sorting styles */
-        .slick-sort-indicator {
-            float: none;
-        }
+        /* sorting styles */ 
+        .slick-sort-indicator { 
+            float: none; 
+        } 
 
         /* Scrollbar Styles*/
         ::-webkit-scrollbar {
@@ -92,20 +118,20 @@
         }
 
         ::-webkit-scrollbar-track-piece  {
-             background-color: #1b1b1b;
+             background-color: @scrollbarTrackPieceBackgroundColor;
         }
 
         ::-webkit-scrollbar-thumb:vertical {
             height: 50px;
-            background-color: #808080;
+            background-color: @scrollbarTrackPieceColor;
         }
 
         ::-webkit-scrollbar-thumb:horizontal {
             width: 50px;
-            background-color: #808080;
+            background-color: @scrollbarTrackPieceColor;
         }
         ::-webkit-scrollbar-corner {
-             background-color: #1b1b1b;
+             background-color: @scrollbarTrackPieceBackgroundColor;
         }
     }
 }
@@ -173,6 +199,10 @@
     margin: 5px;
     height: 200px;
     overflow-y: auto;
+    overflow-x: auto;
+    div {
+        white-space: nowrap;
+    }
 }
 
 

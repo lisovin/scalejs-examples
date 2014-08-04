@@ -10,11 +10,8 @@ define({
                 forceFitColumns: true,
                 rowHeight: 40,
                 showHeaderRow: true,
-                sorting: true,
-                multiColumnSort: true,
-                plugins: {
-                    'observableFilters': {}
-                }
+                sorting: this.sorting,
+                multiColumnSort: true
             }
         };
     }
