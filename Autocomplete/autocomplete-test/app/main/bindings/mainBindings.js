@@ -43,7 +43,8 @@ define({
         return {
             autocomplete: {
                 select2: {
-                    placeholder: 'Grouping'
+                    placeholder: 'Grouping',
+                    allowClear: true
                 },
                 itemsSource: this.groupedNames,
                 queryText: this.userInput4,
@@ -58,7 +59,8 @@ define({
         return {
             autocomplete: {
                 select2: {
-                    placeholder: 'flare.js'
+                    placeholder: 'flare.js',
+                    allowClear: true
                 },
                 itemsSource: this.flareData,
                 textPath: 'name',

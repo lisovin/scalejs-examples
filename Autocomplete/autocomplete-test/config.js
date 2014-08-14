@@ -20,7 +20,7 @@ var require = {
         "normalize":  "Scripts/normalize",
         "sandbox":  "Scripts/scalejs.sandbox",
         "scalejs":  "Scripts/scalejs-0.3.3",
-        "scalejs.autocomplete-select2":  "Scripts/scalejs.autocomplete-select2-0.1.1.4",
+        "scalejs.autocomplete-select2":  "Scripts/scalejs.autocomplete-select2-0.1.2.6",
         "scalejs.functional":  "Scripts/scalejs.functional-0.2.9.8",
         "scalejs.linq-linqjs":  "Scripts/scalejs.linq-linqjs-3.0.3.1",
         "scalejs.mvvm":  "Scripts/scalejs.mvvm-0.3.4.4",

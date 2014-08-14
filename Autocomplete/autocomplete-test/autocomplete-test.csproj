@@ -48,8 +48,6 @@
     <Content Include="Scripts\require.js" />
     <Content Include="Scripts\scalejs-0.3.3.js" />
     <Content Include="Scripts\scalejs-0.3.3.min.js" />
-    <Content Include="Scripts\scalejs.autocomplete-select2-0.1.1.4.js" />
-    <Content Include="Scripts\scalejs.autocomplete-select2-0.1.1.4.min.js" />
     <Content Include="Scripts\scalejs.functional-0.2.9.8.js" />
     <Content Include="Scripts\scalejs.functional-0.2.9.8.min.js" />
     <Content Include="Scripts\scalejs.linq-linqjs-3.0.3.1.js" />

@@ -14356,7 +14356,6 @@ define('app/main/viewmodels/mainViewModel',[
             userInput4: userInput4,
             userInput5: userInput5,
             itemsSource: itemsSource,
-            userInput: userInput,
             itemsToShow: itemsToShow,
             namesObservable: namesObservable,
             groupedNames: groupedNames,
@@ -14788,7 +14787,7 @@ define('text',['module'], function (module) {
     return text;
 });
 
-define('text!app/main/views/main.html',[],function () { return '<div id="main_template">\n    <label>\r\n        Basic strings to be filtered by select2<br />\r\n        <input data-class="auto" class="select2" style="width: 400px">\r\n    </label>\n    <span data-bind="text: selectedItem"></span>\n    <br /><br />\n    <label>\r\n        Viewmodel Filtering<br />\r\n        <input data-class="auto1" class="select2" style="width: 400px">\r\n    </label>\r\n    <span data-bind="text: selectedItem2"></span>\r\n    <span data-bind="text: userInput2"></span>\n    <br /><br />\r\n    <label>\r\n        Templating<br />\r\n        <input data-class="auto2" class="select2" style="width: 400px">\r\n    </label>\r\n    <span data-bind="text: selectedItem3"></span>\r\n    <span data-bind="text: userInput3"></span>\n    <br /><br />\r\n    <label>\r\n        Grouping<br />\r\n        <input data-class="grouping" class="select2" style="width: 400px">\r\n    </label>\r\n    <span data-bind="text: selectedItem4"></span>\r\n    <span data-bind="text: userInput4"></span>\n    <br /><br />\r\n    <label>\r\n        flare<br />\r\n        <input data-class="flare" class="select2" style="width: 400px">\r\n    </label>\r\n    <span data-bind="text: selectedItem5"></span>\n    <span data-bind="text: userInput5"></span>\n</div>\n\n<div id="autocomplete_item_template">\r\n    <b><span data-bind="text: $data + 1"></span></b>\r\n</div>';});
+define('text!app/main/views/main.html',[],function () { return '<div id="main_template">\r\n    <label>\r\n        Basic strings to be filtered by select2<br />\r\n        <input data-class="auto" class="select2" style="width: 400px">\r\n    </label>\r\n    <span data-bind="text: selectedItem1"></span>\r\n    <br /><br />\r\n    <label>\r\n        Viewmodel Filtering<br />\r\n        <input data-class="auto1" class="select2" style="width: 400px">\r\n    </label>\r\n    <span data-bind="text: selectedItem2"></span>\r\n    <span data-bind="text: userInput2"></span>\r\n    <br /><br />\r\n    <label>\r\n        Templating<br />\r\n        <input data-class="auto2" class="select2" style="width: 400px">\r\n    </label>\r\n    <span data-bind="text: selectedItem3"></span>\r\n    <span data-bind="text: userInput3"></span>\r\n    <br /><br />\r\n    <label>\r\n        Grouping<br />\r\n        <input data-class="grouping" class="select2" style="width: 400px">\r\n    </label>\r\n    <span data-bind="text: selectedItem4"></span>\r\n    <span data-bind="text: userInput4"></span>\r\n    <br /><br />\r\n    <label>\r\n        flare<br />\r\n        <input data-class="flare" class="select2" style="width: 400px">\r\n    </label>\r\n    <span data-bind="text: selectedItem5"></span>\r\n    <span data-bind="text: userInput5"></span>\r\n</div>\r\n\r\n<div id="autocomplete_item_template">\r\n    <b><span data-bind="text: $data + 1"></span></b>\r\n</div>';});
 
 
 /*global define*/
@@ -14898,7 +14897,7 @@ define('app/main/bindings/mainBindings',{
                 idPath: 'name',
                 childPath: 'children',
                 selectedItem: this.selectedItem5,
-                queryText: userInput5,
+                queryText: this.userInput5,
                 selectGroupNodes: true
 
             }
