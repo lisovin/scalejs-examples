@@ -27,7 +27,7 @@ define([
                             ]
                         },
                         {
-                            name: "Team 2",
+                            name: "Team Awesome",
                             members: [
                                 { id: 'Terrence' },
                                 { id: 'Jose' }
