@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <ProjectGuid>{9FF93751-8319-4405-875D-70D51BAA8927}</ProjectGuid>
+    <ProjectGuid>{4D974426-6D33-4E53-83EB-DD3F9964E8C0}</ProjectGuid>
     <OutputType>Library</OutputType>
     <OutputPath>js</OutputPath>
     <JSLintSkip>\Scripts\|\js\</JSLintSkip>
@@ -11,14 +11,15 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <StartAction>Program</StartAction>
     <StartProgram>C:\Program Files (x86)\IIS Express\iisexpress.exe</StartProgram>
-    <StartArguments>/site:autocomplete-test</StartArguments>
+    <StartArguments>/site:vega-example</StartArguments>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <StartProgram>C:\Program Files (x86)\IIS Express\iisexpress.exe</StartProgram>
-    <StartArguments>/site:autocomplete-test</StartArguments>
+    <StartArguments>/site:vega-example</StartArguments>
   </PropertyGroup>
   <ItemGroup>
     <Content Include="app\main\models\flare.js" />
+    <Content Include="app\main\models\half-flare.js" />
     <Content Include="css\jasmine.css" />
     <Content Include="README.txt" />
     <Content Include="index.debug.html" />
@@ -28,11 +29,6 @@
     <Content Include="Scripts\almond.js" />
     <Content Include="Scripts\jasmine-html.js" />
     <Content Include="Scripts\jasmine.js" />
-    <Content Include="Scripts\jquery-1.9.1.intellisense.js" />
-    <Content Include="Scripts\jquery-1.9.1.js" />
-    <Content Include="Scripts\jquery-1.9.1.min.js" />
-    <Content Include="Scripts\jquery-migrate-1.1.1.js" />
-    <Content Include="Scripts\jquery-migrate-1.1.1.min.js" />
     <Content Include="Scripts\knockout-3.0.0.debug.js" />
     <Content Include="Scripts\knockout-3.0.0.js" />
     <Content Include="Scripts\knockout.mapping-latest.debug.js" />
@@ -48,8 +44,6 @@
     <Content Include="Scripts\require.js" />
     <Content Include="Scripts\scalejs-0.3.3.js" />
     <Content Include="Scripts\scalejs-0.3.3.min.js" />
-    <Content Include="Scripts\scalejs.autocomplete-select2-0.1.2.6.js" />
-    <Content Include="Scripts\scalejs.autocomplete-select2-0.1.2.6.min.js" />
     <Content Include="Scripts\scalejs.functional-0.2.9.8.js" />
     <Content Include="Scripts\scalejs.functional-0.2.9.8.min.js" />
     <Content Include="Scripts\scalejs.linq-linqjs-3.0.3.1.js" />
@@ -62,6 +56,8 @@
     <Content Include="Scripts\scalejs.statechart-scion-0.3.0.0.js" />
     <Content Include="Scripts\scalejs.statechart-scion-0.3.0.0.min.js" />
     <Content Include="Scripts\scalejs.styles.js" />
+    <Content Include="Scripts\scalejs.visualization-vega-0.1.0.109.js" />
+    <Content Include="Scripts\scalejs.visualization-vega-0.1.0.109.min.js" />
     <Content Include="Scripts\scion.js" />
     <Content Include="Scripts\text.js" />
     <Content Include="Scripts\_references.js" />
@@ -76,11 +72,10 @@
     <Content Include="test\mainViewModel.test.js" />
     <Content Include="config.js" />
     <Content Include="Properties\build.rjs" />
-    <Content Include="Properties\autocomplete-test.nuspec" />
+    <Content Include="Properties\vega-example.nuspec" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="Scripts\jquery-1.9.1.min.map" />
   </ItemGroup>
   <ItemGroup>
     <TypeScriptCompile Include="Scripts\linq.js.d.ts" />
@@ -89,7 +84,7 @@
     <ScalejsProjectType>Application</ScalejsProjectType>
   </PropertyGroup>
   <PropertyGroup>
-    <RootNamespace>autocomplete_test</RootNamespace>
+    <RootNamespace>vega_example</RootNamespace>
   </PropertyGroup>
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" />
   <Import Project="$(SolutionDir)\.scalejs\Scalejs.targets" />
